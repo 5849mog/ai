@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-serif: "Noto Serif SC", Georgia, serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Premium Terracotta Palette */
+  --color-brand-50: #fdf6f4;
+  --color-brand-100: #fbeee9;
+  --color-brand-200: #f7dcd1;
+  --color-brand-300: #eea990;
+  --color-brand-400: #df7557;
+  --color-brand-500: #c96442;
+  --color-brand-600: #b54f2f;
+  --color-brand-700: #963f25;
+  --color-brand-800: #7c3520;
+  --color-brand-900: #662f1e;
+}
+
+/* Custom Grained Backdrop Overlay */
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+}
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-slate-200);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-300);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-slate-700);
+}
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-600);
+}
+
+/* Glassmorphism panel styling */
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 245, 249, 0.6);
+}
+
+.glass-panel-dark {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+}
+
+/* Pulsing and micro-interactions */
+@keyframes status-breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+}
+
+.breathe-dot {
+  animation: status-breathe 2.4s ease-in-out infinite;
+}
+
+/* Line-by-line streaming caret animation */
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+.streaming-caret::after {
+  content: "▊";
+  color: var(--color-brand-500);
+  animation: cursor-blink 1s step-end infinite;
+  font-size: 0.9em;
+  margin-left: 2px;
+  vertical-align: middle;
+}
