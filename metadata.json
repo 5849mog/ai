@@ -1,0 +1,6 @@
+{
+  "name": "PrismTrans Pro · 棱镜译",
+  "description": "基于Prism多智体协商共识范式的高级翻译平台。整合信、达、雅等多路特色节点与交叉批判网络，支持大文件拖拽分析与全自主合议流。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
