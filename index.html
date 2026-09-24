@@ -2,16 +2,169 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>棱镜译 · PrismTrans Pro</title>
-    <!-- Premium Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f2ec" />
+    <meta name="description" content="在一张安静的棋盘上，和一套不断加深搜索的五子棋引擎对弈。" />
+    <title>五目 · Gomoku Studio</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body class="bg-slate-50 text-slate-900 selection:bg-rose-100 selection:text-rose-900">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="./" aria-label="五目主页">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="brand-copy">
+            <strong>五目</strong>
+            <span>GOMOKU STUDIO</span>
+          </span>
+        </a>
+        <div class="topbar-right">
+          <span class="top-note">LOCAL ENGINE <b></b> READY</span>
+          <span class="top-divider"></span>
+          <span class="rule-chip">自由规则 · 15 × 15</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="play-area">
+          <div class="intro">
+            <div class="eyebrow"><span class="eyebrow-line"></span> HUMAN VS ENGINE</div>
+            <div class="intro-row">
+              <div>
+                <h1>每一步，<em>都算数。</em></h1>
+                <p>一张棋盘，一套不断加深搜索的引擎。你执黑先行。</p>
+              </div>
+              <div class="round-number" aria-label="新的一局">
+                <span>ROUND</span>
+                <strong id="roundNumber">01</strong>
+              </div>
+            </div>
+          </div>
+
+          <section class="board-card" aria-label="五子棋对弈">
+            <div class="board-toolbar">
+              <div class="game-state">
+                <span class="state-indicator" id="stateIndicator"></span>
+                <div>
+                  <span class="state-kicker">对局状态</span>
+                  <strong id="stateText">轮到你落子</strong>
+                </div>
+              </div>
+              <div class="turn-chip" id="turnChip">
+                <span class="turn-stone black"></span>
+                <span>YOUR TURN</span>
+              </div>
+            </div>
+
+            <div class="board-wrap">
+              <div class="board-frame">
+                <svg id="boardSvg" class="board-svg" viewBox="0 0 620 620" role="img" aria-label="15乘15五子棋棋盘"></svg>
+              </div>
+            </div>
+
+            <div class="board-bottom">
+              <div class="board-caption"><span class="caption-dot"></span><span>落子后，棋盘会标出最近一步</span></div>
+              <div class="game-actions">
+                <button class="button button-quiet" id="undoButton" type="button" disabled>
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.2 5.5 3.8 8.9l3.4 3.4M4.2 8.9h7.1a4.5 4.5 0 0 1 0 9H9.8"/></svg>
+                  撤回一轮
+                </button>
+                <button class="button button-primary" id="restartButton" type="button">
+                  <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16.2 8A6.5 6.5 0 1 0 16 12M16.2 4.5V8h-3.5"/></svg>
+                  重新开局
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <div class="play-footnote">
+            <span class="footnote-icon">i</span>
+            <span>直接必胜与必挡在每个等级都会检查；更高等级会扩大搜索并投入更多思考时间。</span>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="panel-card engine-card">
+            <div class="card-heading">
+              <div>
+                <span class="section-label">ENGINE CONTROL</span>
+                <h2>选择对手</h2>
+              </div>
+              <span class="engine-glyph" aria-hidden="true">
+                <svg viewBox="0 0 30 30"><path d="M15 3.8v4.1m0 14.2v4.1M3.8 15h4.1m14.2 0h4.1M7.1 7.1 10 10m10 10 2.9 2.9m0-15.8L20 10M10 20l-2.9 2.9"/><circle cx="15" cy="15" r="5.7"/></svg>
+              </span>
+            </div>
+
+            <div class="level-title-row">
+              <div class="level-name-wrap">
+                <span class="level-number" id="levelNumber">01 / 12</span>
+                <strong id="levelName">初见</strong>
+              </div>
+              <span class="budget-badge" id="budgetBadge">24 ms+</span>
+            </div>
+            <label class="sr-only" for="levelRange">AI 难度等级</label>
+            <input id="levelRange" class="level-range" type="range" min="1" max="12" step="1" value="1" />
+            <div class="range-scale" aria-hidden="true"><span>轻松</span><span>深入</span><span>极限</span></div>
+            <p class="level-description" id="levelDescription">完整战术框架 · 短时搜索预算</p>
+
+            <div class="algorithm-stack">
+              <div class="stack-heading"><span>每档均启用</span><span class="stack-status"><b></b> ACTIVE</span></div>
+              <div class="stack-item"><span class="stack-check">✓</span><span>棋形与断点威胁评估</span><small>01</small></div>
+              <div class="stack-item"><span class="stack-check">✓</span><span>必胜 / 必挡战术检查</span><small>02</small></div>
+              <div class="stack-item"><span class="stack-check">✓</span><span>α-β 迭代加深搜索</span><small>03</small></div>
+              <div class="stack-item"><span class="stack-check">✓</span><span>着法排序与置换表</span><small>04</small></div>
+              <div class="stack-item"><span class="stack-check">✓</span><span>强制威胁延伸搜索</span><small>05</small></div>
+            </div>
+
+            <div class="all-levels-note">
+              <span class="note-mark">↗</span>
+              <span>等级递增只增加候选宽度、搜索深度与预算，不会关闭下层已有能力。</span>
+            </div>
+          </section>
+
+          <section class="panel-card analysis-card">
+            <div class="card-heading compact-heading">
+              <div>
+                <span class="section-label">THINKING TRACE</span>
+                <h2>引擎读数</h2>
+              </div>
+              <span class="trace-pulse" id="tracePulse"></span>
+            </div>
+            <div class="engine-message" id="engineMessage">等待第一步棋</div>
+            <div class="metrics-grid">
+              <div class="metric"><span>搜索深度</span><strong id="metricDepth">—<small> ply</small></strong></div>
+              <div class="metric"><span>评估节点</span><strong id="metricNodes">—</strong></div>
+              <div class="metric"><span>置换命中</span><strong id="metricHits">—</strong></div>
+              <div class="metric"><span>思考用时</span><strong id="metricTime">—<small> ms</small></strong></div>
+            </div>
+            <div class="nodes-bar"><span id="nodesBarFill"></span></div>
+            <div class="analysis-foot"><span>本机计算</span><span id="metricSpeed">不发送棋局数据</span></div>
+          </section>
+
+          <section class="panel-card history-card">
+            <div class="history-heading">
+              <div><span class="section-label">MOVE LOG</span><h2>最近落子</h2></div>
+              <span class="move-count" id="moveCount">0 手</span>
+            </div>
+            <div class="move-list" id="moveList">
+              <div class="empty-history"><span class="empty-cross">＋</span><span>等待开局</span></div>
+            </div>
+          </section>
+
+          <div class="side-note">
+            <span class="mini-logo">五</span>
+            <span>五目 <small>独立实现的对弈引擎</small></span>
+            <span class="version-label">v1.0</span>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="site-footer">
+        <span>GOMOKU STUDIO <b>·</b> 一局一局，向更深处计算</span>
+        <span class="footer-right">15 × 15 <i></i> FREESTYLE</span>
+      </footer>
+    </div>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>
-

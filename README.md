@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 五目 · Gomoku Studio
 
-# Run and deploy your AI Studio app
+一个轻量、可离线托管的五子棋对弈网页。玩家执黑先手，AI 执白。棋局和搜索都在浏览器本机运行。
 
-This contains everything you need to run your app locally.
+## 启动
 
-View your app in AI Studio: https://ai.studio/apps/90a6f1ac-4d7d-4d52-b433-86aba7423bd1
+需要 Python 3 和 Node.js。
 
-## Run Locally
+运行 npm run dev，然后打开 http://localhost:4173。Node.js 仅用于运行算法测试，网页本身没有第三方运行时依赖。
 
-**Prerequisites:**  Node.js
+## 引擎设计
 
+12 个等级共享同一套引擎能力：
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+- 连续棋形与断点棋形评分
+- 直接成五检查、单点必挡与多点双威胁判断
+- α-β negamax、迭代加深、着法排序和置换表
+- 强制威胁延伸，继续计算连续四威胁与唯一防守点
+- 逐级增加搜索预算、候选宽度、分支宽度、最大深度与威胁延伸上限
+
+低等级不会关闭战术检查或故意漏掉胜着。等级是计算资源的递增档位；每步实际完成的深度还会随局面复杂度和设备速度变化。引擎运行在 Web Worker 中，不阻塞棋盘交互。
+
+这是一套独立编写的启发式搜索引擎，不调用在线模型或现成的五子棋 AI 服务。棋盘绘制使用原生 SVG，没有引入棋盘组件库。
+
+## 测试
+
+运行 npm test 和 npm run check。
