@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chooseMove, findImmediateWins, hasFive, LEVELS, SIZE } from "./engine.js";
+import { chooseMove, findForcingMoves, findImmediateWins, hasFive, LEVELS, SIZE } from "./engine.js";
 
 const index = (x, y) => y * SIZE + x;
 
@@ -9,11 +9,13 @@ test("the engine takes an immediate winning point", () => {
   for (let x = 4; x <= 7; x += 1) board[index(x, 7)] = 2;
 
   const wins = findImmediateWins(board, 2);
-  const result = chooseMove(board, 1);
 
-  assert.ok(wins.includes(result.index));
-  assert.equal(result.reason, "win");
-  assert.equal(board[result.index], 0, "search must leave the input board unchanged");
+  for (let level = 1; level <= LEVELS.length; level += 1) {
+    const result = chooseMove(board, level);
+    assert.ok(wins.includes(result.index));
+    assert.equal(result.reason, "win");
+  }
+  assert.equal(board[wins[0]], 0, "search must leave the input board unchanged");
 });
 
 test("the engine blocks a single immediate opponent win", () => {
@@ -22,11 +24,12 @@ test("the engine blocks a single immediate opponent win", () => {
   board[index(4, 6)] = 2;
 
   const threats = findImmediateWins(board, 1);
-  const result = chooseMove(board, 1);
-
   assert.equal(threats.length, 1);
-  assert.ok(threats.includes(result.index));
-  assert.equal(result.reason, "block");
+  for (let level = 1; level <= LEVELS.length; level += 1) {
+    const result = chooseMove(board, level);
+    assert.ok(threats.includes(result.index));
+    assert.equal(result.reason, "block");
+  }
 });
 
 test("the opening move is the center and all returned moves are legal", () => {
@@ -63,15 +66,15 @@ test("difficulty tiers are monotonic and keep the same engine stack", () => {
   }
 });
 
-test("the engine recognizes a forcing four with a single required block", () => {
+test("the threat search recognizes a four with one required defense", () => {
   const board = new Uint8Array(SIZE * SIZE);
   board[index(4, 7)] = 1;
   board[index(5, 7)] = 2;
   board[index(6, 7)] = 2;
   board[index(7, 7)] = 2;
-  const result = chooseMove(board, 8);
+  const forcing = findForcingMoves(board, 2);
+  assert.ok(forcing.includes(index(8, 7)));
 
-  assert.equal(board[index(8, 7)], 0);
-  assert.ok(result.index >= 0 && result.index < SIZE * SIZE);
-  assert.equal(board[result.index], 0);
+  board[index(8, 7)] = 2;
+  assert.deepEqual(findImmediateWins(board, 2), [index(9, 7)]);
 });

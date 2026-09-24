@@ -293,6 +293,16 @@ function forcingMoves(board, color, context) {
   return moves.slice(0, context.branch);
 }
 
+export function findForcingMoves(boardInput, color) {
+  const context = {
+    deadline: Number.POSITIVE_INFINITY,
+    branch: CELL_COUNT,
+    threatProbes: 0,
+    interrupted: false
+  };
+  return forcingMoves(Uint8Array.from(boardInput), color, context);
+}
+
 function negamax(board, depth, alpha, beta, color, ply, hash, context, extensions = 0) {
   context.nodes += 1;
   if ((context.nodes & 31) === 0 && now() >= context.deadline) {
