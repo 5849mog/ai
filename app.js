@@ -62,6 +62,7 @@ function renderBoard() {
   svg += '<filter id="stoneShadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="2.1"/><feOffset dy="2.1"/><feComponentTransfer><feFuncA type="linear" slope=".28"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
   svg += "</defs>";
   svg += '<rect class="board-surface" x="23" y="23" width="574" height="574" rx="8"/>';
+  svg += '<image class="wood-texture" href="./assets/board-wood.svg" xlink:href="./assets/board-wood.svg" x="23" y="23" width="574" height="574" preserveAspectRatio="none"/>';
   svg += '<rect class="board-border" x="23.5" y="23.5" width="573" height="573" rx="8"/>';
 
   for (let i = 0; i < SIZE; i += 1) {
@@ -83,6 +84,10 @@ function renderBoard() {
         (board[index] === 1 ? "url(#blackStone)" : "url(#whiteStone)") +
         '" stroke="' + (board[index] === 1 ? "rgba(0,0,0,.58)" : "rgba(105,99,86,.36)") +
         '" stroke-width=".75" filter="url(#stoneShadow)"/>';
+      const stoneTexture = "./assets/stone-satin.svg";
+      const stoneTone = board[index] === 1 ? "black" : "white";
+      svg += '<image class="stone-texture ' + stoneTone + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
+        '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none"/>';
       if (index === lastMove) {
         svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3"/>';
       }

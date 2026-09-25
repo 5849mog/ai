@@ -22,6 +22,10 @@
 
 这是一套独立编写的启发式搜索引擎，不调用在线模型或现成的五子棋 AI 服务。棋盘绘制使用原生 SVG，没有引入棋盘组件库。
 
+## 材质素材
+
+assets/board-wood.svg、assets/paper-fiber.svg 与 assets/stone-satin.svg 是项目自制的矢量纹理贴图，分别用于木质棋盘、页面底纹和棋子表面。纹理以低对比方式叠加，缩放清晰，也不依赖外部图片服务。
+
 ## 测试
 
 运行 npm test 和 npm run check。

@@ -23,10 +23,24 @@ body {
     radial-gradient(ellipse at 50% -14%, rgba(255,255,255,.9), transparent 43rem),
     var(--canvas);
 }
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("./assets/paper-fiber.svg");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  content: "";
+  opacity: .42;
+  mix-blend-mode: multiply;
+}
 button { color: inherit; font: inherit; -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible { outline: 3px solid rgba(182,76,53,.34); outline-offset: 3px; }
 
 .app-shell {
+  position: relative;
+  z-index: 1;
   width: min(100%, 1280px);
   min-height: 100vh;
   margin: 0 auto;
@@ -137,6 +151,10 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(182,76,53,.34); 
 }
 .board-svg { display: block; width: 100%; height: auto; border-radius: 8px; touch-action: manipulation; user-select: none; }
 .board-svg .board-surface { fill: url(#woodSurface); }
+.board-svg .wood-texture { opacity: .76; mix-blend-mode: multiply; pointer-events: none; }
+.board-svg .stone-texture { pointer-events: none; }
+.board-svg .stone-texture.black { opacity: .58; mix-blend-mode: screen; }
+.board-svg .stone-texture.white { opacity: .42; mix-blend-mode: multiply; }
 .board-svg .board-border { fill: none; stroke: rgba(105,75,38,.23); stroke-width: 1.2; }
 .board-svg .grid-line { stroke: rgba(69,53,32,.72); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .board-svg .star-point { fill: rgba(59,47,32,.83); }
