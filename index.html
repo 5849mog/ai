@@ -16,11 +16,17 @@
           <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
           <span class="brand-copy">五目</span>
         </a>
-        <button class="level-trigger" id="levelButton" type="button" aria-haspopup="dialog" aria-controls="levelDialog">
-          <span class="level-trigger-label">AI 等级</span>
-          <span id="levelButtonLabel">01 · 初见</span>
-          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 7.5 4.5 4.5 4.5-4.5"/></svg>
-        </button>
+        <div class="topbar-actions">
+          <button class="mode-trigger" id="modeButton" type="button" aria-pressed="false" title="新对局中切换">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 2 1.65 5.35L17 9l-5.35 1.65L10 16l-1.65-5.35L3 9l5.35-1.65L10 2Z"/><path d="m16 13 .8 2.2L19 16l-2.2.8L16 19l-.8-2.2L13 16l2.2-.8L16 13Z"/></svg>
+            <span>娱乐</span>
+          </button>
+          <button class="level-trigger" id="levelButton" type="button" aria-haspopup="dialog" aria-controls="levelDialog">
+            <span class="level-trigger-label">AI 等级</span>
+            <span id="levelButtonLabel">01 · 初见</span>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 7.5 4.5 4.5 4.5-4.5"/></svg>
+          </button>
+        </div>
       </header>
 
       <main class="game-layout">
@@ -37,6 +43,25 @@
             <div class="board-frame">
               <svg id="boardSvg" class="board-svg" viewBox="0 0 620 620" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="15乘15五子棋棋盘"></svg>
             </div>
+          </div>
+
+          <div class="skill-tray" id="skillTray" aria-label="娱乐技能">
+            <button class="skill-button" type="button" data-skill="double" title="双星连落：一次放下两枚黑子" aria-label="双星连落，每局一次" aria-pressed="false">
+              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4.2"/><circle cx="16" cy="12" r="4.2"/><path d="M12 5v14"/></svg></span>
+              <strong>双星</strong><span class="skill-charge">1</span>
+            </button>
+            <button class="skill-button" type="button" data-skill="mirror" title="镜像：同时在棋盘中心对称点落子" aria-label="镜像落子，每局一次" aria-pressed="false">
+              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7.7 6.5 4 12l3.7 5.5M16.3 6.5 20 12l-3.7 5.5"/><circle cx="6" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></span>
+              <strong>镜像</strong><span class="skill-charge">1</span>
+            </button>
+            <button class="skill-button" type="button" data-skill="freeze" title="冻结：本次落子后再获得一次行动" aria-label="冻结 AI 一回合，每局一次" aria-pressed="false">
+              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14M4 8l4 2M4 16l4-2M20 8l-4 2M20 16l-4-2"/></svg></span>
+              <strong>冻结</strong><span class="skill-charge">1</span>
+            </button>
+            <button class="skill-button" type="button" data-skill="removeWhite" title="除白：移除一枚 AI 白子，再正常落子" aria-label="移除一枚 AI 白子，每局一次" aria-pressed="false">
+              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="m9 9 6 6m0-6-6 6"/></svg></span>
+              <strong>除白</strong><span class="skill-charge">1</span>
+            </button>
           </div>
 
           <div class="board-bottom">
