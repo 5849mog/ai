@@ -18,7 +18,10 @@ export const LEVELS = [
   { name: "竞赛", ms: 440, root: 13, branch: 7, depth: 6, extensions: 5 },
   { name: "王牌", ms: 620, root: 14, branch: 7, depth: 7, extensions: 5 },
   { name: "巅峰", ms: 870, root: 15, branch: 8, depth: 7, extensions: 6 },
-  { name: "极限", ms: 1_200, root: 16, branch: 8, depth: 8, extensions: 6 }
+  { name: "极限", ms: 1_200, root: 16, branch: 8, depth: 8, extensions: 6 },
+  { name: "超凡", ms: 1_700, root: 18, branch: 8, depth: 8, extensions: 7 },
+  { name: "宗师", ms: 2_400, root: 20, branch: 9, depth: 9, extensions: 8 },
+  { name: "天元", ms: 3_400, root: 22, branch: 10, depth: 10, extensions: 8 }
 ];
 
 const WIN_SCORE = 1_000_000;
@@ -61,6 +64,11 @@ function boardHash(board) {
     if (color) hash ^= ZOBRIST[i][color];
   }
   return hash >>> 0;
+}
+
+function transpositionKey(hash, color, extensions = 0) {
+  const extensionKey = Math.imul(extensions, 0x9e37_79b1);
+  return (hash ^ (color === 2 ? SIDE_KEY : 0) ^ extensionKey) >>> 0;
 }
 
 export function hasFive(board, x, y, color) {
@@ -303,12 +311,89 @@ export function findForcingMoves(boardInput, color) {
   return forcingMoves(Uint8Array.from(boardInput), color, context);
 }
 
+function canForceThreatWin(board, attacker, remainingPairs, context) {
+  if (now() >= context.deadline) {
+    context.interrupted = true;
+    return false;
+  }
+  if (immediateWins(board, attacker).length) return true;
+  const defender = other(attacker);
+  if (immediateWins(board, defender).length || remainingPairs <= 0) return false;
+
+  for (const attack of forcingMoves(board, attacker, context)) {
+    board[attack] = attacker;
+    const wins = immediateWins(board, attacker);
+    const defenderWins = immediateWins(board, defender);
+    let forced = false;
+    if (!defenderWins.length) {
+      if (wins.length > 1) {
+        forced = true;
+      } else if (wins.length === 1) {
+        const block = wins[0];
+        board[block] = defender;
+        forced = !hasFive(board, block % SIZE, (block / SIZE) | 0, defender) &&
+          canForceThreatWin(board, attacker, remainingPairs - 1, context);
+        board[block] = 0;
+      }
+    }
+    board[attack] = 0;
+    if (forced) return true;
+    if (context.interrupted) return false;
+  }
+  return false;
+}
+
+function findThreatWinMove(board, attacker, remainingPairs, context) {
+  if (immediateWins(board, attacker).length || immediateWins(board, other(attacker)).length) return -1;
+
+  for (const attack of forcingMoves(board, attacker, context)) {
+    board[attack] = attacker;
+    const wins = immediateWins(board, attacker);
+    const defenderWins = immediateWins(board, other(attacker));
+    let forced = false;
+    if (!defenderWins.length) {
+      if (wins.length > 1) {
+        forced = true;
+      } else if (wins.length === 1) {
+        const block = wins[0];
+        board[block] = other(attacker);
+        forced = !hasFive(board, block % SIZE, (block / SIZE) | 0, other(attacker)) &&
+          canForceThreatWin(board, attacker, remainingPairs - 1, context);
+        board[block] = 0;
+      }
+    }
+    board[attack] = 0;
+    if (forced) return attack;
+    if (context.interrupted) return -1;
+  }
+  return -1;
+}
+
 function negamax(board, depth, alpha, beta, color, ply, hash, context, extensions = 0) {
   context.nodes += 1;
   if ((context.nodes & 31) === 0 && now() >= context.deadline) {
     context.interrupted = true;
     return 0;
   }
+  const key = transpositionKey(hash, color, extensions);
+  const alphaOriginal = alpha;
+  const cached = table.get(key);
+  let ttBest = -1;
+  if (cached) {
+    ttBest = cached.move;
+    if (cached.depth >= depth) {
+      context.hits += 1;
+      const value = cached.value > MATE - 10_000
+        ? cached.value - ply
+        : cached.value < -MATE + 10_000
+          ? cached.value + ply
+          : cached.value;
+      if (cached.flag === 0) return value;
+      if (cached.flag === 1 && value >= beta) return value;
+      if (cached.flag === 2 && value <= alpha) return value;
+    }
+  }
+
   const ownWins = immediateWins(board, color);
   if (ownWins.length) return MATE - ply;
   const opponentWins = immediateWins(board, other(color));
@@ -337,40 +422,28 @@ function negamax(board, depth, alpha, beta, color, ply, hash, context, extension
     return best;
   }
 
-  const key = (hash ^ (color === 2 ? SIDE_KEY : 0)) >>> 0;
-  const alphaOriginal = alpha;
-  const cached = table.get(key);
-  let ttBest = -1;
-  if (cached) {
-    ttBest = cached.move;
-    if (cached.depth >= depth) {
-      context.hits += 1;
-      const value = cached.value > MATE - 10_000
-        ? cached.value - ply
-        : cached.value < -MATE + 10_000
-          ? cached.value + ply
-          : cached.value;
-      if (cached.flag === 0) return value;
-      if (cached.flag === 1 && value >= beta) return value;
-      if (cached.flag === 2 && value <= alpha) return value;
-    }
-  }
-
   const moves = orderedMoves(board, color, context.branch, ttBest);
   if (!moves.length) return 0;
   let best = -MATE;
   let bestMove = moves[0];
+  let firstMove = true;
   for (const index of moves) {
     board[index] = color;
     const nextHash = (hash ^ ZOBRIST[index][color]) >>> 0;
     let value;
     if (hasFive(board, index % SIZE, (index / SIZE) | 0, color)) {
       value = MATE - (ply + 1);
-    } else {
+    } else if (firstMove) {
       value = -negamax(board, depth - 1, -beta, -alpha, other(color), ply + 1, nextHash, context);
+    } else {
+      value = -negamax(board, depth - 1, -alpha - 1, -alpha, other(color), ply + 1, nextHash, context);
+      if (!context.interrupted && value > alpha && value < beta) {
+        value = -negamax(board, depth - 1, -beta, -alpha, other(color), ply + 1, nextHash, context);
+      }
     }
     board[index] = 0;
     if (context.interrupted) return 0;
+    firstMove = false;
     if (value > best) {
       best = value;
       bestMove = index;
@@ -396,13 +469,37 @@ function rootMove(board, color, profile, deadline, context) {
   const blocks = immediateWins(board, other(color));
   if (blocks.length === 1) return { move: blocks[0], reason: "block" };
 
-  let bestMove = orderedMoves(board, color, profile.root)[0];
+  const proofContext = {
+    deadline: Math.min(deadline, now() + Math.min(240, profile.ms * .24)),
+    branch: Math.max(context.branch, profile.root),
+    threatProbes: 0,
+    interrupted: false
+  };
+  const proofPairs = Math.min(4, profile.extensions);
+  const forcedMove = findThreatWinMove(board, color, proofPairs, proofContext);
+  if (forcedMove >= 0) return { move: forcedMove, reason: "threat-win" };
+
+  const unsafeRootMoves = new Set();
+  for (const candidate of orderedMoves(board, color, profile.root)) {
+    if (now() >= proofContext.deadline) break;
+    board[candidate] = color;
+    const opponentCanForce = canForceThreatWin(board, other(color), proofPairs, proofContext);
+    board[candidate] = 0;
+    if (opponentCanForce) unsafeRootMoves.add(candidate);
+    if (proofContext.interrupted) break;
+  }
+
+  const firstRanked = orderedMoves(board, color, profile.root + unsafeRootMoves.size);
+  const firstSafe = firstRanked.filter(move => !unsafeRootMoves.has(move));
+  let bestMove = (firstSafe.length ? firstSafe : firstRanked)[0];
   let completedDepth = 0;
   for (let depth = 1; depth <= profile.depth; depth += 1) {
     if (now() >= deadline) break;
-    const ttKey = (boardHash(board) ^ (color === 2 ? SIDE_KEY : 0)) >>> 0;
+    const ttKey = transpositionKey(boardHash(board), color);
     const cached = table.get(ttKey);
-    const moves = orderedMoves(board, color, profile.root, cached?.move ?? -1);
+    const ranked = orderedMoves(board, color, profile.root + unsafeRootMoves.size, cached?.move ?? -1);
+    const safe = ranked.filter(move => !unsafeRootMoves.has(move));
+    const moves = (safe.length ? safe : ranked).slice(0, profile.root);
     let iterationBest = moves[0];
     let iterationScore = -MATE;
     let alpha = -MATE;
@@ -414,8 +511,13 @@ function rootMove(board, color, profile, deadline, context) {
       let value;
       if (hasFive(board, index % SIZE, (index / SIZE) | 0, color)) {
         value = MATE - 1;
-      } else {
+      } else if (index === moves[0]) {
         value = -negamax(board, depth - 1, -beta, -alpha, other(color), 1, hash, context);
+      } else {
+        value = -negamax(board, depth - 1, -alpha - 1, -alpha, other(color), 1, hash, context);
+        if (!context.interrupted && value > alpha && value < beta) {
+          value = -negamax(board, depth - 1, -beta, -alpha, other(color), 1, hash, context);
+        }
       }
       board[index] = 0;
       if (context.interrupted) break;
@@ -428,6 +530,8 @@ function rootMove(board, color, profile, deadline, context) {
     if (context.interrupted) break;
     bestMove = iterationBest;
     completedDepth = depth;
+    if (table.size > 190_000) table.clear();
+    table.set(ttKey, { depth, value: iterationScore, flag: 0, move: iterationBest });
     if (iterationScore >= MATE - 4) break;
   }
   return { move: bestMove, reason: "search", depth: completedDepth };
@@ -436,6 +540,7 @@ function rootMove(board, color, profile, deadline, context) {
 export function chooseMove(boardInput, level = 6) {
   const board = Uint8Array.from(boardInput);
   if (board.length !== CELL_COUNT) throw new Error("Board must contain exactly 225 cells.");
+  table.clear();
   const profile = LEVELS[Math.max(0, Math.min(LEVELS.length - 1, (level | 0) - 1))];
   const color = 2;
   const started = now();
