@@ -6,6 +6,6 @@
   "scripts": {
     "dev": "python -m http.server 4173",
     "test": "node --test",
-    "check": "node --check app.js && node --check engine.js && node --check engine.worker.js && node --check game-rules.js"
+    "check": "node --check app.js && node --check board-view.js && node --check engine.js && node --check engine.worker.js && node --check game-rules.js"
   }
 }
