@@ -24,7 +24,7 @@
 
 ## 材质素材
 
-assets/board-wood.svg、assets/paper-fiber.svg 与 assets/stone-satin.svg 是项目自制的矢量纹理贴图，分别用于木质棋盘、页面底纹和棋子表面。纹理以低对比方式叠加，缩放清晰，也不依赖外部图片服务。
+assets/board-wood.svg、assets/paper-fiber.svg、assets/stone-satin.svg、assets/button-undo.svg 与 assets/button-restart.svg 是项目自制的矢量材质贴图，分别用于木质棋盘、页面底纹、棋子表面，以及浅色缎面撤回键和深色搪瓷新局键。贴图随屏幕缩放保持清晰，也不依赖外部图片服务。
 
 ## 测试
 

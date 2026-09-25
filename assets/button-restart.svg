@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="enamel" x1=".1" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#46534b"/>
+      <stop offset=".45" stop-color="#303b34"/>
+      <stop offset="1" stop-color="#202923"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".25" cy=".08" r=".92">
+      <stop offset="0" stop-color="#fff" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="enamel-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".76" numOctaves="2" seed="24" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+      <feComponentTransfer in="mono"><feFuncA type="table" tableValues="0 .12"/></feComponentTransfer>
+    </filter>
+    <filter id="soft-shadow" x="-20%" y="-16%" width="140%" height="145%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="blur"/>
+      <feOffset dy="1.1" result="offset"/>
+      <feComponentTransfer><feFuncA type="linear" slope=".22"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="button-shape"><rect x="2" y="1" width="60" height="60" rx="16"/></clipPath>
+  </defs>
+  <rect x="2" y="1" width="60" height="60" rx="16" fill="url(#enamel)" stroke="#1a211d" filter="url(#soft-shadow)"/>
+  <g clip-path="url(#button-shape)">
+    <rect x="2" y="1" width="60" height="60" fill="url(#glow)"/>
+    <rect x="2" y="1" width="60" height="60" fill="#d8e2d5" filter="url(#enamel-grain)" opacity=".2"/>
+    <path d="M17 2.5h30c7.4 0 13.5 5.9 13.5 13.2" fill="none" stroke="#fff" stroke-width="1.2" opacity=".24"/>
+    <path d="M5 44c1.1 8 7 13.5 14 13.5h25" fill="none" stroke="#0f1712" stroke-width="1.1" opacity=".4"/>
+    <g fill="none" stroke="#dce6da" stroke-width=".55" opacity=".09">
+      <path d="M9 22h46M8 28h48M8 34h48M10 40h44"/>
+    </g>
+  </g>
+  <rect x="2.5" y="1.5" width="59" height="59" rx="15.5" fill="none" stroke="#d4dfd5" stroke-opacity=".2"/>
+</svg>

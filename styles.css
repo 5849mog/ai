@@ -183,19 +183,24 @@ button:focus-visible, a:focus-visible { outline: 3px solid rgba(182,76,53,.34); 
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid rgba(38,43,39,.11);
+  border: 1px solid transparent;
   border-radius: 11px;
-  background: transparent;
+  background-color: #f3f0e7;
+  background-image: url("./assets/button-undo.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   color: #6e756e;
   cursor: pointer;
-  transition: color .18s, background .18s, border-color .18s, transform .18s;
+  box-shadow: 0 2px 5px rgba(39, 42, 36, .08);
+  transition: color .18s, filter .18s, transform .18s;
 }
-.icon-button:hover:not(:disabled) { color: var(--ink); background: #f8f7f2; border-color: rgba(38,43,39,.22); }
-.icon-button:active:not(:disabled) { transform: translateY(1px); }
-.icon-button:disabled { color: #b9bcb6; cursor: not-allowed; background: #fbfaf7; border-color: rgba(38,43,39,.06); }
+.icon-button:hover:not(:disabled) { color: var(--ink); filter: brightness(1.035); }
+.icon-button:active:not(:disabled) { transform: translateY(1px); filter: brightness(.97); }
+.icon-button:disabled { color: #aeb2ac; cursor: not-allowed; opacity: .52; filter: saturate(.62); box-shadow: none; }
 .icon-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.55; stroke-linecap: round; stroke-linejoin: round; }
-.icon-button-primary { color: #fffefa; border-color: var(--ink); background: var(--ink); }
-.icon-button-primary:hover:not(:disabled) { color: #fffefa; border-color: #3d433e; background: #3d433e; }
+.icon-button-primary { color: #f7f8f4; background-color: #303a33; background-image: url("./assets/button-restart.svg"); }
+.icon-button-primary:hover:not(:disabled) { color: #fffefa; filter: brightness(1.08); }
 
 .level-dialog {
   width: min(100% - 28px, 470px);
