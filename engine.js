@@ -4,6 +4,31 @@ const CENTER = (SIZE - 1) / 2;
 const DIRS = [[1, 0], [0, 1], [1, 1], [1, -1]];
 const MATE = 1_000_000_000;
 
+function makeEvalLines() {
+  const lines = [];
+  for (const [dx, dy] of DIRS) {
+    for (let y = 0; y < SIZE; y += 1) {
+      for (let x = 0; x < SIZE; x += 1) {
+        const previousX = x - dx;
+        const previousY = y - dy;
+        if (previousX >= 0 && previousX < SIZE && previousY >= 0 && previousY < SIZE) continue;
+        const line = [];
+        let cx = x;
+        let cy = y;
+        while (cx >= 0 && cx < SIZE && cy >= 0 && cy < SIZE) {
+          line.push(cy * SIZE + cx);
+          cx += dx;
+          cy += dy;
+        }
+        lines.push(line);
+      }
+    }
+  }
+  return lines;
+}
+
+const EVAL_LINES = makeEvalLines();
+
 // Every level uses this complete tactical/search stack. Higher levels widen
 // the root and continuation search and grant more time to iterative deepening.
 export const LEVELS = [
@@ -177,99 +202,59 @@ export function findImmediateWins(boardInput, color) {
   return immediateWins(Uint8Array.from(boardInput), color);
 }
 
-function scoreRunsOnLine(board, startX, startY, dx, dy, color) {
-  let score = 0;
-  let x = startX;
-  let y = startY;
-  let run = 0;
-  let previous = 0;
-  let runStartX = -1;
-  let runStartY = -1;
-  while (x >= 0 && x < SIZE && y >= 0 && y < SIZE) {
-    const current = board[y * SIZE + x];
-    if (current === color) {
-      if (run === 0) {
-        runStartX = x;
-        runStartY = y;
-      }
-      run += 1;
-    } else {
-      if (previous === color) {
-        const beforeX = runStartX - dx;
-        const beforeY = runStartY - dy;
-        const beforeOpen = beforeX >= 0 && beforeX < SIZE && beforeY >= 0 && beforeY < SIZE &&
-          board[beforeY * SIZE + beforeX] === 0;
-        const afterOpen = current === 0;
-        score += lineRunValue(run, Number(beforeOpen) + Number(afterOpen));
-      }
-      run = 0;
-    }
-    previous = current;
-    x += dx;
-    y += dy;
-  }
-  if (previous === color) {
-    const beforeX = runStartX - dx;
-    const beforeY = runStartY - dy;
-    const beforeOpen = beforeX >= 0 && beforeX < SIZE && beforeY >= 0 && beforeY < SIZE &&
-      board[beforeY * SIZE + beforeX] === 0;
-    score += lineRunValue(run, Number(beforeOpen));
-  }
-  return score;
-}
-
-function evaluateColor(board, color) {
-  let score = 0;
-  for (let y = 0; y < SIZE; y += 1) {
-    score += scoreRunsOnLine(board, 0, y, 1, 0, color);
-  }
-  for (let x = 0; x < SIZE; x += 1) {
-    score += scoreRunsOnLine(board, x, 0, 0, 1, color);
-  }
-  for (let x = 0; x < SIZE; x += 1) {
-    score += scoreRunsOnLine(board, x, 0, 1, 1, color);
-    score += scoreRunsOnLine(board, x, SIZE - 1, 1, -1, color);
-  }
-  for (let y = 1; y < SIZE; y += 1) {
-    score += scoreRunsOnLine(board, 0, y, 1, 1, color);
-    score += scoreRunsOnLine(board, 0, y, 1, -1, color);
-  }
-
-  // The five-cell scan recognizes broken shapes such as XXX.X and XX.XX.
-  for (const [dx, dy] of DIRS) {
-    for (let y = 0; y < SIZE; y += 1) {
-      for (let x = 0; x < SIZE; x += 1) {
-        const endX = x + dx * 4;
-        const endY = y + dy * 4;
-        if (endX < 0 || endX >= SIZE || endY < 0 || endY >= SIZE) continue;
-        let own = 0;
-        let blocked = false;
-        for (let step = 0; step < 5; step += 1) {
-          const cell = board[(y + dy * step) * SIZE + x + dx * step];
-          if (cell === other(color)) {
-            blocked = true;
-            break;
-          }
-          if (cell === color) own += 1;
-        }
-        if (!blocked && own >= 2) score += BROKEN_SCORE[own];
-      }
-    }
-  }
-  return score;
-}
-
 function evaluate(board, color) {
-  const score = evaluateColor(board, color) - evaluateColor(board, other(color));
+  const scores = [0, 0, 0];
+  for (const line of EVAL_LINES) {
+    let runColor = 0;
+    let runLength = 0;
+    let runStart = 0;
+    for (let offset = 0; offset < line.length; offset += 1) {
+      const cell = board[line[offset]];
+      if (runLength && cell === runColor) {
+        runLength += 1;
+        continue;
+      }
+      if (runLength) {
+        const beforeOpen = runStart > 0 && board[line[runStart - 1]] === 0;
+        const afterOpen = cell === 0;
+        scores[runColor] += lineRunValue(runLength, Number(beforeOpen) + Number(afterOpen));
+      }
+      if (cell === 1 || cell === 2) {
+        runColor = cell;
+        runLength = 1;
+        runStart = offset;
+      } else {
+        runColor = 0;
+        runLength = 0;
+      }
+    }
+    if (runLength) {
+      const beforeOpen = runStart > 0 && board[line[runStart - 1]] === 0;
+      scores[runColor] += lineRunValue(runLength, Number(beforeOpen));
+    }
+
+    for (let start = 0; start <= line.length - 5; start += 1) {
+      let black = 0;
+      let white = 0;
+      for (let step = 0; step < 5; step += 1) {
+        const cell = board[line[start + step]];
+        if (cell === 1) black += 1;
+        else if (cell === 2) white += 1;
+      }
+      if (!white && black >= 2) scores[1] += BROKEN_SCORE[black];
+      if (!black && white >= 2) scores[2] += BROKEN_SCORE[white];
+    }
+  }
+  const score = scores[color] - scores[other(color)];
   return Math.max(-MATE / 3, Math.min(MATE / 3, score));
 }
 
-function orderedMoves(board, color, width, ttBest = -1) {
-  const moves = candidatesFor(board);
-  const wins = immediateWins(board, color, moves);
+function orderedMoves(board, color, width, ttBest = -1, prepared = null) {
+  const moves = prepared?.candidates ?? candidatesFor(board);
+  const wins = prepared?.wins ?? immediateWins(board, color, moves);
   if (wins.length) return wins;
 
-  const blocks = immediateWins(board, other(color), moves);
+  const blocks = prepared?.blocks ?? immediateWins(board, other(color), moves);
   if (blocks.length === 1) return blocks;
 
   const ranked = moves.map(index => ({
@@ -282,20 +267,42 @@ function orderedMoves(board, color, width, ttBest = -1) {
   return ranked.slice(0, Math.max(1, width)).map(move => move.index);
 }
 
+function immediateWinsNear(board, index, color) {
+  const wins = [];
+  const x = index % SIZE;
+  const y = (index / SIZE) | 0;
+  for (const [dx, dy] of DIRS) {
+    for (let offset = -4; offset <= 4; offset += 1) {
+      if (!offset) continue;
+      const nx = x + dx * offset;
+      const ny = y + dy * offset;
+      if (nx < 0 || nx >= SIZE || ny < 0 || ny >= SIZE) continue;
+      const target = ny * SIZE + nx;
+      if (board[target]) continue;
+      board[target] = color;
+      const win = hasFive(board, nx, ny, color);
+      board[target] = 0;
+      if (win) wins.push(target);
+    }
+  }
+  return wins;
+}
+
 function forcingMoves(board, color, context) {
   const moves = [];
-  for (const index of candidatesFor(board)) {
+  const candidates = candidatesFor(board);
+  const existingWins = immediateWins(board, color, candidates);
+  for (const index of candidates) {
     context.threatProbes += 1;
     if ((context.threatProbes & 7) === 0 && now() >= context.deadline) {
       context.interrupted = true;
       break;
     }
     board[index] = color;
-    const wins = hasFive(board, index % SIZE, (index / SIZE) | 0, color)
-      ? [index]
-      : immediateWins(board, color);
+    const wins = hasFive(board, index % SIZE, (index / SIZE) | 0, color) ||
+      existingWins.some(win => win !== index) || immediateWinsNear(board, index, color).length > 0;
     board[index] = 0;
-    if (wins.length) moves.push(index);
+    if (wins) moves.push(index);
   }
   moves.sort((a, b) => movePriority(board, b, color) - movePriority(board, a, color));
   return moves.slice(0, context.branch);
@@ -394,9 +401,11 @@ function negamax(board, depth, alpha, beta, color, ply, hash, context, extension
     }
   }
 
-  const ownWins = immediateWins(board, color);
+  const candidates = candidatesFor(board);
+  const ownWins = immediateWins(board, color, candidates);
   if (ownWins.length) return MATE - ply;
-  const opponentWins = immediateWins(board, other(color));
+  const opponentWins = immediateWins(board, other(color), candidates);
+  const prepared = { candidates, wins: ownWins, blocks: opponentWins };
   if (opponentWins.length > 1) return -MATE + ply;
   if (depth <= 0) {
     let tacticalMoves = opponentWins.length === 1 ? opponentWins : [];
@@ -422,7 +431,7 @@ function negamax(board, depth, alpha, beta, color, ply, hash, context, extension
     return best;
   }
 
-  const moves = orderedMoves(board, color, context.branch, ttBest);
+  const moves = orderedMoves(board, color, context.branch, ttBest, prepared);
   if (!moves.length) return 0;
   let best = -MATE;
   let bestMove = moves[0];
@@ -464,10 +473,12 @@ function negamax(board, depth, alpha, beta, color, ply, hash, context, extension
 }
 
 function rootMove(board, color, profile, deadline, context) {
-  const wins = immediateWins(board, color);
+  const candidates = candidatesFor(board);
+  const wins = immediateWins(board, color, candidates);
   if (wins.length) return { move: wins[0], reason: "win" };
-  const blocks = immediateWins(board, other(color));
+  const blocks = immediateWins(board, other(color), candidates);
   if (blocks.length === 1) return { move: blocks[0], reason: "block" };
+  const prepared = { candidates, wins, blocks };
 
   const proofContext = {
     deadline: Math.min(deadline, now() + Math.min(240, profile.ms * .24)),
@@ -480,7 +491,7 @@ function rootMove(board, color, profile, deadline, context) {
   if (forcedMove >= 0) return { move: forcedMove, reason: "threat-win" };
 
   const unsafeRootMoves = new Set();
-  for (const candidate of orderedMoves(board, color, profile.root)) {
+  for (const candidate of orderedMoves(board, color, profile.root, -1, prepared)) {
     if (now() >= proofContext.deadline) break;
     board[candidate] = color;
     const opponentCanForce = canForceThreatWin(board, other(color), proofPairs, proofContext);
@@ -489,7 +500,7 @@ function rootMove(board, color, profile, deadline, context) {
     if (proofContext.interrupted) break;
   }
 
-  const firstRanked = orderedMoves(board, color, profile.root + unsafeRootMoves.size);
+  const firstRanked = orderedMoves(board, color, profile.root + unsafeRootMoves.size, -1, prepared);
   const firstSafe = firstRanked.filter(move => !unsafeRootMoves.has(move));
   let bestMove = (firstSafe.length ? firstSafe : firstRanked)[0];
   let completedDepth = 0;
@@ -497,7 +508,7 @@ function rootMove(board, color, profile, deadline, context) {
     if (now() >= deadline) break;
     const ttKey = transpositionKey(boardHash(board), color);
     const cached = table.get(ttKey);
-    const ranked = orderedMoves(board, color, profile.root + unsafeRootMoves.size, cached?.move ?? -1);
+    const ranked = orderedMoves(board, color, profile.root + unsafeRootMoves.size, cached?.move ?? -1, prepared);
     const safe = ranked.filter(move => !unsafeRootMoves.has(move));
     const moves = (safe.length ? safe : ranked).slice(0, profile.root);
     let iterationBest = moves[0];
