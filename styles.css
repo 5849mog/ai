@@ -13,15 +13,18 @@ button, select { color: inherit; font: inherit; -webkit-tap-highlight-color: tra
 button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-visible { outline: 3px solid rgba(182,76,53,.4); outline-offset: 3px; }
 [hidden] { display: none !important; }
 .app-shell { position: relative; z-index: 1; width: min(100%, 1180px); min-height: 100dvh; margin: 0 auto; padding: 0 36px; display: flex; flex-direction: column; }
-.topbar { height: 72px; flex: 0 0 72px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.topbar { min-height: 72px; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .brand { display: inline-flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
 .brand-mark { width: 33px; height: 33px; display: inline-flex; align-items: center; justify-content: center; gap: 2px; border: 1px solid rgba(32,37,34,.16); border-radius: 50%; }
 .brand-mark i { width: 4px; height: 4px; border-radius: 50%; background: #303531; }
 .brand-mark i:nth-child(2) { width: 5px; height: 5px; background: var(--accent); transform: translateY(-5px); }
 .brand-mark i:nth-child(3) { transform: translateY(5px); }
 .brand-copy { font-family: "Songti SC", "SimSun", serif; font-size: 19px; font-weight: 700; letter-spacing: .1em; }
-.time-control { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; }
-.time-control select { min-height: 40px; padding: 0 10px; border: 1px solid rgba(32,37,34,.14); border-radius: 9px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.game-settings { display: flex; align-items: center; gap: 14px; }
+.time-control, .color-control, .ponder-control { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; }
+.time-control select, .color-control select { min-height: 40px; padding: 0 10px; border: 1px solid rgba(32,37,34,.14); border-radius: 9px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.ponder-control { cursor: pointer; white-space: nowrap; }
+.ponder-control input { accent-color: var(--green); width: 16px; height: 16px; margin: 0; }
 .time-control select:disabled { opacity: .55; cursor: wait; }
 .game-layout { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 20px 0; }
 .board-card { width: min(100%, 850px); display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(40,43,39,.075); border-radius: 19px; background: var(--paper); box-shadow: 0 20px 54px rgba(45,43,34,.075), 0 2px 8px rgba(45,43,34,.035); }
@@ -34,7 +37,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
 .board-size { margin-left: auto; color: var(--muted); font-family: Consolas, monospace; font-size: 10px; }
 .retry-button { border: 1px solid rgba(182,76,53,.3); border-radius: 6px; background: #fbf2ec; color: #9e3c28; font-size: 12px; padding: 5px 10px; cursor: pointer; }
 .board-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 18px; }
-.board-frame { width: min(100%, 700px, calc(100dvh - 254px)); padding: 8px; border-radius: 15px; background: linear-gradient(142deg, rgba(255,255,255,.66), transparent 34%), linear-gradient(35deg, #c39c66, #e8ca91 45%, #d3ae76); box-shadow: 0 13px 26px rgba(75,58,33,.15), inset 0 0 0 1px rgba(255,255,255,.52), inset 0 0 0 2px rgba(107,74,37,.12); }
+.board-frame { width: min(100%, 700px, calc(100dvh - 370px)); padding: 8px; border-radius: 15px; background: linear-gradient(142deg, rgba(255,255,255,.66), transparent 34%), linear-gradient(35deg, #c39c66, #e8ca91 45%, #d3ae76); box-shadow: 0 13px 26px rgba(75,58,33,.15), inset 0 0 0 1px rgba(255,255,255,.52), inset 0 0 0 2px rgba(107,74,37,.12); }
 .board-svg { display: block; width: 100%; height: auto; border-radius: 8px; touch-action: manipulation; user-select: none; }
 .board-svg .board-surface { fill: url(#woodSurface); }
 .board-svg .wood-texture { opacity: .76; mix-blend-mode: multiply; pointer-events: none; }
@@ -51,6 +54,12 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
 .board-svg .pending-ring { fill: rgba(255,255,255,.15); stroke: #b64c35; stroke-width: 2; pointer-events: none; vector-effect: non-scaling-stroke; }
 .board-bottom { min-height: 60px; flex: 0 0 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 19px; border-top: 1px solid var(--line); }
 .search-clock { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.engine-analysis { padding: 9px 19px 11px; border-top: 1px solid var(--line); font-size: 11px; }
+.analysis-heading { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; }
+.analysis-values { display: flex; justify-content: space-between; gap: 8px; margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+.analysis-values div { display: flex; gap: 6px; align-items: baseline; }
+.analysis-values dt { color: var(--muted); }
+.analysis-values dd { margin: 0; font-weight: 600; }
 .game-actions { display: inline-flex; align-items: center; gap: 8px; }
 .icon-button { min-width: 76px; height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 0; border-radius: 10px; background: #f3f0e7 url("./assets/button-undo.svg") center / 100% 100% no-repeat; color: #60685f; cursor: pointer; box-shadow: 0 2px 5px rgba(39,42,36,.08); transition: filter .18s, transform .18s; }
 .icon-button span { font-size: 12px; }
@@ -68,26 +77,32 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
 @keyframes breathe { 50% { opacity: .45; } }
 @media (max-width: 600px) {
   .app-shell { padding: max(7px, env(safe-area-inset-top)) 8px max(7px, env(safe-area-inset-bottom)); }
-  .topbar { height: 53px; flex-basis: 53px; }
-  .time-control { gap: 6px; font-size: 10px; }
-  .time-control select { min-height: 38px; padding: 0 6px; font-size: 11px; }
+  .topbar { min-height: 53px; }
+  .game-settings { gap: 6px; }
+  .time-control, .color-control, .ponder-control { gap: 4px; font-size: 10px; }
+  .time-control > span, .color-control > span { display: none; }
+  .time-control select, .color-control select { min-height: 38px; padding: 0 4px; font-size: 11px; }
   .game-layout { padding: 10px 0; }
   .board-card { border-radius: 15px; }
   .board-toolbar { min-height: 46px; flex-basis: 46px; padding: 0 14px; }
   .game-state strong { font-size: 11px; }
   .board-wrap { padding: 4px; }
-  .board-frame { width: min(100%, calc(100dvh - 214px)); padding: 4px; border-radius: 12px; }
+  .board-frame { width: min(100%, calc(100dvh - 300px)); padding: 4px; border-radius: 12px; }
   .board-bottom { min-height: 58px; flex-basis: 58px; padding: 0 12px; }
   .icon-button { min-width: 66px; height: 42px; padding: 0 8px; gap: 5px; }
   .page-footer { font-size: 9px; }
+  .engine-analysis { padding: 8px 12px 10px; font-size: 10px; }
+  .analysis-heading { font-size: 9px; }
 }
+@media (max-width: 360px) { .brand-mark { display: none; } .brand { gap: 0; } }
 @media (max-height: 520px) and (min-width: 601px) {
   .app-shell { padding: 0 18px; }
-  .topbar { height: 44px; flex-basis: 44px; }
+  .topbar { min-height: 44px; padding: 3px 0; }
+  .time-control > span, .color-control > span { display: none; }
   .game-layout { padding: 6px 0; }
   .board-toolbar { min-height: 38px; flex-basis: 38px; }
   .board-wrap { padding: 4px; }
-  .board-frame { width: min(100%, calc(100dvh - 184px)); padding: 4px; }
+  .board-frame { width: min(100%, calc(100dvh - 250px)); padding: 4px; }
   .board-bottom { min-height: 48px; flex-basis: 48px; }
   .page-footer { min-height: 24px; }
 }

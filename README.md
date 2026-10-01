@@ -1,6 +1,6 @@
 # 五目 · Gomoku Studio
 
-一个在浏览器本机运行的五子棋对弈工具。玩家执黑先手，AI 执白；15×15、无禁手，五子或长连均获胜。
+一个在浏览器本机运行的五子棋对弈工具。玩家可选执黑先手或执白后手，执白时由 AI 开局；15×15、无禁手，五子或长连均获胜。更换执色会开始新局，执色设置会保存在本机。
 
 [在线试玩](https://5849mog.github.io/ai/)。GitHub Pages 托管网页和权重，AI 计算仍在访问者的电脑上完成。
 
@@ -18,6 +18,12 @@ npm run dev
 打开 http://127.0.0.1:4187/ 。端口可通过 `PORT` 环境变量修改。鼠标悬停预览、单击落子；触屏点击两次确认；棋盘获得焦点后可用方向键选点、回车落子。
 
 悔棋恢复到你上次落子前。思考中也可悔棋或重开，取消的搜索不会把棋子放进新局。引擎失败会保留棋盘，重试可继续原来的 AI 回合。
+
+棋盘下方显示实时深度、引擎评分、节点数与搜索速度。评分统一以 AI 为视角，正数有利于 AI；它是引擎原始评分，不是实测胜率。后台分析时会显示「AI 后台思考中」，缺失的数据用破折号表示。
+
+后台思考默认开启，可在顶部关闭，偏好会保存在本机。玩家回合继续分析当前局面并复用 Rapfi 搜索缓存；玩家落子时优先执行实际 AI 回合，后台分析得到的假想落点不会落到棋盘。页面隐藏时暂停，恢复可见时继续；悔棋、重开与切色会销毁旧 Worker，清除旧任务和缓存。
+
+普通静态托管使用的单线程 WASM 会同步运行搜索。Rapfi 原生 `INFO pondering 1` 在这类构建中持续占用 Worker，无法及时处理后续命令，因此本站保持原生自动 pondering 关闭，使用每段 250 ms 搜索预算、段间 100 ms 的协作式后台分析。每段重新同步完整 BOARD（空盘为 `BOARD\nDONE`），不清除跨段搜索缓存；多线程构建也使用同一调度方式。单线程收到暂停或落子请求后，会在当前短段返回时处理。搜索预算包含引擎调度误差，后台思考的棋力收益尚未做对战量化。
 
 ## 静态托管与离线
 
@@ -37,7 +43,10 @@ npm run dev
 
 ```js
 import { GomokuEngine } from './engine.js';
-const engine = new GomokuEngine({ onState: event => console.log(event.state) });
+const engine = new GomokuEngine({
+  onState: event => console.log(event.state, event.pondering),
+  onStats: event => console.log(event.phase, event.sideToMove, event.stats)
+});
 await engine.init();
 const result = await engine.search({
   board,           // 225 个交点，0 空、1 黑、2 白；调用方数组不会被修改
@@ -49,6 +58,8 @@ const result = await engine.search({
 engine.cancel();  // 取消未完成搜索，Promise 以 AbortError 拒绝
 engine.dispose();
 ```
+
+玩家回合可调用 `await engine.ponder({ board, sideToMove, requestId })` 开始后台分析，`engine.stopPonder()` 暂停。`onStats` 的 `phase` 为 `search` 或 `ponder`，原始 `evaluation` 对应 `sideToMove` 的视角。实际 `search()` 自动暂停后台分析并优先执行；`reset()` / `cancel()` / `dispose()` 会丢弃旧 Worker 的输出。
 
 初始化状态为 loading/ready/error，搜索时为 thinking。一次只接受一个搜索；超时、非法落点和引擎错误均明确失败，不使用旧引擎兜底。每次搜索都会确认指定的 mix9svq freestyle 权重已启用。
 
@@ -81,11 +92,14 @@ npm run build:engine
 npm test
 npm run check
 npm run test:browser
+npm run test:features
 npm run benchmark
 npm run report
 ```
 
 浏览器验证需要安装 Chrome 和 Edge。测试覆盖四种引擎构建、`/ai/` 子目录、无隔离头的托管、Worker 复用、鼠标/键盘/触屏、思考中悔棋与重开、错误重试、离线刷新，以及 12 个用独立穷举 VCF 验证器证明的战术局面。浏览器结果、证明与截图保存在 reports 中。
+
+本次选色、搜索信息与后台思考的专项验证见 [功能验证报告](./reports/turn-features.md)。`npm run test:features` 使用 Playwright Chromium：首次运行可执行 `npx playwright install chromium`，或用 `CHROME_PATH` 指定已有 Chromium；需要额外启动参数时，`CHROME_ARGS` 接受 JSON 字符串数组。专项测试先运行四种原版 Rapfi WASM 及真实页面，再用确定性的协议测试替身覆盖快速切色、白方胜负、触屏和暂停等边界情况；输出到 `.cache/feature-qa/`。它不替代原有跨浏览器、离线和棋力验收。
 
 棋力测试保留原项目 `0184240a0f3b84b56faba14c86e38697e9c828ce` 的完整引擎作为基线，只用于测试。使用 20 个固定合法三手开局，各交换双方执色，共 40 局；双方均单线程、每步 3.4 秒，和棋计半分，验收得分率为 75%。旧引擎执黑时交换输入棋盘颜色，不修改旧算法。
 

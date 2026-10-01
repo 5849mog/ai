@@ -11,11 +11,48 @@ class FakeWorker {
 function setup() {
   const workers = [];
   const events = [];
-  const engine = new GomokuEngine({ onState: e => events.push(e), capabilities: { simd: true, multi: false, threads: 1 },
+  const stats = [];
+  const engine = new GomokuEngine({ onState: e => events.push(e), onStats: e => stats.push(e), capabilities: { simd: true, multi: false, threads: 1 },
     workerFactory: () => { const worker = new FakeWorker(); workers.push(worker); return worker; } });
-  return { engine, workers, events };
+  return { engine, workers, events, stats };
 }
 const position = () => { const board = new Uint8Array(225); board[112] = 1; return board; };
+
+test("background stats are streamed, late results ignored, and foreground search reuses the worker", async () => {
+  const { engine, workers, events, stats } = setup();
+  const board = new Uint8Array(225);
+  const background = engine.ponder({ board, sideToMove: 1, requestId: 1 });
+  workers[0].send({ type: "ready" }); await background;
+  assert.equal(events.at(-1).pondering, true);
+  workers[0].send({ type: "stats", phase: "ponder", requestId: 1, stats: { depth: 10 } });
+  assert.equal(stats.at(-1).phase, "ponder");
+  board[112] = 1;
+  const search = engine.search({ board, sideToMove: 2, timeMs: 1000, requestId: 2 });
+  await Promise.resolve();
+  assert.ok(workers[0].sent.some(message => message.type === "stop-ponder"));
+  workers[0].send({ type: "stats", phase: "ponder", requestId: 1, stats: { depth: 50 } });
+  workers[0].send({ type: "move", requestId: 1, result: { index: 112 } });
+  assert.equal(stats.at(-1).stats.depth, 10);
+  assert.equal(engine.pending.requestId, 2);
+  workers[0].send({ type: "move", requestId: 2, result: { index: 113 } });
+  assert.equal((await search).index, 113);
+  assert.equal(workers.length, 1);
+  engine.dispose();
+});
+
+test("reset cancels waiting background initialization and a fresh black opening is accepted", async () => {
+  const { engine, workers, stats } = setup();
+  const background = engine.ponder({ board: new Uint8Array(225), sideToMove: 1, requestId: 1 });
+  const cancelled = assert.rejects(background, { name: "AbortError" });
+  engine.reset(); await cancelled;
+  const opening = engine.search({ board: new Uint8Array(225), sideToMove: 1, requestId: 2 });
+  workers[1].send({ type: "ready" }); await Promise.resolve();
+  workers[0].send({ type: "stats", phase: "ponder", requestId: 1, stats: { depth: 99 } });
+  assert.equal(stats.length, 0);
+  workers[1].send({ type: "move", requestId: 2, result: { index: 112 } });
+  assert.equal((await opening).index, 112);
+  engine.dispose();
+});
 
 test("capability selection does not require shared memory on ordinary hosting", () => {
   assert.equal(selectVariant({ simd: true, multi: false }), "rapfi-single-simd128");
@@ -28,13 +65,16 @@ test("capability selection does not require shared memory on ordinary hosting", 
 });
 
 test("search preserves input, collects stats and reuses the worker", async () => {
-  const { engine, workers } = setup();
+  const { engine, workers, stats } = setup();
   const board = position();
   const original = board.slice();
   const first = engine.search({ board, sideToMove: 2, timeMs: 5000, requestId: 1 });
   workers[0].send({ type: "ready" });
   await Promise.resolve();
   workers[0].send({ type: "stats", requestId: 1, stats: { nodes: 321, depth: 5 } });
+  assert.equal(stats[0].phase, "search");
+  assert.equal(stats[0].stats.depth, 5);
+  assert.equal(stats[0].sideToMove, 2);
   workers[0].send({ type: "move", requestId: 1, result: { index: 113, elapsed: 40 } });
   assert.equal((await first).nodes, 321);
   assert.deepEqual(board, original);

@@ -11,8 +11,8 @@ test("BOARD alternates actual colors even when the first row-major stone is whit
   board[114] = 0;
   assert.equal(boardCommand(board, 1), "BOARD\n7,7,1\n0,0,2\nDONE");
 });
-test("empty-board search uses BEGIN, time control uses milliseconds", () => {
-  assert.equal(boardCommand(new Uint8Array(225), 1), "BEGIN");
+test("empty-board search fully resynchronizes BOARD, time control uses milliseconds", () => {
+  assert.equal(boardCommand(new Uint8Array(225), 1), "BOARD\nDONE");
   const commands = searchCommands(new Uint8Array(225), 1, 3400);
   assert.ok(commands.includes("INFO timeout_turn 3400"));
   assert.throws(() => searchCommands(new Uint8Array(225), 1, 0));

@@ -21,8 +21,9 @@ export function selectVariant({ simd, multi }) {
 function aborted() { return new DOMException("搜索已取消", "AbortError"); }
 
 export class GomokuEngine {
-  constructor({ onState = () => {}, workerFactory, capabilities, variant, threads } = {}) {
+  constructor({ onState = () => {}, onStats = () => {}, workerFactory, capabilities, variant, threads } = {}) {
     this.onState = onState;
+    this.onStats = onStats;
     this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js", import.meta.url)));
     this.capabilities = capabilities ?? detectCapabilities();
     this.variant = variant ?? selectVariant(this.capabilities);
@@ -32,6 +33,8 @@ export class GomokuEngine {
     this.pending = null;
     this.ready = false;
     this.initPromise = null;
+    this.pondering = null;
+    this.ponderSerial = 0;
   }
 
   init() {
@@ -59,10 +62,20 @@ export class GomokuEngine {
         } else if (data.type === "loading") {
           this.onState({ state: "loading", progress: data.progress });
         } else if (data.type === "error") {
-          if (data.requestId != null && data.requestId !== this.pending?.requestId) return;
+          if (data.requestId != null && data.requestId !== this.pending?.requestId
+            && data.requestId !== this.pondering?.requestId) return;
           this.fail(new Error(data.message || "引擎暂不可用"));
+        } else if (data.type === "stats" && data.phase === "ponder") {
+          if (data.requestId !== this.pondering?.requestId || this.pending) return;
+          this.pondering.stats = { ...this.pondering.stats, ...data.stats };
+          this.onStats({ phase: "ponder", requestId: data.requestId,
+            sideToMove: this.pondering.sideToMove, stats: { ...this.pondering.stats } });
         } else if (this.pending && data.requestId === this.pending.requestId) {
-          if (data.type === "stats") this.pending.stats = { ...this.pending.stats, ...data.stats };
+          if (data.type === "stats") {
+            this.pending.stats = { ...this.pending.stats, ...data.stats };
+            this.onStats({ phase: "search", requestId: data.requestId,
+              sideToMove: this.pending.sideToMove, stats: { ...this.pending.stats } });
+          }
           if (data.type === "move") {
             const pending = this.pending;
             const result = data.result;
@@ -88,6 +101,7 @@ export class GomokuEngine {
     validatePosition(board, sideToMove);
     if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
     if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
+    this.stopPonder();
     const copy = Array.from(board);
     const ready = this.init();
     const generation = this.generation;
@@ -96,15 +110,45 @@ export class GomokuEngine {
     if (this.pending) throw new Error("已有搜索正在进行");
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => this.fail(new Error("引擎未能按时返回，请重试")), timeMs + 3000);
-      this.pending = { requestId, board: copy, resolve, reject, timer, stats: {} };
+      this.pending = { requestId, board: copy, sideToMove, resolve, reject, timer, stats: {} };
       this.onState({ state: "thinking" });
       try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId }); }
       catch (error) { this.fail(error); }
     });
   }
 
+  async ponder({ board, sideToMove, requestId }) {
+    validatePosition(board, sideToMove);
+    if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
+    this.stopPonder();
+    const serial = this.ponderSerial;
+    const copy = Array.from(board);
+    const ready = this.init();
+    const generation = this.generation;
+    await ready;
+    if (generation !== this.generation || serial !== this.ponderSerial) throw aborted();
+    if (this.pending) throw new Error("已有搜索正在进行");
+    this.pondering = { requestId, sideToMove, stats: {} };
+    try {
+      this.worker.postMessage({ type: "ponder", board: copy, sideToMove, requestId });
+      this.onState({ state: "ready", pondering: true, variant: this.variant, threads: this.threads });
+    } catch (error) { this.fail(error); throw error; }
+  }
+
+  stopPonder() {
+    this.ponderSerial += 1;
+    if (!this.pondering) return;
+    this.pondering = null;
+    try { this.worker?.postMessage({ type: "stop-ponder" }); }
+    catch (error) { this.fail(error); return; }
+    if (this.ready && !this.pending) this.onState({ state: "ready", pondering: false,
+      variant: this.variant, threads: this.threads });
+  }
+
   reset(error = aborted()) {
     this.generation += 1;
+    this.ponderSerial += 1;
+    this.pondering = null;
     clearTimeout(this.initTimer);
     this.worker?.terminate();
     this.worker = null;
@@ -120,7 +164,7 @@ export class GomokuEngine {
   }
 
   cancel() {
-    if (this.pending || (this.worker && !this.ready)) {
+    if (this.pending || this.pondering || (this.worker && !this.ready)) {
       this.reset();
       this.onState({ state: "idle" });
     }

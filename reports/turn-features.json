@@ -1,0 +1,30 @@
+{
+  "startedAt": "2026-10-01T14:42:29.123Z",
+  "runtime": "Original Rapfi WASM + deterministic protocol double for UI edge cases; no new chess-strength benchmark",
+  "browser": "153.0.8010.0",
+  "checks": [
+    "real rapfi-single-simd128: black opening, live background stats, interrupted foreground search and reset",
+    "real rapfi-single: black opening, live background stats, interrupted foreground search and reset",
+    "real rapfi-multi-simd128: black opening, live background stats, interrupted foreground search and reset",
+    "real rapfi-multi: black opening, live background stats, interrupted foreground search and reset",
+    "real /plain/ UI: empty pondering, AI-first game, stats, white undo and restart during thinking",
+    "real /ai/ UI: empty pondering, AI-first game, stats, white undo and restart during thinking",
+    "plain: background streams stats without placing hypothetical moves",
+    "plain: AI black opening, white previews, alternating turns and white undo",
+    "plain: restart during AI search and rapid color changes discard old moves",
+    "plain: background stops and color/ponder preferences survive reload",
+    "plain: page visibility pauses/resumes background analysis",
+    "plain: a white win is attributed to the player and can be undone",
+    "ai: background streams stats without placing hypothetical moves",
+    "ai: AI black opening, white previews, alternating turns and white undo",
+    "ai: restart during AI search and rapid color changes discard old moves",
+    "ai: background stops and color/ponder preferences survive reload",
+    "ai: page visibility pauses/resumes background analysis",
+    "ai: a white win is attributed to the player and can be undone",
+    "390×844: white two-tap confirmation and one-screen layout",
+    "320×568: white two-tap confirmation and one-screen layout",
+    "844×390: white two-tap confirmation and one-screen layout"
+  ],
+  "completedAt": "2026-10-01T14:43:12.681Z",
+  "passed": true
+}

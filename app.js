@@ -1,18 +1,22 @@
 import { SIZE, CELL_COUNT, BLACK, WHITE, validIndex, outcome, snapshot, restore } from "./game-rules.js";
 import { createBoardView } from "./board-view.js";
 import { GomokuEngine } from "./engine.js";
+import { describeSearch } from "./search-info.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
 const stateText = document.querySelector("#stateText");
 const stateIndicator = document.querySelector("#stateIndicator");
 const timeSelect = document.querySelector("#timeSelect");
+const colorSelect = document.querySelector("#colorSelect");
+const ponderToggle = document.querySelector("#ponderToggle");
 const undoButton = document.querySelector("#undoButton");
 const retryButton = document.querySelector("#retryButton");
 const searchClock = document.querySelector("#searchClock");
 const board = new Uint8Array(CELL_COUNT);
 const rounds = [];
 let currentColor = BLACK;
+let playerColor = BLACK;
 let winner = 0;
 let lastMove = -1;
 let pendingIndex = -1;
@@ -26,25 +30,40 @@ let requestId = 0;
 let searchStarted = 0;
 let clockTimer;
 let lastResult = null;
+let liveStats = null;
+let statsSide = WHITE;
+let statsPhase = "search";
+let statsTimer;
+let pondering = false;
 
 try {
   const savedTime = localStorage.getItem("gomoku-thinking-ms");
   if ([...timeSelect.options].some(option => option.value === savedTime)) timeSelect.value = savedTime;
+  const savedColor = localStorage.getItem("gomoku-player-color");
+  if (["1", "2"].includes(savedColor)) playerColor = Number(savedColor);
+  colorSelect.value = String(playerColor);
+  ponderToggle.checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { /* storage can be unavailable */ }
 
 const engine = new GomokuEngine({ onState: event => {
   state = event.state;
   loadingProgress = event.progress;
+  pondering = Boolean(event.pondering);
   render();
+}, onStats: event => {
+  liveStats = event.stats;
+  statsSide = event.sideToMove;
+  statsPhase = event.phase;
+  if (!statsTimer) statsTimer = setTimeout(() => { statsTimer = null; updateSearchInfo(); }, 100);
 } });
 
-function canInteract() { return state === "ready" && !thinking && !winner && currentColor === BLACK; }
+function canInteract() { return state === "ready" && !thinking && !winner && currentColor === playerColor; }
 
 function render() {
   const interactive = canInteract();
-  view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive });
+  view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive, playerColor });
   let text = "轮到你落子";
-  if (winner) text = winner === BLACK ? "你赢了" : winner === WHITE ? "AI 获胜" : "平局";
+  if (winner) text = winner === playerColor ? "你赢了" : winner === 3 ? "平局" : "AI 获胜";
   else if (state === "error") text = "AI 暂不可用，请重试或悔棋";
   else if (state === "loading" || state === "idle") text = Number.isFinite(loadingProgress)
     ? `正在加载 AI · ${Math.round(loadingProgress * 100)}%` : "正在准备 AI";
@@ -59,58 +78,86 @@ function render() {
   boardSvg.setAttribute("aria-disabled", String(!interactive));
   boardSvg.setAttribute("aria-label", `15 乘 15 五子棋棋盘，${text}。方向键选点，回车落子。`);
   updateClock();
+  updateSearchInfo();
 }
 
 function updateClock() {
   searchClock.textContent = thinking
     ? `${((performance.now() - searchStarted) / 1000).toFixed(1)} 秒`
-    : lastResult ? `上一步 ${(lastResult.elapsed / 1000).toFixed(1)} 秒` : "你执黑 · 无禁手";
+    : lastResult ? `上一步 ${(lastResult.elapsed / 1000).toFixed(1)} 秒`
+    : `你执${playerColor === BLACK ? "黑 · 先手" : "白 · AI 先手"} · 无禁手`;
 }
 
 function stopClock() { clearInterval(clockTimer); clockTimer = null; }
 
+function updateSearchInfo() {
+  const info = describeSearch(liveStats, statsSide, 3 - playerColor);
+  document.querySelector("#searchDepth").textContent = info.depth;
+  document.querySelector("#searchScore").textContent = info.score;
+  document.querySelector("#searchNodes").textContent = info.nodes;
+  document.querySelector("#searchSpeed").textContent = info.speed;
+  document.querySelector("#analysisState").textContent = thinking ? "AI 搜索中"
+    : pondering ? "AI 后台思考中" : !liveStats ? "AI 搜索信息"
+    : statsPhase === "ponder" ? "最近后台分析" : "上次搜索";
+}
+
+async function syncPonder() {
+  if (!canInteract() || !ponderToggle.checked || document.hidden) { engine.stopPonder(); return; }
+  if (engine.pondering) return;
+  try { await engine.ponder({ board, sideToMove: playerColor, requestId: ++requestId }); }
+  catch (error) { if (error.name !== "AbortError") render(); }
+}
+
 async function prepareEngine() {
   try {
     await engine.init();
-    if (!winner && currentColor === WHITE && !thinking) await startSearch();
+    if (!winner && currentColor !== playerColor && !thinking) await startSearch();
+    else if (!thinking) await syncPonder();
   } catch (error) { if (error.name !== "AbortError") render(); }
 }
 
 async function startSearch() {
-  if (thinking || winner || currentColor !== WHITE) return;
+  if (thinking || winner || currentColor === playerColor) return;
+  engine.stopPonder();
   const id = ++requestId;
   thinking = true;
+  pondering = false;
+  liveStats = null;
+  statsPhase = "search";
+  statsSide = 3 - playerColor;
   hoverIndex = pendingIndex = -1;
   searchStarted = performance.now();
   stopClock();
   clockTimer = setInterval(updateClock, 100);
   render();
   try {
-    const result = await engine.search({ board, sideToMove: WHITE, timeMs: Number(timeSelect.value), requestId: id });
-    if (id !== requestId || winner || currentColor !== WHITE) return;
+    const result = await engine.search({ board, sideToMove: 3 - playerColor, timeMs: Number(timeSelect.value), requestId: id });
+    if (id !== requestId || winner || currentColor === playerColor) return;
     if (!validIndex(result.index) || board[result.index]) throw new Error("无效落点");
-    board[result.index] = WHITE;
+    board[result.index] = 3 - playerColor;
     lastMove = result.index;
     lastResult = result;
+    liveStats = result;
     winner = outcome(board, lastMove);
-    currentColor = BLACK;
+    currentColor = playerColor;
   } catch (error) {
     if (id !== requestId || error.name === "AbortError") return;
     state = "error";
   } finally {
-    if (id === requestId) { thinking = false; stopClock(); render(); }
+    if (id === requestId) { thinking = false; stopClock(); render(); void syncPonder(); }
   }
 }
 
 function place(index) {
   if (!canInteract() || !validIndex(index) || board[index]) return;
   rounds.push(snapshot(board, lastMove));
-  board[index] = BLACK;
+  engine.stopPonder();
+  board[index] = playerColor;
   lastMove = index;
   pendingIndex = hoverIndex = -1;
   winner = outcome(board, index);
   if (winner) { render(); return; }
-  currentColor = WHITE;
+  currentColor = 3 - playerColor;
   void startSearch();
 }
 
@@ -123,7 +170,11 @@ function invalidateSearch() {
   requestId += 1;
   thinking = false;
   stopClock();
-  engine.cancel();
+  engine.reset();
+  state = "idle";
+  pondering = false;
+  liveStats = null;
+  clearTimeout(statsTimer); statsTimer = null;
   pendingIndex = hoverIndex = -1;
 }
 
@@ -133,7 +184,7 @@ function undo() {
   if (!saved) return;
   invalidateSearch();
   lastMove = restore(board, saved);
-  currentColor = BLACK;
+  currentColor = playerColor;
   winner = 0;
   lastResult = null;
   render();
@@ -189,6 +240,16 @@ boardSvg.addEventListener("keydown", event => {
 timeSelect.addEventListener("change", () => {
   try { localStorage.setItem("gomoku-thinking-ms", timeSelect.value); } catch { /* optional preference */ }
 });
+colorSelect.addEventListener("change", () => {
+  playerColor = Number(colorSelect.value);
+  try { localStorage.setItem("gomoku-player-color", colorSelect.value); } catch { /* optional preference */ }
+  restart();
+});
+ponderToggle.addEventListener("change", () => {
+  try { localStorage.setItem("gomoku-pondering", String(ponderToggle.checked)); } catch { /* optional preference */ }
+  void syncPonder();
+});
+document.addEventListener("visibilitychange", () => { void syncPonder(); });
 undoButton.addEventListener("click", undo);
 document.querySelector("#restartButton").addEventListener("click", restart);
 retryButton.addEventListener("click", () => { engine.reset(); void prepareEngine(); });
