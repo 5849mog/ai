@@ -85,6 +85,10 @@ try {
       await game.reload();
       await waitReady(game);
       assert.equal(await game.locator("#timeSelect").inputValue(), "5000");
+      await game.locator("#timeSelect").selectOption("1000");
+      await game.reload();
+      await waitReady(game);
+      assert.equal(await game.locator("#timeSelect").inputValue(), "1000");
       await game.locator('[data-index="112"]').hover();
       assert.equal(await game.locator(".hover-stone").count(), 1);
       await game.locator('[data-index="112"]').click();

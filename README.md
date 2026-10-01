@@ -4,7 +4,7 @@
 
 [在线试玩](https://5849mog.github.io/ai/)。GitHub Pages 托管网页和权重，AI 计算仍在访问者的电脑上完成。
 
-只有一个 AI：Rapfi 250615，使用 mix9svq 神经网络评估。每步默认最多思考 10 秒，可切换为 5 秒；找到确定胜着时允许提前落子。没有等级称号、娱乐技能或在线模型。
+只有一个 AI：Rapfi 250615，使用 mix9svq 神经网络评估。每步默认最多思考 10 秒，可切换为 1 秒或 5 秒；找到确定胜着时允许提前落子。没有等级称号、娱乐技能或在线模型。
 
 ## 运行
 
@@ -42,7 +42,7 @@ await engine.init();
 const result = await engine.search({
   board,           // 225 个交点，0 空、1 黑、2 白；调用方数组不会被修改
   sideToMove: 2,   // 黑先白后，棋子数量须与行棋方一致
-  timeMs: 10000,   // 1–30000 ms，界面只提供 5000/10000
+  timeMs: 10000,   // 1–30000 ms，界面提供 1000/5000/10000
   requestId: 1     // 调用方递增的安全整数
 });
 // result: index, x, y, elapsed, requestId, evaluator, weight；以及实际输出的 depth/nodes/nps 等

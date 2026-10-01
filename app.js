@@ -27,7 +27,10 @@ let searchStarted = 0;
 let clockTimer;
 let lastResult = null;
 
-try { timeSelect.value = localStorage.getItem("gomoku-thinking-ms") === "5000" ? "5000" : "10000"; } catch { /* storage can be unavailable */ }
+try {
+  const savedTime = localStorage.getItem("gomoku-thinking-ms");
+  if ([...timeSelect.options].some(option => option.value === savedTime)) timeSelect.value = savedTime;
+} catch { /* storage can be unavailable */ }
 
 const engine = new GomokuEngine({ onState: event => {
   state = event.state;
