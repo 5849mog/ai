@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f4f2ec" />
-    <meta name="description" content="五目五子棋 · 与本机 AI 对弈。" />
+    <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
     <title>五目 · Gomoku</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
@@ -12,84 +12,30 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="./" aria-label="五目">
-          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="brand-copy">五目</span>
-        </a>
-        <div class="topbar-actions">
-          <button class="mode-trigger" id="modeButton" type="button" aria-pressed="false" title="新对局中切换">
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 2 1.65 5.35L17 9l-5.35 1.65L10 16l-1.65-5.35L3 9l5.35-1.65L10 2Z"/><path d="m16 13 .8 2.2L19 16l-2.2.8L16 19l-.8-2.2L13 16l2.2-.8L16 13Z"/></svg>
-            <span>娱乐</span>
-          </button>
-          <button class="level-trigger" id="levelButton" type="button" aria-haspopup="dialog" aria-controls="levelDialog">
-            <span class="level-trigger-label">AI 等级</span>
-            <span id="levelButtonLabel">01 · 初见</span>
-            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5.5 7.5 4.5 4.5 4.5-4.5"/></svg>
-          </button>
-        </div>
+        <a class="brand" href="./" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
+        <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option></select></label>
       </header>
-
       <main class="game-layout">
         <section class="board-card" aria-label="五子棋对弈">
           <div class="board-toolbar">
-            <div class="game-state" aria-live="polite">
-              <span class="state-indicator" id="stateIndicator"></span>
-              <strong id="stateText">轮到你落子</strong>
-            </div>
+            <div class="game-state" role="status"><span class="state-indicator thinking" id="stateIndicator"></span><strong id="stateText">正在准备 AI</strong></div>
+            <button class="retry-button" id="retryButton" type="button" hidden>重试</button>
             <span class="board-size">15 × 15</span>
           </div>
-
-          <div class="board-wrap">
-            <div class="board-frame">
-              <svg id="boardSvg" class="board-svg" viewBox="0 0 620 620" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="15乘15五子棋棋盘"></svg>
-            </div>
-          </div>
-
-          <div class="skill-tray" id="skillTray" aria-label="娱乐技能">
-            <button class="skill-button" type="button" data-skill="double" title="双星连落：一次放下两枚黑子" aria-label="双星连落，每局一次" aria-pressed="false">
-              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4.2"/><circle cx="16" cy="12" r="4.2"/><path d="M12 5v14"/></svg></span>
-              <strong>双星</strong><span class="skill-charge">1</span>
-            </button>
-            <button class="skill-button" type="button" data-skill="mirror" title="镜像：同时在棋盘中心对称点落子" aria-label="镜像落子，每局一次" aria-pressed="false">
-              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7.7 6.5 4 12l3.7 5.5M16.3 6.5 20 12l-3.7 5.5"/><circle cx="6" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></span>
-              <strong>镜像</strong><span class="skill-charge">1</span>
-            </button>
-            <button class="skill-button" type="button" data-skill="freeze" title="冻结：本次落子后再获得一次行动" aria-label="冻结 AI 一回合，每局一次" aria-pressed="false">
-              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14M4 8l4 2M4 16l4-2M20 8l-4 2M20 16l-4-2"/></svg></span>
-              <strong>冻结</strong><span class="skill-charge">1</span>
-            </button>
-            <button class="skill-button" type="button" data-skill="removeWhite" title="除白：移除一枚 AI 白子，再正常落子" aria-label="移除一枚 AI 白子，每局一次" aria-pressed="false">
-              <span class="skill-glyph"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="m9 9 6 6m0-6-6 6"/></svg></span>
-              <strong>除白</strong><span class="skill-charge">1</span>
-            </button>
-          </div>
-
+          <div class="board-wrap"><div class="board-frame">
+            <svg id="boardSvg" class="board-svg" viewBox="0 0 620 620" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
+          </div></div>
           <div class="board-bottom">
-            <span class="bottom-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="search-clock" id="searchClock">你执黑 · 无禁手</span>
             <div class="game-actions">
-              <button class="icon-button" id="undoButton" type="button" aria-label="撤回一轮" title="撤回一轮" disabled>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8 4 12l4 4M4.5 12h9a5.5 5.5 0 0 1 0 11H12"/></svg>
-              </button>
-              <button class="icon-button icon-button-primary" id="restartButton" type="button" aria-label="重新开局" title="重新开局">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 .1 2M20 4v7h-7"/></svg>
-              </button>
+              <button class="icon-button" id="undoButton" type="button" aria-label="悔棋" title="恢复到你上次落子前" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6-5 5 5 5M4 11h10a5 5 0 0 1 0 10h-2"/></svg><span>悔棋</span></button>
+              <button class="icon-button icon-button-primary" id="restartButton" type="button" aria-label="新局" title="重新开局"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 .1 2M20 4v7h-7"/></svg><span>新局</span></button>
             </div>
           </div>
         </section>
       </main>
+      <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
     </div>
-
-    <dialog class="level-dialog" id="levelDialog" aria-labelledby="levelDialogTitle">
-      <section class="level-sheet">
-        <div class="level-dialog-header">
-          <h1 id="levelDialogTitle">选择等级</h1>
-          <button class="icon-button dialog-close" id="closeLevelDialog" type="button" aria-label="关闭">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
-          </button>
-        </div>
-        <div class="level-options" id="levelOptions"></div>
-      </section>
-    </dialog>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

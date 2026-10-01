@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { SIZE } from "./engine.js";
+import { SIZE } from "./game-rules.js";
 import { createBoardView } from "./board-view.js";
 
 function makeSvg() {

@@ -1,0 +1,528 @@
+{
+  "startedAt": "2026-10-01T03:52:56.541Z",
+  "checks": [
+    {
+      "name": "chrome: rapfi-single-simd128",
+      "passed": true,
+      "browser": "154.0.8037.92",
+      "move": {
+        "depth": 11,
+        "selectiveDepth": 11,
+        "nodes": 1385,
+        "elapsed": 300,
+        "nps": 44677,
+        "evaluation": -432,
+        "index": 96,
+        "x": 6,
+        "y": 6,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "chrome: rapfi-multi-simd128",
+      "passed": true,
+      "browser": "154.0.8037.92",
+      "move": {
+        "depth": 12,
+        "selectiveDepth": 16,
+        "nodes": 25579,
+        "elapsed": 441,
+        "nps": 261010,
+        "evaluation": -412,
+        "index": 82,
+        "x": 7,
+        "y": 5,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "chrome: rapfi-single",
+      "passed": true,
+      "browser": "154.0.8037.92",
+      "move": {
+        "depth": 11,
+        "selectiveDepth": 11,
+        "nodes": 1385,
+        "elapsed": 366,
+        "nps": 14578,
+        "evaluation": -432,
+        "index": 82,
+        "x": 7,
+        "y": 5,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "chrome: rapfi-multi",
+      "passed": true,
+      "browser": "154.0.8037.92",
+      "move": {
+        "depth": 10,
+        "selectiveDepth": 18,
+        "nodes": 11251,
+        "elapsed": 426,
+        "nps": 69881,
+        "evaluation": -490,
+        "index": 97,
+        "x": 7,
+        "y": 6,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "all 12 independently proven tactical positions",
+      "passed": true
+    },
+    {
+      "name": "chrome: /ai/ mouse, keyboard, preference, consecutive rounds, worker reuse, undo/restart while thinking, offline game and licenses",
+      "passed": true
+    },
+    {
+      "name": "chrome: /plain/ mouse, keyboard, preference, consecutive rounds, worker reuse, undo/restart while thinking, offline game and licenses",
+      "passed": true
+    },
+    {
+      "name": "mobile: two-tap confirmation and no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "engine load failure and successful retry",
+      "passed": true
+    },
+    {
+      "name": "search failure preserves the board and retry continues the same turn",
+      "passed": true
+    },
+    {
+      "name": "service worker caches coexist across subdirectory scopes and both reload offline",
+      "passed": true
+    },
+    {
+      "name": "msedge: rapfi-single-simd128",
+      "passed": true,
+      "browser": "135.0.3179.98",
+      "move": {
+        "depth": 12,
+        "selectiveDepth": 18,
+        "nodes": 10343,
+        "elapsed": 298,
+        "nps": 59786,
+        "evaluation": -428,
+        "index": 96,
+        "x": 6,
+        "y": 6,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "msedge: rapfi-multi-simd128",
+      "passed": true,
+      "browser": "135.0.3179.98",
+      "move": {
+        "depth": 13,
+        "selectiveDepth": 18,
+        "nodes": 24553,
+        "elapsed": 414,
+        "nps": 295819,
+        "evaluation": -475,
+        "index": 82,
+        "x": 7,
+        "y": 5,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "msedge: rapfi-single",
+      "passed": true,
+      "browser": "135.0.3179.98",
+      "move": {
+        "depth": 11,
+        "selectiveDepth": 11,
+        "nodes": 1385,
+        "elapsed": 344,
+        "nps": 14132,
+        "evaluation": -432,
+        "index": 82,
+        "x": 7,
+        "y": 5,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "msedge: rapfi-multi",
+      "passed": true,
+      "browser": "135.0.3179.98",
+      "move": {
+        "depth": 10,
+        "selectiveDepth": 16,
+        "nodes": 9576,
+        "elapsed": 393,
+        "nps": 74812,
+        "evaluation": -488,
+        "index": 81,
+        "x": 6,
+        "y": 5,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "name": "msedge: /ai/ mouse, keyboard, preference, consecutive rounds, worker reuse, undo/restart while thinking, offline game and licenses",
+      "passed": true
+    },
+    {
+      "name": "msedge: /plain/ mouse, keyboard, preference, consecutive rounds, worker reuse, undo/restart while thinking, offline game and licenses",
+      "passed": true
+    }
+  ],
+  "tactics": [
+    {
+      "id": "vcf-two-attacks-r0-normal",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          113,
+          64,
+          48,
+          128
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13361,
+        "elapsed": 221,
+        "nps": 145228,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 1
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r1-normal",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          127,
+          70,
+          56,
+          126
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13344,
+        "elapsed": 61,
+        "nps": 222400,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 2
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r2-normal",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          111,
+          96,
+          80,
+          160
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13943,
+        "elapsed": 79,
+        "nps": 178756,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 3
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r3-normal",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          97,
+          98,
+          84,
+          154
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13826,
+        "elapsed": 70,
+        "nps": 197514,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 4
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r0-mirror",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          111,
+          70,
+          56,
+          126
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13454,
+        "elapsed": 67,
+        "nps": 200805,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 5
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r1-mirror",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          97,
+          96,
+          80,
+          160
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13920,
+        "elapsed": 72,
+        "nps": 196056,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 6
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r2-mirror",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          113,
+          98,
+          84,
+          154
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13941,
+        "elapsed": 71,
+        "nps": 196352,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 7
+      }
+    },
+    {
+      "id": "vcf-two-attacks-r3-mirror",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          127,
+          64,
+          48,
+          128
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 3,
+        "nodes": 13309,
+        "elapsed": 64,
+        "nps": 211253,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 8
+      }
+    },
+    {
+      "id": "open-four-fork",
+      "passed": true,
+      "expected": [
+        109,
+        113
+      ],
+      "proofs": {
+        "109": [
+          109,
+          108,
+          113
+        ],
+        "113": [
+          113,
+          109,
+          114
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 2,
+        "nodes": 50,
+        "elapsed": 4,
+        "nps": 12500,
+        "index": 109,
+        "x": 4,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 9
+      }
+    },
+    {
+      "id": "two-closed-fours",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {
+        "112": [
+          112,
+          113,
+          127
+        ]
+      },
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 2,
+        "nodes": 50,
+        "elapsed": 2,
+        "nps": 50000,
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 10
+      }
+    },
+    {
+      "id": "defend-before-attack",
+      "passed": true,
+      "expected": [
+        38
+      ],
+      "proofs": {},
+      "result": {
+        "depth": 26,
+        "selectiveDepth": 9,
+        "nodes": 208084,
+        "elapsed": 1300,
+        "nps": 160064,
+        "evaluation": 971,
+        "index": 38,
+        "x": 8,
+        "y": 2,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 11
+      }
+    },
+    {
+      "id": "take-win-before-block",
+      "passed": true,
+      "expected": [
+        112
+      ],
+      "proofs": {},
+      "result": {
+        "index": 112,
+        "x": 7,
+        "y": 7,
+        "elapsed": 0,
+        "evaluator": "mix9svq",
+        "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+        "requestId": 12
+      }
+    }
+  ],
+  "completedAt": "2026-10-01T03:54:43.614Z",
+  "passed": true
+}

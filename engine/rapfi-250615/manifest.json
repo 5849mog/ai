@@ -1,0 +1,84 @@
+{
+  "engine": "Rapfi",
+  "release": "250615",
+  "sourceCommit": "1be1551ced57e38d53ed58f6d74bf6f8b4bdc230",
+  "networksCommit": "918b757a129258e9e765f77fe17d507c2bb1a60b",
+  "emscripten": "3.1.64",
+  "rules": "freestyle-15",
+  "evaluator": "mix9svq",
+  "patches": {
+    "rapfi-scalar-mix9.patch": "f2fdc0fdc2827bd87132c9d278b5485a7a83556a27f238a124ce867accd59533",
+    "rapfi-single-thread.patch": "42e7aa02ae2a750a81e6118a47f4db2f966cb6ab0a7bbd1448a5f25c32c5412b"
+  },
+  "variants": [
+    "rapfi-single-simd128",
+    "rapfi-multi-simd128",
+    "rapfi-single",
+    "rapfi-multi"
+  ],
+  "files": {
+    "config.toml": {
+      "bytes": 6293,
+      "sha256": "7d0154ee9c716fc9a77ee9002b04be386f60c06707801e01e57ff9ee19e3a4e9"
+    },
+    "COPYING-Rapfi.txt": {
+      "bytes": 35141,
+      "sha256": "6bab265559d5ebe9f259f2f54e9640bb4c8c8535bacd37c18125231f6fa9acf7"
+    },
+    "LICENSE-Networks.txt": {
+      "bytes": 6669,
+      "sha256": "084bc2aebf95358b73255bd38213fdb27bfd19c6819ae7c1d0679400cf01cea1"
+    },
+    "rapfi-multi-simd128.js": {
+      "bytes": 49490,
+      "sha256": "6ebae9b831a69b2a948e9dac29d2bb39156a585000200d5ceb6ae42dd1b2af33"
+    },
+    "rapfi-multi-simd128.wasm": {
+      "bytes": 1136255,
+      "sha256": "e6a35bc7a139fd4e9ae1d0708c6e6cfe58dfebe0151367f540a55b333362170b"
+    },
+    "rapfi-multi-simd128.worker.js": {
+      "bytes": 299,
+      "sha256": "7e6dad4bca61807357acfcb3789c781deaca3e20214ccd76dd82ddcb0be0a153"
+    },
+    "rapfi-multi.js": {
+      "bytes": 49418,
+      "sha256": "1122da4b31d244954af11d6947f4d2b307b81dc29a7de41ad996544d1b2cad9c"
+    },
+    "rapfi-multi.wasm": {
+      "bytes": 1070272,
+      "sha256": "9a218ad1fc8b9e6f5cbc9a495108ac1fd31e204fda0d1e6db2c172465c44340e"
+    },
+    "rapfi-multi.worker.js": {
+      "bytes": 299,
+      "sha256": "7e6dad4bca61807357acfcb3789c781deaca3e20214ccd76dd82ddcb0be0a153"
+    },
+    "rapfi-single-simd128.js": {
+      "bytes": 41681,
+      "sha256": "345ead03ed648d7ff9724c7f1cc589d607d66ee8f1a7017c219258ebb1a63f93"
+    },
+    "rapfi-single-simd128.wasm": {
+      "bytes": 1106739,
+      "sha256": "b59b574131dd6f520bb281dd771529cfc1896a3cb68fc364426f895a3e7759d0"
+    },
+    "rapfi-single.js": {
+      "bytes": 41609,
+      "sha256": "dd2369e241c690b47d71dc9ce0a3682483b3953797dd4ade2f9e022666303b82"
+    },
+    "rapfi-single.wasm": {
+      "bytes": 1039671,
+      "sha256": "0b4d4559d9537d66269249529e2aee51a63f85e73f5c672fd5f85f39bf45343d"
+    },
+    "rapfi.data": {
+      "bytes": 10059895,
+      "sha256": "ffdfcd33f35ab916abefa62eafa105b32a9f9a1afdacf49ff6d11d02c44e5415"
+    },
+    "NOTICE-Dependencies.txt": {
+      "bytes": 119520,
+      "sha256": "f5775a358699583c4de41da0036add7cb1093f115386dff166434c5c4e8273aa"
+    }
+  },
+  "emsdkCommit": "e566f7bdcc7735f44037911c24b87a58a3c93145",
+  "cmake": "cmake version 4.4.3",
+  "ninja": "1.13.2"
+}

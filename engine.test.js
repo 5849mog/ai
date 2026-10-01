@@ -1,119 +1,93 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chooseMove, findForcingMoves, findImmediateWins, hasFive, LEVELS, SIZE } from "./engine.js";
+import { GomokuEngine, detectCapabilities, selectVariant } from "./engine.js";
 
-const index = (x, y) => y * SIZE + x;
+class FakeWorker {
+  sent = [];
+  postMessage(message) { this.sent.push(message); }
+  terminate() { this.terminated = true; }
+  send(data) { this.onmessage({ data }); }
+}
+function setup() {
+  const workers = [];
+  const events = [];
+  const engine = new GomokuEngine({ onState: e => events.push(e), capabilities: { simd: true, multi: false, threads: 1 },
+    workerFactory: () => { const worker = new FakeWorker(); workers.push(worker); return worker; } });
+  return { engine, workers, events };
+}
+const position = () => { const board = new Uint8Array(225); board[112] = 1; return board; };
 
-test("the engine takes an immediate winning point", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  for (let x = 4; x <= 7; x += 1) board[index(x, 7)] = 2;
-
-  const wins = findImmediateWins(board, 2);
-
-  for (let level = 1; level <= LEVELS.length; level += 1) {
-    const result = chooseMove(board, level);
-    assert.ok(wins.includes(result.index));
-    assert.equal(result.reason, "win");
-  }
-  assert.equal(board[wins[0]], 0, "search must leave the input board unchanged");
+test("capability selection does not require shared memory on ordinary hosting", () => {
+  assert.equal(selectVariant({ simd: true, multi: false }), "rapfi-single-simd128");
+  assert.equal(selectVariant({ simd: false, multi: true }), "rapfi-multi");
+  const cap = detectCapabilities({ WebAssembly, navigator: { hardwareConcurrency: 16 }, crossOriginIsolated: true, SharedArrayBuffer });
+  assert.equal(cap.threads, 4);
+  const tiny = detectCapabilities({ WebAssembly, navigator: { hardwareConcurrency: 1 }, crossOriginIsolated: true, SharedArrayBuffer });
+  assert.equal(tiny.threads, 1);
+  assert.equal(detectCapabilities({ WebAssembly, crossOriginIsolated: false }).multi, false);
 });
 
-test("the engine blocks a single immediate opponent win", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  for (let x = 5; x <= 8; x += 1) board[index(x, 6)] = 1;
-  board[index(4, 6)] = 2;
-
-  const threats = findImmediateWins(board, 1);
-  assert.equal(threats.length, 1);
-  for (let level = 1; level <= LEVELS.length; level += 1) {
-    const result = chooseMove(board, level);
-    assert.ok(threats.includes(result.index));
-    assert.equal(result.reason, "block");
-  }
-});
-
-test("the opening move is the center and all returned moves are legal", () => {
-  const empty = new Uint8Array(SIZE * SIZE);
-  const opening = chooseMove(empty, 4);
-  assert.equal(opening.index, index(7, 7));
-
-  const board = new Uint8Array(SIZE * SIZE);
-  board[index(7, 7)] = 1;
-  board[index(8, 7)] = 2;
-  const reply = chooseMove(board, 4);
-  assert.ok(reply.index >= 0 && reply.index < SIZE * SIZE);
-  assert.equal(board[reply.index], 0);
-});
-
-test("the deeper search keeps its input intact and returns a legal move", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  for (const [x, y] of [[7, 7], [6, 7], [8, 8], [9, 8]]) board[index(x, y)] = 1;
-  for (const [x, y] of [[7, 8], [6, 8], [9, 7], [5, 7]]) board[index(x, y)] = 2;
+test("search preserves input, collects stats and reuses the worker", async () => {
+  const { engine, workers } = setup();
+  const board = position();
   const original = board.slice();
-
-  const result = chooseMove(board, 5);
-
-  assert.ok(result.index >= 0 && result.index < board.length);
-  assert.equal(board[result.index], 0);
-  assert.ok(result.depth >= 1);
-  assert.ok(result.nodes > 0);
-  assert.deepEqual(board, original, "search must leave the supplied position unchanged");
+  const first = engine.search({ board, sideToMove: 2, timeMs: 5000, requestId: 1 });
+  workers[0].send({ type: "ready" });
+  await Promise.resolve();
+  workers[0].send({ type: "stats", requestId: 1, stats: { nodes: 321, depth: 5 } });
+  workers[0].send({ type: "move", requestId: 1, result: { index: 113, elapsed: 40 } });
+  assert.equal((await first).nodes, 321);
+  assert.deepEqual(board, original);
+  const second = engine.search({ board, sideToMove: 2, requestId: 2 });
+  await Promise.resolve();
+  workers[0].send({ type: "move", requestId: 2, result: { index: 97 } });
+  await second;
+  assert.equal(workers.length, 1);
+  engine.dispose();
 });
 
-test("five-in-a-row detection works in all four directions", () => {
-  for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [1, -1]]) {
-    const board = new Uint8Array(SIZE * SIZE);
-    for (let step = 0; step < 5; step += 1) {
-      board[index(5 + dx * step, 7 + dy * step)] = 1;
-    }
-    assert.equal(hasFive(board, 5 + dx * 2, 7 + dy * 2, 1), true);
+test("cancellation rejects the pending search and old responses cannot resolve a new one", async () => {
+  const { engine, workers } = setup();
+  const first = engine.search({ board: position(), sideToMove: 2, requestId: 1 });
+  workers[0].send({ type: "ready" });
+  await Promise.resolve();
+  const rejected = assert.rejects(first, { name: "AbortError" });
+  engine.cancel();
+  await rejected;
+  const second = engine.search({ board: position(), sideToMove: 2, requestId: 2 });
+  workers[1].send({ type: "ready" });
+  await Promise.resolve();
+  workers[0].send({ type: "move", requestId: 1, result: { index: 113 } });
+  workers[1].send({ type: "move", requestId: 1, result: { index: 114 } });
+  workers[1].send({ type: "error", requestId: 1, message: "stale failure" });
+  assert.equal(engine.pending.requestId, 2);
+  workers[1].send({ type: "move", requestId: 2, result: { index: 97 } });
+  assert.equal((await second).index, 97);
+  assert.ok(workers[0].terminated);
+  engine.dispose();
+});
+
+test("occupied, out-of-range and malformed engine moves fail without a fallback", async () => {
+  for (const index of [112, -1, 225, NaN]) {
+    const { engine, workers, events } = setup();
+    const search = engine.search({ board: position(), sideToMove: 2, requestId: 1 });
+    workers[0].send({ type: "ready" });
+    await Promise.resolve();
+    workers[0].send({ type: "move", requestId: 1, result: { index } });
+    await assert.rejects(search, /无效/);
+    assert.equal(events.at(-1).state, "error");
+    assert.equal(workers.length, 1);
   }
 });
 
-test("difficulty tiers are monotonic and keep the same engine stack", () => {
-  assert.equal(LEVELS.length, 15);
-  for (let i = 1; i < LEVELS.length; i += 1) {
-    assert.ok(LEVELS[i].ms > LEVELS[i - 1].ms);
-    assert.ok(LEVELS[i].root > LEVELS[i - 1].root);
-    assert.ok(LEVELS[i].branch >= LEVELS[i - 1].branch);
-    assert.ok(LEVELS[i].depth >= LEVELS[i - 1].depth);
-    assert.ok(LEVELS[i].extensions >= LEVELS[i - 1].extensions);
-  }
-});
-
-test("the threat search recognizes a four with one required defense", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  board[index(4, 7)] = 1;
-  board[index(5, 7)] = 2;
-  board[index(6, 7)] = 2;
-  board[index(7, 7)] = 2;
-  const forcing = findForcingMoves(board, 2);
-  assert.ok(forcing.includes(index(8, 7)));
-
-  board[index(8, 7)] = 2;
-  assert.deepEqual(findImmediateWins(board, 2), [index(9, 7)]);
-});
-
-test("the top tier proves a forcing fork instead of relying on a position score", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  for (let x = 5; x <= 7; x += 1) board[index(x, 7)] = 2;
-  const original = board.slice();
-
-  const result = chooseMove(board, LEVELS.length);
-
-  assert.equal(result.reason, "threat-win");
-  assert.ok([index(4, 7), index(8, 7)].includes(result.index));
-  assert.deepEqual(board, original, "the threat proof must restore every simulated move");
-});
-
-test("threat proof yields when the defender already has an immediate win", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  for (let x = 1; x <= 4; x += 1) board[index(x, 2)] = 1;
-  for (let x = 5; x <= 7; x += 1) board[index(x, 7)] = 2;
-  const original = board.slice();
-
-  const result = chooseMove(board, 1);
-
-  assert.notEqual(result.reason, "threat-win");
-  assert.deepEqual(board, original, "abandoned proof branches must restore the board");
+test("a synchronous initialization failure can be retried", async () => {
+  let attempts = 0;
+  const worker = new FakeWorker();
+  const engine = new GomokuEngine({ workerFactory: () => { if (++attempts === 1) throw new Error("offline"); return worker; } });
+  await assert.rejects(engine.init(), /offline/);
+  const retry = engine.init();
+  worker.send({ type: "ready" });
+  await retry;
+  assert.equal(attempts, 2);
+  engine.dispose();
 });

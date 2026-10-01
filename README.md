@@ -1,45 +1,98 @@
 # 五目 · Gomoku Studio
 
-一个轻量、可离线托管的五子棋对弈网页。玩家执黑先手，AI 执白。棋局和搜索都在浏览器本机运行。
+一个在浏览器本机运行的五子棋对弈工具。玩家执黑先手，AI 执白；15×15、无禁手，五子或长连均获胜。
 
-## 启动
+[在线试玩](https://5849mog.github.io/ai/)。GitHub Pages 托管网页和权重，AI 计算仍在访问者的电脑上完成。
 
-需要 Python 3 和 Node.js。
+只有一个 AI：Rapfi 250615，使用 mix9svq 神经网络评估。每步默认最多思考 10 秒，可切换为 5 秒；找到确定胜着时允许提前落子。没有等级称号、娱乐技能或在线模型。
 
-运行 npm run dev，然后打开 http://localhost:4173。Node.js 仅用于运行算法测试，网页本身没有第三方运行时依赖。
+## 运行
 
-## 代码结构
+需要 Node.js 20.19+。引擎发布文件已经随仓库提供，游玩无需 Python、编译器或安装五子棋程序。
 
-- `app.js` 负责页面事件、对局状态、撤回和 AI Worker 协调。
-- `board-view.js` 负责 SVG 棋盘绘制和屏幕坐标到棋盘交点的换算。
-- `game-rules.js` 负责娱乐技能校验、执行和整轮快照。
-- `engine.js` 集中保存启发式评估与搜索实现；这些部分共享候选生成、局面缓存和威胁验证，暂时保持在一起便于算法协同调整。
-- `styles.css` 保存当前单页面的视觉样式。
+```powershell
+npm ci
+npm run dev
+```
 
-## 引擎设计
+打开 http://127.0.0.1:4187/ 。端口可通过 `PORT` 环境变量修改。鼠标悬停预览、单击落子；触屏点击两次确认；棋盘获得焦点后可用方向键选点、回车落子。
 
-15 个等级共享同一套引擎能力：
+悔棋恢复到你上次落子前。思考中也可悔棋或重开，取消的搜索不会把棋子放进新局。引擎失败会保留棋盘，重试可继续原来的 AI 回合。
 
-- 连续棋形与断点棋形评分
-- 直接成五检查、单点必挡与多点双威胁判断
-- α-β negamax、迭代加深、着法排序和置换表
-- 强制威胁延伸，继续计算连续四威胁与唯一防守点
-- 主变例优先搜索与空窗口复核，减少候选分支的重复搜索
-- 限时连续威胁验证，确认对手无法化解的强制胜序列
-- 逐级增加搜索预算、候选宽度、分支宽度、最大深度与威胁延伸上限；最高档提供 3.4 秒搜索预算
+## 静态托管与离线
 
-低等级不会关闭战术检查或故意漏掉胜着。等级是计算资源的递增档位；每步实际完成的深度还会随局面复杂度和设备速度变化。引擎运行在 Web Worker 中，不阻塞棋盘交互。
+将仓库中的网页、assets、engine 及许可文件一起托管即可。兼容 GitHub Pages 的 `/ai/` 子目录，不需要后端。
 
-这是一套独立编写的启发式搜索引擎，不调用在线模型或现成的五子棋 AI 服务。棋盘绘制使用原生 SVG，没有引入棋盘组件库。
+- 普通 HTTPS 静态托管自动使用完整 NNUE 单线程引擎，支持 SIMD 时选择 SIMD 版本。
+- 支持共享内存并具有跨源隔离条件时自动启用多线程，线程数为 `max(1, min(4, hardwareConcurrency - 1))`。
+- 本地开发服务器提供 `Cross-Origin-Opener-Policy: same-origin` 和 `Cross-Origin-Embedder-Policy: require-corp`。自定义静态服务器可设置相同响应头启用多线程；未设置时仍可正常对弈。
+- WASM 文件应使用 `application/wasm` MIME 类型。所有引擎、权重和材质请求均指向本站。
+- 首次打开后 Service Worker 缓存网页和四种引擎构建。页面显示「已缓存 · 可离线使用」后支持断网刷新和对弈。Service Worker 需要 HTTPS 或 localhost；直接打开 `file://` 不受支持。
 
-## 娱乐模式
+共享的权重数据约 10 MB，四种构建共用同一份 `rapfi.data`。搜索的 `max_memory` 参数设为 256 MiB；评估器、权重和 Worker 也会占用内存。引擎在持久 Worker 中运行，每步复用实例；中途取消时终止该 Worker，下次从本地缓存重新初始化。
 
-开局前可切换娱乐模式，每局各有一次「双星连落」「镜像」「冻结」和「除白」。所有技能先验证完整效果再应用；无效落点不会留下部分棋子或消耗技能。冻结与除白会延后 AI 回应，撤回会按整轮恢复棋盘和技能次数。
+部署新版本时需要更新 `sw.js` 的缓存版本。旧缓存只在该项目的 Service Worker scope 内清理。
 
-## 材质素材
+## 引擎接口
 
-assets/board-wood.svg、assets/paper-fiber.svg、assets/stone-satin.svg、assets/button-undo.svg 与 assets/button-restart.svg 是项目自制的矢量材质贴图，分别用于木质棋盘、页面底纹、棋子表面，以及浅色缎面撤回键和深色搪瓷新局键。贴图随屏幕缩放保持清晰，也不依赖外部图片服务。
+```js
+import { GomokuEngine } from './engine.js';
+const engine = new GomokuEngine({ onState: event => console.log(event.state) });
+await engine.init();
+const result = await engine.search({
+  board,           // 225 个交点，0 空、1 黑、2 白；调用方数组不会被修改
+  sideToMove: 2,   // 黑先白后，棋子数量须与行棋方一致
+  timeMs: 10000,   // 1–30000 ms，界面只提供 5000/10000
+  requestId: 1     // 调用方递增的安全整数
+});
+// result: index, x, y, elapsed, requestId, evaluator, weight；以及实际输出的 depth/nodes/nps 等
+engine.cancel();  // 取消未完成搜索，Promise 以 AbortError 拒绝
+engine.dispose();
+```
 
-## 测试
+初始化状态为 loading/ready/error，搜索时为 thinking。一次只接受一个搜索；超时、非法落点和引擎错误均明确失败，不使用旧引擎兜底。每次搜索都会确认指定的 mix9svq freestyle 权重已启用。
 
-运行 npm test 和 npm run check。
+协议适配层使用完整 BOARD 数据同步局面，以黑白交替顺序发送棋子，并把实际颜色转换为协议的己方/对方编号。配置禁用坐标翻转，界面、规则和搜索的坐标一致。
+
+## 重新构建引擎
+
+固定源码为 Rapfi `250615`（`1be1551ced57e38d53ed58f6d74bf6f8b4bdc230`）、Networks `918b757a129258e9e765f77fe17d507c2bb1a60b`。工具链为 Emscripten 3.1.64，构建本次发布文件所用 emsdk 提交、CMake 和 Ninja 版本记录在发布 manifest 中。
+
+Windows PowerShell 下，先准备 Python 3、Git 和构建工具：
+
+```powershell
+git clone https://github.com/emscripten-core/emsdk.git .cache/emsdk
+git -C .cache/emsdk checkout e566f7bdcc7735f44037911c24b87a58a3c93145
+.\.cache\emsdk\emsdk.bat install 3.1.64
+.\.cache\emsdk\emsdk.bat activate 3.1.64
+python -m pip install --target .cache/build-tools cmake==4.4.3 ninja==1.13.2
+npm run build:engine
+```
+
+构建脚本自动检出固定引擎源码和权重，校验版本并应用两个公开补丁：修复单线程构建的线程成员访问；在无 SIMD 的 WASM 构建中排除未使用且不支持标量构建的 mix10 评估器。mix9svq 的搜索与评估逻辑未修改。
+
+从上游 Gomocalc 配置派生本站配置：仅打包 freestyle 权重及经典棋形文件，将 `coord_conversion_mode` 设为 `none`。所有派生修改都包含在构建脚本和 scripts/patches 中。`.cache` 内的源码、SDK 和中间文件不提交。
+
+脚本输出四个 `.js/.wasm` 构建、共享数据、许可和 `manifest.json`。manifest 记录源码、工具链、补丁及每个发布文件的 SHA-256。`.gitattributes` 保留校验文件的原始字节，避免 Git 换行转换破坏校验。
+
+## 验证
+
+```powershell
+npm test
+npm run check
+npm run test:browser
+npm run benchmark
+npm run report
+```
+
+浏览器验证需要安装 Chrome 和 Edge。测试覆盖四种引擎构建、`/ai/` 子目录、无隔离头的托管、Worker 复用、鼠标/键盘/触屏、思考中悔棋与重开、错误重试、离线刷新，以及 12 个用独立穷举 VCF 验证器证明的战术局面。浏览器结果、证明与截图保存在 reports 中。
+
+棋力测试保留原项目 `0184240a0f3b84b56faba14c86e38697e9c828ce` 的完整引擎作为基线，只用于测试。使用 20 个固定合法三手开局，各交换双方执色，共 40 局；双方均单线程、每步 3.4 秒，和棋计半分，验收得分率为 75%。旧引擎执黑时交换输入棋盘颜色，不修改旧算法。
+
+结果保存在 `reports/benchmark.json`，包含设备、浏览器版本、开局与基线校验值，以及每局完整落子、耗时和胜负。中断后可运行 `npm run benchmark -- --resume`，已完成棋局不会重复。此测试衡量相对本项目旧引擎的棋力，不用于声称通用 Elo 或绝对棋力等级。
+
+完成全部对战后，`npm run report` 重新播放检查 40 局棋谱、独立战术证明和构建校验，并生成 [完整验收报告](./reports/validation.md)。
+
+## 开源许可
+
+本项目及 Rapfi：GPL-3.0-or-later。权重：CC0-1.0。完整来源、固定对应源码和修改说明见 [THIRD_PARTY.md](./THIRD_PARTY.md)，许可证随仓库和引擎发布文件提供。

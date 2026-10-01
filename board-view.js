@@ -1,5 +1,4 @@
-import { SIZE } from "./engine.js";
-import { mirrorIndex } from "./game-rules.js";
+import { SIZE } from "./game-rules.js";
 
 const PAD = 46;
 const STEP = 528 / (SIZE - 1);
@@ -36,7 +35,7 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state) {
-  const { board, lastMove, pendingIndex, selectedSkill, selectedTargets, canInteract } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract } = state;
   let svg = "";
   svg += "<defs>";
   svg += '<linearGradient id="woodSurface" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#edd5a0"/><stop offset=".48" stop-color="#e4c58e"/><stop offset="1" stop-color="#d8b47b"/></linearGradient>';
@@ -63,7 +62,7 @@ function renderBoard(boardSvg, state) {
   for (let index = 0; index < board.length; index += 1) {
     const p = point(index);
     if (board[index]) {
-      svg += '<circle cx="' + (p.x + .5) + '" cy="' + (p.y + 1.2) + '" r="14.3" fill="' +
+      svg += '<circle data-stone="' + index + '" data-color="' + board[index] + '" cx="' + (p.x + .5) + '" cy="' + (p.y + 1.2) + '" r="14.3" fill="' +
         (board[index] === 1 ? "url(#blackStone)" : "url(#whiteStone)") +
         '" stroke="' + (board[index] === 1 ? "rgba(0,0,0,.58)" : "rgba(105,99,86,.36)") +
         '" stroke-width=".75" filter="url(#stoneShadow)"/>';
@@ -72,34 +71,17 @@ function renderBoard(boardSvg, state) {
       svg += '<image class="stone-texture ' + stoneTone + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
         '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none"/>';
       if (index === lastMove) svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3"/>';
-      if (selectedSkill === "removeWhite" && board[index] === 2 && canInteract) {
-        svg += '<circle class="remove-target' + (pendingIndex === index ? " pending" : "") + '" cx="' + p.x + '" cy="' + p.y + '" r="17"/>';
-        svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
-          '" role="button" aria-label="选择白子 ' + coordinate(index) + '" tabindex="-1"/>';
-      }
       continue;
     }
 
-    const confirmed = selectedSkill === "double" && selectedTargets.includes(index);
-    if (confirmed) {
-      svg += '<circle class="confirmed-ring" cx="' + p.x + '" cy="' + p.y + '" r="16"/>';
-      svg += '<circle class="ghost-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="url(#blackStone)"/>';
+    if (hoverIndex === index && pendingIndex !== index && canInteract) {
+      svg += '<circle class="hover-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="url(#blackStone)"/>';
     }
     if (pendingIndex === index && canInteract) {
       svg += '<circle class="pending-ring" cx="' + p.x + '" cy="' + p.y + '" r="16"/>';
       svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="url(#blackStone)"/>';
-      if (selectedSkill === "mirror") {
-        const other = mirrorIndex(index);
-        const otherPoint = point(other);
-        if (other !== index && board[other] === 0) {
-          svg += '<circle class="mirror-ghost" cx="' + otherPoint.x + '" cy="' + otherPoint.y + '" r="12.3"/>';
-        } else {
-          svg += '<circle class="mirror-blocked" cx="' + otherPoint.x + '" cy="' + otherPoint.y + '" r="15"/>';
-          svg += '<path class="mirror-blocked-mark" d="M ' + (otherPoint.x - 4) + ' ' + (otherPoint.y - 4) + ' l 8 8 m 0 -8 l -8 8"/>';
-        }
-      }
     }
-    if (canInteract && selectedSkill !== "removeWhite") {
+    if (canInteract) {
       svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
         '" role="button" aria-label="选择 ' + coordinate(index) + ' 落黑子" tabindex="-1"/>';
     }

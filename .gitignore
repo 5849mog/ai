@@ -3,3 +3,6 @@ dist/
 .DS_Store
 coverage/
 __pycache__/
+.cache/
+test-results/
+playwright-report/

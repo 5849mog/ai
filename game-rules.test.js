@@ -1,121 +1,51 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { hasFive, SIZE } from "./engine.js";
-import {
-  applyPlayerMove,
-  applyWhiteRemoval,
-  captureTurnSnapshot,
-  mirrorIndex,
-  planPlayerMove,
-  planWhiteRemoval,
-  restoreTurnSnapshot
-} from "./game-rules.js";
+import { SIZE, CELL_COUNT, hasFive, outcome, validatePosition, snapshot, restore } from "./game-rules.js";
+const at = (x,y) => y * SIZE + x;
 
-const index = (x, y) => y * SIZE + x;
-
-test("double placement validates both distinct empty points before changing the board", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  const first = index(5, 6);
-  const second = index(8, 9);
-
-  const plan = planPlayerMove(board, "double", [first, second]);
-  assert.deepEqual(plan, {
-    ok: true,
-    placements: [first, second],
-    skipAI: false,
-    consumedSkill: "double"
-  });
-
-  const samePoint = applyPlayerMove(board, "double", [first, first]);
-  assert.equal(samePoint.ok, false);
-  assert.equal(board[first], 0, "invalid skill use must be atomic");
-
-  board[second] = 2;
-  const occupiedPoint = applyPlayerMove(board, "double", [first, second]);
-  assert.equal(occupiedPoint.ok, false);
-  assert.equal(board[first], 0, "a rejected pair cannot leave a partial stone");
+test("five and overline detection works in every direction and at borders", () => {
+  for (const [dx,dy] of [[1,0],[0,1],[1,1],[1,-1]]) {
+    for (const length of [5,6]) {
+      const board = new Uint8Array(CELL_COUNT);
+      for (let n = 0; n < length; n++) board[at(dx ? n : 0, dy < 0 ? 14-n : dy*n)] = 1;
+      assert.ok(hasFive(board, 0, dy < 0 ? 14 : 0, 1));
+      assert.equal(hasFive(board, 0, dy < 0 ? 14 : 0, 2), false);
+    }
+  }
+  assert.equal(hasFive(new Uint8Array(CELL_COUNT), 0, 0, 0), false);
+  assert.equal(hasFive(new Uint8Array(CELL_COUNT), 15, 0, 1), false);
+  assert.equal(hasFive(new Uint8Array(CELL_COUNT).fill(1), 7.5, 7.5, 1), false);
 });
 
-test("a legal double skill applies both stones even when they jointly finish a line", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  for (let x = 4; x < 8; x += 1) board[index(x, 7)] = 1;
-
-  const winPoint = index(8, 7);
-  const secondPoint = index(10, 9);
-  const plan = applyPlayerMove(board, "double", [winPoint, secondPoint]);
-
-  assert.equal(plan.ok, true);
-  assert.equal(board[winPoint], 1);
-  assert.equal(board[secondPoint], 1);
-  assert.equal(hasFive(board, 8, 7, 1), true);
+test("a full board without five is a draw", () => {
+  const board = Uint8Array.from({ length: CELL_COUNT }, (_,i) => ((i % SIZE + 2 * Math.floor(i / SIZE)) % 4 < 2 ? 1 : 2));
+  for (let i = 0; i < CELL_COUNT; i++) assert.equal(hasFive(board, i % SIZE, Math.floor(i / SIZE), board[i]), false);
+  assert.equal(outcome(board, CELL_COUNT - 1), 3);
 });
 
-test("mirror mapping is rotational, symmetric, and rejects center or occupied pairs", () => {
-  const center = index(7, 7);
-  const target = index(2, 4);
-  const opposite = mirrorIndex(target);
-  const board = new Uint8Array(SIZE * SIZE);
-
-  assert.equal(mirrorIndex(center), center);
-  assert.equal(mirrorIndex(opposite), target);
-  assert.equal(mirrorIndex(-1), -1);
-  assert.equal(planPlayerMove(board, "mirror", [center]).ok, false);
-
-  board[opposite] = 2;
-  const rejected = applyPlayerMove(board, "mirror", [target]);
-  assert.equal(rejected.ok, false);
-  assert.equal(board[target], 0, "an occupied mirror point cannot consume or partially apply the skill");
-
-  board[opposite] = 0;
-  const accepted = applyPlayerMove(board, "mirror", [target]);
-  assert.equal(accepted.ok, true);
-  assert.equal(board[target], 1);
-  assert.equal(board[opposite], 1);
+test("validation rejects invalid cells, wrong side, terminal positions and full boards", () => {
+  assert.throws(() => validatePosition([0], 1), /225/);
+  const board = new Uint8Array(CELL_COUNT);
+  validatePosition(board, 1);
+  board[112] = 1;
+  validatePosition(board, 2);
+  assert.throws(() => validatePosition(board, 1), /不一致/);
+  board[0] = 3;
+  assert.throws(() => validatePosition(board, 2), /225/);
+  const won = new Uint8Array(CELL_COUNT);
+  for (let x = 0; x < 5; x++) won[at(x,7)] = 1;
+  for (const x of [0,2,4,6]) won[at(x,0)] = 2;
+  assert.throws(() => validatePosition(won, 2), /结束/);
+  assert.throws(() => validatePosition(new Uint8Array(CELL_COUNT).fill(1), 2));
 });
 
-test("freeze grants one extra player action without weakening its placement plan", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  const point = index(6, 7);
-  const plan = applyPlayerMove(board, "freeze", [point]);
-
-  assert.equal(plan.ok, true);
-  assert.equal(plan.skipAI, true);
-  assert.equal(board[point], 1);
-  assert.equal(planPlayerMove(board, "freeze", [index(7, 7)]).ok, true);
-  assert.equal(planPlayerMove(board, "freeze", [point]).ok, false);
-});
-
-test("white removal only accepts an AI stone and does not mutate on rejection", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  const black = index(3, 3);
-  const white = index(4, 4);
-  board[black] = 1;
-  board[white] = 2;
-
-  assert.equal(planWhiteRemoval(board, black).ok, false);
-  assert.equal(applyWhiteRemoval(board, -1).ok, false);
-  assert.equal(board[black], 1);
-  assert.equal(board[white], 2);
-
-  const result = applyWhiteRemoval(board, white);
-  assert.equal(result.ok, true);
-  assert.equal(board[white], 0);
-});
-
-test("round snapshots restore board, spent skills, and last-move marker together", () => {
-  const board = new Uint8Array(SIZE * SIZE);
-  board[index(7, 7)] = 1;
-  const usedSkills = new Set(["mirror"]);
-  const lastMove = index(7, 7);
-  const snapshot = captureTurnSnapshot(board, usedSkills, lastMove);
-
-  board[index(8, 7)] = 2;
-  usedSkills.add("freeze");
-  const restored = restoreTurnSnapshot(board, snapshot);
-
-  assert.equal(board[index(8, 7)], 0);
-  assert.equal(board[index(7, 7)], 1);
-  assert.deepEqual([...restored.usedSkills], ["mirror"]);
-  assert.equal(restored.lastMove, lastMove);
-  assert.notEqual(snapshot.board, board, "snapshot owns a detached board copy");
+test("round snapshots restore before the human turn and keep an independent copy", () => {
+  const board = new Uint8Array(CELL_COUNT);
+  board[112] = 1; board[113] = 2;
+  const saved = snapshot(board, 113);
+  board[97] = 1; board[98] = 2;
+  assert.equal(restore(board, saved), 113);
+  assert.equal(board[97], 0); assert.equal(board[98], 0);
+  board[112] = 0;
+  assert.equal(saved.board[112], 1);
 });

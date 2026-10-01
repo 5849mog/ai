@@ -1,0 +1,37 @@
+diff --git a/Rapfi/config.cpp b/Rapfi/config.cpp
+index 0202bd1..a0e3bba 100644
+--- a/Rapfi/config.cpp
++++ b/Rapfi/config.cpp
+@@ -642,6 +642,7 @@ void Config::readEvaluator(const cpptoml::table &t)
+             },
+             true));
+     }
++#if !defined(__EMSCRIPTEN__) || defined(USE_WASM_SIMD)
+     else if (*evaluatorType == "mix10") {
+         Search::Threads.setupEvaluator(warpEvaluatorMaker(
+             [=](int                   boardSize,
+@@ -660,6 +661,7 @@ void Config::readEvaluator(const cpptoml::table &t)
+             },
+             true));
+     }
++#endif
+ #ifdef USE_ORT_EVALUATOR
+     else if (*evaluatorType == "ort") {
+         std::string deviceName = t.get_as<std::string>("ort_device").value_or("");
+diff --git a/Rapfi/eval/mix10nnue.cpp b/Rapfi/eval/mix10nnue.cpp
+index 78fb8aa..84b8588 100644
+--- a/Rapfi/eval/mix10nnue.cpp
++++ b/Rapfi/eval/mix10nnue.cpp
+@@ -29,6 +29,7 @@
+ #include <cmath>
+ #include <cstring>
+ 
++#if !defined(__EMSCRIPTEN__) || defined(USE_WASM_SIMD)
+ namespace {
+ 
+ using namespace Evaluation::mix10;
+@@ -1066,3 +1067,4 @@ void Evaluator::addCache(Color side, int x, int y, bool isUndo)
+ }
+ 
+ }  // namespace Evaluation::mix10
++#endif
