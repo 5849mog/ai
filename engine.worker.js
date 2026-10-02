@@ -2,14 +2,14 @@
 // The GUI and protocol-independent client remain native ES modules.
 let instance;
 let protocol;
-let active = null;
+let jobs;
 let initialized = false;
 let initError = false;
 let loadedWeight = null;
 
 function sendError(error) {
   initError = true;
-  self.postMessage({ type: "error", requestId: active?.requestId, message: error.message ?? String(error) });
+  self.postMessage({ type: "error", message: error.message ?? String(error) });
 }
 
 function stdout(line) {
@@ -27,28 +27,21 @@ function stdout(line) {
     if (!initError) self.postMessage({ type: "ready" });
     return;
   }
-  if (!active) return;
-  if (parsed.type === "stats") {
-    active.stats = { ...active.stats, ...parsed.stats };
-    self.postMessage({ type: "stats", requestId: active.requestId, stats: parsed.stats });
-  } else if (parsed.type === "move") {
+  if (!jobs?.active) return;
+  if (parsed.type === "move") {
     if (!loadedWeight?.endsWith("mix9svqfreestyle_bsmix.bin.lz4")) {
       sendError(new Error("未能确认指定的神经网络权重，请重试"));
       return;
     }
-    const job = active;
-    active = null;
-    self.postMessage({ type: "move", requestId: job.requestId,
-      result: { ...job.stats, index: parsed.index, x: parsed.x, y: parsed.y,
-        elapsed: Math.round(performance.now() - job.started),
-        evaluator: "mix9svq", weight: loadedWeight } });
   }
+  try { jobs.output(parsed); } catch (error) { sendError(error); }
 }
 
 self.onmessage = async ({ data }) => {
   try {
     if (data.type === "init") {
       protocol = await import("./engine-protocol.js");
+      const { EngineJobs } = await import("./engine-jobs.js");
       const script = new URL(`${data.variant}.js`, data.baseURL).href;
       self.importScripts(script);
       instance = await self.Rapfi({
@@ -64,14 +57,27 @@ self.onmessage = async ({ data }) => {
           if (progress) self.postMessage({ type: "loading", progress: Number(progress[1]) / Number(progress[2]) });
         }
       });
+      jobs = new EngineJobs({
+        send: command => instance.sendCommand(command),
+        searchCommands: protocol.searchCommands,
+        emit: message => self.postMessage(message.type === "move"
+          ? { ...message, result: { ...message.result, evaluator: "mix9svq", weight: loadedWeight } }
+          : message),
+        setTimer: (callback, delay) => setTimeout(() => {
+          try { callback(); } catch (error) { sendError(error); }
+        }, delay)
+      });
       for (const command of ["INFO rule 0", `INFO max_memory ${data.memoryBytes}`,
         `INFO thread_num ${data.threads}`, "INFO pondering 0", "INFO usedatabase 0",
         "INFO show_detail 2", "START 15"]) instance.sendCommand(command);
     } else if (data.type === "search") {
-      if (!initialized || !instance || active) throw new Error("引擎尚未准备好");
-      const commands = protocol.searchCommands(data.board, data.sideToMove, data.timeMs);
-      active = { requestId: data.requestId, started: performance.now(), stats: {} };
-      for (const command of commands) instance.sendCommand(command);
+      if (!initialized || !instance || !jobs) throw new Error("引擎尚未准备好");
+      jobs.search(data);
+    } else if (data.type === "ponder") {
+      if (!initialized || !instance || !jobs) throw new Error("引擎尚未准备好");
+      jobs.ponder(data);
+    } else if (data.type === "stop-ponder") {
+      jobs?.stopPonder();
     }
   } catch (error) { sendError(error); }
 };

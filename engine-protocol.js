@@ -6,7 +6,7 @@ export function boardCommand(board, sideToMove) {
   validatePosition(board, sideToMove);
   const stones = { [BLACK]: [], [WHITE]: [] };
   board.forEach((color, index) => { if (color) stones[color].push(index); });
-  if (!stones[BLACK].length) return "BEGIN";
+  if (!stones[BLACK].length) return "BOARD\nDONE";
   const lines = ["BOARD"];
   for (let turn = 0; turn < stones[BLACK].length; turn += 1) {
     for (const color of [BLACK, WHITE]) {

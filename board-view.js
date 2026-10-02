@@ -35,7 +35,8 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1 } = state;
+  const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   let svg = "";
   svg += "<defs>";
   svg += '<linearGradient id="woodSurface" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#edd5a0"/><stop offset=".48" stop-color="#e4c58e"/><stop offset="1" stop-color="#d8b47b"/></linearGradient>';
@@ -75,15 +76,15 @@ function renderBoard(boardSvg, state) {
     }
 
     if (hoverIndex === index && pendingIndex !== index && canInteract) {
-      svg += '<circle class="hover-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="url(#blackStone)"/>';
+      svg += '<circle class="hover-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
     }
     if (pendingIndex === index && canInteract) {
       svg += '<circle class="pending-ring" cx="' + p.x + '" cy="' + p.y + '" r="16"/>';
-      svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="url(#blackStone)"/>';
+      svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
     }
     if (canInteract) {
       svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
-        '" role="button" aria-label="选择 ' + coordinate(index) + ' 落黑子" tabindex="-1"/>';
+        '" role="button" aria-label="选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子') + '" tabindex="-1"/>';
     }
   }
   boardSvg.innerHTML = svg;
