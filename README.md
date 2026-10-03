@@ -17,6 +17,8 @@ npm run dev
 
 打开 http://127.0.0.1:4187/ 。端口可通过 `PORT` 环境变量修改。鼠标悬停预览、单击落子；触屏点击两次确认；棋盘获得焦点后可用方向键选点、回车落子。
 
+移动端棋盘独立铺满可用宽度，不再与按钮和搜索信息共用外框。状态与耗时位于棋盘上方，操作、设置和搜索信息位于下方；横屏时这些控件移到棋盘侧边。推荐图例出现时保持棋盘大小，按钮默认显示，原有提示内容保留。
+
 悔棋恢复到你上次落子前。思考中也可悔棋或重开，取消的搜索不会把棋子放进新局。引擎失败会保留棋盘，重试可继续原来的 AI 回合。
 
 实际落子、新局、悔棋和导入都会自动保存当前对局。在同一浏览器重新打开，会自动恢复棋盘、执色与完整悔棋记录；如果轮到 AI 则重新搜索，已结束的棋局保持结束。保存以落子顺序为准，不保存推荐、悬停、触屏待确认点或未完成搜索。保存失败会提示，可继续下棋或导出；清理浏览器数据会清除续局，不跨设备同步。
@@ -108,6 +110,7 @@ npm run test:browser
 npm run test:features
 npm run test:recommendations
 npm run test:records
+npm run test:mobile
 npm run benchmark:ponder
 npm run report:ponder
 npm run benchmark
@@ -117,6 +120,8 @@ npm run report
 浏览器验证需要安装 Chrome 和 Edge。测试覆盖四种引擎构建、`/ai/` 子目录、无隔离头的托管、Worker 复用、鼠标/键盘/触屏、思考中悔棋与重开、错误重试、离线刷新，以及 12 个用独立穷举 VCF 验证器证明的战术局面。浏览器结果、证明与截图保存在 reports 中。
 
 `test:records` 在 Chrome 和 Edge 上验证自动恢复、完整悔棋、等待 AI 的保存恢复、JSON/SGF 下载、导入预览与取消、旧响应丢弃、终局连线、保存失败和 390/320 像素及横屏触控。取消与时序边界采用确定性协议替身，真实 WASM 与离线由 `test:features` / `test:recommendations` 及发布检查验证。棋谱专项结果见 [record-qa.json](./reports/record-qa.json)。
+
+`test:mobile` 使用真实 Rapfi WASM 验证放大棋盘后的坐标映射、两次点击确认、推荐图例、悔棋与续局、棋谱菜单和预览、胜线及设置；只在错误重试场景注入一次初始化错误。它沿用 `test:features` 的 `CHROME_PATH` / `CHROME_ARGS` 可选启动配置，输出到 `.cache/mobile-layout/`。七种视口的改版前后尺寸与验证边界见 [移动端布局报告](./reports/mobile-layout.md)。
 
 `benchmark:ponder` 顺序运行冻结的 12 个局面 × 2 档预算 × 3 次配对，以及 12 个独立战术对照；时间较长，可用 `--resume` 继续相同实现已完成的实验对。`report:ponder` 重新验证原始结果、落点合法性和战术证明，生成 [后台思考报告](./reports/ponder-benchmark.md)。不需要重跑完整 40 局对战来评估此次交互变更。
 

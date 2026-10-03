@@ -13,6 +13,7 @@
     "test:features": "node scripts/feature-qa.js",
     "test:recommendations": "node scripts/recommendation-qa.js",
     "test:records": "node scripts/record-qa.js",
+    "test:mobile": "node scripts/mobile-qa.js",
     "benchmark:ponder": "node scripts/ponder-benchmark.js",
     "report:ponder": "node scripts/ponder-report.js",
     "benchmark": "node scripts/benchmark.js",

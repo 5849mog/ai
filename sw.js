@@ -1,6 +1,6 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const VERSION = PREFIX + "250615-v8";
+const VERSION = PREFIX + "250615-v9";
 const url = path => new URL(path, BASE).href;
 const CORE = ["./", "index.html", "styles.css", "app.js", "board-view.js", "game-rules.js",
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "favicon.svg", "about.html", "THIRD_PARTY.md", "LICENSE",
