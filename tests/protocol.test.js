@@ -34,3 +34,11 @@ test("output parsing accepts only complete legal coordinates and recognizes diag
   assert.equal(parseOutput("ERROR missing model").type, "error");
   assert.deepEqual(parseOutput("INFO TOTALNODES 310"), { type: "stats", stats: { nodes: 310 } });
 });
+
+test("mate and numeric evaluations clear each other's stale state", () => {
+  let stats = {};
+  for (const line of ["INFO EVAL 320", "INFO EVAL -M18"]) stats = { ...stats, ...parseOutput(line).stats };
+  assert.equal(stats.mate, "-M18"); assert.equal(stats.evaluation, null);
+  stats = { ...stats, ...parseOutput("INFO EVAL -140").stats };
+  assert.equal(stats.mate, null); assert.equal(stats.evaluation, -140);
+});

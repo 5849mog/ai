@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { SIZE, CELL_COUNT, hasFive, outcome, validatePosition, snapshot, restore } from "./game-rules.js";
+import { SIZE, CELL_COUNT, hasFive, outcome, validatePosition, snapshot, restore, winningLines } from "./game-rules.js";
 const at = (x,y) => y * SIZE + x;
 
 test("five and overline detection works in every direction and at borders", () => {
@@ -48,4 +48,17 @@ test("round snapshots restore before the human turn and keep an independent copy
   assert.equal(board[97], 0); assert.equal(board[98], 0);
   board[112] = 0;
   assert.equal(saved.board[112], 1);
+});
+
+test("winning display includes full overlines, all simultaneous directions and clears after undo", () => {
+  const board = new Uint8Array(CELL_COUNT), center = at(7, 7);
+  for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [1, -1]]) {
+    for (let n = -3; n <= 2; n++) board[at(7 + n * dx, 7 + n * dy)] = 1;
+  }
+  const before = board.slice(), lines = winningLines(board, center);
+  assert.equal(lines.length, 4);
+  for (const line of lines) { assert.equal(line.length, 6); assert.ok(line.includes(center)); }
+  assert.deepEqual(board, before);
+  board[center] = 0; assert.deepEqual(winningLines(board, center), []);
+  assert.deepEqual(winningLines(board, -1), []);
 });

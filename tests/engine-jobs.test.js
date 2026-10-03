@@ -4,13 +4,13 @@ import { EngineJobs } from "../engine-jobs.js";
 import { searchCommands } from "../engine-protocol.js";
 import { parseOutput } from "../engine-protocol.js";
 
-function setup() {
+function setup(options = {}) {
   const commands = [], messages = [], timers = new Map();
   let next = 0;
   const jobs = new EngineJobs({ searchCommands, send: command => commands.push(command),
     emit: message => messages.push(message), now: () => 100,
     setTimer: callback => { const id = ++next; timers.set(id, callback); return id; },
-    clearTimer: id => timers.delete(id) });
+    clearTimer: id => timers.delete(id), ...options });
   const flush = () => { const [id, callback] = timers.entries().next().value; timers.delete(id); callback(); };
   return { jobs, commands, messages, timers, flush };
 }
@@ -29,6 +29,17 @@ test("background slices resynchronize empty positions and never emit application
   assert.equal(commands.at(-1), "BOARD\nDONE");
   jobs.stopPonder(); jobs.output(move(112));
   assert.equal(timers.size, 0);
+});
+
+test("diagnostics include the final interrupted background slice without leaking an application move", () => {
+  const slices = [], { jobs, messages, flush } = setup({ onPonderSlice: slice => slices.push(slice) });
+  jobs.ponder({ board: empty(), sideToMove: 1, requestId: 12 }); flush();
+  jobs.output({ type: "stats", stats: { nodes: 42, depth: 7 } });
+  jobs.stopPonder(); const boundary = messages.length;
+  jobs.output(move(112));
+  assert.equal(messages.length, boundary);
+  assert.equal(slices.length, 1); assert.equal(slices[0].requestId, 12);
+  assert.equal(slices[0].nodes, 42); assert.equal(slices[0].index, 112);
 });
 
 test("a real move interrupts background analysis, rejects its late stats and gets the next search", () => {

@@ -1,0 +1,44 @@
+{
+  "startedAt": "2026-10-03T12:36:22.548Z",
+  "runtime": "Real app, worker and protocol with deterministic Rapfi double for cancellation edge cases; real WASM and offline checks separately",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "154.0.8037.93"
+    },
+    {
+      "channel": "msedge",
+      "version": "135.0.3179.98"
+    }
+  ],
+  "checks": [
+    "chrome: automatic reload restoration includes complete undo history",
+    "chrome: human-only saved turn resumes fresh AI search; undo removes both actual moves",
+    "chrome: white undo survives reload and retains AI's first move",
+    "chrome: invalid imports and cancelled preview retain the current board and history",
+    "chrome: SGF mainline preview, informational results and chosen role preserve search settings",
+    "chrome: downloaded JSON and SGF contain only actual moves and round trip exactly",
+    "chrome: imports, recommendation cancellation and new game discard all old search responses",
+    "chrome: terminal import and reload retain victory rings; undo removes them and play restores them",
+    "chrome: automatic records are isolated by hosting subdirectory",
+    "chrome: corrupt save and storage write failure still allow continued play with clear notice",
+    "chrome: 390x844: inline preview fits, transient touch isn't saved, two-tap play and undo intact",
+    "chrome: 320x568: inline preview fits, transient touch isn't saved, two-tap play and undo intact",
+    "chrome: 844x390: inline preview fits, transient touch isn't saved, two-tap play and undo intact",
+    "msedge: automatic reload restoration includes complete undo history",
+    "msedge: human-only saved turn resumes fresh AI search; undo removes both actual moves",
+    "msedge: white undo survives reload and retains AI's first move",
+    "msedge: invalid imports and cancelled preview retain the current board and history",
+    "msedge: SGF mainline preview, informational results and chosen role preserve search settings",
+    "msedge: downloaded JSON and SGF contain only actual moves and round trip exactly",
+    "msedge: imports, recommendation cancellation and new game discard all old search responses",
+    "msedge: terminal import and reload retain victory rings; undo removes them and play restores them",
+    "msedge: automatic records are isolated by hosting subdirectory",
+    "msedge: corrupt save and storage write failure still allow continued play with clear notice",
+    "msedge: 390x844: inline preview fits, transient touch isn't saved, two-tap play and undo intact",
+    "msedge: 320x568: inline preview fits, transient touch isn't saved, two-tap play and undo intact",
+    "msedge: 844x390: inline preview fits, transient touch isn't saved, two-tap play and undo intact"
+  ],
+  "completedAt": "2026-10-03T12:37:26.576Z",
+  "passed": true
+}

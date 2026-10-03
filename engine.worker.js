@@ -58,6 +58,7 @@ self.onmessage = async ({ data }) => {
         }
       });
       jobs = new EngineJobs({
+        onPonderSlice: result => { if (data.reportSlices) self.postMessage({ type: "ponder-slice", result }); },
         send: command => instance.sendCommand(command),
         searchCommands: protocol.searchCommands,
         emit: message => self.postMessage(message.type === "move"

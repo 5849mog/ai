@@ -24,6 +24,14 @@
           <div class="board-toolbar">
             <div class="game-state" role="status"><span class="state-indicator thinking" id="stateIndicator"></span><strong id="stateText">正在准备 AI</strong></div>
             <button class="retry-button" id="retryButton" type="button" hidden>重试</button>
+            <details class="record-menu" id="recordMenu">
+              <summary aria-label="棋谱菜单">棋谱 <span aria-hidden="true">⌄</span></summary>
+              <div class="record-options">
+                <button type="button" id="importRecord">导入棋谱</button>
+                <button type="button" id="exportJson">导出五目文件</button>
+                <button type="button" id="exportSgf">导出 SGF</button>
+              </div>
+            </details>
             <span class="board-size">15 × 15</span>
           </div>
           <div class="board-wrap"><div class="board-frame">
@@ -53,6 +61,17 @@
       </main>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
     </div>
+    <input type="file" id="recordFile" accept=".json,.sgf,application/json,application/x-go-sgf" hidden />
+    <dialog class="record-dialog" id="recordDialog" aria-labelledby="importTitle">
+      <h2 id="importTitle">导入棋谱</h2>
+      <div class="record-preview-frame"><svg id="recordPreview" viewBox="0 0 620 620" class="board-svg" aria-label="待导入的棋盘预览"></svg></div>
+      <p id="importSummary" class="import-summary"></p>
+      <p id="importNotices" class="import-notices"></p>
+      <label class="import-color" for="importColor">继续执色 <select id="importColor"><option value="1">执黑</option><option value="2">执白</option></select></label>
+      <p class="import-warning">导入将替换当前对局。思考时间与后台设置保持不变。</p>
+      <div class="dialog-actions"><button type="button" id="cancelImport">取消</button><button type="button" id="confirmImport" class="confirm-import">导入继续</button></div>
+    </dialog>
+    <div class="game-notice" id="gameNotice" role="status" hidden></div>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

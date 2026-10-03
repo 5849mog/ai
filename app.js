@@ -2,6 +2,8 @@ import { SIZE, CELL_COUNT, BLACK, WHITE, validIndex, outcome, snapshot, restore 
 import { createBoardView } from "./board-view.js";
 import { GomokuEngine } from "./engine.js";
 import { describeSearch } from "./search-info.js";
+import { createRecord, replayRecord, loadGame, saveGame } from "./game-record.js";
+import { setupRecordUi } from "./record-ui.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -20,6 +22,7 @@ const recommendationNote = document.querySelector("#recommendationNote");
 const RECOMMENDATION_MS = 2000;
 const board = new Uint8Array(CELL_COUNT);
 const rounds = [];
+const moves = [];
 let currentColor = BLACK;
 let playerColor = BLACK;
 let winner = 0;
@@ -42,6 +45,24 @@ let statsTimer;
 let pondering = false;
 let recommending = false;
 let recommendations = [];
+let modalOpen = false;
+let noticeTimer;
+let saveWarningShown = false;
+
+function notify(message, error = false) {
+  const element = document.querySelector("#gameNotice");
+  clearTimeout(noticeTimer); element.textContent = message;
+  element.classList.toggle("error", error); element.hidden = false;
+  noticeTimer = setTimeout(() => { element.hidden = true; }, error ? 6000 : 3500);
+}
+
+function persistGame() {
+  let saved = false;
+  try { saved = saveGame(localStorage, createRecord(moves, playerColor)); } catch { /* blocked storage */ }
+  if (!saved && !saveWarningShown) { notify("此局暂未保存，关闭页面可能丢失；仍可导出棋谱", true); saveWarningShown = true; }
+  if (saved) saveWarningShown = false;
+  return saved;
+}
 
 try {
   const savedTime = localStorage.getItem("gomoku-thinking-ms");
@@ -51,6 +72,17 @@ try {
   colorSelect.value = String(playerColor);
   ponderToggle.checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { /* storage can be unavailable */ }
+
+try {
+  const saved = loadGame(localStorage);
+  if (saved.game) {
+    const game = saved.game;
+    board.set(game.board); moves.push(...game.record.moves); rounds.push(...game.rounds);
+    playerColor = game.record.playerColor; colorSelect.value = String(playerColor);
+    currentColor = game.currentColor; lastMove = game.lastMove; winner = game.winner;
+    notify("已恢复上次对局");
+  } else if (saved.error) notify(saved.error, true);
+} catch { /* blocked storage: current game still works */ }
 
 const engine = new GomokuEngine({ onState: event => {
   state = event.state;
@@ -64,7 +96,7 @@ const engine = new GomokuEngine({ onState: event => {
   if (!statsTimer) statsTimer = setTimeout(() => { statsTimer = null; updateSearchInfo(); }, 100);
 } });
 
-function canInteract() { return state === "ready" && !thinking && !recommending && !winner && currentColor === playerColor; }
+function canInteract() { return state === "ready" && !thinking && !recommending && !modalOpen && !winner && currentColor === playerColor; }
 
 function render() {
   const interactive = canInteract();
@@ -190,11 +222,13 @@ async function startSearch() {
     if (id !== requestId || winner || currentColor === playerColor) return;
     if (!validIndex(result.index) || board[result.index]) throw new Error("无效落点");
     board[result.index] = 3 - playerColor;
+    moves.push(result.index);
     lastMove = result.index;
     lastResult = result;
     liveStats = result;
     winner = outcome(board, lastMove);
     currentColor = playerColor;
+    persistGame();
   } catch (error) {
     if (id !== requestId || error.name === "AbortError") return;
     state = "error";
@@ -205,13 +239,15 @@ async function startSearch() {
 
 function place(index) {
   if (!canInteract() || !validIndex(index) || board[index]) return;
-  rounds.push(snapshot(board, lastMove));
+  rounds.push({ ...snapshot(board, lastMove), moveCount: moves.length });
   engine.stopPonder();
   recommendations = [];
   board[index] = playerColor;
+  moves.push(index);
   lastMove = index;
   pendingIndex = hoverIndex = -1;
   winner = outcome(board, index);
+  persistGame();
   if (winner) { render(); return; }
   currentColor = 3 - playerColor;
   void startSearch();
@@ -242,9 +278,11 @@ function undo() {
   if (!saved) return;
   invalidateSearch();
   lastMove = restore(board, saved);
+  moves.length = saved.moveCount;
   currentColor = playerColor;
   winner = 0;
   lastResult = null;
+  persistGame();
   render();
   void prepareEngine();
 }
@@ -253,11 +291,13 @@ function restart() {
   invalidateSearch();
   board.fill(0);
   rounds.length = 0;
+  moves.length = 0;
   currentColor = BLACK;
   winner = 0;
   lastMove = -1;
   keyboardIndex = 7 * SIZE + 7;
   lastResult = null;
+  persistGame();
   render();
   void prepareEngine();
 }
@@ -316,9 +356,31 @@ recommendButton.addEventListener("click", () => {
   else void recommend();
 });
 document.addEventListener("keydown", event => {
+  if (document.querySelector("#recordDialog").open) return;
   if (event.key === "Escape" && (recommending || recommendations.length)) {
     event.preventDefault();
     hideRecommendations();
+  }
+});
+
+setupRecordUi({
+  getRecord: () => createRecord(moves, playerColor), notify,
+  onModalChange: open => {
+    modalOpen = open;
+    if (open) engine.stopPonder();
+    render();
+    if (!open) void syncPonder();
+  },
+  applyRecord: record => {
+    const game = replayRecord(record);
+    invalidateSearch();
+    board.set(game.board); moves.splice(0, moves.length, ...game.record.moves);
+    rounds.splice(0, rounds.length, ...game.rounds);
+    playerColor = game.record.playerColor; colorSelect.value = String(playerColor);
+    try { localStorage.setItem("gomoku-player-color", String(playerColor)); } catch { /* optional preference */ }
+    currentColor = game.currentColor; lastMove = game.lastMove; winner = game.winner;
+    keyboardIndex = lastMove < 0 ? 112 : lastMove; lastResult = null;
+    const saved = persistGame(); render(); void prepareEngine(); return saved;
   }
 });
 

@@ -21,9 +21,10 @@ export function selectVariant({ simd, multi }) {
 function aborted() { return new DOMException("搜索已取消", "AbortError"); }
 
 export class GomokuEngine {
-  constructor({ onState = () => {}, onStats = () => {}, workerFactory, capabilities, variant, threads } = {}) {
+  constructor({ onState = () => {}, onStats = () => {}, onPonderSlice, workerFactory, capabilities, variant, threads } = {}) {
     this.onState = onState;
     this.onStats = onStats;
+    this.onPonderSlice = onPonderSlice;
     this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js", import.meta.url)));
     this.capabilities = capabilities ?? detectCapabilities();
     this.variant = variant ?? selectVariant(this.capabilities);
@@ -59,6 +60,8 @@ export class GomokuEngine {
           this.initReject = null;
           this.onState({ state: "ready", variant: this.variant, threads: this.threads });
           resolve({ variant: this.variant, threads: this.threads });
+        } else if (data.type === "ponder-slice") {
+          this.onPonderSlice?.(data.result);
         } else if (data.type === "loading") {
           this.onState({ state: "loading", progress: data.progress });
         } else if (data.type === "error") {
@@ -69,7 +72,7 @@ export class GomokuEngine {
           if (data.requestId !== this.pondering?.requestId || this.pending) return;
           this.pondering.stats = { ...this.pondering.stats, ...data.stats };
           this.onStats({ phase: "ponder", requestId: data.requestId,
-            sideToMove: this.pondering.sideToMove, stats: { ...this.pondering.stats } });
+            sideToMove: this.pondering.sideToMove, sliceComplete: Boolean(data.sliceComplete), stats: { ...this.pondering.stats } });
         } else if (this.pending && data.requestId === this.pending.requestId) {
           if (data.type === "stats") {
             this.pending.stats = { ...this.pending.stats, ...data.stats };
@@ -99,7 +102,7 @@ export class GomokuEngine {
       };
       worker.onerror = () => { if (generation === this.generation) this.fail(new Error("引擎运行失败，请重试")); };
       worker.postMessage({ type: "init", baseURL: ENGINE_BASE.href, variant: this.variant,
-        threads: this.threads, memoryBytes: MEMORY_BYTES });
+        threads: this.threads, memoryBytes: MEMORY_BYTES, reportSlices: Boolean(this.onPonderSlice) });
     } catch (error) { this.fail(error); }
     return initialization;
   }

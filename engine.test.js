@@ -40,6 +40,21 @@ test("background stats are streamed, late results ignored, and foreground search
   engine.dispose();
 });
 
+test("opt-in background diagnostics survive stopping but ignore a discarded worker", async () => {
+  const workers = [], slices = [];
+  const engine = new GomokuEngine({ onPonderSlice: slice => slices.push(slice),
+    capabilities: { simd: true, multi: false, threads: 1 },
+    workerFactory: () => { const worker = new FakeWorker(); workers.push(worker); return worker; } });
+  const pending = engine.ponder({ board: new Uint8Array(225), sideToMove: 1, requestId: 1 });
+  assert.equal(workers[0].sent[0].reportSlices, true);
+  workers[0].send({ type: "ready" }); await pending;
+  engine.stopPonder();
+  workers[0].send({ type: "ponder-slice", result: { nodes: 44 } });
+  assert.equal(slices.length, 1);
+  engine.reset(); workers[0].send({ type: "ponder-slice", result: { nodes: 999 } });
+  assert.equal(slices.length, 1); engine.dispose();
+});
+
 test("reset cancels waiting background initialization and a fresh black opening is accepted", async () => {
   const { engine, workers, stats } = setup();
   const background = engine.ponder({ board: new Uint8Array(225), sideToMove: 1, requestId: 1 });

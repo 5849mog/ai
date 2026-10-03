@@ -66,3 +66,23 @@ test("recommendations mark empty alternatives without adding stones or changing 
     recommendations: [{ index: 112 }] });
   assert.doesNotMatch(svg.innerHTML, /data-recommendation=/);
 });
+
+test("winning connectors sit behind stones and rings disappear when the winning move is undone", () => {
+  const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225);
+  for (const index of [105, 106, 107, 108, 109, 110]) board[index] = 2;
+  const state = { board, lastMove: 108, pendingIndex: -1, hoverIndex: -1, canInteract: false };
+  view.render(state);
+  assert.equal((svg.innerHTML.match(/class="winning-connector"/g) || []).length, 1);
+  assert.equal((svg.innerHTML.match(/data-winning-stone=/g) || []).length, 6);
+  assert.ok(svg.innerHTML.indexOf('class="winning-connector"') < svg.innerHTML.indexOf("data-stone="));
+  board[108] = 0; view.render(state);
+  assert.doesNotMatch(svg.innerHTML, /winning-connector|data-winning-stone/);
+});
+
+test("a second board uses independent paint servers for all stones, shadows and wood", () => {
+  const svg = makeSvg(), board = new Uint8Array(225); board[0] = 1; board[1] = 2;
+  createBoardView(svg, { idPrefix: "preview-" }).render({ board, lastMove: 1, canInteract: false });
+  assert.match(svg.innerHTML, /id="preview-blackStone"/); assert.match(svg.innerHTML, /url\(#preview-whiteStone\)/);
+  assert.match(svg.innerHTML, /style="fill:url\(#preview-woodSurface\)"/);
+  assert.doesNotMatch(svg.innerHTML, /id="(?:blackStone|whiteStone|woodSurface|stoneShadow)"|url\(#(?:blackStone|whiteStone|stoneShadow)\)/);
+});

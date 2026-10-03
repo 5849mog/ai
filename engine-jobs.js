@@ -4,10 +4,10 @@ import { RecommendationCollector } from "./recommendations.js";
 // A normal, time-limited search warms Rapfi's transposition table, then yields
 // so that the worker can process a real move, cancellation or a settings change.
 export class EngineJobs {
-  constructor({ send, emit, searchCommands, now = () => performance.now(),
+  constructor({ send, emit, searchCommands, onPonderSlice = () => {}, now = () => performance.now(),
     setTimer = (callback, delay) => setTimeout(callback, delay), clearTimer = id => clearTimeout(id),
     sliceMs = 250, pauseMs = 100 }) {
-    Object.assign(this, { send, emit, searchCommands, now, setTimer, clearTimer, sliceMs, pauseMs });
+    Object.assign(this, { send, emit, searchCommands, onPonderSlice, now, setTimer, clearTimer, sliceMs, pauseMs });
     this.active = null;
     this.background = null;
     this.queuedSearch = null;
@@ -84,10 +84,11 @@ export class EngineJobs {
       const result = { ...job.stats, index: parsed.index, x: parsed.x, y: parsed.y,
         elapsed: Math.round(this.now() - job.started),
         ...(job.recommendations ? { recommendations: job.recommendations.finish(job.board, parsed.index, job.sideToMove) } : {}) };
+      if (job.phase === "ponder") this.onPonderSlice({ requestId: job.requestId, ...result });
       if (job.phase === "search") this.emit({ type: "move", requestId: job.requestId, result });
       // Pondering results are hypothetical player moves. They never become
       // application moves; resynchronize the full board before every slice.
-      else if (current) this.emit({ type: "stats", phase: "ponder", requestId: job.requestId,
+      else if (current) this.emit({ type: "stats", phase: "ponder", requestId: job.requestId, sliceComplete: true,
         sideToMove: job.sideToMove, stats: { ...job.stats, elapsed: result.elapsed } });
       // Yield after stdout before starting the next search, allowing Rapfi's
       // move callback to finish updating its protocol and board state.

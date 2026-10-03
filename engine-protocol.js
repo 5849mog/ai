@@ -40,9 +40,11 @@ export function parseOutput(line) {
     return { type: "move", index, x, y };
   }
   const stat = /^INFO (DEPTH|SELDEPTH|TOTALNODES|TOTALTIME|SPEED|EVAL) (-?\d+(?:\.\d+)?)$/.exec(text);
+  const mate = /^INFO EVAL ([+-]?M\d+)$/.exec(text);
+  if (mate) return { type: "stats", stats: { mate: mate[1], evaluation: null } };
   if (stat) {
     const names = { DEPTH: "depth", SELDEPTH: "selectiveDepth", TOTALNODES: "nodes", TOTALTIME: "elapsed", SPEED: "nps", EVAL: "evaluation" };
-    return { type: "stats", stats: { [names[stat[1]]]: Number(stat[2]) } };
+    return { type: "stats", stats: { [names[stat[1]]]: Number(stat[2]), ...(stat[1] === "EVAL" ? { mate: null } : {}) } };
   }
   return { type: "message", message: text };
 }

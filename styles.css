@@ -34,7 +34,29 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
 .state-indicator { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(105,135,114,.12); }
 .state-indicator.thinking { background: #c48746; box-shadow: 0 0 0 4px rgba(196,135,70,.12); animation: breathe 1.2s ease-in-out infinite; }
 .state-indicator.finished { background: var(--accent); box-shadow: 0 0 0 4px rgba(182,76,53,.12); }
-.board-size { margin-left: auto; color: var(--muted); font-family: Consolas, monospace; font-size: 10px; }
+.board-size { color: var(--muted); font-family: Consolas, monospace; font-size: 10px; white-space: nowrap; }
+.record-menu { margin-left: auto; position: relative; font-size: 12px; color: var(--muted); }
+.record-menu summary { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; list-style: none; -webkit-tap-highlight-color: transparent; }
+.record-menu summary::-webkit-details-marker { display: none; }
+.record-menu summary:hover, .record-menu[open] summary { background: #f3f0e7; color: var(--ink); }
+.record-menu summary:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.record-options { position: absolute; z-index: 8; top: calc(100% + 3px); right: 0; min-width: 145px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); box-shadow: 0 8px 24px #292b241a; }
+.record-options button { display: block; width: 100%; border: 0; border-radius: 6px; background: transparent; padding: 11px; text-align: left; font-size: 12px; cursor: pointer; }
+.record-options button:hover { background: #f3f0e7; }
+.record-dialog { width: min(420px,calc(100% - 24px)); max-height: 90dvh; overflow-y: auto; border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: var(--paper); color: var(--ink); box-shadow: 0 24px 70px #25272030; }
+.record-dialog::backdrop { background: #30342e66; }
+.record-dialog h2 { margin: 0 0 14px; font-size: 17px; font-weight: 600; }
+.record-preview-frame { width: min(100%,240px,calc(100dvh - 330px)); margin: 0 auto; border-radius: 10px; background: #e3c38b; }
+.import-summary { margin: 14px 0 8px; font-size: 13px; }
+.import-notices:empty { display: none; }
+.import-notices, .import-warning { margin: 8px 0 12px; font-size: 11px; line-height: 1.65; color: var(--muted); }
+.import-color { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
+.import-color select { min-height: 38px; border: 1px solid var(--line); border-radius: 7px; padding: 0 12px; background: #f4f2ec; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.dialog-actions button { min-height: 40px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: #f3f0e7; font-size: 12px; cursor: pointer; }
+.dialog-actions .confirm-import { color: #fffefa; background: #303a33; }
+.game-notice { position: fixed; z-index: 20; left: 50%; bottom: max(42px,calc(env(safe-area-inset-bottom) + 28px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); border-radius: 9px; padding: 10px 15px; background: #303a33; color: #fffefa; box-shadow: 0 5px 20px #25272026; font-size: 12px; line-height: 1.6; pointer-events: none; }
+.game-notice.error { background: #714d3d; }
 .retry-button { border: 1px solid rgba(182,76,53,.3); border-radius: 6px; background: #fbf2ec; color: #9e3c28; font-size: 12px; padding: 5px 10px; cursor: pointer; }
 .board-wrap { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 18px; }
 .board-frame { width: min(100%, 700px, calc(100dvh - 370px)); padding: 8px; border-radius: 15px; background: linear-gradient(142deg, rgba(255,255,255,.66), transparent 34%), linear-gradient(35deg, #c39c66, #e8ca91 45%, #d3ae76); box-shadow: 0 13px 26px rgba(75,58,33,.15), inset 0 0 0 1px rgba(255,255,255,.52), inset 0 0 0 2px rgba(107,74,37,.12); }
@@ -49,6 +71,8 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
 .board-svg .star-point { fill: rgba(59,47,32,.83); }
 .board-svg .hit-target { fill: transparent; cursor: pointer; }
 .board-svg .last-ring { fill: none; stroke: #c25438; stroke-width: 1.7; pointer-events: none; vector-effect: non-scaling-stroke; }
+.board-svg .winning-connector { stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; opacity: .72; pointer-events: none; vector-effect: non-scaling-stroke; }
+.board-svg .winning-ring { fill: none; stroke: var(--accent); stroke-width: 1.2; opacity: .85; pointer-events: none; vector-effect: non-scaling-stroke; }
 .board-svg .pending-stone { opacity: .62; pointer-events: none; }
 .board-svg .hover-stone { opacity: .3; pointer-events: none; }
 .board-svg .pending-ring { fill: rgba(255,255,255,.15); stroke: #b64c35; stroke-width: 2; pointer-events: none; vector-effect: non-scaling-stroke; }

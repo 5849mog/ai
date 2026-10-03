@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-10-03T10:32:37.003Z",
+  "startedAt": "2026-10-03T12:36:22.571Z",
   "device": "win32 x64; 13th Gen Intel(R) Core(TM) i5-13400F",
   "engine": "Rapfi 250615 / mix9svq freestyle",
   "recommendationBudgetMs": 2000,
@@ -8,8 +8,8 @@
       "name": "chrome: real rapfi-single-simd128, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "154.0.8037.93",
       "elapsedMs": [
-        1975,
-        1975
+        2003,
+        1980
       ],
       "moves": [
         [
@@ -28,15 +28,15 @@
         ],
         [
           {
-            "index": 81,
-            "x": 6,
-            "y": 5,
-            "rank": 1
-          },
-          {
             "index": 96,
             "x": 6,
             "y": 6,
+            "rank": 1
+          },
+          {
+            "index": 81,
+            "x": 6,
+            "y": 5,
             "rank": 2
           }
         ]
@@ -46,8 +46,8 @@
       "name": "chrome: real rapfi-single, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "154.0.8037.93",
       "elapsedMs": [
-        2001,
-        1481
+        2018,
+        2024
       ],
       "moves": [
         [
@@ -66,15 +66,15 @@
         ],
         [
           {
-            "index": 81,
+            "index": 96,
             "x": 6,
-            "y": 5,
+            "y": 6,
             "rank": 1
           },
           {
-            "index": 97,
-            "x": 7,
-            "y": 6,
+            "index": 81,
+            "x": 6,
+            "y": 5,
             "rank": 2
           }
         ]
@@ -84,15 +84,15 @@
       "name": "chrome: real rapfi-multi-simd128, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "154.0.8037.93",
       "elapsedMs": [
-        2039,
-        1550
+        1635,
+        1895
       ],
       "moves": [
         [
           {
-            "index": 82,
-            "x": 7,
-            "y": 5,
+            "index": 96,
+            "x": 6,
+            "y": 6,
             "rank": 1
           },
           {
@@ -104,15 +104,15 @@
         ],
         [
           {
-            "index": 98,
+            "index": 113,
             "x": 8,
-            "y": 6,
+            "y": 7,
             "rank": 1
           },
           {
-            "index": 95,
-            "x": 5,
-            "y": 6,
+            "index": 81,
+            "x": 6,
+            "y": 5,
             "rank": 2
           }
         ]
@@ -122,8 +122,8 @@
       "name": "chrome: real rapfi-multi, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "154.0.8037.93",
       "elapsedMs": [
-        2096,
-        2040
+        2057,
+        2038
       ],
       "moves": [
         [
@@ -134,8 +134,8 @@
             "rank": 1
           },
           {
-            "index": 97,
-            "x": 7,
+            "index": 96,
+            "x": 6,
             "y": 6,
             "rank": 2
           }
@@ -166,8 +166,8 @@
       "name": "msedge: real rapfi-single-simd128, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "135.0.3179.98",
       "elapsedMs": [
-        1974,
-        1974
+        1972,
+        1550
       ],
       "moves": [
         [
@@ -186,15 +186,15 @@
         ],
         [
           {
-            "index": 81,
-            "x": 6,
-            "y": 5,
-            "rank": 1
-          },
-          {
             "index": 96,
             "x": 6,
             "y": 6,
+            "rank": 1
+          },
+          {
+            "index": 81,
+            "x": 6,
+            "y": 5,
             "rank": 2
           }
         ]
@@ -204,8 +204,8 @@
       "name": "msedge: real rapfi-single, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "135.0.3179.98",
       "elapsedMs": [
-        2019,
-        1525
+        2023,
+        1499
       ],
       "moves": [
         [
@@ -230,9 +230,9 @@
             "rank": 1
           },
           {
-            "index": 97,
-            "x": 7,
-            "y": 6,
+            "index": 83,
+            "x": 8,
+            "y": 5,
             "rank": 2
           }
         ]
@@ -242,62 +242,10 @@
       "name": "msedge: real rapfi-multi-simd128, both colors, two root moves, empty-board center, input preserved and worker reused",
       "browser": "135.0.3179.98",
       "elapsedMs": [
-        1963,
-        2042
+        2006,
+        1871
       ],
       "moves": [
-        [
-          {
-            "index": 82,
-            "x": 7,
-            "y": 5,
-            "rank": 1
-          },
-          {
-            "index": 97,
-            "x": 7,
-            "y": 6,
-            "rank": 2
-          }
-        ],
-        [
-          {
-            "index": 126,
-            "x": 6,
-            "y": 8,
-            "rank": 1
-          },
-          {
-            "index": 96,
-            "x": 6,
-            "y": 6,
-            "rank": 2
-          }
-        ]
-      ]
-    },
-    {
-      "name": "msedge: real rapfi-multi, both colors, two root moves, empty-board center, input preserved and worker reused",
-      "browser": "135.0.3179.98",
-      "elapsedMs": [
-        2093,
-        1702
-      ],
-      "moves": [
-        [
-          {
-            "index": 97,
-            "x": 7,
-            "y": 6,
-            "rank": 1
-          },
-          {
-            "index": 82,
-            "x": 7,
-            "y": 5,
-            "rank": 2
-          }
-        ],
         [
           {
             "index": 96,
@@ -309,6 +257,58 @@
             "index": 81,
             "x": 6,
             "y": 5,
+            "rank": 2
+          }
+        ],
+        [
+          {
+            "index": 81,
+            "x": 6,
+            "y": 5,
+            "rank": 1
+          },
+          {
+            "index": 83,
+            "x": 8,
+            "y": 5,
+            "rank": 2
+          }
+        ]
+      ]
+    },
+    {
+      "name": "msedge: real rapfi-multi, both colors, two root moves, empty-board center, input preserved and worker reused",
+      "browser": "135.0.3179.98",
+      "elapsedMs": [
+        2029,
+        2042
+      ],
+      "moves": [
+        [
+          {
+            "index": 97,
+            "x": 7,
+            "y": 6,
+            "rank": 1
+          },
+          {
+            "index": 82,
+            "x": 7,
+            "y": 5,
+            "rank": 2
+          }
+        ],
+        [
+          {
+            "index": 81,
+            "x": 6,
+            "y": 5,
+            "rank": 1
+          },
+          {
+            "index": 95,
+            "x": 5,
+            "y": 6,
             "rank": 2
           }
         ]
@@ -340,5 +340,5 @@
     }
   ],
   "passed": true,
-  "completedAt": "2026-10-03T10:34:08.964Z"
+  "completedAt": "2026-10-03T12:38:00.212Z"
 }

@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-10-03T12:41:06.213Z",
+  "budgets": [
+    {
+      "budgetMs": 1000,
+      "independentPositions": 12,
+      "repeatedPairs": 36,
+      "on": {
+        "medianDepth": 24,
+        "medianResponseMs": 973.5,
+        "medianNodes": 45828,
+        "medianSearchMs": 898,
+        "mateCount": 19,
+        "meanUtilization": 0.76,
+        "medianBackgroundSearchMs": 3335
+      },
+      "off": {
+        "medianDepth": 21,
+        "medianResponseMs": 838.85,
+        "medianNodes": 53140,
+        "medianSearchMs": 838,
+        "mateCount": 20,
+        "meanUtilization": 0.75,
+        "medianBackgroundSearchMs": 0
+      },
+      "deeper": 16,
+      "equalDepth": 17,
+      "shallower": 3,
+      "sameMove": 36,
+      "onReferenceFirst": 33,
+      "offReferenceFirst": 33,
+      "onReferenceTop": 36,
+      "offReferenceTop": 36,
+      "pairedMedianDepthChange": 0,
+      "pairedMedianResponseRatio": 1,
+      "pairedMedianResponseChangeMs": 3.65,
+      "pairedMinResponseChangeMs": -338.6,
+      "pairedMaxResponseChangeMs": 367.2
+    },
+    {
+      "budgetMs": 5000,
+      "independentPositions": 12,
+      "repeatedPairs": 36,
+      "on": {
+        "medianDepth": 26,
+        "medianResponseMs": 3760.5,
+        "medianNodes": 217572.5,
+        "medianSearchMs": 3760,
+        "mateCount": 21,
+        "meanUtilization": 0.54,
+        "medianBackgroundSearchMs": 3320
+      },
+      "off": {
+        "medianDepth": 26,
+        "medianResponseMs": 3792.7,
+        "medianNodes": 220234,
+        "medianSearchMs": 3792,
+        "mateCount": 21,
+        "meanUtilization": 0.58,
+        "medianBackgroundSearchMs": 0
+      },
+      "deeper": 8,
+      "equalDepth": 23,
+      "shallower": 5,
+      "sameMove": 35,
+      "onReferenceFirst": 32,
+      "offReferenceFirst": 31,
+      "onReferenceTop": 36,
+      "offReferenceTop": 36,
+      "pairedMedianDepthChange": 0,
+      "pairedMedianResponseRatio": 0.99,
+      "pairedMedianResponseChangeMs": -10.25,
+      "pairedMinResponseChangeMs": -1809,
+      "pairedMaxResponseChangeMs": 1204.5
+    }
+  ],
+  "tactics": {
+    "count": 12,
+    "onPassed": 12,
+    "offPassed": 12
+  },
+  "totalBackgroundSearchMs": 208599,
+  "referenceElapsedMs": 245042,
+  "durationMs": 1574427
+}

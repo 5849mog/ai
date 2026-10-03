@@ -33,6 +33,23 @@ export function outcome(board, lastMove) {
   return board.every(value => value !== 0) ? 3 : 0;
 }
 
+export function winningLines(board, lastMove) {
+  if (!validIndex(lastMove) || ![BLACK, WHITE].includes(board[lastMove])) return [];
+  const color = board[lastMove], x = lastMove % SIZE, y = Math.floor(lastMove / SIZE), lines = [];
+  for (const [dx, dy] of DIRECTIONS) {
+    const before = [], after = [];
+    for (const sign of [-1, 1]) {
+      let nx = x + dx * sign, ny = y + dy * sign;
+      while (nx >= 0 && nx < SIZE && ny >= 0 && ny < SIZE && board[ny * SIZE + nx] === color) {
+        (sign === -1 ? before : after).push(ny * SIZE + nx); nx += dx * sign; ny += dy * sign;
+      }
+    }
+    const line = [...before.reverse(), lastMove, ...after];
+    if (line.length >= 5) lines.push(line);
+  }
+  return lines;
+}
+
 export function validatePosition(board, sideToMove) {
   if (!board || board.length !== CELL_COUNT || Array.from(board).some(c => ![0, BLACK, WHITE].includes(c))) {
     throw new Error("棋盘必须包含 225 个有效交点");

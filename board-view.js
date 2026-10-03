@@ -1,4 +1,4 @@
-import { SIZE } from "./game-rules.js";
+import { SIZE, winningLines } from "./game-rules.js";
 
 const PAD = 46;
 const STEP = 528 / (SIZE - 1);
@@ -34,9 +34,10 @@ function nearestIntersection(boardSvg, clientX, clientY) {
     : -1;
 }
 
-function renderBoard(boardSvg, state) {
+function renderBoard(boardSvg, state, idPrefix) {
   const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [] } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
+  const lines = winningLines(board, lastMove);
   let svg = "";
   svg += "<defs>";
   svg += '<linearGradient id="woodSurface" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#edd5a0"/><stop offset=".48" stop-color="#e4c58e"/><stop offset="1" stop-color="#d8b47b"/></linearGradient>';
@@ -60,6 +61,10 @@ function renderBoard(boardSvg, state) {
     }
   }
 
+  for (const line of lines) {
+    const start = point(line[0]), end = point(line.at(-1));
+    svg += `<line class="winning-connector" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"/>`;
+  }
   for (let index = 0; index < board.length; index += 1) {
     const p = point(index);
     if (board[index]) {
@@ -93,16 +98,28 @@ function renderBoard(boardSvg, state) {
         '" role="button" aria-label="选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子') + '" tabindex="-1"/>';
     }
   }
+  for (const index of new Set(lines.flat())) {
+    const p = point(index);
+    svg += `<circle class="winning-ring" data-winning-stone="${index}" cx="${p.x}" cy="${p.y}" r="17"/>`;
+  }
+  // A dialog preview shares the page with the live board. Its SVG paint servers
+  // need separate IDs so a hidden preview cannot shadow the live gradients.
+  if (idPrefix) {
+    svg = svg.replace(/id="(woodSurface|blackStone|whiteStone|stoneShadow)"/g, (_, id) => `id="${idPrefix}${id}"`)
+      .replace(/url\(#(woodSurface|blackStone|whiteStone|stoneShadow)\)/g, (_, id) => `url(#${idPrefix}${id})`)
+      .replace('class="board-surface"', `class="board-surface" style="fill:url(#${idPrefix}woodSurface)"`);
+  }
   boardSvg.innerHTML = svg;
 }
 
-export function createBoardView(boardSvg) {
+export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
+  if (!/^[a-zA-Z0-9_-]*$/.test(idPrefix)) throw new Error("无效的棋盘标识");
   return {
     nearestIntersection(clientX, clientY) {
       return nearestIntersection(boardSvg, clientX, clientY);
     },
     render(state) {
-      renderBoard(boardSvg, state);
+      renderBoard(boardSvg, state, idPrefix);
     }
   };
 }
