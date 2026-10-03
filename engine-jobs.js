@@ -1,3 +1,5 @@
+import { RecommendationCollector } from "./recommendations.js";
+
 // Cooperative background analysis for both single-thread and pthread WASM.
 // A normal, time-limited search warms Rapfi's transposition table, then yields
 // so that the worker can process a real move, cancellation or a settings change.
@@ -13,7 +15,7 @@ export class EngineJobs {
   }
 
   search(job) {
-    this.searchCommands(job.board, job.sideToMove, job.timeMs);
+    this.searchCommands(job.board, job.sideToMove, job.timeMs, job.multiPV);
     if (this.queuedSearch || this.active?.phase === "search") throw new Error("已有搜索正在进行");
     this.background = null;
     this.cancelNext();
@@ -58,17 +60,19 @@ export class EngineJobs {
       if (!job) return;
       const phase = this.queuedSearch ? "search" : "ponder";
       this.queuedSearch = null;
-      this.active = { ...job, phase, started: this.now(), stats: {} };
+      this.active = { ...job, phase, started: this.now(), stats: {},
+        recommendations: phase === "search" && job.multiPV === 2 ? new RecommendationCollector() : null };
       const timeMs = phase === "ponder" ? this.sliceMs : job.timeMs;
       // Native automatic pondering must remain disabled: single-thread builds
       // run it synchronously and cannot receive STOP while it is running.
-      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs)) this.send(command);
+      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, phase === "search" ? job.multiPV : 1)) this.send(command);
     }, this.queuedSearch ? 0 : this.pauseMs);
   }
 
-  output(parsed) {
+  output(parsed, line) {
     const job = this.active;
     if (!job) return;
+    if (line && job.recommendations) job.recommendations.read(line);
     const current = job.phase === "search" || this.background?.requestId === job.requestId;
     if (parsed.type === "stats") {
       job.stats = { ...job.stats, ...parsed.stats };
@@ -78,7 +82,8 @@ export class EngineJobs {
       if (job.board[parsed.index] !== 0) throw new Error("引擎返回了无效落点");
       this.active = null;
       const result = { ...job.stats, index: parsed.index, x: parsed.x, y: parsed.y,
-        elapsed: Math.round(this.now() - job.started) };
+        elapsed: Math.round(this.now() - job.started),
+        ...(job.recommendations ? { recommendations: job.recommendations.finish(job.board, parsed.index, job.sideToMove) } : {}) };
       if (job.phase === "search") this.emit({ type: "move", requestId: job.requestId, result });
       // Pondering results are hypothetical player moves. They never become
       // application moves; resynchronize the full board before every slice.

@@ -13,6 +13,11 @@ const ponderToggle = document.querySelector("#ponderToggle");
 const undoButton = document.querySelector("#undoButton");
 const retryButton = document.querySelector("#retryButton");
 const searchClock = document.querySelector("#searchClock");
+const recommendButton = document.querySelector("#recommendButton");
+const recommendationLegend = document.querySelector("#recommendationLegend");
+const secondRecommendation = document.querySelector("#secondRecommendation");
+const recommendationNote = document.querySelector("#recommendationNote");
+const RECOMMENDATION_MS = 2000;
 const board = new Uint8Array(CELL_COUNT);
 const rounds = [];
 let currentColor = BLACK;
@@ -35,6 +40,8 @@ let statsSide = WHITE;
 let statsPhase = "search";
 let statsTimer;
 let pondering = false;
+let recommending = false;
+let recommendations = [];
 
 try {
   const savedTime = localStorage.getItem("gomoku-thinking-ms");
@@ -57,24 +64,34 @@ const engine = new GomokuEngine({ onState: event => {
   if (!statsTimer) statsTimer = setTimeout(() => { statsTimer = null; updateSearchInfo(); }, 100);
 } });
 
-function canInteract() { return state === "ready" && !thinking && !winner && currentColor === playerColor; }
+function canInteract() { return state === "ready" && !thinking && !recommending && !winner && currentColor === playerColor; }
 
 function render() {
   const interactive = canInteract();
-  view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive, playerColor });
+  view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive, playerColor, recommendations });
   let text = "轮到你落子";
   if (winner) text = winner === playerColor ? "你赢了" : winner === 3 ? "平局" : "AI 获胜";
   else if (state === "error") text = "AI 暂不可用，请重试或悔棋";
   else if (state === "loading" || state === "idle") text = Number.isFinite(loadingProgress)
     ? `正在加载 AI · ${Math.round(loadingProgress * 100)}%` : "正在准备 AI";
+  else if (recommending) text = "正在寻找推荐落点…";
   else if (thinking) text = "AI 思考中";
   else if (pendingIndex >= 0) text = "再点一次确认落子";
   stateText.textContent = text;
   stateIndicator.className = "state-indicator" +
-    (thinking || state === "loading" || state === "idle" ? " thinking" : winner || state === "error" ? " finished" : "");
+    (thinking || recommending || state === "loading" || state === "idle" ? " thinking" : winner || state === "error" ? " finished" : "");
   undoButton.disabled = rounds.length === 0 && pendingIndex < 0;
   retryButton.hidden = state !== "error";
-  timeSelect.disabled = thinking;
+  timeSelect.disabled = thinking || recommending;
+  ponderToggle.disabled = recommending;
+  recommendButton.disabled = !recommending && !recommendations.length && !interactive;
+  recommendButton.setAttribute("aria-pressed", String(recommending || recommendations.length > 0));
+  recommendButton.title = recommending ? "取消推荐" : recommendations.length ? "收起推荐（Esc）" : "标出首选和次选落点（最多 2 秒）";
+  recommendationLegend.hidden = recommendations.length === 0;
+  secondRecommendation.hidden = recommendations.length < 2;
+  recommendationNote.textContent = recommendations.length === 1
+    ? board.every(value => value === 0) ? "开局推荐天元" : "当前仅有一个推荐点"
+    : "";
   boardSvg.setAttribute("aria-disabled", String(!interactive));
   boardSvg.setAttribute("aria-label", `15 乘 15 五子棋棋盘，${text}。方向键选点，回车落子。`);
   updateClock();
@@ -96,13 +113,13 @@ function updateSearchInfo() {
   document.querySelector("#searchScore").textContent = info.score;
   document.querySelector("#searchNodes").textContent = info.nodes;
   document.querySelector("#searchSpeed").textContent = info.speed;
-  document.querySelector("#analysisState").textContent = thinking ? "AI 搜索中"
+  document.querySelector("#analysisState").textContent = recommending ? "推荐搜索中" : thinking ? "AI 搜索中"
     : pondering ? "AI 后台思考中" : !liveStats ? "AI 搜索信息"
     : statsPhase === "ponder" ? "最近后台分析" : "上次搜索";
 }
 
 async function syncPonder() {
-  if (!canInteract() || !ponderToggle.checked || document.hidden) { engine.stopPonder(); return; }
+  if (!canInteract() || !ponderToggle.checked || document.hidden || recommendations.length) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   try { await engine.ponder({ board, sideToMove: playerColor, requestId: ++requestId }); }
   catch (error) { if (error.name !== "AbortError") render(); }
@@ -114,6 +131,44 @@ async function prepareEngine() {
     if (!winner && currentColor !== playerColor && !thinking) await startSearch();
     else if (!thinking) await syncPonder();
   } catch (error) { if (error.name !== "AbortError") render(); }
+}
+
+async function recommend() {
+  if (!canInteract()) return;
+  engine.stopPonder();
+  const id = ++requestId;
+  recommending = true;
+  recommendations = [];
+  pendingIndex = hoverIndex = -1;
+  liveStats = null;
+  statsSide = playerColor;
+  statsPhase = "search";
+  render();
+  try {
+    const result = await engine.search({ board, sideToMove: playerColor, timeMs: RECOMMENDATION_MS, requestId: id, multiPV: 2 });
+    if (id !== requestId || !recommending) return;
+    recommendations = result.recommendations;
+    liveStats = result;
+  } catch (error) {
+    if (id !== requestId || error.name === "AbortError") return;
+    state = "error";
+  } finally {
+    if (id === requestId) { recommending = false; render(); }
+  }
+}
+
+function hideRecommendations() {
+  const active = recommending;
+  if (active) {
+    requestId++;
+    recommending = false;
+    engine.cancel();
+  }
+  recommendations = [];
+  pendingIndex = hoverIndex = -1;
+  render();
+  if (active) void prepareEngine();
+  else void syncPonder();
 }
 
 async function startSearch() {
@@ -152,6 +207,7 @@ function place(index) {
   if (!canInteract() || !validIndex(index) || board[index]) return;
   rounds.push(snapshot(board, lastMove));
   engine.stopPonder();
+  recommendations = [];
   board[index] = playerColor;
   lastMove = index;
   pendingIndex = hoverIndex = -1;
@@ -169,6 +225,8 @@ function selectedIndex(event) {
 function invalidateSearch() {
   requestId += 1;
   thinking = false;
+  recommending = false;
+  recommendations = [];
   stopClock();
   engine.reset();
   state = "idle";
@@ -179,7 +237,7 @@ function invalidateSearch() {
 }
 
 function undo() {
-  if (pendingIndex >= 0 && !thinking) { pendingIndex = -1; render(); return; }
+  if (pendingIndex >= 0 && !thinking && !recommending) { pendingIndex = -1; render(); return; }
   const saved = rounds.pop();
   if (!saved) return;
   invalidateSearch();
@@ -253,6 +311,16 @@ document.addEventListener("visibilitychange", () => { void syncPonder(); });
 undoButton.addEventListener("click", undo);
 document.querySelector("#restartButton").addEventListener("click", restart);
 retryButton.addEventListener("click", () => { engine.reset(); void prepareEngine(); });
+recommendButton.addEventListener("click", () => {
+  if (recommending || recommendations.length) hideRecommendations();
+  else void recommend();
+});
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && (recommending || recommendations.length)) {
+    event.preventDefault();
+    hideRecommendations();
+  }
+});
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register(new URL("./sw.js", import.meta.url), { scope: "./" })

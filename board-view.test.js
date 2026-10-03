@@ -52,3 +52,17 @@ test("board view renders playable intersections and maps screen coordinates", ()
   assert.match(svg.innerHTML, /class="last-ring"/);
   assert.match(svg.innerHTML, /class="stone-texture black"/);
 });
+
+test("recommendations mark empty alternatives without adding stones or changing hit targets", () => {
+  const svg = makeSvg(), view = createBoardView(svg);
+  const board = new Uint8Array(225); board[112] = 1;
+  view.render({ board, lastMove: 112, pendingIndex: -1, hoverIndex: -1, canInteract: true,
+    recommendations: [{ index: 113 }, { index: 127 }] });
+  assert.match(svg.innerHTML, /data-recommendation="113" data-rank="1"/);
+  assert.match(svg.innerHTML, /data-recommendation="127" data-rank="2"/);
+  assert.equal((svg.innerHTML.match(/data-stone=/g) || []).length, 1);
+  assert.equal((svg.innerHTML.match(/class="hit-target"/g) || []).length, 224);
+  view.render({ board, lastMove: 112, pendingIndex: -1, hoverIndex: -1, canInteract: true,
+    recommendations: [{ index: 112 }] });
+  assert.doesNotMatch(svg.innerHTML, /data-recommendation=/);
+});

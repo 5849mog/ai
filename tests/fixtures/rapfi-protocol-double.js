@@ -3,12 +3,21 @@
 self.Rapfi = async config => {
   const { validatePosition, hasFive } = await import(new URL("./game-rules.js", self.location.href));
   const asynchronous = config.mainScriptUrlOrBlob.includes("multi");
-  let board = new Uint8Array(225), side = 1, timeout = 1000, thinking = false;
+  let board = new Uint8Array(225), side = 1, timeout = 1000, thinking = false, multiPV = 1;
   let finishTimer, statsTimer, chosen;
   const stdout = config.onReceiveStdout;
   const diagnostics = command => self.postMessage({ type: "test-command", command });
   const finish = () => {
     clearTimeout(finishTimer); clearInterval(statsTimer);
+    if (multiPV === 2 && board.some(Boolean)) {
+      const second = board.findIndex((value, index) => !value && index !== chosen);
+      for (const [pv, index] of [chosen, second].entries()) {
+        stdout(`INFO PV ${pv}`); stdout("INFO NUMPV 2"); stdout("INFO DEPTH 8");
+        stdout(`INFO EVAL ${420 - pv * 100}`);
+        stdout(`INFO BESTLINE ${index % 15},${Math.floor(index / 15)} 10,10`);
+        stdout("INFO PV DONE");
+      }
+    }
     board[chosen] = side;
     stdout(`${chosen % 15},${Math.floor(chosen / 15)}`);
     thinking = false;
@@ -55,7 +64,7 @@ self.Rapfi = async config => {
     else if (command.startsWith("START ")) { board.fill(0); stdout("OK"); }
     else if (command === "BEGIN") {
       if (board.some(Boolean)) stdout("ERROR Board is not empty."); else { side = 1; search(); }
-    } else if (command.startsWith("BOARD\n")) {
+    } else if (command.startsWith("BOARD\n") || command.startsWith("YXBOARD\n")) {
       board.fill(0);
       const lines = command.split("\n").slice(1, -1);
       const ownColor = lines.length ? (Number(lines[0].split(",")[2]) === 1 ? 1 : 2) : 1;
@@ -67,7 +76,10 @@ self.Rapfi = async config => {
       const white = board.filter(color => color === 2).length;
       side = black === white ? 1 : 2;
       if (side !== ownColor) throw new Error("BOARD color perspective mismatch");
-      search();
+      multiPV = 1;
+      if (command.startsWith("BOARD\n")) search();
+    } else if (command === "YXNBEST 2") {
+      multiPV = 2; search();
     }
   } };
 };

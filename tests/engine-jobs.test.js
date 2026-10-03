@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { EngineJobs } from "../engine-jobs.js";
 import { searchCommands } from "../engine-protocol.js";
+import { parseOutput } from "../engine-protocol.js";
 
 function setup() {
   const commands = [], messages = [], timers = new Map();
@@ -67,4 +68,22 @@ test("background analysis cannot replace an active real search or accept occupie
   jobs.search({ board, sideToMove: 2, timeMs: 1000, requestId: 1 }); flush();
   assert.throws(() => jobs.ponder({ board, sideToMove: 2, requestId: 2 }), /落子搜索/);
   assert.throws(() => jobs.output(move(112)), /无效/);
+});
+
+test("MultiPV jobs collect two root alternatives and normal searches reset the mode on the same engine", () => {
+  const { jobs, commands, messages, flush } = setup();
+  const board = empty(); board[112] = 1;
+  const original = board.slice();
+  jobs.search({ board, sideToMove: 2, timeMs: 2000, requestId: 1, multiPV: 2 }); flush();
+  assert.equal(commands.at(-1), "YXNBEST 2");
+  for (const line of ["INFO PV 0", "INFO NUMPV 2", "INFO DEPTH 8", "INFO EVAL 300", "INFO BESTLINE 8,7 1,1", "INFO PV DONE",
+    "INFO PV 1", "INFO NUMPV 2", "INFO DEPTH 8", "INFO EVAL 250", "INFO BESTLINE 7,8 2,2", "INFO PV DONE", "8,7"]) {
+    jobs.output(parseOutput(line), line);
+  }
+  assert.deepEqual(messages.at(-1).result.recommendations.map(move => move.index), [113, 127]);
+  assert.deepEqual(board, original);
+  jobs.search({ board, sideToMove: 2, timeMs: 1000, requestId: 2 }); flush();
+  assert.equal(commands.at(-1), "BOARD\n7,7,2\nDONE");
+  jobs.output(move(114));
+  assert.equal(messages.at(-1).result.recommendations, undefined);
 });

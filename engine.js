@@ -83,6 +83,13 @@ export class GomokuEngine {
               this.fail(new Error("引擎返回了无效落点"));
               return;
             }
+            if (pending.multiPV === 2 && (!Array.isArray(result.recommendations)
+              || result.recommendations.length < 1 || result.recommendations.length > 2
+              || result.recommendations.some(move => !validIndex(move.index) || pending.board[move.index] !== 0)
+              || new Set(result.recommendations.map(move => move.index)).size !== result.recommendations.length)) {
+              this.fail(new Error("引擎返回了无效推荐落点"));
+              return;
+            }
             clearTimeout(pending.timer);
             this.pending = null;
             this.onState({ state: "ready", variant: this.variant, threads: this.threads });
@@ -97,8 +104,9 @@ export class GomokuEngine {
     return initialization;
   }
 
-  async search({ board, sideToMove, timeMs = 10_000, requestId }) {
+  async search({ board, sideToMove, timeMs = 10_000, requestId, multiPV = 1 }) {
     validatePosition(board, sideToMove);
+    if (![1, 2].includes(multiPV)) throw new Error("推荐数量无效");
     if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
     if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
     this.stopPonder();
@@ -110,9 +118,9 @@ export class GomokuEngine {
     if (this.pending) throw new Error("已有搜索正在进行");
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => this.fail(new Error("引擎未能按时返回，请重试")), timeMs + 3000);
-      this.pending = { requestId, board: copy, sideToMove, resolve, reject, timer, stats: {} };
+      this.pending = { requestId, board: copy, sideToMove, multiPV, resolve, reject, timer, stats: {} };
       this.onState({ state: "thinking" });
-      try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId }); }
+      try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId, multiPV }); }
       catch (error) { this.fail(error); }
     });
   }

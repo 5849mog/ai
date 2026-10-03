@@ -35,7 +35,7 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1 } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [] } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   let svg = "";
   svg += "<defs>";
@@ -81,6 +81,12 @@ function renderBoard(boardSvg, state) {
     if (pendingIndex === index && canInteract) {
       svg += '<circle class="pending-ring" cx="' + p.x + '" cy="' + p.y + '" r="16"/>';
       svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
+    }
+    const rank = recommendations.slice(0, 2).findIndex(move => move.index === index);
+    if (rank >= 0) {
+      svg += '<g class="recommendation-marker ' + (rank === 0 ? 'first' : 'second') + '" data-recommendation="' + index + '" data-rank="' + (rank + 1) + '" aria-label="' + (rank === 0 ? '首选 ' : '次选 ') + coordinate(index) + '">';
+      svg += '<circle class="recommendation-ring" cx="' + p.x + '" cy="' + p.y + '" r="14"/>';
+      svg += '<text class="recommendation-number" x="' + p.x + '" y="' + p.y + '">' + (rank + 1) + '</text></g>';
     }
     if (canInteract) {
       svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +

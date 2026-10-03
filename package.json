@@ -11,6 +11,7 @@
     "build:engine": "python scripts/build-engine.py",
     "test:browser": "node scripts/browser-qa.js",
     "test:features": "node scripts/feature-qa.js",
+    "test:recommendations": "node scripts/recommendation-qa.js",
     "benchmark": "node scripts/benchmark.js",
     "report": "node scripts/validate-report.js"
   },

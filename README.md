@@ -19,6 +19,8 @@ npm run dev
 
 悔棋恢复到你上次落子前。思考中也可悔棋或重开，取消的搜索不会把棋子放进新局。引擎失败会保留棋盘，重试可继续原来的 AI 回合。
 
+玩家回合点击「推荐」，引擎在最多 2 秒内同时搜索首选和次选着手：棋盘上的绿色实线圆环「1」是首选，金色虚线圆环「2」是次选。推荐不会落子，也不会改变悔棋记录；仍需由你选择落点，触屏仍须两次点击确认。再次点击「推荐」或按 Esc 可收起或取消。悔棋、新局和换色会废弃旧推荐；推荐期间暂停后台思考。空盘及只有一个可用候选时只显示一个点，不凑数。
+
 棋盘下方显示实时深度、引擎评分、节点数与搜索速度。评分统一以 AI 为视角，正数有利于 AI；它是引擎原始评分，不是实测胜率。后台分析时会显示「AI 后台思考中」，缺失的数据用破折号表示。
 
 后台思考默认开启，可在顶部关闭，偏好会保存在本机。玩家回合继续分析当前局面并复用 Rapfi 搜索缓存；玩家落子时优先执行实际 AI 回合，后台分析得到的假想落点不会落到棋盘。页面隐藏时暂停，恢复可见时继续；悔棋、重开与切色会销毁旧 Worker，清除旧任务和缓存。
@@ -52,7 +54,8 @@ const result = await engine.search({
   board,           // 225 个交点，0 空、1 黑、2 白；调用方数组不会被修改
   sideToMove: 2,   // 黑先白后，棋子数量须与行棋方一致
   timeMs: 10000,   // 1–30000 ms，界面提供 1000/5000/10000
-  requestId: 1     // 调用方递增的安全整数
+  requestId: 1,    // 调用方递增的安全整数
+  multiPV: 1      // 普通落子为 1；推荐使用 2，返回 recommendations 数组
 });
 // result: index, x, y, elapsed, requestId, evaluator, weight；以及实际输出的 depth/nodes/nps 等
 engine.cancel();  // 取消未完成搜索，Promise 以 AbortError 拒绝
@@ -64,6 +67,8 @@ engine.dispose();
 初始化状态为 loading/ready/error，搜索时为 thinking。一次只接受一个搜索；超时、非法落点和引擎错误均明确失败，不使用旧引擎兜底。每次搜索都会确认指定的 mix9svq freestyle 权重已启用。
 
 协议适配层使用完整 BOARD 数据同步局面，以黑白交替顺序发送棋子，并把实际颜色转换为协议的己方/对方编号。配置禁用坐标翻转，界面、规则和搜索的坐标一致。
+
+推荐使用 `YXBOARD` 只同步局面，再以 `YXNBEST 2` 发起一次双候选搜索。只接受同一深度已完整输出的 MultiPV 组，不把主变化里的对方应手当作第二推荐。普通落子和后台搜索仍用 BOARD，恢复单候选模式；直接胜着未输出 PV 时按共享规则核验真实胜点。
 
 ## 重新构建引擎
 
@@ -93,6 +98,7 @@ npm test
 npm run check
 npm run test:browser
 npm run test:features
+npm run test:recommendations
 npm run benchmark
 npm run report
 ```

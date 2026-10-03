@@ -32,9 +32,15 @@
           <div class="board-bottom">
             <span class="search-clock" id="searchClock">你执黑 · 无禁手</span>
             <div class="game-actions">
+              <button class="icon-button" id="recommendButton" type="button" aria-label="推荐" title="标出首选和次选落点（最多 2 秒）" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>推荐</span></button>
               <button class="icon-button" id="undoButton" type="button" aria-label="悔棋" title="恢复到你上次落子前" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6-5 5 5 5M4 11h10a5 5 0 0 1 0 10h-2"/></svg><span>悔棋</span></button>
               <button class="icon-button icon-button-primary" id="restartButton" type="button" aria-label="新局" title="重新开局"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 .1 2M20 4v7h-7"/></svg><span>新局</span></button>
             </div>
+          </div>
+          <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
+            <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
+            <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
+            <span class="recommendation-note" id="recommendationNote"></span>
           </div>
           <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于 AI">
             <div class="analysis-heading"><span id="analysisState">AI 搜索信息</span><span>评分正数利于 AI</span></div>

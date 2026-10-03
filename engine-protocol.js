@@ -19,10 +19,12 @@ export function boardCommand(board, sideToMove) {
   return lines.join("\n");
 }
 
-export function searchCommands(board, sideToMove, timeMs) {
+export function searchCommands(board, sideToMove, timeMs, multiPV = 1) {
   if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
+  if (![1, 2].includes(multiPV)) throw new Error("推荐数量无效");
+  const position = boardCommand(board, sideToMove);
   return ["INFO timeout_match 0", `INFO timeout_turn ${timeMs}`, "INFO time_left 2147483647",
-    boardCommand(board, sideToMove)];
+    ...(multiPV === 2 ? [position.replace(/^BOARD/, "YXBOARD"), "YXNBEST 2"] : [position])];
 }
 
 export function parseOutput(line) {

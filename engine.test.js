@@ -131,3 +131,26 @@ test("a synchronous initialization failure can be retried", async () => {
   assert.equal(attempts, 2);
   engine.dispose();
 });
+
+test("recommendations are read-only, reuse the worker and reject malformed alternative sets", async () => {
+  const { engine, workers } = setup();
+  const board = position(), original = board.slice();
+  const first = engine.search({ board, sideToMove: 2, timeMs: 2000, requestId: 1, multiPV: 2 });
+  workers[0].send({ type: "ready" }); await Promise.resolve();
+  assert.equal(workers[0].sent.at(-1).multiPV, 2);
+  workers[0].send({ type: "move", requestId: 1, result: { index: 113, recommendations: [{ index: 113 }, { index: 127 }] } });
+  assert.equal((await first).recommendations.length, 2);
+  assert.deepEqual(board, original);
+  const second = engine.search({ board, sideToMove: 2, timeMs: 1000, requestId: 2 });
+  await Promise.resolve();
+  assert.equal(workers[0].sent.at(-1).multiPV, 1);
+  workers[0].send({ type: "move", requestId: 2, result: { index: 97 } }); await second;
+  assert.equal(workers.length, 1); engine.dispose();
+  for (const recommendations of [undefined, [], [{ index: 112 }], [{ index: 225 }], [{ index: 113 }, { index: 113 }]]) {
+    const { engine, workers } = setup();
+    const job = engine.search({ board, sideToMove: 2, timeMs: 2000, requestId: 1, multiPV: 2 });
+    workers[0].send({ type: "ready" }); await Promise.resolve();
+    workers[0].send({ type: "move", requestId: 1, result: { index: 113, recommendations } });
+    await assert.rejects(job, /无效推荐/); engine.dispose();
+  }
+});

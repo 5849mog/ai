@@ -34,7 +34,7 @@ function stdout(line) {
       return;
     }
   }
-  try { jobs.output(parsed); } catch (error) { sendError(error); }
+  try { jobs.output(parsed, line); } catch (error) { sendError(error); }
 }
 
 self.onmessage = async ({ data }) => {

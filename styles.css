@@ -61,6 +61,22 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
 .analysis-values dt { color: var(--muted); }
 .analysis-values dd { margin: 0; font-weight: 600; }
 .game-actions { display: inline-flex; align-items: center; gap: 8px; }
+/* Numbers and distinct ring styles also convey the ranking without color. */
+.recommendation-marker { pointer-events: none; }
+.recommendation-ring { fill: #faf5e9; stroke-width: 2.8; }
+.recommendation-marker.first { color: #24735a; }
+.recommendation-marker.second { color: #956613; }
+.recommendation-marker.first .recommendation-ring { stroke: currentColor; }
+.recommendation-marker.second .recommendation-ring { stroke: currentColor; stroke-dasharray: 4 2; }
+.recommendation-number { fill: currentColor; font: 600 15px system-ui,sans-serif; text-anchor: middle; dominant-baseline: central; }
+#recommendButton[aria-pressed="true"] { color: #24735a; background-color: #eaf2e9; }
+.recommendation-legend { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px 18px; padding: 8px 12px; font-size: 12px; }
+.recommendation-key { display: inline-flex; align-items: center; gap: 6px; }
+.recommendation-key.first { color: #24735a; }
+.recommendation-key.second { color: #956613; }
+.recommendation-key i { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border: 1.5px solid currentColor; border-radius: 50%; font-style: normal; font-weight: 600; }
+.recommendation-key.second i { border-style: dashed; }
+.recommendation-note { color: var(--muted); }
 .icon-button { min-width: 76px; height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; border: 0; border-radius: 10px; background: #f3f0e7 url("./assets/button-undo.svg") center / 100% 100% no-repeat; color: #60685f; cursor: pointer; box-shadow: 0 2px 5px rgba(39,42,36,.08); transition: filter .18s, transform .18s; }
 .icon-button span { font-size: 12px; }
 .icon-button:hover:not(:disabled) { filter: brightness(1.04); }
@@ -95,6 +111,14 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
   .analysis-heading { font-size: 9px; }
 }
 @media (max-width: 360px) { .brand-mark { display: none; } .brand { gap: 0; } }
+@media (max-width: 430px) {
+  .board-bottom { flex-basis: auto; flex-wrap: wrap; justify-content: center; gap: 7px; padding: 9px 12px; }
+  .search-clock { width: 100%; text-align: center; }
+  .game-actions { width: 100%; }
+  .game-actions .icon-button { flex: 1; }
+  .board-frame { width: min(100%,max(206px,calc(100dvh - 365px))); }
+  .recommendation-legend { font-size: 11px; gap: 7px 14px; }
+}
 @media (max-height: 520px) and (min-width: 601px) {
   .app-shell { padding: 0 18px; }
   .topbar { min-height: 44px; padding: 3px 0; }
@@ -103,6 +127,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, .board-svg:focus-vi
   .board-toolbar { min-height: 38px; flex-basis: 38px; }
   .board-wrap { padding: 4px; }
   .board-frame { width: min(100%, calc(100dvh - 250px)); padding: 4px; }
+  .board-card:has(.recommendation-legend:not([hidden])) .board-frame { width: min(100%, calc(100dvh - 286px)); }
   .board-bottom { min-height: 48px; flex-basis: 48px; }
   .page-footer { min-height: 24px; }
 }
