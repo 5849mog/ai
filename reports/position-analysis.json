@@ -1,0 +1,436 @@
+{
+  "baseCommit": "920589f3d632384a50879db68d0cb8c2a80de86c",
+  "unitTests": 55,
+  "syntaxAndChecksums": "passed",
+  "analysis": {
+    "startedAt": "2026-10-04T07:15:38.425Z",
+    "browser": "153.0.8010.0",
+    "checks": [
+      "plain: repeated ponder replaces one point; cancelling a pending touch leaves all three indicators unchanged",
+      "plain: actual AI move carries the matching PV, undo truncates future points, a new branch and reload preserve the correct history",
+      "plain: MultiPV second candidate cannot overwrite win rate; import preview/cancel preserves history and confirmed import clears it",
+      "plain: undo/restart during foreground search discard late results; white-side analysis keeps the player's viewpoint",
+      "plain: imported terminal result overrides estimates, terminal undo removes the result point",
+      "ai: repeated ponder replaces one point; cancelling a pending touch leaves all three indicators unchanged",
+      "ai: actual AI move carries the matching PV, undo truncates future points, a new branch and reload preserve the correct history",
+      "ai: MultiPV second candidate cannot overwrite win rate; import preview/cancel preserves history and confirmed import clears it",
+      "ai: undo/restart during foreground search discard late results; white-side analysis keeps the player's viewpoint",
+      "ai: imported terminal result overrides estimates, terminal undo removes the result point",
+      "real Rapfi single-thread WASM: native WINRATE frames, completed MultiPV assessment and a full chronological trend over live UI play"
+    ],
+    "runtime": "Real Rapfi WASM plus deterministic protocol fixture for cancellation and branch tests",
+    "native": {
+      "assessments": 174,
+      "points": 12,
+      "last": {
+        "rate": "96%",
+        "judgement": "你明显占优，保持攻势",
+        "ply": "12",
+        "points": "12",
+        "curve": "<path d=\"M52.08333333333333,12.526678000000004 C65.625,12.526678000000004 65.625,11.039732 79.16666666666666,11.039732 C92.70833333333333,11.039732 92.70833333333333,11.701185199999998 106.25,11.701185199999998 C119.79166666666666,11.701185199999998 119.79166666666666,10.14904 133.33333333333331,10.14904 C146.875,10.14904 146.875,9.813880399999995 160.41666666666669,9.813880399999995 C173.95833333333334,9.813880399999995 173.95833333333334,9.813868 187.5,9.813868 C201.04166666666669,9.813868 201.04166666666669,9.813880399999995 214.58333333333334,9.813880399999995 C228.125,9.813880399999995 228.125,9.025599999999997 241.66666666666666,9.025599999999997 C255.20833333333331,9.025599999999997 255.20833333333331,9.0255814 268.75,9.0255814 C282.2916666666667,9.0255814 282.2916666666667,8.451728000000003 295.83333333333337,8.451728000000003 C309.375,8.451728000000003 309.375,8.405048199999996 322.91666666666663,8.405048199999996 C336.4583333333333,8.405048199999996 336.4583333333333,8.405048199999996 350,8.405048199999996 L350,37 L52.08333333333333,37 Z\" class=\"trend-area\"></path><path d=\"M52.08333333333333,12.526678000000004 C65.625,12.526678000000004 65.625,11.039732 79.16666666666666,11.039732 C92.70833333333333,11.039732 92.70833333333333,11.701185199999998 106.25,11.701185199999998 C119.79166666666666,11.701185199999998 119.79166666666666,10.14904 133.33333333333331,10.14904 C146.875,10.14904 146.875,9.813880399999995 160.41666666666669,9.813880399999995 C173.95833333333334,9.813880399999995 173.95833333333334,9.813868 187.5,9.813868 C201.04166666666669,9.813868 201.04166666666669,9.813880399999995 214.58333333333334,9.813880399999995 C228.125,9.813880399999995 228.125,9.025599999999997 241.66666666666666,9.025599999999997 C255.20833333333331,9.025599999999997 255.20833333333331,9.0255814 268.75,9.0255814 C282.2916666666667,9.0255814 282.2916666666667,8.451728000000003 295.83333333333337,8.451728000000003 C309.375,8.451728000000003 309.375,8.405048199999996 322.91666666666663,8.405048199999996 C336.4583333333333,8.405048199999996 336.4583333333333,8.405048199999996 350,8.405048199999996\" class=\"trend-line\"></path><circle cx=\"350\" cy=\"8.405048199999996\" r=\"5\" class=\"trend-halo\"></circle><circle cx=\"350\" cy=\"8.405048199999996\" r=\"2.5\" class=\"trend-current\"></circle>"
+      }
+    },
+    "completedAt": "2026-10-04T07:16:41.831Z",
+    "passed": true
+  },
+  "mobile": {
+    "startedAt": "2026-10-04T07:11:56.961Z",
+    "browser": "153.0.8010.0",
+    "runtime": "Actual Rapfi WASM with real UI; injected initialization error only for retry layout",
+    "checks": [
+      "390×844: full-size board, recommendation legend fits, coordinate mapping, two-tap play, undo and automatic resume",
+      "390×844: header record menu, export, import preview/cancel/confirm, winning highlights, restart, color/time and pondering controls",
+      "320×568: full-size board, recommendation legend fits, coordinate mapping, two-tap play, undo and automatic resume",
+      "320×568: header record menu, export, import preview/cancel/confirm, winning highlights, restart, color/time and pondering controls",
+      "844×390: full-size board, recommendation legend fits, coordinate mapping, two-tap play, undo and automatic resume",
+      "844×390: header record menu, export, import preview/cancel/confirm, winning highlights, restart, color/time and pondering controls",
+      "667×375: full-size board, recommendation legend fits, coordinate mapping, two-tap play, undo and automatic resume",
+      "667×375: header record menu, export, import preview/cancel/confirm, winning highlights, restart, color/time and pondering controls",
+      "320×568: original long error prompt wraps without horizontal overflow and relocated retry button recovers the engine"
+    ],
+    "completedAt": "2026-10-04T07:12:33.442Z",
+    "passed": true
+  },
+  "features": {
+    "startedAt": "2026-10-04T07:15:37.002Z",
+    "runtime": "Original Rapfi WASM + deterministic protocol double for UI edge cases; no new chess-strength benchmark",
+    "browser": "153.0.8010.0",
+    "checks": [
+      "real rapfi-single-simd128: black opening, live background stats, interrupted foreground search and reset",
+      "real rapfi-single: black opening, live background stats, interrupted foreground search and reset",
+      "real rapfi-multi-simd128: black opening, live background stats, interrupted foreground search and reset",
+      "real rapfi-multi: black opening, live background stats, interrupted foreground search and reset",
+      "real /plain/ UI: empty pondering, AI-first game, stats, white undo and restart during thinking",
+      "real /ai/ UI: empty pondering, AI-first game, stats, white undo and restart during thinking",
+      "plain: background streams stats without placing hypothetical moves",
+      "plain: AI black opening, white previews, alternating turns and white undo",
+      "plain: restart during AI search and rapid color changes discard old moves",
+      "plain: background stops and color/ponder preferences survive reload",
+      "plain: page visibility pauses/resumes background analysis",
+      "plain: a white win is attributed to the player and can be undone",
+      "ai: background streams stats without placing hypothetical moves",
+      "ai: AI black opening, white previews, alternating turns and white undo",
+      "ai: restart during AI search and rapid color changes discard old moves",
+      "ai: background stops and color/ponder preferences survive reload",
+      "ai: page visibility pauses/resumes background analysis",
+      "ai: a white win is attributed to the player and can be undone",
+      "390×844: white two-tap confirmation, full board and visible controls; short portrait analysis scrolls below",
+      "320×568: white two-tap confirmation, full board and visible controls; short portrait analysis scrolls below",
+      "844×390: white two-tap confirmation, full board and visible controls; short portrait analysis scrolls below"
+    ],
+    "completedAt": "2026-10-04T07:17:14.618Z",
+    "passed": true
+  },
+  "layout": {
+    "phase": "after",
+    "browser": "153.0.8010.0",
+    "startedAt": "2026-10-04T07:15:39.761Z",
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390,
+        "scrollHeight": 844,
+        "board": {
+          "x": 6,
+          "y": 84,
+          "width": 378,
+          "height": 378,
+          "right": 384,
+          "bottom": 462
+        },
+        "frame": {
+          "x": 4,
+          "y": 82,
+          "width": 382,
+          "height": 382,
+          "right": 386,
+          "bottom": 464
+        },
+        "actions": {
+          "x": 12,
+          "y": 474,
+          "width": 366,
+          "height": 44,
+          "right": 378,
+          "bottom": 518
+        },
+        "settings": {
+          "x": 0,
+          "y": 526,
+          "width": 390,
+          "height": 65,
+          "right": 390,
+          "bottom": 591
+        },
+        "analysis": {
+          "x": 0,
+          "y": 591,
+          "width": 390,
+          "height": 215.171875,
+          "right": 390,
+          "bottom": 806.171875
+        },
+        "gridStep": 24.57931137084961
+      },
+      {
+        "width": 360,
+        "height": 640,
+        "scrollWidth": 360,
+        "scrollHeight": 716,
+        "board": {
+          "x": 6,
+          "y": 72,
+          "width": 348,
+          "height": 348,
+          "right": 354,
+          "bottom": 420
+        },
+        "frame": {
+          "x": 4,
+          "y": 70,
+          "width": 352,
+          "height": 352,
+          "right": 356,
+          "bottom": 422
+        },
+        "actions": {
+          "x": 12,
+          "y": 426,
+          "width": 336,
+          "height": 44,
+          "right": 348,
+          "bottom": 470
+        },
+        "settings": {
+          "x": 0,
+          "y": 474,
+          "width": 360,
+          "height": 48,
+          "right": 360,
+          "bottom": 522
+        },
+        "analysis": {
+          "x": 0,
+          "y": 522,
+          "width": 360,
+          "height": 167.8125,
+          "right": 360,
+          "bottom": 689.8125
+        },
+        "gridStep": 22.628572463989258
+      },
+      {
+        "width": 320,
+        "height": 568,
+        "scrollWidth": 320,
+        "scrollHeight": 676,
+        "board": {
+          "x": 6,
+          "y": 72,
+          "width": 308,
+          "height": 308,
+          "right": 314,
+          "bottom": 380
+        },
+        "frame": {
+          "x": 4,
+          "y": 70,
+          "width": 312,
+          "height": 312,
+          "right": 316,
+          "bottom": 382
+        },
+        "actions": {
+          "x": 12,
+          "y": 386,
+          "width": 296,
+          "height": 44,
+          "right": 308,
+          "bottom": 430
+        },
+        "settings": {
+          "x": 0,
+          "y": 434,
+          "width": 320,
+          "height": 48,
+          "right": 320,
+          "bottom": 482
+        },
+        "analysis": {
+          "x": 0,
+          "y": 482,
+          "width": 320,
+          "height": 167.8125,
+          "right": 320,
+          "bottom": 649.8125
+        },
+        "gridStep": 20.027587890625
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "scrollWidth": 430,
+        "scrollHeight": 932,
+        "board": {
+          "x": 6,
+          "y": 84,
+          "width": 418,
+          "height": 418,
+          "right": 424,
+          "bottom": 502
+        },
+        "frame": {
+          "x": 4,
+          "y": 82,
+          "width": 422,
+          "height": 422,
+          "right": 426,
+          "bottom": 504
+        },
+        "actions": {
+          "x": 12,
+          "y": 514,
+          "width": 406,
+          "height": 44,
+          "right": 418,
+          "bottom": 558
+        },
+        "settings": {
+          "x": 0,
+          "y": 566,
+          "width": 430,
+          "height": 65,
+          "right": 430,
+          "bottom": 631
+        },
+        "analysis": {
+          "x": 0,
+          "y": 631,
+          "width": 430,
+          "height": 215.171875,
+          "right": 430,
+          "bottom": 846.171875
+        },
+        "gridStep": 27.1802978515625
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "scrollWidth": 844,
+        "scrollHeight": 390,
+        "board": {
+          "x": 14,
+          "y": 42,
+          "width": 318,
+          "height": 318,
+          "right": 332,
+          "bottom": 360
+        },
+        "frame": {
+          "x": 12,
+          "y": 40,
+          "width": 322,
+          "height": 322,
+          "right": 334,
+          "bottom": 362
+        },
+        "actions": {
+          "x": 358,
+          "y": 74,
+          "width": 474,
+          "height": 44,
+          "right": 832,
+          "bottom": 118
+        },
+        "settings": {
+          "x": 358,
+          "y": 123,
+          "width": 474,
+          "height": 60,
+          "right": 832,
+          "bottom": 183
+        },
+        "analysis": {
+          "x": 358,
+          "y": 183,
+          "width": 474,
+          "height": 154.375,
+          "right": 832,
+          "bottom": 337.375
+        },
+        "gridStep": 20.677833557128906
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "scrollWidth": 667,
+        "scrollHeight": 375,
+        "board": {
+          "x": 14,
+          "y": 42,
+          "width": 303,
+          "height": 303,
+          "right": 317,
+          "bottom": 345
+        },
+        "frame": {
+          "x": 12,
+          "y": 40,
+          "width": 307,
+          "height": 307,
+          "right": 319,
+          "bottom": 347
+        },
+        "actions": {
+          "x": 343,
+          "y": 74,
+          "width": 312,
+          "height": 44,
+          "right": 655,
+          "bottom": 118
+        },
+        "settings": {
+          "x": 343,
+          "y": 123,
+          "width": 312,
+          "height": 60,
+          "right": 655,
+          "bottom": 183
+        },
+        "analysis": {
+          "x": 343,
+          "y": 183,
+          "width": 312,
+          "height": 154.375,
+          "right": 655,
+          "bottom": 337.375
+        },
+        "gridStep": 19.702463150024414
+      },
+      {
+        "width": 1280,
+        "height": 900,
+        "scrollWidth": 1280,
+        "scrollHeight": 900,
+        "board": {
+          "x": 144,
+          "y": 130,
+          "width": 576,
+          "height": 576,
+          "right": 720,
+          "bottom": 706
+        },
+        "frame": {
+          "x": 140,
+          "y": 126,
+          "width": 584,
+          "height": 584,
+          "right": 724,
+          "bottom": 710
+        },
+        "actions": {
+          "x": 252,
+          "y": 722,
+          "width": 360,
+          "height": 40,
+          "right": 612,
+          "bottom": 762
+        },
+        "settings": {
+          "x": 140,
+          "y": 774,
+          "width": 584,
+          "height": 52,
+          "right": 724,
+          "bottom": 826
+        },
+        "analysis": {
+          "x": 772,
+          "y": 331.703125,
+          "width": 300,
+          "height": 252.578125,
+          "right": 1072,
+          "bottom": 584.28125
+        },
+        "gridStep": 37.45417785644531
+      }
+    ],
+    "checks": [],
+    "completedAt": "2026-10-04T07:16:15.325Z",
+    "passed": true
+  },
+  "offline": {
+    "startedAt": "2026-10-04T07:15:04.906Z",
+    "browser": "153.0.8010.0",
+    "checks": [
+      "Bundled brand serif loads; page makes no external font or asset requests",
+      "Styled pondering switch retains keyboard checkbox behavior",
+      "Reduced-motion preference and high-contrast native checkbox fallback work",
+      "v12 cache includes new materials and serif; activation clears legacy v11 cache",
+      "Offline reload displays new UI and plays a real human/AI round"
+    ],
+    "completedAt": "2026-10-04T07:15:09.272Z",
+    "passed": true
+  }
+}

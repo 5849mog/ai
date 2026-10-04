@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const VERSION = PREFIX + "250615-v11";
+const VERSION = PREFIX + "250615-v12";
 const url = path => new URL(path, BASE).href;
-const CORE = ["./", "index.html", "styles.css", "styles.css?v=11", "app.js", "board-view.js", "game-rules.js",
+const CORE = ["./", "index.html", "styles.css", "styles.css?v=12", "app.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "favicon.svg", "about.html", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 const ENGINE = "engine/rapfi-250615/";

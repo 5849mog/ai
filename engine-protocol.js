@@ -41,6 +41,8 @@ export function parseOutput(line) {
   }
   const stat = /^INFO (DEPTH|SELDEPTH|TOTALNODES|TOTALTIME|SPEED|EVAL) (-?\d+(?:\.\d+)?)$/.exec(text);
   const mate = /^INFO EVAL ([+-]?M\d+)$/.exec(text);
+  const winRate = /^INFO WINRATE (-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)$/i.exec(text);
+  if (winRate && Number(winRate[1]) >= 0 && Number(winRate[1]) <= 1) return { type: "stats", stats: { winRate: Number(winRate[1]) } };
   if (mate) return { type: "stats", stats: { mate: mate[1], evaluation: null } };
   if (stat) {
     const names = { DEPTH: "depth", SELDEPTH: "selectiveDepth", TOTALNODES: "nodes", TOTALTIME: "elapsed", SPEED: "nps", EVAL: "evaluation" };

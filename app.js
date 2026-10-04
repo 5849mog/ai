@@ -4,6 +4,8 @@ import { GomokuEngine } from "./engine.js";
 import { describeSearch } from "./search-info.js";
 import { createRecord, replayRecord, loadGame, saveGame } from "./game-record.js";
 import { setupRecordUi } from "./record-ui.js";
+import { PositionAnalysis } from "./position-analysis.js";
+import { createAnalysisView } from "./analysis-view.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -48,6 +50,14 @@ let recommendations = [];
 let modalOpen = false;
 let noticeTimer;
 let saveWarningShown = false;
+let analysisSaveTimer;
+const positionAnalysis = new PositionAnalysis();
+const analysisView = createAnalysisView(document.querySelector("#positionAnalysis"));
+
+function persistAnalysis() {
+  clearTimeout(analysisSaveTimer); analysisSaveTimer = null;
+  try { positionAnalysis.save(localStorage); } catch { /* optional derived data */ }
+}
 
 function notify(message, error = false) {
   const element = document.querySelector("#gameNotice");
@@ -61,6 +71,7 @@ function persistGame() {
   try { saved = saveGame(localStorage, createRecord(moves, playerColor)); } catch { /* blocked storage */ }
   if (!saved && !saveWarningShown) { notify("此局暂未保存，关闭页面可能丢失；仍可导出棋谱", true); saveWarningShown = true; }
   if (saved) saveWarningShown = false;
+  persistAnalysis();
   return saved;
 }
 
@@ -84,6 +95,10 @@ try {
   } else if (saved.error) notify(saved.error, true);
 } catch { /* blocked storage: current game still works */ }
 
+positionAnalysis.setPosition(moves, playerColor, { reset: true });
+try { positionAnalysis.load(localStorage); } catch { /* optional derived data */ }
+positionAnalysis.finish(winner);
+
 const engine = new GomokuEngine({ onState: event => {
   state = event.state;
   loadingProgress = event.progress;
@@ -93,6 +108,10 @@ const engine = new GomokuEngine({ onState: event => {
   liveStats = event.stats;
   statsSide = event.sideToMove;
   statsPhase = event.phase;
+  if (positionAnalysis.accept(event)) {
+    clearTimeout(analysisSaveTimer);
+    analysisSaveTimer = setTimeout(persistAnalysis, 500);
+  }
   if (!statsTimer) statsTimer = setTimeout(() => { statsTimer = null; updateSearchInfo(); }, 100);
 } });
 
@@ -140,6 +159,7 @@ function updateClock() {
 function stopClock() { clearInterval(clockTimer); clockTimer = null; }
 
 function updateSearchInfo() {
+  analysisView.render(positionAnalysis, winner);
   const info = describeSearch(liveStats, statsSide, 3 - playerColor);
   document.querySelector("#searchDepth").textContent = info.depth;
   document.querySelector("#searchScore").textContent = info.score;
@@ -153,7 +173,9 @@ function updateSearchInfo() {
 async function syncPonder() {
   if (!canInteract() || !ponderToggle.checked || document.hidden || recommendations.length) { engine.stopPonder(); return; }
   if (engine.pondering) return;
-  try { await engine.ponder({ board, sideToMove: playerColor, requestId: ++requestId }); }
+  const id = ++requestId;
+  positionAnalysis.begin(id, playerColor);
+  try { await engine.ponder({ board, sideToMove: playerColor, requestId: id }); }
   catch (error) { if (error.name !== "AbortError") render(); }
 }
 
@@ -169,6 +191,7 @@ async function recommend() {
   if (!canInteract()) return;
   engine.stopPonder();
   const id = ++requestId;
+  positionAnalysis.begin(id, playerColor);
   recommending = true;
   recommendations = [];
   pendingIndex = hoverIndex = -1;
@@ -193,6 +216,7 @@ function hideRecommendations() {
   const active = recommending;
   if (active) {
     requestId++;
+    positionAnalysis.cancel();
     recommending = false;
     engine.cancel();
   }
@@ -207,6 +231,7 @@ async function startSearch() {
   if (thinking || winner || currentColor === playerColor) return;
   engine.stopPonder();
   const id = ++requestId;
+  positionAnalysis.begin(id, 3 - playerColor);
   thinking = true;
   pondering = false;
   liveStats = null;
@@ -221,12 +246,15 @@ async function startSearch() {
     const result = await engine.search({ board, sideToMove: 3 - playerColor, timeMs: Number(timeSelect.value), requestId: id });
     if (id !== requestId || winner || currentColor === playerColor) return;
     if (!validIndex(result.index) || board[result.index]) throw new Error("无效落点");
+    positionAnalysis.accept({ requestId: id, sideToMove: 3 - playerColor, stats: result });
     board[result.index] = 3 - playerColor;
     moves.push(result.index);
+    positionAnalysis.advanceAi(moves, result.index, result.assessment);
     lastMove = result.index;
     lastResult = result;
     liveStats = result;
     winner = outcome(board, lastMove);
+    positionAnalysis.finish(winner);
     currentColor = playerColor;
     persistGame();
   } catch (error) {
@@ -244,9 +272,11 @@ function place(index) {
   recommendations = [];
   board[index] = playerColor;
   moves.push(index);
+  positionAnalysis.setPosition(moves, playerColor);
   lastMove = index;
   pendingIndex = hoverIndex = -1;
   winner = outcome(board, index);
+  positionAnalysis.finish(winner);
   persistGame();
   if (winner) { render(); return; }
   currentColor = 3 - playerColor;
@@ -260,6 +290,7 @@ function selectedIndex(event) {
 
 function invalidateSearch() {
   requestId += 1;
+  positionAnalysis.cancel();
   thinking = false;
   recommending = false;
   recommendations = [];
@@ -279,6 +310,7 @@ function undo() {
   invalidateSearch();
   lastMove = restore(board, saved);
   moves.length = saved.moveCount;
+  positionAnalysis.setPosition(moves, playerColor);
   currentColor = playerColor;
   winner = 0;
   lastResult = null;
@@ -292,6 +324,7 @@ function restart() {
   board.fill(0);
   rounds.length = 0;
   moves.length = 0;
+  positionAnalysis.setPosition(moves, playerColor, { reset: true });
   currentColor = BLACK;
   winner = 0;
   lastMove = -1;
@@ -347,7 +380,8 @@ ponderToggle.addEventListener("change", () => {
   try { localStorage.setItem("gomoku-pondering", String(ponderToggle.checked)); } catch { /* optional preference */ }
   void syncPonder();
 });
-document.addEventListener("visibilitychange", () => { void syncPonder(); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) persistAnalysis(); void syncPonder(); });
+window.addEventListener("pagehide", persistAnalysis);
 undoButton.addEventListener("click", undo);
 document.querySelector("#restartButton").addEventListener("click", restart);
 retryButton.addEventListener("click", () => { engine.reset(); void prepareEngine(); });
@@ -379,6 +413,8 @@ setupRecordUi({
     playerColor = game.record.playerColor; colorSelect.value = String(playerColor);
     try { localStorage.setItem("gomoku-player-color", String(playerColor)); } catch { /* optional preference */ }
     currentColor = game.currentColor; lastMove = game.lastMove; winner = game.winner;
+    positionAnalysis.setPosition(moves, playerColor, { reset: true });
+    positionAnalysis.finish(winner);
     keyboardIndex = lastMove < 0 ? 112 : lastMove; lastResult = null;
     const saved = persistGame(); render(); void prepareEngine(); return saved;
   }

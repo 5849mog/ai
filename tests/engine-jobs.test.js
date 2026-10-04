@@ -17,6 +17,19 @@ function setup(options = {}) {
 const empty = () => Array(225).fill(0);
 const move = index => ({ type: "move", index, x: index % 15, y: Math.floor(index / 15) });
 
+test("position estimates are atomic, use PV 0 and survive final result without secondary-PV contamination", () => {
+  const { jobs, messages, flush } = setup();
+  jobs.search({ board: empty(), sideToMove: 1, timeMs: 1000, requestId: 1, multiPV: 2 }); flush();
+  for (const line of ["INFO PV 0", "INFO DEPTH 8", "INFO EVAL 100", "INFO WINRATE 0.7", "INFO BESTLINE 7,7"]) jobs.output(parseOutput(line), line);
+  assert.equal(messages.some(message => message.stats?.assessment), false);
+  jobs.output(parseOutput("INFO PV DONE"), "INFO PV DONE");
+  for (const line of ["INFO PV 1", "INFO DEPTH 8", "INFO EVAL -300", "INFO WINRATE 0.1", "INFO BESTLINE 8,7", "INFO PV DONE"]) jobs.output(parseOutput(line), line);
+  assert.equal(messages.filter(message => message.stats?.assessment).length, 1);
+  jobs.output(move(112));
+  assert.equal(messages.at(-1).result.assessment.winRate, .7);
+  assert.equal(messages.at(-1).result.assessment.bestIndex, 112);
+});
+
 test("background slices resynchronize empty positions and never emit application moves", () => {
   const { jobs, commands, messages, timers, flush } = setup();
   jobs.ponder({ board: empty(), sideToMove: 1, requestId: 1 }); flush();

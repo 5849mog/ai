@@ -14,6 +14,7 @@ self.Rapfi = async config => {
       for (const [pv, index] of [chosen, second].entries()) {
         stdout(`INFO PV ${pv}`); stdout("INFO NUMPV 2"); stdout("INFO DEPTH 8");
         stdout(`INFO EVAL ${420 - pv * 100}`);
+        stdout(`INFO WINRATE ${pv === 0 ? 0.8 : 0.2}`);
         stdout(`INFO BESTLINE ${index % 15},${Math.floor(index / 15)} 10,10`);
         stdout("INFO PV DONE");
       }
@@ -37,10 +38,15 @@ self.Rapfi = async config => {
     thinking = true;
     let depth = 0;
     const stats = () => {
+      stdout("INFO PV 0");
+      stdout(`INFO NUMPV ${multiPV}`);
       stdout(`INFO DEPTH ${++depth + 5}`);
       stdout(`INFO TOTALNODES ${depth * 1200}`);
       stdout("INFO SPEED 42000");
       stdout("INFO EVAL 420");
+      stdout("INFO WINRATE 0.8");
+      stdout(`INFO BESTLINE ${chosen % 15},${Math.floor(chosen / 15)}`);
+      stdout("INFO PV DONE");
     };
     if (asynchronous) {
       statsTimer = setInterval(stats, 35);

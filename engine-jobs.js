@@ -1,4 +1,5 @@
 import { RecommendationCollector } from "./recommendations.js";
+import { AssessmentCollector } from "./engine-assessment.js";
 
 // Cooperative background analysis for both single-thread and pthread WASM.
 // A normal, time-limited search warms Rapfi's transposition table, then yields
@@ -60,7 +61,7 @@ export class EngineJobs {
       if (!job) return;
       const phase = this.queuedSearch ? "search" : "ponder";
       this.queuedSearch = null;
-      this.active = { ...job, phase, started: this.now(), stats: {},
+      this.active = { ...job, phase, started: this.now(), stats: {}, assessment: new AssessmentCollector(),
         recommendations: phase === "search" && job.multiPV === 2 ? new RecommendationCollector() : null };
       const timeMs = phase === "ponder" ? this.sliceMs : job.timeMs;
       // Native automatic pondering must remain disabled: single-thread builds
@@ -74,6 +75,12 @@ export class EngineJobs {
     if (!job) return;
     if (line && job.recommendations) job.recommendations.read(line);
     const current = job.phase === "search" || this.background?.requestId === job.requestId;
+    const assessment = line ? job.assessment.read(line) : null;
+    if (assessment && job.board[assessment.bestIndex] === 0) {
+      job.stats.assessment = assessment;
+      if (current) this.emit({ type: "stats", phase: job.phase, requestId: job.requestId,
+        sideToMove: job.sideToMove, stats: { assessment } });
+    }
     if (parsed.type === "stats") {
       job.stats = { ...job.stats, ...parsed.stats };
       if (current) this.emit({ type: "stats", phase: job.phase, requestId: job.requestId,
