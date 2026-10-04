@@ -49,7 +49,8 @@ export function createAnalysisView(root) {
         if (last) layer.append(svgNode("circle", { cx: last.x, cy: last.y, r: 5, class: "trend-halo" }),
           svgNode("circle", { cx: last.x, cy: last.y, r: 2.5, class: "trend-current" }));
       }
-      select("#trendCurrentStep").setAttribute("x", Math.max(35, Math.min(340, geometry.currentX)));
+      const currentPercent = (geometry.currentX - geometry.left) / (geometry.right - geometry.left) * 100;
+      select("#trendCurrentStep").style.left = `clamp(32px, ${currentPercent}%, calc(100% - 32px))`;
       select("#trendCurrentStep").textContent = `${analysis.moves.length} 手`;
       select("#trendStartStep").style.display = analysis.moves.length === 0 ? "none" : "";
       select("#trendEndStep").textContent = `${geometry.span}`;

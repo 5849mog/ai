@@ -1,0 +1,381 @@
+{
+  "startedAt": "2026-10-04T12:31:40.850Z",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 568,
+      "scrollWidth": 320,
+      "scrollHeight": 958,
+      "board": {
+        "x": 6,
+        "y": 86,
+        "width": 308,
+        "height": 308,
+        "right": 314,
+        "bottom": 394
+      },
+      "areaPercent": 52.191901408450704,
+      "sidebar": {
+        "x": 0,
+        "y": 396,
+        "width": 320,
+        "height": 520.390625,
+        "right": 320,
+        "bottom": 916.390625
+      },
+      "fonts": [
+        {
+          "selector": "#positionContext",
+          "size": 12
+        },
+        {
+          "selector": ".win-rate-caption",
+          "size": 12
+        },
+        {
+          "selector": ".trend-heading",
+          "size": 12
+        },
+        {
+          "selector": ".page-footer",
+          "size": 12
+        },
+        {
+          "selector": "#trendCurrentStep",
+          "size": 12
+        },
+        {
+          "selector": "#trendEmpty",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 1036,
+      "board": {
+        "x": 6,
+        "y": 88,
+        "width": 378,
+        "height": 378,
+        "right": 384,
+        "bottom": 466
+      },
+      "areaPercent": 43.40867663142544,
+      "sidebar": {
+        "x": 0,
+        "y": 468,
+        "width": 390,
+        "height": 526.390625,
+        "right": 390,
+        "bottom": 994.390625
+      },
+      "fonts": [
+        {
+          "selector": "#positionContext",
+          "size": 12
+        },
+        {
+          "selector": ".win-rate-caption",
+          "size": 12
+        },
+        {
+          "selector": ".trend-heading",
+          "size": 12
+        },
+        {
+          "selector": ".page-footer",
+          "size": 12
+        },
+        {
+          "selector": "#trendCurrentStep",
+          "size": 12
+        },
+        {
+          "selector": "#trendEmpty",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "scrollWidth": 844,
+      "scrollHeight": 606,
+      "board": {
+        "x": 14,
+        "y": 42,
+        "width": 318,
+        "height": 318,
+        "right": 332,
+        "bottom": 360
+      },
+      "areaPercent": 30.72183740430186,
+      "sidebar": {
+        "x": 358,
+        "y": 72,
+        "width": 474,
+        "height": 496.390625,
+        "right": 832,
+        "bottom": 568.390625
+      },
+      "fonts": [
+        {
+          "selector": "#positionContext",
+          "size": 12
+        },
+        {
+          "selector": ".win-rate-caption",
+          "size": 12
+        },
+        {
+          "selector": ".trend-heading",
+          "size": 12
+        },
+        {
+          "selector": ".page-footer",
+          "size": 12
+        },
+        {
+          "selector": "#trendCurrentStep",
+          "size": 12
+        },
+        {
+          "selector": "#trendEmpty",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "scrollWidth": 1280,
+      "scrollHeight": 900,
+      "board": {
+        "x": 139.296875,
+        "y": 130.5,
+        "width": 691,
+        "height": 691,
+        "right": 830.296875,
+        "bottom": 821.5
+      },
+      "areaPercent": 41.448003472222226,
+      "sidebar": {
+        "x": 872.6875,
+        "y": 90.5,
+        "width": 272,
+        "height": 554.390625,
+        "right": 1144.6875,
+        "bottom": 644.890625
+      },
+      "fonts": [
+        {
+          "selector": "#positionContext",
+          "size": 12
+        },
+        {
+          "selector": ".win-rate-caption",
+          "size": 12
+        },
+        {
+          "selector": ".trend-heading",
+          "size": 12
+        },
+        {
+          "selector": ".page-footer",
+          "size": 12
+        },
+        {
+          "selector": "#trendCurrentStep",
+          "size": 12
+        },
+        {
+          "selector": "#trendEmpty",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "scrollHeight": 900,
+      "board": {
+        "x": 184.90625,
+        "y": 107.5,
+        "width": 739,
+        "height": 739,
+        "right": 923.90625,
+        "bottom": 846.5
+      },
+      "areaPercent": 42.13896604938272,
+      "sidebar": {
+        "x": 971.09375,
+        "y": 66.5,
+        "width": 288,
+        "height": 554.390625,
+        "right": 1259.09375,
+        "bottom": 620.890625
+      },
+      "fonts": [
+        {
+          "selector": "#positionContext",
+          "size": 12
+        },
+        {
+          "selector": ".win-rate-caption",
+          "size": 12
+        },
+        {
+          "selector": ".trend-heading",
+          "size": 12
+        },
+        {
+          "selector": ".page-footer",
+          "size": 12
+        },
+        {
+          "selector": "#trendCurrentStep",
+          "size": 12
+        },
+        {
+          "selector": "#trendEmpty",
+          "size": 12
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "scrollWidth": 1920,
+      "scrollHeight": 1080,
+      "board": {
+        "x": 308.203125,
+        "y": 94,
+        "width": 946,
+        "height": 946,
+        "right": 1254.203125,
+        "bottom": 1040
+      },
+      "areaPercent": 43.157600308641975,
+      "sidebar": {
+        "x": 1315.796875,
+        "y": 60,
+        "width": 300,
+        "height": 554.390625,
+        "right": 1615.796875,
+        "bottom": 614.390625
+      },
+      "fonts": [
+        {
+          "selector": "#positionContext",
+          "size": 12
+        },
+        {
+          "selector": ".win-rate-caption",
+          "size": 12
+        },
+        {
+          "selector": ".trend-heading",
+          "size": 12
+        },
+        {
+          "selector": ".page-footer",
+          "size": 12
+        },
+        {
+          "selector": "#trendCurrentStep",
+          "size": 12
+        },
+        {
+          "selector": "#trendEmpty",
+          "size": 12
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "Actual WASM: two-tap move + AI response, undo rollback, new game resets chart and HTML step label",
+    "Six viewport sizes: no horizontal overflow; 12px minimum status text; all controls visible and >=44px tall; no caption/axis label overlap; no win-rate width animation",
+    "Board grows across 1280 → 1440 → 1920; 1440×900 board occupies over 40% of viewport area",
+    "Final desktop spacing fits 1440×900 and 1920×1080; HTML move-axis labels remain contained and do not overlap at 0, 1, 9, 10, 99 and 225 plies"
+  ],
+  "before": {
+    "width": 1440,
+    "height": 900,
+    "scrollWidth": 1440,
+    "scrollHeight": 900,
+    "board": {
+      "x": 224,
+      "y": 130,
+      "width": 576,
+      "height": 576,
+      "right": 800,
+      "bottom": 706
+    },
+    "areaPercent": 25.6,
+    "sidebar": null,
+    "fonts": [
+      {
+        "selector": "#positionContext",
+        "size": 9
+      },
+      {
+        "selector": ".win-rate-caption",
+        "size": 9
+      },
+      {
+        "selector": ".trend-heading",
+        "size": 9
+      },
+      {
+        "selector": ".page-footer",
+        "size": 10
+      },
+      {
+        "selector": "#trendCurrentStep",
+        "size": 10
+      },
+      {
+        "selector": "#trendEmpty",
+        "size": 9
+      }
+    ]
+  },
+  "passed": true,
+  "completedAt": "2026-10-04T12:36:52.364Z",
+  "axisCases": [
+    {
+      "ply": 0,
+      "contained": true,
+      "disjoint": true
+    },
+    {
+      "ply": 1,
+      "contained": true,
+      "disjoint": true
+    },
+    {
+      "ply": 9,
+      "contained": true,
+      "disjoint": true
+    },
+    {
+      "ply": 10,
+      "contained": true,
+      "disjoint": true
+    },
+    {
+      "ply": 99,
+      "contained": true,
+      "disjoint": true
+    },
+    {
+      "ply": 225,
+      "contained": true,
+      "disjoint": true
+    }
+  ]
+}
