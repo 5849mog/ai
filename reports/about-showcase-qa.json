@@ -1,0 +1,127 @@
+{
+  "startedAt": "2026-10-04T14:17:58.954Z",
+  "viewports": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "scrollWidth": 320,
+      "panelHeights": [
+        272,
+        272,
+        272,
+        272
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 700
+      },
+      "scrollWidth": 390,
+      "panelHeights": [
+        240,
+        240,
+        240,
+        240
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scrollWidth": 390,
+      "panelHeights": [
+        240,
+        240,
+        240,
+        240
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "scrollWidth": 667,
+      "panelHeights": [
+        240,
+        240,
+        240,
+        240
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "scrollWidth": 768,
+      "panelHeights": [
+        220,
+        220,
+        220,
+        220
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "scrollWidth": 1024,
+      "panelHeights": [
+        220,
+        220,
+        220,
+        220
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "scrollWidth": 1440,
+      "panelHeights": [
+        220,
+        220,
+        220,
+        220
+      ],
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "scrollWidth": 1920,
+      "panelHeights": [
+        220,
+        220,
+        220,
+        220
+      ],
+      "errors": []
+    }
+  ],
+  "checks": [
+    "Original license paragraphs and hrefs preserved verbatim",
+    "Reduced-motion preference keeps all content static and interactive",
+    "Without JavaScript, static descriptions and the return link remain available",
+    "Existing v15 cache upgrades to v16, including new about CSS/JS; about reload and interactions work offline",
+    "Offline return to board restores the same 6-stone saved game, with the one-screen layout intact",
+    "All original local license links respond successfully"
+  ],
+  "passed": true,
+  "completedAt": "2026-10-04T14:18:34.599Z"
+}
