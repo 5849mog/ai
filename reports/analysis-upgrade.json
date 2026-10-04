@@ -1,0 +1,55 @@
+{
+  "baseCommit": "4812a52a1f8ba3cf7d63e4531ba0cccfcc601a74",
+  "reproduction": {
+    "from": "v11",
+    "to": "v12",
+    "httpCacheMaxAgeSeconds": 3600,
+    "before": {
+      "cacheHasNewUi": false,
+      "cacheHasNewApp": false
+    },
+    "afterV13": {
+      "cacheHasNewUi": true,
+      "cacheHasNewApp": true,
+      "matchesCurrentIndex": true
+    }
+  },
+  "edge": {
+    "checks": [
+      "225-ply legal drawn game: terminal judgement, non-fabricated win rate and full trend survive reload",
+      "Consecutive undo of a long game removes terminal and future points; reload restores the exact remaining curve",
+      "Three-digit ply labels and dense curves remain inside the mobile analysis area",
+      "Cancelling recommendation during search leaves the game unchanged and discards late recommendation markers"
+    ],
+    "startedAt": "2026-10-04T07:28:41.745Z",
+    "svgBytes": 48526,
+    "passed": true,
+    "completedAt": "2026-10-04T07:28:51.472Z"
+  },
+  "upgrade": {
+    "startedAt": "2026-10-04T07:36:41.957Z",
+    "version": "v13",
+    "checks": [
+      "v11 → v13: fresh app files bypass one-hour HTTP cache, legacy offline cache removed, pinned WASM/data retain normal cache policy",
+      "v11 → v13: current game preserved; new UI, native win rate, foreground move and undo work after offline reload",
+      "v12 → v13: fresh app files bypass one-hour HTTP cache, legacy offline cache removed, pinned WASM/data retain normal cache policy",
+      "v12 → v13: current game preserved; new UI, native win rate, foreground move and undo work after offline reload"
+    ],
+    "engineRequests": [
+      {
+        "from": "v11",
+        "networkMisses": 1,
+        "forcedReloads": 0
+      },
+      {
+        "from": "v12",
+        "networkMisses": 1,
+        "forcedReloads": 0
+      }
+    ],
+    "passed": true,
+    "completedAt": "2026-10-04T07:36:53.771Z"
+  },
+  "unitTests": 55,
+  "syntaxAndChecksums": "passed"
+}
