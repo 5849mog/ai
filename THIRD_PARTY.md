@@ -27,4 +27,10 @@ Emscripten 3.1.64 编译四个浏览器版本。engine/rapfi-250615/manifest.jso
 
 棋盘、底纹、棋子及按钮的 SVG 材质由本项目提供，遵循本项目许可证。
 
+## 品牌字体
+
+- 页首“五目”使用 Noto Serif SC Medium（500），仅包含这两个汉字的本地 TrueType 子集，约 2 KB；正文继续使用系统字体。
+- 来源：https://fonts.google.com/noto/specimen/Noto+Serif+SC ，源码：https://github.com/notofonts/noto-cjk/tree/main/Serif 。
+- 许可证：SIL Open Font License 1.1，完整声明见 [OFL-NotoSerif.txt](./assets/OFL-NotoSerif.txt)。字体随站点缓存，页面不请求外部字体服务。
+
 Rapfi 链接的 cpptoml、cxxopts、LZ4、xxHash、LZ4 stream 和 SIMDe，以及 Emscripten 运行时的上游许可声明，完整保存在 [NOTICE-Dependencies.txt](./engine/rapfi-250615/NOTICE-Dependencies.txt)。这些组件保留各自的 MIT、BSD、CC0 或 LLVM 等许可声明。
