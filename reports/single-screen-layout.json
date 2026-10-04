@@ -1,0 +1,1690 @@
+{
+  "startedAt": "2026-10-04T13:07:05.533Z",
+  "viewports": [
+    {
+      "width": 320,
+      "height": 568,
+      "scrollWidth": 320,
+      "scrollHeight": 568,
+      "items": {
+        "#boardSvg": {
+          "x": 68.1875,
+          "y": 78,
+          "width": 183.625,
+          "height": 183.625,
+          "right": 251.8125,
+          "bottom": 261.625
+        },
+        ".game-actions": {
+          "x": 12,
+          "y": 267.625,
+          "width": 296,
+          "height": 44,
+          "right": 308,
+          "bottom": 311.625
+        },
+        ".game-settings": {
+          "x": 0,
+          "y": 317.625,
+          "width": 320,
+          "height": 50,
+          "right": 320,
+          "bottom": 367.625
+        },
+        "#positionAnalysis": {
+          "x": 12,
+          "y": 374.625,
+          "width": 296,
+          "height": 159.375,
+          "right": 308,
+          "bottom": 534
+        },
+        ".engine-metrics": {
+          "x": 196,
+          "y": 432,
+          "width": 112,
+          "height": 102,
+          "right": 308,
+          "bottom": 534
+        },
+        ".page-footer": {
+          "x": 0,
+          "y": 540,
+          "width": 320,
+          "height": 24,
+          "right": 320,
+          "bottom": 564
+        },
+        "#positionJudgement": {
+          "x": 12,
+          "y": 375.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 160.015625,
+          "bottom": 393.8125
+        },
+        "#winRateCaption": {
+          "x": 124.140625,
+          "y": 401.8125,
+          "width": 72,
+          "height": 15,
+          "right": 196.140625,
+          "bottom": 416.8125
+        },
+        ".trend-chart": {
+          "x": 12,
+          "y": 469,
+          "width": 176,
+          "height": 65,
+          "right": 188,
+          "bottom": 534
+        },
+        "#searchDepth": {
+          "x": 293.546875,
+          "y": 468,
+          "width": 14.453125,
+          "height": 15,
+          "right": 308,
+          "bottom": 483
+        },
+        "#searchScore": {
+          "x": 264.640625,
+          "y": 485,
+          "width": 43.359375,
+          "height": 15,
+          "right": 308,
+          "bottom": 500
+        },
+        "#searchNodes": {
+          "x": 252.640625,
+          "y": 502,
+          "width": 55.359375,
+          "height": 15,
+          "right": 308,
+          "bottom": 517
+        },
+        "#searchSpeed": {
+          "x": 240.640625,
+          "y": 519,
+          "width": 67.359375,
+          "height": 15,
+          "right": 308,
+          "bottom": 534
+        }
+      }
+    },
+    {
+      "width": 360,
+      "height": 640,
+      "scrollWidth": 360,
+      "scrollHeight": 640,
+      "items": {
+        "#boardSvg": {
+          "x": 52.1875,
+          "y": 78,
+          "width": 255.625,
+          "height": 255.625,
+          "right": 307.8125,
+          "bottom": 333.625
+        },
+        ".game-actions": {
+          "x": 12,
+          "y": 339.625,
+          "width": 336,
+          "height": 44,
+          "right": 348,
+          "bottom": 383.625
+        },
+        ".game-settings": {
+          "x": 0,
+          "y": 389.625,
+          "width": 360,
+          "height": 50,
+          "right": 360,
+          "bottom": 439.625
+        },
+        "#positionAnalysis": {
+          "x": 12,
+          "y": 446.625,
+          "width": 336,
+          "height": 159.375,
+          "right": 348,
+          "bottom": 606
+        },
+        ".engine-metrics": {
+          "x": 236,
+          "y": 504,
+          "width": 112,
+          "height": 102,
+          "right": 348,
+          "bottom": 606
+        },
+        ".page-footer": {
+          "x": 0,
+          "y": 612,
+          "width": 360,
+          "height": 24,
+          "right": 360,
+          "bottom": 636
+        },
+        "#positionJudgement": {
+          "x": 12,
+          "y": 447.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 160.015625,
+          "bottom": 465.8125
+        },
+        "#winRateCaption": {
+          "x": 144.140625,
+          "y": 473.8125,
+          "width": 72,
+          "height": 15,
+          "right": 216.140625,
+          "bottom": 488.8125
+        },
+        ".trend-chart": {
+          "x": 12,
+          "y": 532.5,
+          "width": 216,
+          "height": 73.5,
+          "right": 228,
+          "bottom": 606
+        },
+        "#searchDepth": {
+          "x": 333.546875,
+          "y": 540,
+          "width": 14.453125,
+          "height": 15,
+          "right": 348,
+          "bottom": 555
+        },
+        "#searchScore": {
+          "x": 304.640625,
+          "y": 557,
+          "width": 43.359375,
+          "height": 15,
+          "right": 348,
+          "bottom": 572
+        },
+        "#searchNodes": {
+          "x": 292.640625,
+          "y": 574,
+          "width": 55.359375,
+          "height": 15,
+          "right": 348,
+          "bottom": 589
+        },
+        "#searchSpeed": {
+          "x": 280.640625,
+          "y": 591,
+          "width": 67.359375,
+          "height": 15,
+          "right": 348,
+          "bottom": 606
+        }
+      }
+    },
+    {
+      "width": 390,
+      "height": 700,
+      "scrollWidth": 390,
+      "scrollHeight": 700,
+      "items": {
+        "#boardSvg": {
+          "x": 37.1875,
+          "y": 78,
+          "width": 315.625,
+          "height": 315.625,
+          "right": 352.8125,
+          "bottom": 393.625
+        },
+        ".game-actions": {
+          "x": 12,
+          "y": 399.625,
+          "width": 366,
+          "height": 44,
+          "right": 378,
+          "bottom": 443.625
+        },
+        ".game-settings": {
+          "x": 0,
+          "y": 449.625,
+          "width": 390,
+          "height": 50,
+          "right": 390,
+          "bottom": 499.625
+        },
+        "#positionAnalysis": {
+          "x": 12,
+          "y": 506.625,
+          "width": 366,
+          "height": 159.375,
+          "right": 378,
+          "bottom": 666
+        },
+        ".engine-metrics": {
+          "x": 250,
+          "y": 564,
+          "width": 128,
+          "height": 102,
+          "right": 378,
+          "bottom": 666
+        },
+        ".page-footer": {
+          "x": 0,
+          "y": 672,
+          "width": 390,
+          "height": 24,
+          "right": 390,
+          "bottom": 696
+        },
+        "#positionJudgement": {
+          "x": 12,
+          "y": 507.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 160.015625,
+          "bottom": 525.8125
+        },
+        "#winRateCaption": {
+          "x": 159.140625,
+          "y": 533.8125,
+          "width": 72,
+          "height": 15,
+          "right": 231.140625,
+          "bottom": 548.8125
+        },
+        ".trend-chart": {
+          "x": 12,
+          "y": 592.5,
+          "width": 230,
+          "height": 73.5,
+          "right": 242,
+          "bottom": 666
+        },
+        "#searchDepth": {
+          "x": 363.546875,
+          "y": 600,
+          "width": 14.453125,
+          "height": 15,
+          "right": 378,
+          "bottom": 615
+        },
+        "#searchScore": {
+          "x": 334.640625,
+          "y": 617,
+          "width": 43.359375,
+          "height": 15,
+          "right": 378,
+          "bottom": 632
+        },
+        "#searchNodes": {
+          "x": 322.640625,
+          "y": 634,
+          "width": 55.359375,
+          "height": 15,
+          "right": 378,
+          "bottom": 649
+        },
+        "#searchSpeed": {
+          "x": 310.640625,
+          "y": 651,
+          "width": 67.359375,
+          "height": 15,
+          "right": 378,
+          "bottom": 666
+        }
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 844,
+      "items": {
+        "#boardSvg": {
+          "x": 6,
+          "y": 118.8125,
+          "width": 378,
+          "height": 378,
+          "right": 384,
+          "bottom": 496.8125
+        },
+        ".game-actions": {
+          "x": 12,
+          "y": 543.625,
+          "width": 366,
+          "height": 44,
+          "right": 378,
+          "bottom": 587.625
+        },
+        ".game-settings": {
+          "x": 0,
+          "y": 593.625,
+          "width": 390,
+          "height": 50,
+          "right": 390,
+          "bottom": 643.625
+        },
+        "#positionAnalysis": {
+          "x": 12,
+          "y": 650.625,
+          "width": 366,
+          "height": 159.375,
+          "right": 378,
+          "bottom": 810
+        },
+        ".engine-metrics": {
+          "x": 250,
+          "y": 708,
+          "width": 128,
+          "height": 102,
+          "right": 378,
+          "bottom": 810
+        },
+        ".page-footer": {
+          "x": 0,
+          "y": 816,
+          "width": 390,
+          "height": 24,
+          "right": 390,
+          "bottom": 840
+        },
+        "#positionJudgement": {
+          "x": 12,
+          "y": 651.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 160.015625,
+          "bottom": 669.8125
+        },
+        "#winRateCaption": {
+          "x": 159.140625,
+          "y": 677.8125,
+          "width": 72,
+          "height": 15,
+          "right": 231.140625,
+          "bottom": 692.8125
+        },
+        ".trend-chart": {
+          "x": 12,
+          "y": 736.5,
+          "width": 230,
+          "height": 73.5,
+          "right": 242,
+          "bottom": 810
+        },
+        "#searchDepth": {
+          "x": 363.546875,
+          "y": 744,
+          "width": 14.453125,
+          "height": 15,
+          "right": 378,
+          "bottom": 759
+        },
+        "#searchScore": {
+          "x": 334.640625,
+          "y": 761,
+          "width": 43.359375,
+          "height": 15,
+          "right": 378,
+          "bottom": 776
+        },
+        "#searchNodes": {
+          "x": 322.640625,
+          "y": 778,
+          "width": 55.359375,
+          "height": 15,
+          "right": 378,
+          "bottom": 793
+        },
+        "#searchSpeed": {
+          "x": 310.640625,
+          "y": 795,
+          "width": 67.359375,
+          "height": 15,
+          "right": 378,
+          "bottom": 810
+        }
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "scrollWidth": 430,
+      "scrollHeight": 932,
+      "items": {
+        "#boardSvg": {
+          "x": 6,
+          "y": 142.8125,
+          "width": 418,
+          "height": 418,
+          "right": 424,
+          "bottom": 560.8125
+        },
+        ".game-actions": {
+          "x": 12,
+          "y": 631.625,
+          "width": 406,
+          "height": 44,
+          "right": 418,
+          "bottom": 675.625
+        },
+        ".game-settings": {
+          "x": 0,
+          "y": 681.625,
+          "width": 430,
+          "height": 50,
+          "right": 430,
+          "bottom": 731.625
+        },
+        "#positionAnalysis": {
+          "x": 12,
+          "y": 738.625,
+          "width": 406,
+          "height": 159.375,
+          "right": 418,
+          "bottom": 898
+        },
+        ".engine-metrics": {
+          "x": 290,
+          "y": 796,
+          "width": 128,
+          "height": 102,
+          "right": 418,
+          "bottom": 898
+        },
+        ".page-footer": {
+          "x": 0,
+          "y": 904,
+          "width": 430,
+          "height": 24,
+          "right": 430,
+          "bottom": 928
+        },
+        "#positionJudgement": {
+          "x": 12,
+          "y": 739.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 160.015625,
+          "bottom": 757.8125
+        },
+        "#winRateCaption": {
+          "x": 179.140625,
+          "y": 765.8125,
+          "width": 72,
+          "height": 15,
+          "right": 251.140625,
+          "bottom": 780.8125
+        },
+        ".trend-chart": {
+          "x": 12,
+          "y": 824.5,
+          "width": 270,
+          "height": 73.5,
+          "right": 282,
+          "bottom": 898
+        },
+        "#searchDepth": {
+          "x": 403.546875,
+          "y": 832,
+          "width": 14.453125,
+          "height": 15,
+          "right": 418,
+          "bottom": 847
+        },
+        "#searchScore": {
+          "x": 374.640625,
+          "y": 849,
+          "width": 43.359375,
+          "height": 15,
+          "right": 418,
+          "bottom": 864
+        },
+        "#searchNodes": {
+          "x": 362.640625,
+          "y": 866,
+          "width": 55.359375,
+          "height": 15,
+          "right": 418,
+          "bottom": 881
+        },
+        "#searchSpeed": {
+          "x": 350.640625,
+          "y": 883,
+          "width": 67.359375,
+          "height": 15,
+          "right": 418,
+          "bottom": 898
+        }
+      }
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "scrollWidth": 667,
+      "scrollHeight": 375,
+      "items": {
+        "#boardSvg": {
+          "x": 39,
+          "y": 74,
+          "width": 273,
+          "height": 273,
+          "right": 312,
+          "bottom": 347
+        },
+        ".game-actions": {
+          "x": 353.671875,
+          "y": 66.3125,
+          "width": 300,
+          "height": 44,
+          "right": 653.671875,
+          "bottom": 110.3125
+        },
+        ".game-settings": {
+          "x": 353.671875,
+          "y": 114.3125,
+          "width": 300,
+          "height": 48,
+          "right": 653.671875,
+          "bottom": 162.3125
+        },
+        "#positionAnalysis": {
+          "x": 353.671875,
+          "y": 167.3125,
+          "width": 300,
+          "height": 157.375,
+          "right": 653.671875,
+          "bottom": 324.6875
+        },
+        ".engine-metrics": {
+          "x": 541.671875,
+          "y": 222.6875,
+          "width": 112,
+          "height": 102,
+          "right": 653.671875,
+          "bottom": 324.6875
+        },
+        ".page-footer": {
+          "x": 13.328125,
+          "y": 353,
+          "width": 640.34375,
+          "height": 22,
+          "right": 653.671875,
+          "bottom": 375
+        },
+        "#positionJudgement": {
+          "x": 353.671875,
+          "y": 168.3125,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 501.6875,
+          "bottom": 186.5
+        },
+        "#winRateCaption": {
+          "x": 467.8125,
+          "y": 194.5,
+          "width": 72,
+          "height": 15,
+          "right": 539.8125,
+          "bottom": 209.5
+        },
+        ".trend-chart": {
+          "x": 353.671875,
+          "y": 259.1875,
+          "width": 180,
+          "height": 65.5,
+          "right": 533.671875,
+          "bottom": 324.6875
+        },
+        "#searchDepth": {
+          "x": 639.21875,
+          "y": 258.6875,
+          "width": 14.453125,
+          "height": 15,
+          "right": 653.671875,
+          "bottom": 273.6875
+        },
+        "#searchScore": {
+          "x": 610.3125,
+          "y": 275.6875,
+          "width": 43.359375,
+          "height": 15,
+          "right": 653.671875,
+          "bottom": 290.6875
+        },
+        "#searchNodes": {
+          "x": 598.3125,
+          "y": 292.6875,
+          "width": 55.359375,
+          "height": 15,
+          "right": 653.671875,
+          "bottom": 307.6875
+        },
+        "#searchSpeed": {
+          "x": 586.3125,
+          "y": 309.6875,
+          "width": 67.359375,
+          "height": 15,
+          "right": 653.671875,
+          "bottom": 324.6875
+        }
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "scrollWidth": 844,
+      "scrollHeight": 390,
+      "items": {
+        "#boardSvg": {
+          "x": 84.3125,
+          "y": 74,
+          "width": 288,
+          "height": 288,
+          "right": 372.3125,
+          "bottom": 362
+        },
+        ".game-actions": {
+          "x": 455.765625,
+          "y": 73.8125,
+          "width": 371.359375,
+          "height": 44,
+          "right": 827.125,
+          "bottom": 117.8125
+        },
+        ".game-settings": {
+          "x": 455.765625,
+          "y": 121.8125,
+          "width": 371.359375,
+          "height": 48,
+          "right": 827.125,
+          "bottom": 169.8125
+        },
+        "#positionAnalysis": {
+          "x": 455.765625,
+          "y": 174.8125,
+          "width": 371.359375,
+          "height": 157.375,
+          "right": 827.125,
+          "bottom": 332.1875
+        },
+        ".engine-metrics": {
+          "x": 715.125,
+          "y": 230.1875,
+          "width": 112,
+          "height": 102,
+          "right": 827.125,
+          "bottom": 332.1875
+        },
+        ".page-footer": {
+          "x": 16.875,
+          "y": 368,
+          "width": 810.25,
+          "height": 22,
+          "right": 827.125,
+          "bottom": 390
+        },
+        "#positionJudgement": {
+          "x": 455.765625,
+          "y": 175.8125,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 603.78125,
+          "bottom": 194
+        },
+        "#winRateCaption": {
+          "x": 605.578125,
+          "y": 202,
+          "width": 72,
+          "height": 15,
+          "right": 677.578125,
+          "bottom": 217
+        },
+        ".trend-chart": {
+          "x": 455.765625,
+          "y": 258.1875,
+          "width": 251.359375,
+          "height": 74,
+          "right": 707.125,
+          "bottom": 332.1875
+        },
+        "#searchDepth": {
+          "x": 812.671875,
+          "y": 266.1875,
+          "width": 14.453125,
+          "height": 15,
+          "right": 827.125,
+          "bottom": 281.1875
+        },
+        "#searchScore": {
+          "x": 783.765625,
+          "y": 283.1875,
+          "width": 43.359375,
+          "height": 15,
+          "right": 827.125,
+          "bottom": 298.1875
+        },
+        "#searchNodes": {
+          "x": 771.765625,
+          "y": 300.1875,
+          "width": 55.359375,
+          "height": 15,
+          "right": 827.125,
+          "bottom": 315.1875
+        },
+        "#searchSpeed": {
+          "x": 759.765625,
+          "y": 317.1875,
+          "width": 67.359375,
+          "height": 15,
+          "right": 827.125,
+          "bottom": 332.1875
+        }
+      }
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "scrollWidth": 768,
+      "scrollHeight": 1024,
+      "items": {
+        "#boardSvg": {
+          "x": 91.6875,
+          "y": 92,
+          "width": 584.625,
+          "height": 584.625,
+          "right": 676.3125,
+          "bottom": 676.625
+        },
+        ".game-actions": {
+          "x": 144,
+          "y": 684.625,
+          "width": 480,
+          "height": 44,
+          "right": 624,
+          "bottom": 728.625
+        },
+        ".game-settings": {
+          "x": 15.359375,
+          "y": 734.625,
+          "width": 737.28125,
+          "height": 50,
+          "right": 752.640625,
+          "bottom": 784.625
+        },
+        "#positionAnalysis": {
+          "x": 19.359375,
+          "y": 791.625,
+          "width": 729.28125,
+          "height": 202.375,
+          "right": 748.640625,
+          "bottom": 994
+        },
+        ".engine-metrics": {
+          "x": 19.359375,
+          "y": 938,
+          "width": 729.28125,
+          "height": 56,
+          "right": 748.640625,
+          "bottom": 994
+        },
+        ".page-footer": {
+          "x": 15.359375,
+          "y": 1000,
+          "width": 737.28125,
+          "height": 24,
+          "right": 752.640625,
+          "bottom": 1024
+        },
+        "#positionJudgement": {
+          "x": 19.359375,
+          "y": 792.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 167.375,
+          "bottom": 810.8125
+        },
+        "#winRateCaption": {
+          "x": 348.140625,
+          "y": 818.8125,
+          "width": 72,
+          "height": 15,
+          "right": 420.140625,
+          "bottom": 833.8125
+        },
+        ".trend-chart": {
+          "x": 19.359375,
+          "y": 868,
+          "width": 729.28125,
+          "height": 64,
+          "right": 748.640625,
+          "bottom": 932
+        },
+        "#searchDepth": {
+          "x": 19.359375,
+          "y": 979,
+          "width": 14.453125,
+          "height": 15,
+          "right": 33.8125,
+          "bottom": 994
+        },
+        "#searchScore": {
+          "x": 203.171875,
+          "y": 979,
+          "width": 43.359375,
+          "height": 15,
+          "right": 246.53125,
+          "bottom": 994
+        },
+        "#searchNodes": {
+          "x": 387,
+          "y": 979,
+          "width": 55.359375,
+          "height": 15,
+          "right": 442.359375,
+          "bottom": 994
+        },
+        "#searchSpeed": {
+          "x": 570.8125,
+          "y": 979,
+          "width": 67.359375,
+          "height": 15,
+          "right": 638.171875,
+          "bottom": 994
+        }
+      }
+    },
+    {
+      "width": 820,
+      "height": 1180,
+      "scrollWidth": 820,
+      "scrollHeight": 1180,
+      "items": {
+        "#boardSvg": {
+          "x": 39.6875,
+          "y": 92,
+          "width": 740.625,
+          "height": 740.625,
+          "right": 780.3125,
+          "bottom": 832.625
+        },
+        ".game-actions": {
+          "x": 170,
+          "y": 840.625,
+          "width": 480,
+          "height": 44,
+          "right": 650,
+          "bottom": 884.625
+        },
+        ".game-settings": {
+          "x": 16.390625,
+          "y": 890.625,
+          "width": 787.21875,
+          "height": 50,
+          "right": 803.609375,
+          "bottom": 940.625
+        },
+        "#positionAnalysis": {
+          "x": 20.390625,
+          "y": 947.625,
+          "width": 779.21875,
+          "height": 202.375,
+          "right": 799.609375,
+          "bottom": 1150
+        },
+        ".engine-metrics": {
+          "x": 20.390625,
+          "y": 1094,
+          "width": 779.21875,
+          "height": 56,
+          "right": 799.609375,
+          "bottom": 1150
+        },
+        ".page-footer": {
+          "x": 16.390625,
+          "y": 1156,
+          "width": 787.21875,
+          "height": 24,
+          "right": 803.609375,
+          "bottom": 1180
+        },
+        "#positionJudgement": {
+          "x": 20.390625,
+          "y": 948.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 168.40625,
+          "bottom": 966.8125
+        },
+        "#winRateCaption": {
+          "x": 374.140625,
+          "y": 974.8125,
+          "width": 72,
+          "height": 15,
+          "right": 446.140625,
+          "bottom": 989.8125
+        },
+        ".trend-chart": {
+          "x": 20.390625,
+          "y": 1024,
+          "width": 779.21875,
+          "height": 64,
+          "right": 799.609375,
+          "bottom": 1088
+        },
+        "#searchDepth": {
+          "x": 20.390625,
+          "y": 1135,
+          "width": 14.453125,
+          "height": 15,
+          "right": 34.84375,
+          "bottom": 1150
+        },
+        "#searchScore": {
+          "x": 216.6875,
+          "y": 1135,
+          "width": 43.359375,
+          "height": 15,
+          "right": 260.046875,
+          "bottom": 1150
+        },
+        "#searchNodes": {
+          "x": 413,
+          "y": 1135,
+          "width": 55.359375,
+          "height": 15,
+          "right": 468.359375,
+          "bottom": 1150
+        },
+        "#searchSpeed": {
+          "x": 609.296875,
+          "y": 1135,
+          "width": 67.359375,
+          "height": 15,
+          "right": 676.65625,
+          "bottom": 1150
+        }
+      }
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "scrollWidth": 1024,
+      "scrollHeight": 768,
+      "items": {
+        "#boardSvg": {
+          "x": 34.640625,
+          "y": 92,
+          "width": 636,
+          "height": 636,
+          "right": 670.640625,
+          "bottom": 728
+        },
+        ".game-actions": {
+          "x": 715.53125,
+          "y": 166.703125,
+          "width": 288,
+          "height": 44,
+          "right": 1003.53125,
+          "bottom": 210.703125
+        },
+        ".game-settings": {
+          "x": 715.53125,
+          "y": 226.703125,
+          "width": 288,
+          "height": 110,
+          "right": 1003.53125,
+          "bottom": 336.703125
+        },
+        "#positionAnalysis": {
+          "x": 715.53125,
+          "y": 351.703125,
+          "width": 288,
+          "height": 271.578125,
+          "right": 1003.53125,
+          "bottom": 623.28125
+        },
+        ".engine-metrics": {
+          "x": 715.53125,
+          "y": 561.28125,
+          "width": 288,
+          "height": 62,
+          "right": 1003.53125,
+          "bottom": 623.28125
+        },
+        ".page-footer": {
+          "x": 20.46875,
+          "y": 736,
+          "width": 983.0625,
+          "height": 32,
+          "right": 1003.53125,
+          "bottom": 768
+        },
+        "#positionJudgement": {
+          "x": 715.53125,
+          "y": 351.703125,
+          "width": 159.390625,
+          "height": 22.390625,
+          "right": 874.921875,
+          "bottom": 374.09375
+        },
+        "#winRateCaption": {
+          "x": 823.671875,
+          "y": 388.09375,
+          "width": 72,
+          "height": 15,
+          "right": 895.671875,
+          "bottom": 403.09375
+        },
+        ".trend-chart": {
+          "x": 715.53125,
+          "y": 447.28125,
+          "width": 288,
+          "height": 100,
+          "right": 1003.53125,
+          "bottom": 547.28125
+        },
+        "#searchDepth": {
+          "x": 715.53125,
+          "y": 608.28125,
+          "width": 14.453125,
+          "height": 15,
+          "right": 729.984375,
+          "bottom": 623.28125
+        },
+        "#searchScore": {
+          "x": 789.03125,
+          "y": 608.28125,
+          "width": 43.359375,
+          "height": 15,
+          "right": 832.390625,
+          "bottom": 623.28125
+        },
+        "#searchNodes": {
+          "x": 862.53125,
+          "y": 608.28125,
+          "width": 55.359375,
+          "height": 15,
+          "right": 917.890625,
+          "bottom": 623.28125
+        },
+        "#searchSpeed": {
+          "x": 936.03125,
+          "y": 608.28125,
+          "width": 67.359375,
+          "height": 15,
+          "right": 1003.390625,
+          "bottom": 623.28125
+        }
+      }
+    },
+    {
+      "width": 1180,
+      "height": 820,
+      "scrollWidth": 1180,
+      "scrollHeight": 820,
+      "items": {
+        "#boardSvg": {
+          "x": 84.296875,
+          "y": 92,
+          "width": 688,
+          "height": 688,
+          "right": 772.296875,
+          "bottom": 780
+        },
+        ".game-actions": {
+          "x": 868.40625,
+          "y": 192.703125,
+          "width": 288,
+          "height": 44,
+          "right": 1156.40625,
+          "bottom": 236.703125
+        },
+        ".game-settings": {
+          "x": 868.40625,
+          "y": 252.703125,
+          "width": 288,
+          "height": 110,
+          "right": 1156.40625,
+          "bottom": 362.703125
+        },
+        "#positionAnalysis": {
+          "x": 868.40625,
+          "y": 377.703125,
+          "width": 288,
+          "height": 271.578125,
+          "right": 1156.40625,
+          "bottom": 649.28125
+        },
+        ".engine-metrics": {
+          "x": 868.40625,
+          "y": 587.28125,
+          "width": 288,
+          "height": 62,
+          "right": 1156.40625,
+          "bottom": 649.28125
+        },
+        ".page-footer": {
+          "x": 23.59375,
+          "y": 788,
+          "width": 1132.8125,
+          "height": 32,
+          "right": 1156.40625,
+          "bottom": 820
+        },
+        "#positionJudgement": {
+          "x": 868.40625,
+          "y": 377.703125,
+          "width": 159.390625,
+          "height": 22.390625,
+          "right": 1027.796875,
+          "bottom": 400.09375
+        },
+        "#winRateCaption": {
+          "x": 976.546875,
+          "y": 414.09375,
+          "width": 72,
+          "height": 15,
+          "right": 1048.546875,
+          "bottom": 429.09375
+        },
+        ".trend-chart": {
+          "x": 868.40625,
+          "y": 473.28125,
+          "width": 288,
+          "height": 100,
+          "right": 1156.40625,
+          "bottom": 573.28125
+        },
+        "#searchDepth": {
+          "x": 868.40625,
+          "y": 634.28125,
+          "width": 14.453125,
+          "height": 15,
+          "right": 882.859375,
+          "bottom": 649.28125
+        },
+        "#searchScore": {
+          "x": 941.90625,
+          "y": 634.28125,
+          "width": 43.359375,
+          "height": 15,
+          "right": 985.265625,
+          "bottom": 649.28125
+        },
+        "#searchNodes": {
+          "x": 1015.40625,
+          "y": 634.28125,
+          "width": 55.359375,
+          "height": 15,
+          "right": 1070.765625,
+          "bottom": 649.28125
+        },
+        "#searchSpeed": {
+          "x": 1088.90625,
+          "y": 634.28125,
+          "width": 67.359375,
+          "height": 15,
+          "right": 1156.265625,
+          "bottom": 649.28125
+        }
+      }
+    },
+    {
+      "width": 1024,
+      "height": 1366,
+      "scrollWidth": 1024,
+      "scrollHeight": 1366,
+      "items": {
+        "#boardSvg": {
+          "x": 48.6875,
+          "y": 92,
+          "width": 926.625,
+          "height": 926.625,
+          "right": 975.3125,
+          "bottom": 1018.625
+        },
+        ".game-actions": {
+          "x": 272,
+          "y": 1026.625,
+          "width": 480,
+          "height": 44,
+          "right": 752,
+          "bottom": 1070.625
+        },
+        ".game-settings": {
+          "x": 20.46875,
+          "y": 1076.625,
+          "width": 983.0625,
+          "height": 50,
+          "right": 1003.53125,
+          "bottom": 1126.625
+        },
+        "#positionAnalysis": {
+          "x": 24.46875,
+          "y": 1133.625,
+          "width": 975.0625,
+          "height": 202.375,
+          "right": 999.53125,
+          "bottom": 1336
+        },
+        ".engine-metrics": {
+          "x": 24.46875,
+          "y": 1280,
+          "width": 975.0625,
+          "height": 56,
+          "right": 999.53125,
+          "bottom": 1336
+        },
+        ".page-footer": {
+          "x": 20.46875,
+          "y": 1342,
+          "width": 983.0625,
+          "height": 24,
+          "right": 1003.53125,
+          "bottom": 1366
+        },
+        "#positionJudgement": {
+          "x": 24.46875,
+          "y": 1134.625,
+          "width": 148.015625,
+          "height": 18.1875,
+          "right": 172.484375,
+          "bottom": 1152.8125
+        },
+        "#winRateCaption": {
+          "x": 476.140625,
+          "y": 1160.8125,
+          "width": 72,
+          "height": 15,
+          "right": 548.140625,
+          "bottom": 1175.8125
+        },
+        ".trend-chart": {
+          "x": 24.46875,
+          "y": 1210,
+          "width": 975.0625,
+          "height": 64,
+          "right": 999.53125,
+          "bottom": 1274
+        },
+        "#searchDepth": {
+          "x": 24.46875,
+          "y": 1321,
+          "width": 14.453125,
+          "height": 15,
+          "right": 38.921875,
+          "bottom": 1336
+        },
+        "#searchScore": {
+          "x": 269.734375,
+          "y": 1321,
+          "width": 43.359375,
+          "height": 15,
+          "right": 313.09375,
+          "bottom": 1336
+        },
+        "#searchNodes": {
+          "x": 515,
+          "y": 1321,
+          "width": 55.359375,
+          "height": 15,
+          "right": 570.359375,
+          "bottom": 1336
+        },
+        "#searchSpeed": {
+          "x": 760.265625,
+          "y": 1321,
+          "width": 67.359375,
+          "height": 15,
+          "right": 827.625,
+          "bottom": 1336
+        }
+      }
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "scrollWidth": 1280,
+      "scrollHeight": 900,
+      "items": {
+        "#boardSvg": {
+          "x": 92.796875,
+          "y": 92,
+          "width": 768,
+          "height": 768,
+          "right": 860.796875,
+          "bottom": 860
+        },
+        ".game-actions": {
+          "x": 966.40625,
+          "y": 232.703125,
+          "width": 288,
+          "height": 44,
+          "right": 1254.40625,
+          "bottom": 276.703125
+        },
+        ".game-settings": {
+          "x": 966.40625,
+          "y": 292.703125,
+          "width": 288,
+          "height": 110,
+          "right": 1254.40625,
+          "bottom": 402.703125
+        },
+        "#positionAnalysis": {
+          "x": 966.40625,
+          "y": 417.703125,
+          "width": 288,
+          "height": 271.578125,
+          "right": 1254.40625,
+          "bottom": 689.28125
+        },
+        ".engine-metrics": {
+          "x": 966.40625,
+          "y": 627.28125,
+          "width": 288,
+          "height": 62,
+          "right": 1254.40625,
+          "bottom": 689.28125
+        },
+        ".page-footer": {
+          "x": 25.59375,
+          "y": 868,
+          "width": 1228.8125,
+          "height": 32,
+          "right": 1254.40625,
+          "bottom": 900
+        },
+        "#positionJudgement": {
+          "x": 966.40625,
+          "y": 417.703125,
+          "width": 159.390625,
+          "height": 22.390625,
+          "right": 1125.796875,
+          "bottom": 440.09375
+        },
+        "#winRateCaption": {
+          "x": 1074.546875,
+          "y": 454.09375,
+          "width": 72,
+          "height": 15,
+          "right": 1146.546875,
+          "bottom": 469.09375
+        },
+        ".trend-chart": {
+          "x": 966.40625,
+          "y": 513.28125,
+          "width": 288,
+          "height": 100,
+          "right": 1254.40625,
+          "bottom": 613.28125
+        },
+        "#searchDepth": {
+          "x": 966.40625,
+          "y": 674.28125,
+          "width": 14.453125,
+          "height": 15,
+          "right": 980.859375,
+          "bottom": 689.28125
+        },
+        "#searchScore": {
+          "x": 1039.90625,
+          "y": 674.28125,
+          "width": 43.359375,
+          "height": 15,
+          "right": 1083.265625,
+          "bottom": 689.28125
+        },
+        "#searchNodes": {
+          "x": 1113.40625,
+          "y": 674.28125,
+          "width": 55.359375,
+          "height": 15,
+          "right": 1168.765625,
+          "bottom": 689.28125
+        },
+        "#searchSpeed": {
+          "x": 1186.90625,
+          "y": 674.28125,
+          "width": 67.359375,
+          "height": 15,
+          "right": 1254.265625,
+          "bottom": 689.28125
+        }
+      }
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "scrollWidth": 1440,
+      "scrollHeight": 900,
+      "items": {
+        "#boardSvg": {
+          "x": 156,
+          "y": 92,
+          "width": 768,
+          "height": 768,
+          "right": 924,
+          "bottom": 860
+        },
+        ".game-actions": {
+          "x": 1094.40625,
+          "y": 232.703125,
+          "width": 316.796875,
+          "height": 44,
+          "right": 1411.203125,
+          "bottom": 276.703125
+        },
+        ".game-settings": {
+          "x": 1094.40625,
+          "y": 292.703125,
+          "width": 316.796875,
+          "height": 110,
+          "right": 1411.203125,
+          "bottom": 402.703125
+        },
+        "#positionAnalysis": {
+          "x": 1094.40625,
+          "y": 417.703125,
+          "width": 316.796875,
+          "height": 271.578125,
+          "right": 1411.203125,
+          "bottom": 689.28125
+        },
+        ".engine-metrics": {
+          "x": 1094.40625,
+          "y": 627.28125,
+          "width": 316.796875,
+          "height": 62,
+          "right": 1411.203125,
+          "bottom": 689.28125
+        },
+        ".page-footer": {
+          "x": 28.796875,
+          "y": 868,
+          "width": 1382.40625,
+          "height": 32,
+          "right": 1411.203125,
+          "bottom": 900
+        },
+        "#positionJudgement": {
+          "x": 1094.40625,
+          "y": 417.703125,
+          "width": 159.390625,
+          "height": 22.390625,
+          "right": 1253.796875,
+          "bottom": 440.09375
+        },
+        "#winRateCaption": {
+          "x": 1216.9375,
+          "y": 454.09375,
+          "width": 72,
+          "height": 15,
+          "right": 1288.9375,
+          "bottom": 469.09375
+        },
+        ".trend-chart": {
+          "x": 1094.40625,
+          "y": 513.28125,
+          "width": 316.796875,
+          "height": 100,
+          "right": 1411.203125,
+          "bottom": 613.28125
+        },
+        "#searchDepth": {
+          "x": 1094.40625,
+          "y": 674.28125,
+          "width": 14.453125,
+          "height": 15,
+          "right": 1108.859375,
+          "bottom": 689.28125
+        },
+        "#searchScore": {
+          "x": 1175.09375,
+          "y": 674.28125,
+          "width": 43.359375,
+          "height": 15,
+          "right": 1218.453125,
+          "bottom": 689.28125
+        },
+        "#searchNodes": {
+          "x": 1255.796875,
+          "y": 674.28125,
+          "width": 55.359375,
+          "height": 15,
+          "right": 1311.15625,
+          "bottom": 689.28125
+        },
+        "#searchSpeed": {
+          "x": 1336.5,
+          "y": 674.28125,
+          "width": 67.359375,
+          "height": 15,
+          "right": 1403.859375,
+          "bottom": 689.28125
+        }
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "scrollWidth": 1920,
+      "scrollHeight": 1080,
+      "items": {
+        "#boardSvg": {
+          "x": 297.203125,
+          "y": 92,
+          "width": 948,
+          "height": 948,
+          "right": 1245.203125,
+          "bottom": 1040
+        },
+        ".game-actions": {
+          "x": 1561.609375,
+          "y": 322.703125,
+          "width": 320,
+          "height": 44,
+          "right": 1881.609375,
+          "bottom": 366.703125
+        },
+        ".game-settings": {
+          "x": 1561.609375,
+          "y": 382.703125,
+          "width": 320,
+          "height": 110,
+          "right": 1881.609375,
+          "bottom": 492.703125
+        },
+        "#positionAnalysis": {
+          "x": 1561.609375,
+          "y": 507.703125,
+          "width": 320,
+          "height": 271.578125,
+          "right": 1881.609375,
+          "bottom": 779.28125
+        },
+        ".engine-metrics": {
+          "x": 1561.609375,
+          "y": 717.28125,
+          "width": 320,
+          "height": 62,
+          "right": 1881.609375,
+          "bottom": 779.28125
+        },
+        ".page-footer": {
+          "x": 38.390625,
+          "y": 1048,
+          "width": 1843.21875,
+          "height": 32,
+          "right": 1881.609375,
+          "bottom": 1080
+        },
+        "#positionJudgement": {
+          "x": 1561.609375,
+          "y": 507.703125,
+          "width": 159.390625,
+          "height": 22.390625,
+          "right": 1721,
+          "bottom": 530.09375
+        },
+        "#winRateCaption": {
+          "x": 1685.75,
+          "y": 544.09375,
+          "width": 72,
+          "height": 15,
+          "right": 1757.75,
+          "bottom": 559.09375
+        },
+        ".trend-chart": {
+          "x": 1561.609375,
+          "y": 603.28125,
+          "width": 320,
+          "height": 100,
+          "right": 1881.609375,
+          "bottom": 703.28125
+        },
+        "#searchDepth": {
+          "x": 1561.609375,
+          "y": 764.28125,
+          "width": 14.453125,
+          "height": 15,
+          "right": 1576.0625,
+          "bottom": 779.28125
+        },
+        "#searchScore": {
+          "x": 1643.109375,
+          "y": 764.28125,
+          "width": 43.359375,
+          "height": 15,
+          "right": 1686.46875,
+          "bottom": 779.28125
+        },
+        "#searchNodes": {
+          "x": 1724.609375,
+          "y": 764.28125,
+          "width": 55.359375,
+          "height": 15,
+          "right": 1779.96875,
+          "bottom": 779.28125
+        },
+        "#searchSpeed": {
+          "x": 1806.109375,
+          "y": 764.28125,
+          "width": 67.359375,
+          "height": 15,
+          "right": 1873.46875,
+          "bottom": 779.28125
+        }
+      }
+    }
+  ],
+  "checks": [
+    "390×700: actual recommendation, two-tap move, AI response, undo, and browser-height change fit the screen"
+  ],
+  "passed": true,
+  "completedAt": "2026-10-04T13:08:05.443Z"
+}
