@@ -99,7 +99,12 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .analysis-values dt { color: var(--muted); }
 .analysis-values dd { margin: 0; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-weight: 500; }
 .game-actions { width: min(100%, 360px); display: flex; align-items: center; gap: 10px; }
-.game-actions .icon-button { flex: 1; }
+.game-actions .icon-button {
+  flex: 1;
+  appearance: none; -webkit-appearance: none;
+  background-size: 100% 100%; background-repeat: no-repeat; background-position: 0 0;
+  background-origin: border-box; background-clip: border-box;
+}
 /* Numbers and distinct ring styles also convey the ranking without color. */
 .recommendation-marker { pointer-events: none; }
 .recommendation-ring { fill: #faf5e9; stroke-width: 2.8; }
