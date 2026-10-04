@@ -40,10 +40,10 @@ function renderBoard(boardSvg, state, idPrefix) {
   const lines = winningLines(board, lastMove);
   let svg = "";
   svg += "<defs>";
-  svg += '<linearGradient id="woodSurface" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#edd5a0"/><stop offset=".48" stop-color="#e4c58e"/><stop offset="1" stop-color="#d8b47b"/></linearGradient>';
-  svg += '<radialGradient id="blackStone" cx=".34" cy=".26" r=".8"><stop offset="0" stop-color="#555954"/><stop offset=".36" stop-color="#282b29"/><stop offset="1" stop-color="#101211"/></radialGradient>';
-  svg += '<radialGradient id="whiteStone" cx=".32" cy=".23" r=".84"><stop offset="0" stop-color="#fff"/><stop offset=".68" stop-color="#f1eee5"/><stop offset="1" stop-color="#d6d1c5"/></radialGradient>';
-  svg += '<filter id="stoneShadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="2.1"/><feOffset dy="2.1"/><feComponentTransfer><feFuncA type="linear" slope=".28"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+  svg += '<linearGradient id="woodSurface" x1=".1" y1="0" x2=".86" y2="1"><stop offset="0" stop-color="#f0e1bb"/><stop offset=".48" stop-color="#e8d6ad"/><stop offset="1" stop-color="#deca9f"/></linearGradient>';
+  svg += '<radialGradient id="blackStone" cx=".32" cy=".22" r=".8"><stop offset="0" stop-color="#686961"/><stop offset=".24" stop-color="#3a3d36"/><stop offset=".62" stop-color="#22251f"/><stop offset="1" stop-color="#10130f"/></radialGradient>';
+  svg += '<radialGradient id="whiteStone" cx=".3" cy=".2" r=".86"><stop offset="0" stop-color="#fffffb"/><stop offset=".5" stop-color="#faf9f0"/><stop offset=".78" stop-color="#e9e6da"/><stop offset="1" stop-color="#c9c4b5"/></radialGradient>';
+  svg += '<filter id="stoneShadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.4"/><feOffset dy="2.5"/><feComponentTransfer><feFuncA type="linear" slope=".3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
   svg += "</defs>";
   svg += '<rect class="board-surface" x="23" y="23" width="574" height="574" rx="8"/>';
   svg += '<image class="wood-texture" href="./assets/board-wood.svg" xlink:href="./assets/board-wood.svg" x="23" y="23" width="574" height="574" preserveAspectRatio="none"/>';

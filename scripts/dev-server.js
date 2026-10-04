@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml",
-  ".wasm": "application/wasm", ".data": "application/octet-stream", ".md": "text/plain; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
+  ".wasm": "application/wasm", ".data": "application/octet-stream", ".ttf": "font/ttf", ".md": "text/plain; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
 
 export function createDevServer({ port = 4187, isolated = true } = {}) {
   const server = http.createServer(async (req, res) => {
