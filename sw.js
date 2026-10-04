@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const VERSION = PREFIX + "250615-v12";
+const VERSION = PREFIX + "250615-v13";
 const url = path => new URL(path, BASE).href;
-const CORE = ["./", "index.html", "styles.css", "styles.css?v=12", "app.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
+const CORE = ["./", "index.html", "styles.css", "styles.css?v=13", "app.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "favicon.svg", "about.html", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 const ENGINE = "engine/rapfi-250615/";
@@ -13,8 +13,10 @@ self.addEventListener("install", event => {
     const manifestResponse = await fetch(url(ENGINE + "manifest.json"), { cache: "no-store" });
     if (!manifestResponse.ok) throw new Error("Missing engine manifest");
     const manifest = await manifestResponse.clone().json();
-    const resources = [...CORE, ENGINE + "manifest.json",
-      ...Object.keys(manifest.files).map(name => ENGINE + name)].map(url);
+    // Mutable app files must bypass a still-fresh browser HTTP cache when
+    // installing a new release. The pinned engine files remain immutable.
+    const resources = [...CORE.map(path => new Request(url(path), { cache: "reload" })),
+      ...[ENGINE + "manifest.json", ...Object.keys(manifest.files).map(name => ENGINE + name)].map(url)];
     await cache.addAll(resources);
     await self.skipWaiting();
   })());
