@@ -7,7 +7,7 @@
     <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
     <title>五目 · Gomoku</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=11" />
+    <link rel="stylesheet" href="./styles.css?v=12" />
   </head>
   <body>
     <div class="app-shell">
@@ -58,6 +58,19 @@
               <div><dt>深度</dt><dd id="searchDepth">—</dd></div><div><dt>评分</dt><dd id="searchScore">—</dd></div>
               <div><dt>节点</dt><dd id="searchNodes">—</dd></div><div><dt>速度</dt><dd id="searchSpeed">—</dd></div>
             </dl>
+            <div class="position-analysis" id="positionAnalysis" aria-label="局势判断与胜率走势" data-state="waiting">
+              <div class="position-heading"><p id="positionJudgement" role="status">等待引擎评估当前局势</p><span id="positionContext">第 0 手</span></div>
+              <div class="win-rate-labels"><span class="win-rate-player">你 <strong id="playerWinRate">—</strong></span><span class="win-rate-caption" id="winRateCaption">等待评估</span><span class="win-rate-ai"><strong id="aiWinRate">—</strong> AI</span></div>
+              <div class="win-rate-bar" id="winRateBar" role="meter" aria-label="当前局势等待评估" aria-valuemin="0" aria-valuemax="100"><span id="winRateFill"></span><i aria-hidden="true"></i></div>
+              <div class="trend-heading"><span>胜率走势</span><span>上方利于你 · 下方利于 AI</span></div>
+              <svg class="position-trend" id="positionTrend" viewBox="0 0 360 84" role="img" aria-label="你的估算胜率走势">
+                <defs><linearGradient id="trendWash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#586e57" stop-opacity=".16"/><stop offset=".5" stop-color="#586e57" stop-opacity=".02"/><stop offset="1" stop-color="#a84032" stop-opacity=".12"/></linearGradient></defs>
+                <path class="trend-guide" d="M25 6H350 M25 68H350"/><path class="trend-balance" d="M25 37H350"/>
+                <text class="trend-axis" x="0" y="9">100</text><text class="trend-axis" x="5" y="40">50</text><text class="trend-axis" x="10" y="71">0</text>
+                <g id="trendData"></g><text class="trend-empty" id="trendEmpty" x="187" y="31" text-anchor="middle">落子后，走势将在这里展开</text>
+                <text class="trend-axis" id="trendStartStep" x="25" y="82">0</text><text class="trend-axis trend-step" id="trendCurrentStep" x="35" y="82">0 手</text><text class="trend-axis" id="trendEndStep" x="350" y="82" text-anchor="end">10</text>
+              </svg>
+            </div>
           </div>
         </section>
       </main>

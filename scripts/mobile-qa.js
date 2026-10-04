@@ -26,7 +26,12 @@ try{
   await page.goto(`${origin}/plain/`);await ready(page);assert.equal(await count(page),6);
   await page.locator('#recommendButton').tap();await ready(page);
   assert.equal(await page.locator('[data-recommendation]').count(),2);assert.equal(await count(page),6);
-  const layout=await fits(page);assert.ok(layout.scrollWidth<=layout.width && layout.scrollHeight<=layout.height,JSON.stringify(layout));
+  const layout=await fits(page);assert.ok(layout.scrollWidth<=layout.width,JSON.stringify(layout));
+  // Short portrait screens keep the full board and all controls at their
+  // original size; the additional analysis can scroll below them.
+  for (const id of ['recommendButton','undoButton','restartButton','colorSelect','timeSelect','ponderToggle']) {
+    const box=await page.locator('#'+id).boundingBox();assert.ok(box.y+box.height<=layout.height+1,`${id}: ${JSON.stringify(box)}`);
+  }
   const width=await page.locator('#boardSvg').evaluate(svg=>svg.getBoundingClientRect().width);
   await page.screenshot({path:`${root}/.cache/mobile-layout/recommend-${viewport.width}.png`,fullPage:true});
   const index=await page.locator('[data-rank="1"]').getAttribute('data-recommendation');

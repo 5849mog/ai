@@ -48,7 +48,7 @@ try {
       return opening;
     }, variant);
     assert.equal(first.evaluator, "mix9svq");
-    await harness.waitForFunction(() => qaStats.some(event => event.phase === "ponder" && event.stats.depth), undefined, { timeout: 10_000 });
+    await harness.waitForFunction(() => qaStats.some(event => event.phase === "ponder" && event.stats.assessment), undefined, { timeout: 10_000 });
     const interrupted = await harness.evaluate(async () => {
       const white = qaBoard.findIndex(value => !value); qaBoard[white] = 2;
       const original = [...qaBoard];
@@ -60,6 +60,7 @@ try {
     });
     assert.ok(interrupted.unchanged);
     assert.equal(interrupted.move.evaluator, "mix9svq");
+    assert.ok(interrupted.move.assessment?.winRate >= 0 && interrupted.move.assessment.winRate <= 1);
     await harness.waitForFunction(() => qaStats.some(event => event.requestId === 4), undefined, { timeout: 10_000 });
     const reset = await harness.evaluate(async () => {
       qaEngine.reset(); const boundary = qaStats.length;
@@ -190,9 +191,12 @@ try {
     const layout = await page.evaluate(() => ({ width: innerWidth, height: innerHeight,
       scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight }));
     assert.ok(layout.scrollWidth <= layout.width, JSON.stringify(layout));
-    assert.ok(layout.scrollHeight <= layout.height, JSON.stringify(layout));
+    if (viewport.height > 640 || viewport.width > 600) assert.ok(layout.scrollHeight <= layout.height, JSON.stringify(layout));
+    for (const id of ["recommendButton", "undoButton", "restartButton", "colorSelect", "timeSelect", "ponderToggle"]) {
+      const control=await page.locator('#'+id).boundingBox();assert.ok(control.y+control.height<=layout.height+1, id);
+    }
     await page.screenshot({ path: `.cache/feature-qa/mobile-${viewport.width}.png`, fullPage: true });
-    passed(`${viewport.width}×${viewport.height}: white two-tap confirmation and one-screen layout`);
+    passed(`${viewport.width}×${viewport.height}: white two-tap confirmation, full board and visible controls; short portrait analysis scrolls below`);
     await ctx.close();
   }
   report.completedAt = new Date().toISOString(); report.passed = true;
