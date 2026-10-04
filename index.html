@@ -7,7 +7,7 @@
     <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
     <title>五目 · Gomoku</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=13" />
+    <link rel="stylesheet" href="./styles.css?v=14" />
   </head>
   <body>
     <div class="app-shell">
@@ -35,43 +35,52 @@
           <div class="board-wrap"><div class="board-frame">
             <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
           </div></div>
-          <div class="board-bottom">
-            <div class="game-actions">
-              <button class="icon-button" id="recommendButton" type="button" aria-label="推荐" title="标出首选和次选落点（最多 2 秒）" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>推荐</span></button>
-              <button class="icon-button" id="undoButton" type="button" aria-label="悔棋" title="恢复到你上次落子前" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6-5 5 5 5M4 11h10a5 5 0 0 1 0 10h-2"/></svg><span>悔棋</span></button>
-              <button class="icon-button icon-button-primary" id="restartButton" type="button" aria-label="新局" title="重新开局"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 .1 2M20 4v7h-7"/></svg><span>新局</span></button>
+          <aside class="game-sidebar" aria-label="对局操作与分析">
+            <div class="board-bottom">
+              <div class="game-actions">
+                <button class="icon-button" id="recommendButton" type="button" aria-label="推荐" title="标出首选和次选落点（最多 2 秒）" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>推荐</span></button>
+                <button class="icon-button" id="undoButton" type="button" aria-label="悔棋" title="恢复到你上次落子前" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6-5 5 5 5M4 11h10a5 5 0 0 1 0 10h-2"/></svg><span>悔棋</span></button>
+                <button class="icon-button icon-button-primary" id="restartButton" type="button" aria-label="新局" title="重新开局"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 .1 2M20 4v7h-7"/></svg><span>新局</span></button>
+              </div>
             </div>
-          </div>
-          <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
-            <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
-            <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
-            <span class="recommendation-note" id="recommendationNote"></span>
-          </div>
-          <div class="game-settings">
-            <label class="color-control" for="colorSelect" title="更换执色会开始新局"><span>你的执色</span><select id="colorSelect"><option value="1">执黑先手</option><option value="2">执白后手</option></select></label>
-            <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option></select></label>
-            <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
-          </div>
-          <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于 AI">
-            <div class="analysis-heading"><span id="analysisState">AI 搜索信息</span><span>评分正数利于 AI</span></div>
-            <dl class="analysis-values">
-              <div><dt>深度</dt><dd id="searchDepth">—</dd></div><div><dt>评分</dt><dd id="searchScore">—</dd></div>
-              <div><dt>节点</dt><dd id="searchNodes">—</dd></div><div><dt>速度</dt><dd id="searchSpeed">—</dd></div>
-            </dl>
-            <div class="position-analysis" id="positionAnalysis" aria-label="局势判断与胜率走势" data-state="waiting">
-              <div class="position-heading"><p id="positionJudgement" role="status">等待引擎评估当前局势</p><span id="positionContext">第 0 手</span></div>
-              <div class="win-rate-labels"><span class="win-rate-player">你 <strong id="playerWinRate">—</strong></span><span class="win-rate-caption" id="winRateCaption">等待评估</span><span class="win-rate-ai"><strong id="aiWinRate">—</strong> AI</span></div>
-              <div class="win-rate-bar" id="winRateBar" role="meter" aria-label="当前局势等待评估" aria-valuemin="0" aria-valuemax="100"><span id="winRateFill"></span><i aria-hidden="true"></i></div>
-              <div class="trend-heading"><span>胜率走势</span><span>上方利于你 · 下方利于 AI</span></div>
-              <svg class="position-trend" id="positionTrend" viewBox="0 0 360 84" role="img" aria-label="你的估算胜率走势">
-                <defs><linearGradient id="trendWash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#586e57" stop-opacity=".16"/><stop offset=".5" stop-color="#586e57" stop-opacity=".02"/><stop offset="1" stop-color="#a84032" stop-opacity=".12"/></linearGradient></defs>
-                <path class="trend-guide" d="M25 6H350 M25 68H350"/><path class="trend-balance" d="M25 37H350"/>
-                <text class="trend-axis" x="0" y="9">100</text><text class="trend-axis" x="5" y="40">50</text><text class="trend-axis" x="10" y="71">0</text>
-                <g id="trendData"></g><text class="trend-empty" id="trendEmpty" x="187" y="31" text-anchor="middle">落子后，走势将在这里展开</text>
-                <text class="trend-axis" id="trendStartStep" x="25" y="82">0</text><text class="trend-axis trend-step" id="trendCurrentStep" x="35" y="82">0 手</text><text class="trend-axis" id="trendEndStep" x="350" y="82" text-anchor="end">10</text>
-              </svg>
+            <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
+              <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
+              <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
+              <span class="recommendation-note" id="recommendationNote"></span>
             </div>
-          </div>
+            <div class="game-settings">
+              <label class="color-control" for="colorSelect" title="更换执色会开始新局"><span>你的执色</span><select id="colorSelect"><option value="1">执黑先手</option><option value="2">执白后手</option></select></label>
+              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option></select></label>
+              <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
+            </div>
+            <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于 AI">
+              <div class="position-analysis" id="positionAnalysis" aria-label="局势判断与胜率走势" data-state="waiting">
+                <div class="position-heading"><p id="positionJudgement" role="status">等待引擎评估当前局势</p><span id="positionContext">第 0 手</span></div>
+                <div class="win-rate-labels"><span class="win-rate-player">你 <strong id="playerWinRate">—</strong></span><span class="win-rate-caption" id="winRateCaption">等待评估</span><span class="win-rate-ai"><strong id="aiWinRate">—</strong> AI</span></div>
+                <div class="win-rate-bar" id="winRateBar" role="meter" aria-label="当前局势等待评估" aria-valuemin="0" aria-valuemax="100"><span id="winRateFill"></span><i aria-hidden="true"></i></div>
+                <div class="trend-heading"><span>胜率走势</span><span>上方利于你 · 下方利于 AI</span></div>
+                <div class="trend-chart">
+                  <div class="trend-y-axis" aria-hidden="true"><span>100</span><span>50</span><span>0</span></div>
+                  <div class="trend-plot">
+                    <svg class="position-trend" id="positionTrend" viewBox="25 0 325 74" preserveAspectRatio="none" role="img" aria-label="你的估算胜率走势">
+                      <defs><linearGradient id="trendWash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#586e57" stop-opacity=".16"/><stop offset=".5" stop-color="#586e57" stop-opacity=".02"/><stop offset="1" stop-color="#a84032" stop-opacity=".12"/></linearGradient></defs>
+                      <path class="trend-guide" d="M25 6H350 M25 68H350"/><path class="trend-balance" d="M25 37H350"/>
+                      <g id="trendData"></g>
+                    </svg>
+                    <p class="trend-empty" id="trendEmpty">落子后，走势将在这里展开</p>
+                    <div class="trend-x-axis" aria-hidden="true"><span id="trendStartStep">0</span><span class="trend-step" id="trendCurrentStep">0 手</span><span id="trendEndStep">10</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="engine-metrics">
+                <div class="analysis-heading"><span id="analysisState">AI 搜索信息</span><span>评分正数利于 AI</span></div>
+                <dl class="analysis-values">
+                  <div><dt>深度</dt><dd id="searchDepth">—</dd></div><div><dt>评分</dt><dd id="searchScore">—</dd></div>
+                  <div><dt>节点</dt><dd id="searchNodes">—</dd></div><div><dt>速度</dt><dd id="searchSpeed">—</dd></div>
+                </dl>
+              </div>
+            </div>
+          </aside>
         </section>
       </main>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
