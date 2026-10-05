@@ -21,11 +21,12 @@ export function selectVariant({ simd, multi }) {
 function aborted() { return new DOMException("搜索已取消", "AbortError"); }
 
 export class GomokuEngine {
-  constructor({ onState = () => {}, onStats = () => {}, onPonderSlice, workerFactory, capabilities, variant, threads } = {}) {
+  constructor({ rule = "freestyle", onState = () => {}, onStats = () => {}, onPonderSlice, workerFactory, capabilities, variant, threads } = {}) {
+    this.rule = rule;
     this.onState = onState;
     this.onStats = onStats;
     this.onPonderSlice = onPonderSlice;
-    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js", import.meta.url)));
+    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js?v=22", import.meta.url)));
     this.capabilities = capabilities ?? detectCapabilities();
     this.variant = variant ?? selectVariant(this.capabilities);
     this.threads = this.variant.includes("multi") ? Math.max(1, Math.min(4, threads ?? this.capabilities.threads)) : 1;
@@ -102,14 +103,16 @@ export class GomokuEngine {
       };
       worker.onerror = () => { if (generation === this.generation) this.fail(new Error("引擎运行失败，请重试")); };
       worker.postMessage({ type: "init", baseURL: ENGINE_BASE.href, variant: this.variant,
+        rule: this.rule, modelURL: new URL("./engine/renju-250615/", import.meta.url).href,
         threads: this.threads, memoryBytes: MEMORY_BYTES, reportSlices: Boolean(this.onPonderSlice) });
     } catch (error) { this.fail(error); }
     return initialization;
   }
 
-  async search({ board, sideToMove, timeMs = 10_000, requestId, multiPV = 1, allowSetup = false }) {
+  async search({ board, sideToMove, timeMs = 10_000, requestId, multiPV = 1, allowSetup = false, allowedMoves, balance = false }) {
     validatePosition(board, sideToMove, { allowSetup });
-    if (![1, 2].includes(multiPV)) throw new Error("推荐数量无效");
+    if (!Number.isInteger(multiPV) || multiPV < 1 || multiPV > 32) throw new Error("推荐数量无效");
+    if (allowedMoves && (!allowedMoves.length || allowedMoves.some(i => !validIndex(i) || board[i]))) throw new Error("搜索范围无效");
     if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
     if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
     this.stopPonder();
@@ -123,7 +126,7 @@ export class GomokuEngine {
       const timer = setTimeout(() => this.fail(new Error("引擎未能按时返回，请重试")), timeMs + 3000);
       this.pending = { requestId, board: copy, sideToMove, multiPV, resolve, reject, timer, stats: {} };
       this.onState({ state: "thinking" });
-      try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId, multiPV, allowSetup }); }
+      try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId, multiPV, allowSetup, allowedMoves, balance, rule: this.rule }); }
       catch (error) { this.fail(error); }
     });
   }

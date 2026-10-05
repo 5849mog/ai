@@ -42,10 +42,17 @@ export function boardCommand(board, sideToMove, allowSetup = false) {
   return lines.join("\n");
 }
 
-export function searchCommands(board, sideToMove, timeMs, multiPV = 1, allowSetup = false) {
+export function searchCommands(board, sideToMove, timeMs, multiPV = 1, allowSetup = false, { allowedMoves, balance = false } = {}) {
   if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
-  if (![1, 2].includes(multiPV)) throw new Error("推荐数量无效");
+  if (!Number.isInteger(multiPV) || multiPV < 1 || multiPV > 32) throw new Error("推荐数量无效");
   const position = boardCommand(board, sideToMove, allowSetup);
+  if (allowedMoves || balance || multiPV > 2) {
+    const allowed = allowedMoves ? new Set(allowedMoves) : null;
+    if (allowed && (!allowed.size || [...allowed].some(i => !validIndex(i) || board[i]))) throw new Error("搜索范围无效");
+    return ["INFO timeout_match 0", `INFO timeout_turn ${timeMs}`, "INFO time_left 2147483647", position.replace(/^BOARD/, "YXBOARD"), "YXBLOCKRESET",
+      ...(allowed ? [["YXBLOCK", ...Array.from(board, (color, index) => !color && !allowed.has(index) ? `${index % SIZE},${Math.floor(index / SIZE)}` : null).filter(Boolean), "DONE"].join("\n")] : []),
+      balance ? "YXBALANCEONE 0" : `YXNBEST ${multiPV}`];
+  }
   return ["INFO timeout_match 0", `INFO timeout_turn ${timeMs}`, "INFO time_left 2147483647",
     ...(multiPV === 2 ? [position.replace(/^BOARD/, "YXBOARD"), "YXNBEST 2"] : [position])];
 }

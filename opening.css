@@ -1,0 +1,35 @@
+.opening-decisions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: center; min-height: 44px; }
+.opening-decisions button { min-height: 44px; padding: 6px 4px; appearance: none; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: linear-gradient(#fffdf7, #f3efe4); font-size: 13px; cursor: pointer; }
+.opening-decisions button[data-suggested="true"] { color: var(--green); border-color: #819476; background: #e9eee2; }
+.opening-page .board-toolbar { flex-wrap: nowrap; }
+.opening-page .game-state { min-width: 0; }
+.opening-page #stateText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.opening-page .search-clock { font-size: 12px; white-space: nowrap; }
+.opening-page #simpleColor { touch-action: none; user-select: none; -webkit-touch-callout: none; }
+.opening-region { fill: #586e5708; stroke: #586e5780; stroke-width: 1.4; stroke-dasharray: 4 5; pointer-events: none; }
+.opening-proposal { pointer-events: none; }
+.opening-proposal circle { fill: #f8f3e4ed; stroke: #a84032; stroke-width: 1.7; stroke-dasharray: 3 2; }
+.opening-proposal text { text-anchor: middle; dominant-baseline: central; font: 600 13px system-ui, sans-serif; fill: #a84032; }
+.opening-proposal.suggested circle { fill: #e5ebdb; stroke: #586e57; stroke-dasharray: none; stroke-width: 2.4; }
+.opening-proposal.suggested text { fill: #586e57; }
+.opening-modal { width: min(94vw, 640px); max-height: 90dvh; padding: 24px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--canvas) url('./assets/paper-fiber.svg') repeat; box-shadow: 0 16px 60px #292b2430; overflow: auto; }
+.opening-modal::backdrop { background: #30342e8c; backdrop-filter: blur(4px); }
+.opening-modal header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.opening-modal h2 { margin: 0; font: 500 24px/1.4 "Songti SC", "SimSun", serif; letter-spacing: .08em; }
+.opening-modal header p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.opening-modal button { min-height: 44px; appearance: none; font-size: 14px; cursor: pointer; }
+.opening-modal header button { border: 0; padding: 0 8px; background: transparent; color: var(--muted); }
+.mode-field { display: block; margin: 16px 0; color: var(--muted); font-size: 13px; }
+.mode-field select { display: block; width: 100%; height: 48px; margin-top: 6px; padding: 0 12px; font-size: 15px; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; background: #fffdf6; }
+.mode-description { font-size: 14px; line-height: 1.7; padding: 14px; border-left: 2px solid var(--green); background: #586e5708; }
+.opening-modal .confirm-mode { width: 100%; padding: 10px; border: 1px solid #873a30; border-radius: 5px; color: #fffaf0; background: var(--accent); }
+.opening-guide h3 { margin: 28px 0 10px; font-size: 17px; font-weight: 550; }
+.opening-guide p, .opening-guide li { font-size: 14px; line-height: 1.85; }
+.opening-guide ol, .opening-guide ul { padding-left: 22px; }
+.opening-guide li { margin: 8px 0; padding-left: 3px; }
+.opening-guide .guide-lead { font: 500 20px/1.6 "Songti SC", "SimSun", serif; }
+.opening-guide .guide-note { padding: 12px 14px; border-left: 2px solid var(--accent); background: #a8403206; }
+.opening-guide a { color: var(--green); text-underline-offset: 3px; }
+@media (min-width: 1000px) and (min-height: 700px) and (orientation: landscape), (min-width: 641px) and (max-width: 1199px) and (orientation: portrait) { .opening-decisions { min-height: 96px; } }
+@media (max-width: 480px) { .opening-page .search-clock { max-width: 34%; overflow: hidden; text-overflow: ellipsis; } .opening-modal { padding: 20px; } }
+@media (forced-colors: active) { .opening-proposal circle, .opening-region { stroke: CanvasText; fill: Canvas; } .opening-proposal text { fill: CanvasText; } }
