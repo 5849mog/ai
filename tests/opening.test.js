@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { OpeningSession, replaySession } from "../opening-session.js";
+import { OpeningSession, replaySession, canManualTurn, isAutomaticTurn } from "../opening-session.js";
 import { blackForbidden, moveVerdict, distinctCandidates, transform, inCentral } from "../renju-rules.js";
 import { adviseOpening } from "../opening-advisor.js";
 import { searchCommands } from "../engine-protocol.js";
@@ -72,6 +72,39 @@ test("Duel undo returns to the last human action even after ownership swaps", ()
   const beforeHumanThird = s.undo(); decide(s, "swap"); stone(s, 128);
   assert.equal(s.blackSeat, 1); same(s.undo(), replaySession({ ...s.record(), events: s.events.slice(0, 4) }));
   assert.equal(beforeHumanThird.moves.length, 2);
+});
+test("Copilot records the whole formal opening, then automates only the user's color", () => {
+  const s = new OpeningSession({ rule: "rif", workflow: "copilot", initialBlackSeat: 1 });
+  assert.equal(canManualTurn(s), true); assert.equal(isAutomaticTurn(s), false);
+  for (const i of [112, 97, 96]) { assert.equal(canManualTurn(s), true); stone(s, i); }
+  assert.equal(s.stage, "swap3"); assert.equal(canManualTurn(s), true); decide(s);
+  stone(s, 128); const candidates = distinctCandidates(s.board, s.allowedMoves({ safe: true })).slice(0, 2);
+  for (const index of candidates) s.apply({ type: "offer", index });
+  s.apply({ type: "select", index: candidates[0] }); stone(s, s.allowedMoves({ safe: true })[0]);
+  assert.equal(s.stage, "play"); assert.equal(isAutomaticTurn(s), false); assert.equal(canManualTurn(s), true);
+  const afterOpening = replaySession(s.record());
+  stone(s, s.allowedMoves({ safe: true })[0]);
+  assert.equal(isAutomaticTurn(s), true); assert.equal(canManualTurn(s), false);
+  s.apply({ type: "stone", index: s.allowedMoves({ safe: true })[0] }, { automatic: true });
+  assert.equal(s.events.at(-1).automatic, true); assert.equal(canManualTurn(s), true);
+  same(s.undo(), afterOpening);
+});
+test("Freestyle copilot waits for an explicit handoff and undo returns to the manual opening", () => {
+  const s = new OpeningSession({ rule: "freestyle", workflow: "copilot" });
+  assert.equal(s.copilotReady, false); assert.equal(canManualTurn(s), true); assert.equal(isAutomaticTurn(s), false);
+  stone(s, 112); stone(s, 97); const beforeHandoff = replaySession(s.record());
+  s.apply({ type: "handoff" }); assert.equal(isAutomaticTurn(s), true);
+  s.apply({ type: "stone", index: s.allowedMoves({ safe: true })[0] }, { automatic: true });
+  const replayed = replaySession(s.record()); assert.equal(replayed.copilotReady, true);
+  const undone = s.undo(); same(undone, beforeHandoff); assert.equal(undone.copilotReady, false);
+});
+test("Renju free opening keeps black forbidden moves without forcing the RIF proposal sequence", () => {
+  const s = new OpeningSession({ rule: "renju", workflow: "copilot" });
+  assert.equal(s.stage, "play"); assert.equal(s.width, 15); assert.equal(s.copilotReady, false);
+  const board = points => { const b = new Uint8Array(225); for (const point of points) b[point] = 1; return b; };
+  assert.equal(moveVerdict(board([110, 111, 97, 127]), 112, 1, "renju").forbidden, "三三");
+  stone(s, 112); assert.equal(isAutomaticTurn(s), false); s.apply({ type: "handoff" }); assert.equal(isAutomaticTurn(s), false);
+  stone(s, 97); assert.equal(isAutomaticTurn(s), true);
 });
 test("Seed continues chosen color, records only continuation, and replay rejects impossible actions", () => {
   const b = new Uint8Array(225); b[112] = b[111] = b[97] = 1; b[140] = 2;

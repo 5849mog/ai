@@ -20,6 +20,7 @@ const undoButton = document.querySelector("#undoButton");
 const retryButton = document.querySelector("#retryButton");
 const searchClock = document.querySelector("#searchClock");
 const recommendButton = document.querySelector("#recommendButton");
+const simpleRecommendButton = document.querySelector("#simpleRecommendButton");
 const recommendationLegend = document.querySelector("#recommendationLegend");
 const secondRecommendation = document.querySelector("#secondRecommendation");
 const recommendationNote = document.querySelector("#recommendationNote");
@@ -146,6 +147,9 @@ function render() {
   recommendButton.disabled = !recommending && !recommendations.length && !interactive;
   recommendButton.setAttribute("aria-pressed", String(recommending || recommendations.length > 0));
   recommendButton.title = recommending ? "取消推荐" : recommendations.length ? "收起推荐（Esc）" : `标出首选和次选落点（最多 ${RECOMMENDATION_MS / 1000} 秒）`;
+  simpleRecommendButton.disabled = recommendButton.disabled;
+  simpleRecommendButton.setAttribute("aria-pressed", recommendButton.getAttribute("aria-pressed"));
+  simpleRecommendButton.title = recommendButton.title;
   recommendationLegend.hidden = recommendations.length === 0;
   secondRecommendation.hidden = recommendations.length < 2;
   recommendationNote.textContent = recommendations.length === 1
@@ -400,10 +404,12 @@ window.addEventListener("pagehide", persistAnalysis);
 undoButton.addEventListener("click", undo);
 document.querySelector("#restartButton").addEventListener("click", restart);
 retryButton.addEventListener("click", () => { engine.reset(); void prepareEngine(); });
-recommendButton.addEventListener("click", () => {
+function toggleRecommendations() {
   if (recommending || recommendations.length) hideRecommendations();
   else void recommend();
-});
+}
+recommendButton.addEventListener("click", toggleRecommendations);
+simpleRecommendButton.addEventListener("click", toggleRecommendations);
 document.addEventListener("keydown", event => {
   if (document.querySelector("dialog[open]")) return;
   if (event.key === "Escape" && (recommending || recommendations.length)) {

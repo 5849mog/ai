@@ -152,7 +152,7 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .recommendation-marker.first .recommendation-ring { stroke: currentColor; }
 .recommendation-marker.second .recommendation-ring { stroke: currentColor; stroke-dasharray: 4 2; }
 .recommendation-number { fill: currentColor; font: 600 15px system-ui,sans-serif; text-anchor: middle; dominant-baseline: central; }
-#recommendButton[aria-pressed="true"] { color: #275e47; background: #edf1e8; border-color: #829780; box-shadow: inset 0 1px 3px #52684414; }
+#recommendButton[aria-pressed="true"], #simpleRecommendButton[aria-pressed="true"] { color: #275e47; background: #edf1e8; border-color: #829780; box-shadow: inset 0 1px 3px #52684414; }
 .recommendation-legend { grid-column: 2; grid-row: 1; min-width: 0; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 2px 8px; padding: 0; font-size: 12px; line-height: 1.25; }
 .recommendation-key { display: inline-flex; align-items: center; gap: 6px; }
 .recommendation-key.first { color: #24735a; }

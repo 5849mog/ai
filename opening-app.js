@@ -1,4 +1,4 @@
-import { OpeningSession, replaySession, RULES, colorName, coordinate } from "./opening-session.js";
+import { OpeningSession, replaySession, RULES, colorName, coordinate, canManualTurn, isAutomaticTurn } from "./opening-session.js";
 import { moveVerdict } from "./renju-rules.js";
 import { adviseOpening } from "./opening-advisor.js";
 import { createOpeningDialogs } from "./opening-guide.js";
@@ -14,7 +14,6 @@ const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 let session = new OpeningSession(), perspective = 1, state = "idle", serial = 0, requestId = 0;
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false;
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
-let roleHeld = false, roleTimer;
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
 function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
@@ -33,7 +32,7 @@ function persist() {
   } catch { if (!saveFailed) notify("此局暂未保存，请从菜单导出完整记录", true); saveFailed = true; return false; }
 }
 function positionChanged(reset = false) {
-  if (session.workflow === "duel") perspective = session.playerColor;
+  if (session.workflow !== "follow") perspective = session.playerColor;
   const key = `${session.rule}:${session.options.seed ? session.options.seed.board.join("") + session.options.seed.sideToMove : "opening"}`;
   analysis.setPosition(session.moves, perspective, { reset, positionKey: key }); analysis.finish(session.winner);
   stats = null; pending = hover = -1; advice = null; persist();
@@ -48,8 +47,9 @@ function cancel() {
   serial++; requestId++; busy = false; advice = null; pending = hover = -1; analysis.cancel(); engine.stopPonder(); engine.cancel(); state = engine.ready ? "ready" : "idle"; pondering = false; stats = null;
 }
 function configureRule() { if ((engine.rule === "freestyle") !== (session.rule === "freestyle")) { engine.reset(); state = "idle"; } engine.rule = session.rule; }
-const manualTurn = () => !modal && !session.winner && (session.workflow === "follow" || session.actor === 0 && !busy);
+const manualTurn = () => canManualTurn(session, { modal, busy });
 const interactive = () => manualTurn() && !session.decision;
+const workflowLabel = { copilot: "附身", follow: "记录", duel: "对弈" };
 function renderAnalysis() {
   analysisView.render(analysis, session.winner);
   const name = colorName(perspective), other = colorName(3 - perspective);
@@ -83,20 +83,26 @@ function decorate() {
 function render() {
   view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) }); decorate();
-  const text = busy ? session.workflow === "duel" && session.actor === 1 ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
+  const text = busy ? isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text; $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
-  $("#searchClock").textContent = `${RULES[session.rule]} · ${session.workflow === "follow" ? "跟随" : "对弈"}`;
+  $("#searchClock").textContent = `${RULES[session.rule]} · ${workflowLabel[session.workflow]}`;
   $("#searchClock").title = `我方当前执${colorName(session.playerColor)} · ${RULES[session.rule]}`;
   $("#undoButton").disabled = !session.events.length && pending < 0; $("#retryButton").hidden = state !== "error";
-  $("#recommendButton").disabled = !advice && !busy && (modal || session.winner || session.workflow === "duel" && session.actor === 1 || state !== "ready");
+  $("#recommendButton").disabled = isAutomaticTurn(session) || (!advice && !busy && (modal || session.winner || state !== "ready"));
   $("#recommendButton").setAttribute("aria-pressed", String(Boolean(advice) || busy));
+  $("#simpleRecommendButton").disabled = $("#recommendButton").disabled;
+  $("#simpleRecommendButton").setAttribute("aria-pressed", $("#recommendButton").getAttribute("aria-pressed"));
+  $("#simpleRecommendButton").title = $("#recommendButton").title;
   $("#recommendationLegend").hidden = !advice; $("#secondRecommendation").hidden = (advice?.points?.length ?? 0) < 2 || session.offerCount || session.stage === "choose";
   $("#recommendationNote").textContent = advice?.choice ? `建议${advice.choice === "swap" ? "交换" : "保持"}` : advice && session.offerCount ? "候选建议" : advice && session.stage === "choose" ? "绿圈首选" : "";
   $("#recommendationLegend .first").hidden = !advice?.points || Boolean(session.offerCount) || session.stage === "choose";
   $("#openingDecisions").hidden = !session.decision; $("#tenChoice").hidden = session.stage !== "route4";
+  const handoffAvailable = session.workflow === "copilot" && session.stage === "play" && !session.copilotReady && !session.winner;
+  $("#copilotControls").hidden = !handoffAvailable; $("#copilotHandoff").disabled = busy || modal;
+  $("#simpleHandoffButton").hidden = !handoffAvailable;
   for (const button of $("#openingDecisions").querySelectorAll("button")) { button.disabled = !manualTurn(); button.dataset.suggested = String(button.dataset.choice === advice?.choice); }
   for (const selector of [".color-control", ".time-control", ".ponder-control"]) $(selector).hidden = session.decision;
-  $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow === "duel"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
+  $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
   $("#timeSelect").disabled = busy; $("#ponderToggle").disabled = busy;
   svg.setAttribute("aria-label", `15 乘 15 连珠棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}方向键选点，回车确认。`);
   svg.setAttribute("aria-disabled", String(!interactive())); Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
@@ -104,12 +110,14 @@ function render() {
   if (display?.simple) {
     $("#simpleColorLabel").textContent = session.decision ? advice?.choice ? `建议${advice.choice === "swap" ? "换色" : "保持"}` : "开局选择" : session.workflow === "follow" ? `看${colorName(perspective)}棋` : `你执${colorName(session.playerColor)}`;
     $("#simpleColor small").textContent = session.decision ? "点击决定" : session.workflow === "follow" ? "点击换视角" : "点击换边新局";
-    $("#simpleColor").setAttribute("aria-label", (session.decision ? session.description() + "，点击选择" : session.workflow === "follow" ? "切换分析视角，不更换实际执色" : "切换初始角色并重开") + "；长按获取推荐");
+    $("#simpleColor").setAttribute("aria-label", session.decision ? session.description() + "，点击选择" : session.workflow === "follow" ? "切换分析视角，不更换实际执色" : "切换先摆开局的一方并重开");
+    $("#simpleRecommendLabel").textContent = busy ? isAutomaticTurn(session) ? "AI 落子中" : "分析中" : advice ? "收起推荐" : "推荐";
+    $("#simpleRecommendNote").textContent = busy ? "请稍候" : advice ? "点击关闭标记" : "AI 落点建议";
   }
   renderAnalysis();
 }
 async function syncPonder() {
-  if (busy || modal || session.winner || !["play", "w6"].includes(session.stage) || !$("#ponderToggle").checked || document.hidden || advice || session.workflow === "duel" && session.actor === 1) { engine.stopPonder(); return; }
+  if (busy || modal || session.winner || !["play", "w6"].includes(session.stage) || !$("#ponderToggle").checked || document.hidden || advice || isAutomaticTurn(session)) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   const id = ++requestId; analysis.begin(id, session.color);
   try { await engine.ponder({ board: session.board, sideToMove: session.color, requestId: id, allowSetup: true }); } catch (error) { if (error.name !== "AbortError") render(); }
@@ -117,7 +125,7 @@ async function syncPonder() {
 async function prepare() {
   const token = serial; if (modal) return;
   try { await engine.init(); if (token !== serial || modal) return;
-    if (session.workflow === "duel" && session.actor === 1 && !session.winner) await autoPlay(); else await syncPonder();
+    if (isAutomaticTurn(session)) await autoPlay(); else await syncPonder();
   } catch (error) { if (error.name !== "AbortError") { render(); notify(error.message, true); } }
 }
 function searchFor(token) { return async options => {
@@ -128,16 +136,16 @@ function searchFor(token) { return async options => {
   const result = await engine.search({ ...options, requestId: id });
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError"); return result;
 }; }
-function commit(event) { session.apply(event); positionChanged(); render(); }
+function commit(event, automatic = false) { session.apply(event, { automatic }); positionChanged(); render(); }
 async function autoPlay() {
   if (busy || modal || session.winner) return;
   const token = serial; busy = true; engine.stopPonder(); render();
-  try { while (token === serial && !modal && !session.winner && session.actor === 1) {
+  try { while (token === serial && !modal && isAutomaticTurn(session)) {
     const suggestion = await adviseOpening(session, searchFor(token), Number($("#timeSelect").value));
     if (token !== serial || modal) return;
-    if (session.decision) commit({ type: "decision", choice: suggestion.choice });
-    else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index });
-    else commit({ type: session.stage === "choose" ? "select" : "stone", index: suggestion.points[0] });
+    if (session.decision) commit({ type: "decision", choice: suggestion.choice }, true);
+    else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index }, true);
+    else commit({ type: session.stage === "choose" ? "select" : "stone", index: suggestion.points[0] }, true);
   } } catch (error) { if (error.name !== "AbortError" && token === serial) { state = "error"; notify(`AI 未完成操作：${error.message}。可重试或悔棋。`, true); } }
   finally { if (token === serial) { busy = false; render(); if (state !== "error") void syncPonder(); } }
 }
@@ -151,6 +159,10 @@ async function recommend() {
     persist(); notify(suggestion.note);
   } catch (error) { if (error.name !== "AbortError" && token === serial) notify(error.message, true); }
   finally { if (token === serial) { busy = false; render(); } }
+}
+function handoff() {
+  if (!manualTurn() || session.workflow !== "copilot" || session.stage !== "play" || session.copilotReady) return;
+  cancel(); commit({ type: "handoff" }); void prepare();
 }
 function onModal(open) { if (open) cancel(); modal = open; render(); if (!open) void prepare(); }
 function confirmation(title, message, label) {
@@ -192,16 +204,17 @@ svg.addEventListener("keydown", event => {
 });
 for (const button of $("#openingDecisions").querySelectorAll("button")) button.onclick = () => decision(button.dataset.choice);
 $("#recommendButton").onclick = recommend;
+$("#simpleRecommendButton").onclick = recommend;
+$("#copilotHandoff").onclick = handoff; $("#simpleHandoffButton").onclick = handoff;
 $("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; cancel(); session = session.undo(); positionChanged(); render(); void prepare(); };
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
 $("#colorSelect").onchange = () => { cancel(); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
 $("#timeSelect").onchange = () => { try { localStorage.setItem("gomoku-thinking-ms", $("#timeSelect").value); } catch {} };
 $("#ponderToggle").onchange = () => { try { localStorage.setItem("gomoku-pondering", String($("#ponderToggle").checked)); } catch {} void syncPonder(); };
-setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor }), notify, onModalChange: onModal,
+setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow }), notify, onModalChange: onModal,
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); }
 });
 display = setupDisplayModes({ onNewGame: () => newGame(), onChange: () => { pending = hover = -1; render(); }, onToggleColor: () => {
-  if (roleHeld) { roleHeld = false; return; }
   if (session.decision) {
     onModal(true); const dialog = document.createElement("dialog"); dialog.className = "opening-modal";
     dialog.innerHTML = `<h2>开局选择</h2><p class="mode-description">${session.description()}</p><div class="dialog-actions"><button type="button" data-choice="keep">不交换</button><button type="button" data-choice="swap">交换黑白</button>${session.stage === "route4" ? '<button type="button" data-choice="ten">提出十打</button>' : ""}</div>`;
@@ -210,15 +223,6 @@ display = setupDisplayModes({ onNewGame: () => newGame(), onChange: () => { pend
   } else if (session.workflow === "follow") { cancel(); perspective = 3 - perspective; positionChanged(true); render(); void prepare(); }
   else newGame({ ...session.options, seed: null, initialBlackSeat: 1 - session.options.initialBlackSeat });
 } });
-$("#simpleColor").addEventListener("contextmenu", event => event.preventDefault());
-$("#simpleColor").addEventListener("pointerdown", event => {
-  if (event.button !== 0) return;
-  clearTimeout(roleTimer); roleHeld = false;
-  roleTimer = setTimeout(() => {
-    if (manualTurn() || session.actor === 0 && busy) { roleHeld = true; void recommend(); }
-  }, 650);
-});
-for (const event of ["pointerup", "pointercancel", "pointerleave"]) $("#simpleColor").addEventListener(event, () => clearTimeout(roleTimer));
 $("#simpleColor").addEventListener("keydown", event => { if (event.key.toLowerCase() === "r") { event.preventDefault(); if (manualTurn()) void recommend(); } });
 function download(data, name, type) { const url = URL.createObjectURL(new Blob([data], { type })), link = document.createElement("a"); link.href = url; link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); $("#recordMenu").open = false; }
 $("#exportJson").onclick = () => download(JSON.stringify(session.record(), null, 2), "wumu-opening.json", "application/json");

@@ -25,7 +25,7 @@ try {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block" });
   await context.addInitScript(() => { localStorage.setItem("gomoku-thinking-ms", "1000"); localStorage.setItem("gomoku-pondering", "false"); });
   const page = await context.newPage(); page.on("pageerror", e => report.errors.push(e.message));
-  await page.goto(base + "renju.html"); await ready(page);
+  await page.goto(base + "renju.html"); await ready(page); await configure(page, "rif", "follow", "0");
   await play(page, 112); await stage(page, "w2"); await play(page, 97); await play(page, 96); await stage(page, "swap3");
   const stones = (await game(page)).board.slice(); await page.locator('[data-choice="swap"]').click(); assert.deepEqual((await game(page)).board, stones);
   await play(page, 128); await stage(page, "offer");
@@ -40,6 +40,21 @@ try {
   await ready(page); await page.locator("#recommendButton").click(); await page.waitForFunction(() => document.querySelector("#recommendationLegend").hidden === false);
   const beforeView = await record(page); await page.locator("#colorSelect").selectOption("2"); assert.deepEqual(await record(page), beforeView);
   mark("RIF manual roles, swap, partial proposals across reload, white selection advice and undo, perspective without restart");
+
+  await configure(page, "rif", "copilot", "1");
+  for (const point of [112, 97, 96]) await play(page, point);
+  await stage(page, "swap3"); await page.locator('[data-choice="keep"]').click(); await play(page, 128); await stage(page, "offer");
+  for (let i = 0; i < 2; i++) await play(page, (await game(page)).allowedMoves({ safe: true })[0]);
+  await stage(page, "choose"); const chosen = (await game(page)).candidates[0]; await play(page, chosen); await stage(page, "w6");
+  await play(page, (await game(page)).allowedMoves({ safe: true })[0]); await stage(page, "play");
+  assert.equal((await game(page)).moves.length, 6); assert.equal((await game(page)).actor, 1);
+  const opponentMove = (await game(page)).allowedMoves({ safe: true })[0]; await play(page, opponentMove);
+  await page.waitForFunction(() => {
+    const saved = JSON.parse(localStorage.getItem("gomoku-opening:/ai/:v1")).record;
+    return saved.events.length === 11 && saved.events.at(-1).automatic === true;
+  }, null, { timeout: 30000 });
+  const assisted = await game(page); assert.equal(assisted.playerColor, 2); assert.equal(assisted.moves.length, 8); assert.equal(assisted.colors.at(-1), 2);
+  mark("Copilot leaves RIF opening decisions to the user, then automatically answers for the user's side only");
 
   await configure(page, "taraguchi10");
   for (const [i, point] of [112,97,96].entries()) { await play(page,point); await stage(page,`swap${i+1}`); await page.locator('[data-choice="swap"]').click(); }
@@ -67,10 +82,7 @@ try {
 
   const beforeSimple=await record(page);
   await menu(page,"#enterSimpleMode");
-  await page.locator("#simpleColor").dispatchEvent("pointerdown",{button:0,pointerType:"touch"});
-  await page.waitForTimeout(750);
-  await page.locator("#simpleColor").dispatchEvent("pointerup",{button:0,pointerType:"touch"});
-  await page.locator("#simpleColor").dispatchEvent("click");
+  await page.locator("#simpleRecommendButton").click();
   await page.waitForFunction(()=>document.querySelectorAll(".opening-proposal.suggested").length>0,null,{timeout:15000});
   assert.deepEqual(await record(page),beforeSimple);
   const restartRect=await page.locator("#simpleRestart").boundingBox();
@@ -78,7 +90,7 @@ try {
   await page.waitForTimeout(800);
   await page.waitForFunction(()=>!document.body.classList.contains("simple-mode"));
   await page.mouse.up();
-  mark("Simple mode long-press recommendation keeps three visible controls and never changes roles or commits advice");
+  mark("Simple mode one-tap recommendation keeps controls available and never changes roles or commits advice");
 
   for(const [width,height]of [[360,740],[390,844],[430,932],[768,1024],[820,1180],[1024,768],[1440,900],[844,390]]){
     await page.setViewportSize({width,height}); const layout=await page.evaluate(()=>{const b=document.querySelector(".board-frame").getBoundingClientRect();return {scrollX:document.documentElement.scrollWidth>innerWidth+1,scrollY:document.documentElement.scrollHeight>innerHeight+1,board:[b.width,b.height],footer:document.querySelector(".page-footer").getBoundingClientRect().bottom};});

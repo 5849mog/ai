@@ -11,14 +11,16 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   const start = document.querySelector("#startSetup"), undo = document.querySelector("#undoSetup");
   const message = document.querySelector("#setupMessage"), tools = [...dialog.querySelectorAll("[data-setup-tool]")];
   const draft = new Uint8Array(CELL_COUNT), history = [];
-  let tool = BLACK, keyboardIndex = 112, hoverIndex = -1;
+  let tool = BLACK, keyboardIndex = 112, hoverIndex = -1, copilot = false;
 
   function render() {
     let error = "";
     try { validatePosition(draft, Number(side.value), { allowSetup: true }); }
     catch (problem) { error = problem.message === "棋局已经结束" ? "已有五子相连，请调整后再开始。" : problem.message; }
     start.disabled = Boolean(error);
-    message.textContent = error || "开始后将替换当前对局；摆好的棋子会作为起始局面保留。";
+    message.textContent = error || (copilot
+      ? "开始后 AI 会替你下；若下一手轮到对手，请把对手的实战落子录入。"
+      : "开始后将替换当前对局；摆好的棋子会作为起始局面保留。");
     message.dataset.state = error ? "error" : "ready";
     document.querySelector("#setupBlackCount").textContent = draft.filter(value => value === BLACK).length;
     document.querySelector("#setupWhiteCount").textContent = draft.filter(value => value === WHITE).length;
@@ -38,9 +40,12 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   }
   document.querySelector("#openSetup").addEventListener("click", () => {
     const current = getPosition();
+    copilot = current.workflow === "copilot";
+    actor.querySelector('[value="player"]').textContent = copilot ? "我录入对手棋" : "我来走";
+    actor.querySelector('[value="ai"]').textContent = copilot ? "AI 替我落子" : "AI 来走";
     draft.set(current.board); history.length = 0; tool = BLACK; hoverIndex = -1; keyboardIndex = 112;
     side.value = String(current.currentColor);
-    actor.value = current.currentColor === current.playerColor ? "player" : "ai";
+    actor.value = current.currentColor === current.playerColor ? (copilot ? "ai" : "player") : (copilot ? "player" : "ai");
     document.querySelector("#recordMenu").open = false;
     onModalChange(true); render(); dialog.showModal();
   });
@@ -72,7 +77,7 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     try {
       const sideToMove = Number(side.value);
       validatePosition(draft, sideToMove, { allowSetup: true });
-      const playerColor = actor.value === "player" ? sideToMove : 3 - sideToMove;
+      const playerColor = actor.value === "player" ? (copilot ? 3 - sideToMove : sideToMove) : (copilot ? sideToMove : 3 - sideToMove);
       const saved = applyRecord(createRecord([], playerColor, { board: draft, sideToMove }));
       dialog.close();
       notify(saved ? "已从自定义局面开始对弈" : "局面已开始，但暂未保存；关闭前请导出棋谱", !saved);
