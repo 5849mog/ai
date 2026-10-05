@@ -1,0 +1,53 @@
+{
+  "viewports": [
+    {
+      "width": 320,
+      "height": 568,
+      "minFont": 12,
+      "overflow": false,
+      "navigation": "pass",
+      "engineSteps": "pass",
+      "storage": "unchanged",
+      "gameBoard": "unchanged"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "minFont": 12,
+      "overflow": false,
+      "navigation": "pass",
+      "engineSteps": "pass",
+      "storage": "unchanged",
+      "gameBoard": "unchanged"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "minFont": 12,
+      "overflow": false,
+      "navigation": "pass",
+      "engineSteps": "pass",
+      "storage": "unchanged",
+      "gameBoard": "unchanged"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "minFont": 12,
+      "overflow": false,
+      "navigation": "pass",
+      "engineSteps": "pass",
+      "storage": "unchanged",
+      "gameBoard": "unchanged"
+    }
+  ],
+  "errors": [],
+  "offline": {
+    "name": "gomoku-rapfi:/ai/:250615-v19",
+    "about": true,
+    "style": true,
+    "reload": "pass",
+    "isolation": "fresh browser session"
+  },
+  "noJavaScript": "complete introduction visible"
+}

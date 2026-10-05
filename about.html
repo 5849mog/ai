@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="关于五目：一盘棋，在你的设备里思考。了解本机 AI、离线对弈与项目来源。" />
+    <meta name="description" content="关于五目：一盘棋，在你的设备里思考。了解推荐原理、本机 AI、离线对弈与项目来源。" />
     <meta name="theme-color" content="#f5f2ea" />
     <title>关于五目 · 一盘棋，在你的设备里思考</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=18" />
-    <link rel="stylesheet" href="./about.css?v=1" />
+    <link rel="stylesheet" href="./about.css?v=2" />
     <script src="./about.js?v=1" defer></script>
   </head>
   <body class="about-page">
@@ -25,7 +25,7 @@
           <div class="hero-heading"><h1 id="heroTitle">五目</h1><span class="hero-seal" aria-hidden="true">一手<br />一念</span></div>
           <p class="hero-statement">一盘棋，<br />在你的设备里思考。</p>
           <p class="hero-description">温润的木，安静的黑白。<br />落子之间，是一场认真的推演。</p>
-          <a class="text-link hero-discover" href="#engine">走进这盘棋 <span aria-hidden="true">↓</span></a>
+          <nav class="hero-links" aria-label="关于页章节"><a class="text-link hero-discover" href="#engine">走进这盘棋 <span aria-hidden="true">↓</span></a><a class="text-link" href="#recommendation">推荐如何思考 <span aria-hidden="true">↓</span></a></nav>
         </div>
         <figure class="hero-art" aria-label="木棋盘上的黑白棋子，固定棋形示意">
           <div class="hero-board">
@@ -91,9 +91,45 @@
         </div>
       </section>
 
+      <section class="recommendation-chapter" id="recommendation" aria-labelledby="recommendationTitle">
+        <div class="chapter-inner">
+          <div class="recommendation-intro reveal">
+            <p class="eyebrow"><span class="chapter-index">02</span>推荐如何思考 <span lang="en">/ A MOVE FOR YOU</span></p>
+            <h2 id="recommendationTitle">替你看棋。<br /><span>由你落子。</span></h2>
+            <p class="recommendation-lead">点下「推荐」，引擎就站到你的执色一边，<br class="wide-break" />认真推演这盘棋的下一手。</p>
+          </div>
+
+          <div class="recommendation-comparison reveal" aria-label="推荐与 AI 落子的搜索方式比较">
+            <div class="shared-engine"><span class="shared-engine-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z" /></svg></span><div><span class="principle-kicker">同一套引擎 · 同一张棋盘</span><p>Rapfi <span>+ mix9svq</span></p></div></div>
+            <div class="search-comparison">
+              <article class="search-role search-role-player"><p class="search-role-kicker">为你推荐</p><h3>最多 <strong>2</strong> 秒</h3><p>替你的执色搜索，<br />比较首选与次选。</p><div class="candidate-pair" aria-label="首选与次选标记示意"><span><i class="candidate-first" aria-hidden="true">1</i>首选</span><span><i class="candidate-second" aria-hidden="true">2</i>次选</span></div></article>
+              <article class="search-role search-role-ai"><p class="search-role-kicker">对手落子</p><h3><strong>1 / 5 / 10</strong> 秒</h3><p>按设定时间，<br />搜索并落子。</p><span class="search-default">默认最多 10 秒</span></article>
+            </div>
+            <p class="comparison-note">都是本机推演。找到确定胜着时，搜索可以提前结束。</p>
+          </div>
+
+          <ol class="recommendation-method reveal" aria-label="推荐的工作过程">
+            <li><span class="method-index" aria-hidden="true">01</span><h3>读入当前局面</h3><p>从棋盘上的真实棋子出发，把轮到你行棋的局面交给引擎。</p></li>
+            <li><span class="method-index" aria-hidden="true">02</span><h3>比较后续变化</h3><p>用神经网络评估棋形，再推演双方应手，在时间预算内比较候选落点。</p></li>
+            <li><span class="method-index" aria-hidden="true">03</span><h3>给出落点，等你选择</h3><p>首选是本次搜索更看好的点；次选是另一种走法。触屏仍需点两次确认。</p></li>
+          </ol>
+
+          <div class="recommendation-answers reveal">
+            <article class="recommendation-answer match-answer" aria-labelledby="recommendationMatchTitle">
+              <div><p class="principle-kicker" lang="en">IF YOU FOLLOW EVERY MOVE</p><h3 id="recommendationMatchTitle">全程照着首选，<br />胜率大概多少？</h3></div>
+              <div class="answer-body"><p class="answer-lead">目前没有这项对战的实测胜率。</p><p>每一手都照着首选下，相当于让同一套引擎分别替双方思考。默认设置下，推荐最多搜索 2 秒，还要比较两个候选；对手最多搜索 10 秒，时间预算更充裕。</p><p>执色、开局、设备算力和后台思考也会影响结果。相同引擎不意味着各有 50% 胜率，搜索时间的比例也不能换算成胜率。要给出可靠的百分比，需要固定条件、交换黑白，进行多局完整对战。</p></div>
+            </article>
+            <article class="recommendation-answer"><h3>为什么有时只有首选？</h3><div class="answer-body"><p>开局、直接胜着或搜索未形成完整的双候选结果时，可能只显示一个点。推荐不会为了凑满两个而给出未经确认的次选；只有一个点，也不代表它必然是唯一好棋。</p></div></article>
+            <article class="recommendation-answer"><h3>胜率条能代表这个胜率吗？</h3><div class="answer-body"><p>胜率条是引擎对当前局面的估算，会随落子和评估更新。它反映这一刻的局势，不表示「全程跟着推荐下」的实测对战胜率。</p></div></article>
+            <article class="recommendation-answer"><h3>悔棋以后，推荐还有效吗？</h3><div class="answer-body"><p>推荐只针对当前局面。落子、悔棋、新局、换色或导入棋谱后，旧推荐会清除，未完成的旧结果也会被丢弃。推荐本身不落子，不增加悔棋记录；再次点「推荐」可收起。</p></div></article>
+          </div>
+          <a class="text-link recommendation-return" href="./">带着下一手，回到棋盘 <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
       <section class="principles-chapter" aria-labelledby="principlesTitle">
         <div class="chapter-inner">
-          <div class="principles-intro reveal"><p class="eyebrow"><span class="chapter-index">02</span>这盘棋的取舍 <span lang="en">/ MADE TO PLAY</span></p><h2 id="principlesTitle">把复杂留给推演。<br />把从容留给你。</h2></div>
+          <div class="principles-intro reveal"><p class="eyebrow"><span class="chapter-index">03</span>这盘棋的取舍 <span lang="en">/ MADE TO PLAY</span></p><h2 id="principlesTitle">把复杂留给推演。<br />把从容留给你。</h2></div>
           <div class="principle-row reveal"><span class="principle-number" aria-hidden="true">01</span><div class="principle-title"><span class="principle-kicker" lang="en">ON YOUR DEVICE</span><h3>在本机思考。</h3></div><div class="principle-body"><p>Rapfi 250615 与 mix9svq 神经网络评估，在你的浏览器本机完成计算。网页与引擎资源由网站提供，对弈推演在你的设备中进行。</p><span class="principle-tag"><i aria-hidden="true"></i>本机 AI · 无需在线模型服务</span></div></div>
           <div class="principle-row reveal"><span class="principle-number" aria-hidden="true">02</span><div class="principle-title"><span class="principle-kicker" lang="en">READY WHEN YOU ARE</span><h3>缓存后，<br />离线也能下。</h3></div><div class="principle-body"><p>首次联网打开，等待棋盘页显示“已缓存 · 可离线使用”。完成缓存后，在同一浏览器里，断网也能刷新页面、继续对弈。</p><span class="principle-tag"><i aria-hidden="true"></i>棋盘、引擎与材质，一起留在本机</span></div></div>
           <div class="principle-row reveal"><span class="principle-number" aria-hidden="true">03</span><div class="principle-title"><span class="principle-kicker" lang="en">OPEN BY DESIGN</span><h3>每一层，<br />都有来处。</h3></div><div class="principle-body"><p>从棋盘的交互，到引擎的固定版本与构建修改，源码和来源公开可查。你可以看到这盘棋如何工作，也可以沿着它继续探索。</p><a class="text-link source-link" href="https://github.com/5849mog/ai">浏览项目源码 <span aria-hidden="true">↗</span></a></div></div>
