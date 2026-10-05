@@ -1,9 +1,10 @@
 import { SIZE, validIndex, hasFive } from "./game-rules.js";
+import { moveVerdict } from "./renju-rules.js";
 
 // Only completed MultiPV batches at one depth are comparable. Never combine a
 // new first PV with the previous iteration's second PV or use a reply as rank 2.
 export class RecommendationCollector {
-  constructor() { this.frame = null; this.batch = []; this.completed = []; }
+  constructor(count = 2, rule = "freestyle") { this.count = count; this.rule = rule; this.frame = null; this.batch = []; this.completed = []; }
 
   read(line) {
     const text = line.trim();
@@ -41,9 +42,8 @@ export class RecommendationCollector {
     const copy = Uint8Array.from(board);
     for (let index = 0; index < copy.length; index += 1) {
       if (copy[index]) continue;
-      copy[index] = sideToMove;
-      if (hasFive(copy, index % SIZE, Math.floor(index / SIZE), sideToMove)) winning.push(index);
-      copy[index] = 0;
+      if (this.rule !== "freestyle") { if (moveVerdict(copy, index, sideToMove, this.rule).winner === sideToMove) winning.push(index); }
+      else { copy[index] = sideToMove; if (hasFive(copy, index % SIZE, Math.floor(index / SIZE), sideToMove)) winning.push(index); copy[index] = 0; }
     }
     let indices;
     if (winning.length) {
@@ -52,10 +52,11 @@ export class RecommendationCollector {
     }
     else if (this.completed.length) indices = [...this.completed].sort((a, b) => b.score - a.score || a.pv - b.pv).map(entry => entry.index);
     else indices = [bestIndex];
-    const selected = indices.slice(0, 2);
+    const selected = indices.slice(0, this.count);
     if (new Set(selected).size !== selected.length || selected.some(index => !validIndex(index) || board[index])) {
       throw new Error("引擎返回无效推荐落点");
     }
-    return selected.map((index, rank) => ({ index, x: index % SIZE, y: Math.floor(index / SIZE), rank: rank + 1 }));
+    return selected.map((index, rank) => ({ index, x: index % SIZE, y: Math.floor(index / SIZE), rank: rank + 1,
+      ...(this.count > 2 ? this.completed.find(entry => entry.index === index) ?? {} : {}) }));
   }
 }

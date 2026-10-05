@@ -17,9 +17,9 @@
 
 - 来源：https://github.com/dhbloo/rapfi-networks/tree/918b757a129258e9e765f77fe17d507c2bb1a60b
 - 固定提交：`918b757a129258e9e765f77fe17d507c2bb1a60b`
-- 本项目打包 `mix9svqfreestyle_bsmix.bin.lz4`、`model210901.bin`。
+- 本项目打包 `mix9svqfreestyle_bsmix.bin.lz4`、`model210901.bin`，连珠另加载同一固定提交的 `mix9svqrenju_bs15_black.bin.lz4` 与 `mix9svqrenju_bs15_white.bin.lz4`，以分片传输并核对完整 SHA-256。
 - 许可证：CC0-1.0，随引擎附带 LICENSE-Networks.txt。
-- 配置来源：对应提交的 config-example/gomocalc-mix9svq.toml；仅保留 freestyle 权重，并将坐标转换设为 none。
+- 配置来源：对应提交的 config-example/gomocalc-mix9svq.toml；基础包保留 freestyle 权重，连珠配置加黑白专用权重；坐标转换设为 none。连珠权重可用 scripts/prepare-renju-models.py 重现。
 
 ## 构建与校验
 

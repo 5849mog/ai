@@ -6,3 +6,4 @@ __pycache__/
 .cache/
 test-results/
 playwright-report/
+/engine/renju-250615/*.lz4

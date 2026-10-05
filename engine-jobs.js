@@ -16,7 +16,7 @@ export class EngineJobs {
   }
 
   search(job) {
-    this.searchCommands(job.board, job.sideToMove, job.timeMs, job.multiPV, job.allowSetup);
+    this.searchCommands(job.board, job.sideToMove, job.timeMs, job.multiPV, job.allowSetup, job);
     if (this.queuedSearch || this.active?.phase === "search") throw new Error("已有搜索正在进行");
     this.background = null;
     this.cancelNext();
@@ -62,11 +62,13 @@ export class EngineJobs {
       const phase = this.queuedSearch ? "search" : "ponder";
       this.queuedSearch = null;
       this.active = { ...job, phase, started: this.now(), stats: {}, assessment: new AssessmentCollector(),
-        recommendations: phase === "search" && job.multiPV === 2 ? new RecommendationCollector() : null };
+        recommendations: phase === "search" && job.multiPV > 1 ? new RecommendationCollector(job.multiPV, job.rule) : null };
       const timeMs = phase === "ponder" ? this.sliceMs : job.timeMs;
+      if (this.restricted) this.send("YXBLOCKRESET");
+      this.restricted = Boolean(job.allowedMoves);
       // Native automatic pondering must remain disabled: single-thread builds
       // run it synchronously and cannot receive STOP while it is running.
-      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, phase === "search" ? job.multiPV : 1, job.allowSetup)) this.send(command);
+      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, phase === "search" ? job.multiPV : 1, job.allowSetup, job)) this.send(command);
     }, this.queuedSearch ? 0 : this.pauseMs);
   }
 

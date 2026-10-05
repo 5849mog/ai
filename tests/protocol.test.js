@@ -24,7 +24,7 @@ test("recommendations sync without starting a single-PV search and explicitly re
   assert.deepEqual(searchCommands(board, 2, 2000, 2).slice(-2), ["YXBOARD\n7,7,2\nDONE", "YXNBEST 2"]);
   assert.deepEqual(searchCommands(new Uint8Array(225), 1, 2000, 2).slice(-2), ["YXBOARD\nDONE", "YXNBEST 2"]);
   assert.equal(searchCommands(board, 2, 1000).at(-1), "BOARD\n7,7,2\nDONE");
-  assert.throws(() => searchCommands(board, 2, 2000, 3), /推荐数量/);
+  assert.throws(() => searchCommands(board, 2, 2000, 33), /推荐数量/);
   assert.deepEqual(board, original);
 });
 test("output parsing accepts only complete legal coordinates and recognizes diagnostics", () => {
