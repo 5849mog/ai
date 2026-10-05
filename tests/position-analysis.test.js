@@ -101,3 +101,14 @@ test("trend geometry preserves actual ply spacing and gaps, stays bounded and ne
   assert.equal(result.groups[0][0].y, 6); assert.equal(result.groups[1][0].y, 68);
   assert.equal(trendGeometry([{ ply: 225, winRate: .5 }], 225).groups[0][0].x, 350);
 });
+
+test("different setup positions with identical continuation moves cannot reuse stored analysis", () => {
+  const store = storage(), model = new PositionAnalysis([], 1);
+  model.setPosition([], 1, { positionKey: "custom-A" }); model.begin(1, 1); accept(model); model.save(store);
+  const other = new PositionAnalysis([], 1); other.setPosition([], 1, { positionKey: "custom-B" });
+  assert.equal(other.load(store), false);
+  model.setPosition([], 1, { positionKey: "custom-B" });
+  assert.equal(model.current, null); assert.equal(accept(model), false);
+  const same = new PositionAnalysis([], 1); same.setPosition([], 1, { positionKey: "custom-A" });
+  assert.equal(same.load(store), true); assert.equal(same.current.winRate, .7);
+});

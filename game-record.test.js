@@ -62,7 +62,7 @@ test("SGF scanner handles escaped comments and first variations without regex-ex
   assert.match(result.notices.join(), /主线/);
 });
 
-test("unsupported SGF rules, setup, pass, wrong order, duplicate properties and malformed collections are rejected", () => {
+test("unsupported SGF rules, incomplete setup, pass, wrong order, duplicate properties and malformed collections are rejected", () => {
   const prefix = "(;FF[4]GM[4]SZ[15]";
   for (const tail of ["RU[Renju];B[hh])", "RU[Swap2];B[hh])", "AB[hh])", ";B[hh];PL[B])", "HA[2])", ";B[])" , ";B[pp])", ";W[hh])", ";B[hh];B[ih])", ";B[hh]W[ih])", ";B[hh][ih])", ";B[hh];W[hh])", "C[unfinished)", ";B[hh])garbage", ")".repeat(2)]) {
     assert.throws(() => parseRecord(prefix + tail), tail);
@@ -79,4 +79,46 @@ test("corrupt or blocked storage degrades to a playable new game; actual ordered
   storage.setItem(RECORD_KEY, "broken"); assert.ok(loadGame(storage).error);
   const blocked = { getItem() { throw Error("denied"); }, setItem() { throw Error("quota"); } };
   assert.equal(saveGame(blocked, record), false); assert.ok(loadGame(blocked).error);
+});
+
+test("custom records preserve the starting position, chosen next color and only undo actual continuation moves", () => {
+  const board = Array(225).fill(0); board[112] = 1; for (const i of [110, 111, 113]) board[i] = 2;
+  for (const sideToMove of [1, 2]) for (const playerColor of [1, 2]) {
+    const setup = { board, sideToMove }, record = createRecord([30, 31, 45, 46], playerColor, setup);
+    const game = replayRecord(record);
+    assert.equal(game.currentColor, sideToMove);
+    assert.equal(game.board[30], sideToMove); assert.equal(game.board[31], 3 - sideToMove);
+    assert.equal(game.board.filter(Boolean).length, 8);
+    const saved = game.rounds.pop(); restore(game.board, saved);
+    assert.equal(game.board.filter(Boolean).length, 4 + saved.moveCount);
+    for (const index of [112, 110, 111, 113]) assert.equal(game.board[index], board[index]);
+    assert.deepEqual(parseRecord(serializeRecord(record)).record, record);
+    assert.deepEqual(parseRecord(exportSgf(record)).record, record);
+    assert.deepEqual(record.setup.board, board);
+  }
+});
+
+test("custom histories resume AI turns and reject occupied seed points, terminal seeds and moves after a win", () => {
+  const board = Array(225).fill(0); board[107] = 2; for (const i of [108, 109, 110, 111]) board[i] = 1;
+  const seed = { board, sideToMove: 1 };
+  const game = replayRecord(createRecord([], 2, seed));
+  assert.equal(game.currentColor, 1); assert.equal(game.lastMove, -1); assert.equal(game.rounds.length, 0);
+  assert.throws(() => replayRecord(createRecord([108], 2, seed)), /落点/);
+  assert.equal(replayRecord(createRecord([112], 2, seed)).winner, 1);
+  assert.throws(() => replayRecord(createRecord([112, 0], 2, seed)), /已经结束/);
+  const finished = [...board]; finished[112] = 1;
+  assert.throws(() => replayRecord(createRecord([], 2, { board: finished, sideToMove: 2 })), /结束/);
+  assert.throws(() => replayRecord({ ...createRecord([], 2, seed), setup: { board: [0], sideToMove: 1 } }), /225/);
+  assert.throws(() => parseRecord("(;FF[4]GM[4]SZ[15]AB[hh]AW[hh]PL[W])"), /重复/);
+  assert.throws(() => parseRecord("(;FF[4]GM[4]SZ[15]AB[hh]PL[W];W[ih];AB[jh])"), /中途/);
+});
+
+test("custom records survive automatic save/load while old standard saves remain compatible", () => {
+  const values = new Map(), storage = { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value) };
+  const board = Array(225).fill(0); board[112] = 2;
+  const record = createRecord([0], 1, { board, sideToMove: 2 });
+  assert.equal(saveGame(storage, record), true); assert.deepEqual(loadGame(storage).game.record, record);
+  assert.equal(loadGame(storage).game.currentColor, 1);
+  const original = createRecord([112, 113], 1); saveGame(storage, original);
+  assert.deepEqual(loadGame(storage).game.record, original);
 });

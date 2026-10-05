@@ -17,7 +17,11 @@ npm run dev
 
 打开 http://127.0.0.1:4187/ 。端口可通过 `PORT` 环境变量修改。鼠标悬停预览、单击落子；触屏点击两次确认；棋盘获得焦点后可用方向键选点、回车落子。
 
-棋盘独立呈现，按剩余宽高取能容纳的最大正方形。手机竖屏的状态与耗时位于棋盘上方，操作、设置和搜索信息位于下方；横屏时这些控件移到棋盘侧边。推荐图例显示在页首固定高度的信息栏内，出现和收起均不改变棋盘的位置或尺寸；“棋谱”与“15×15”紧凑排在同一入口，按钮默认显示，原有提示内容保留。专项检查见 [推荐提示布局报告](./reports/stable-recommendation.md)。
+棋盘独立呈现，按剩余宽高取能容纳的最大正方形。手机竖屏的状态与耗时位于棋盘上方，操作、设置和搜索信息位于下方；横屏时这些控件移到棋盘侧边。推荐图例显示在页首固定高度的信息栏内，出现和收起均不改变棋盘的位置或尺寸；“菜单”与“15×15”紧凑排在同一入口，按钮默认显示，原有提示内容保留。专项检查见 [推荐提示布局报告](./reports/stable-recommendation.md)。
+
+菜单 →「自定义摆局」打开独立草稿，默认复制当前棋盘。可摆黑棋、白棋、擦除、撤回编辑或清空，并指定下一手的棋色与行棋者（你或 AI）。黑白数量无需相等；起始局面不能已经成五或没有空点。点击「开始对弈」才替换原对局，取消保留原对局；编辑期间暂停实际搜索，取消后继续原来的回合。起始棋子与后续落子分开保存，悔棋只撤回续下的回合，不会撤掉摆好的棋子。
+
+菜单 →「简洁模式」保留当前对局，只显示更大的棋盘和两个按钮：「新局」与「你执黑 / AI 执黑」。点击执色按钮直接切换并重开，AI 执黑时自动开局。长按「新局」约 0.7 秒、浏览器/系统返回或 Esc 可返回完整界面；退出不重开对局。显示模式由网址 `?view=simple` 保留，刷新继续使用。棋盘按可用宽高取最大正方形，缩小板边内留白；横屏也为两个按钮保留空间。功能与布局检查见 [模式报告](./reports/game-modes.md)。
 
 641–1199 CSS 像素宽的竖屏采用平板排布：棋盘下方左侧放操作和设置，右侧放局势、胜率、走势与搜索统计，减少辅助区域占用的高度。棋盘仍取剩余宽高能容纳的最大正方形，全部控件默认显示并保持同屏；手机与横屏排布沿用原样。改版前后尺寸及交互验收见 [平板竖屏报告](./reports/tablet-portrait.md)。
 
@@ -31,7 +35,7 @@ npm run dev
 
 实际落子、新局、悔棋和导入都会自动保存当前对局。在同一浏览器重新打开，会自动恢复棋盘、执色与完整悔棋记录；如果轮到 AI 则重新搜索，已结束的棋局保持结束。保存以落子顺序为准，不保存推荐、悬停、触屏待确认点或未完成搜索。保存失败会提示，可继续下棋或导出；清理浏览器数据会清除续局，不跨设备同步。
 
-棋盘右上角「棋谱」菜单可导出五目 JSON 或 SGF，也可导入两种格式。导入先校验并展示棋盘预览，确认继续执色后才替换当前对局，不改变思考时间和后台设置。只支持 15×15、无禁手、黑先白后、从第一手开始的合法完整记录；SGF 使用 FF[4] GM[4]，规则省略或 Freestyle，分支取第一条主线。不支持摆局、停着、连珠禁手或 Swap 规则，胜负按实际棋盘计算，不信任文件声明的结果。文件上限 1 MiB；取消或无效文件保留当前对局。
+棋盘右上角「菜单」可导出五目 JSON 或 SGF，也可导入两种格式。导入先校验并展示棋盘预览，确认继续执色后才替换当前对局，不改变思考时间和后台设置。支持 15×15、无禁手的普通完整记录和自定义起始局面：普通 JSON 沿用版本 1，摆局使用版本 2 的 `setup` 加后续 `moves`，旧存档可继续读取。SGF 使用 FF[4] GM[4]，规则省略或 Freestyle，分支取第一条主线；摆局以根节点 AB/AW 与明确的 PL[B/W] 保存初始棋子和下一手。暂不支持中途改子、停着、让子、连珠禁手或 Swap 规则，胜负按实际棋盘计算，不信任文件声明的结果。文件上限 1 MiB；取消或无效文件保留当前对局。
 
 成五时，以细暖色连线和棋子外圈标记胜线；长连会标出整条，同时成五会显示所有方向。悔棋或新局时标记随局面清除。
 
@@ -68,23 +72,24 @@ const engine = new GomokuEngine({
 await engine.init();
 const result = await engine.search({
   board,           // 225 个交点，0 空、1 黑、2 白；调用方数组不会被修改
-  sideToMove: 2,   // 黑先白后，棋子数量须与行棋方一致
+  sideToMove: 2,   // 实际下一手棋色；普通局面须符合黑先白后的数量
   timeMs: 10000,   // 1–30000 ms，界面提供 1000/5000/10000
   requestId: 1,    // 调用方递增的安全整数
-  multiPV: 1      // 普通落子为 1；推荐使用 2，返回 recommendations 数组
+  multiPV: 1,      // 普通落子为 1；推荐使用 2，返回 recommendations 数组
+  allowSetup: false // 自定义局面为 true，允许任意黑白数量与明确的下一手
 });
 // result: index, x, y, elapsed, requestId, evaluator, weight；以及实际输出的 depth/nodes/nps 等
 engine.cancel();  // 取消未完成搜索，Promise 以 AbortError 拒绝
 engine.dispose();
 ```
 
-玩家回合可调用 `await engine.ponder({ board, sideToMove, requestId })` 开始后台分析，`engine.stopPonder()` 暂停。`onStats` 的 `phase` 为 `search` 或 `ponder`，原始 `evaluation` 对应 `sideToMove` 的视角。实际 `search()` 自动暂停后台分析并优先执行；`reset()` / `cancel()` / `dispose()` 会丢弃旧 Worker 的输出。
+玩家回合可调用 `await engine.ponder({ board, sideToMove, requestId, allowSetup })` 开始后台分析，`engine.stopPonder()` 暂停；普通对局可省略 `allowSetup`。`onStats` 的 `phase` 为 `search` 或 `ponder`，原始 `evaluation` 对应 `sideToMove` 的视角。实际 `search()` 自动暂停后台分析并优先执行；`reset()` / `cancel()` / `dispose()` 会丢弃旧 Worker 的输出。
 
 `mate` 保留引擎的 `+M…` / `-M…` 杀棋输出，杀棋与数值评分相互清除过期值。诊断时可给构造函数传 `onPonderSlice(result)`：每个完整后台短段仅回调一次，包括切到前台前返回的最后一段；普通页面不启用此诊断通道。
 
 初始化状态为 loading/ready/error，搜索时为 thinking。一次只接受一个搜索；超时、非法落点和引擎错误均明确失败，不使用旧引擎兜底。每次搜索都会确认指定的 mix9svq freestyle 权重已启用。
 
-协议适配层使用完整 BOARD 数据同步局面，以黑白交替顺序发送棋子，并把实际颜色转换为协议的己方/对方编号。配置禁用坐标翻转，界面、规则和搜索的坐标一致。
+协议适配层使用完整 BOARD 数据同步局面，以黑白交替顺序发送棋子，并把实际颜色转换为协议的己方/对方编号。自定义局面利用固定版本 Rapfi 的 BOARD 停着支持校正实际棋色和下一手；同步用的停着不进入应用落子、存档或走势图。配置禁用坐标翻转，界面、规则和搜索的坐标一致。
 
 推荐使用 `YXBOARD` 只同步局面，再以 `YXNBEST 2` 发起一次双候选搜索。只接受同一深度已完整输出的 MultiPV 组，不把主变化里的对方应手当作第二推荐。普通落子和后台搜索仍用 BOARD，恢复单候选模式；直接胜着未输出 PV 时按共享规则核验真实胜点。
 
@@ -119,6 +124,7 @@ npm run test:features
 npm run test:recommendations
 npm run test:records
 npm run test:mobile
+npm run test:modes
 npm run benchmark:ponder
 npm run report:ponder
 npm run benchmark
@@ -130,6 +136,8 @@ npm run report
 `test:records` 在 Chrome 和 Edge 上验证自动恢复、完整悔棋、等待 AI 的保存恢复、JSON/SGF 下载、导入预览与取消、旧响应丢弃、终局连线、保存失败和 390/320 像素及横屏触控。取消与时序边界采用确定性协议替身，真实 WASM 与离线由 `test:features` / `test:recommendations` 及发布检查验证。棋谱专项结果见 [record-qa.json](./reports/record-qa.json)。
 
 `test:mobile` 使用真实 Rapfi WASM 验证放大棋盘后的坐标映射、两次点击确认、推荐图例、悔棋与续局、棋谱菜单和预览、胜线及设置；只在错误重试场景注入一次初始化错误。它沿用 `test:features` 的 `CHROME_PATH` / `CHROME_ARGS` 可选启动配置，输出到 `.cache/mobile-layout/`。七种视口的改版前后尺寸与验证边界见 [移动端布局报告](./reports/mobile-layout.md)。
+
+`test:modes` 使用真实 Rapfi WASM 检查自由摆局、黑白双方续下、后台思考、推荐、完整回合悔棋、编辑中止与恢复搜索、JSON/SGF 导出导入、刷新与离线续局。简洁模式检查实际触屏长按退出、直接切色、系统返回、刷新保留，以及八种手机/平板/桌面视口的单屏布局。沿用 `CHROME_PATH` / `CHROME_ARGS` 配置，截图输出到 `.cache/game-modes-qa/`，结果见 [game-modes-qa.json](./reports/game-modes-qa.json)。
 
 `benchmark:ponder` 顺序运行冻结的 12 个局面 × 2 档预算 × 3 次配对，以及 12 个独立战术对照；时间较长，可用 `--resume` 继续相同实现已完成的实验对。`report:ponder` 重新验证原始结果、落点合法性和战术证明，生成 [后台思考报告](./reports/ponder-benchmark.md)。不需要重跑完整 40 局对战来评估此次交互变更。
 

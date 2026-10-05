@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const VERSION = PREFIX + "250615-v20";
+const VERSION = PREFIX + "250615-v21";
 const url = path => new URL(path, BASE).href;
-const CORE = ["./", "index.html", "styles.css", "styles.css?v=18", "app.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
+const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.css", "game-modes.css?v=1", "setup-ui.js", "display-modes.js", "app.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "favicon.svg", "about.html", "about.css", "about.css?v=2", "about.js", "about.js?v=1", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 const ENGINE = "engine/rapfi-250615/";
@@ -36,7 +36,16 @@ self.addEventListener("fetch", event => {
   if (event.request.method !== "GET" || !event.request.url.startsWith(BASE.href)) return;
   event.respondWith((async () => {
     const cache = await caches.open(VERSION);
-    const cached = await cache.match(event.request);
+    let cached = await cache.match(event.request);
+    // The display-mode parameter selects UI, not a different HTML resource.
+    // Simple-mode refreshes must share the precached navigation offline.
+    if (!cached && event.request.mode === "navigate") {
+      const navigation = new URL(event.request.url);
+      if (navigation.searchParams.get("view") === "simple") {
+        navigation.searchParams.delete("view");
+        cached = await cache.match(navigation.href);
+      }
+    }
     if (cached) return cached;
     return fetch(event.request);
   })());

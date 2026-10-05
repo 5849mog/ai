@@ -107,8 +107,8 @@ export class GomokuEngine {
     return initialization;
   }
 
-  async search({ board, sideToMove, timeMs = 10_000, requestId, multiPV = 1 }) {
-    validatePosition(board, sideToMove);
+  async search({ board, sideToMove, timeMs = 10_000, requestId, multiPV = 1, allowSetup = false }) {
+    validatePosition(board, sideToMove, { allowSetup });
     if (![1, 2].includes(multiPV)) throw new Error("推荐数量无效");
     if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
     if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
@@ -123,13 +123,13 @@ export class GomokuEngine {
       const timer = setTimeout(() => this.fail(new Error("引擎未能按时返回，请重试")), timeMs + 3000);
       this.pending = { requestId, board: copy, sideToMove, multiPV, resolve, reject, timer, stats: {} };
       this.onState({ state: "thinking" });
-      try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId, multiPV }); }
+      try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId, multiPV, allowSetup }); }
       catch (error) { this.fail(error); }
     });
   }
 
-  async ponder({ board, sideToMove, requestId }) {
-    validatePosition(board, sideToMove);
+  async ponder({ board, sideToMove, requestId, allowSetup = false }) {
+    validatePosition(board, sideToMove, { allowSetup });
     if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
     this.stopPonder();
     const serial = this.ponderSerial;
@@ -141,7 +141,7 @@ export class GomokuEngine {
     if (this.pending) throw new Error("已有搜索正在进行");
     this.pondering = { requestId, sideToMove, stats: {} };
     try {
-      this.worker.postMessage({ type: "ponder", board: copy, sideToMove, requestId });
+      this.worker.postMessage({ type: "ponder", board: copy, sideToMove, requestId, allowSetup });
       this.onState({ state: "ready", pondering: true, variant: this.variant, threads: this.threads });
     } catch (error) { this.fail(error); throw error; }
   }

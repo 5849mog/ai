@@ -32,7 +32,9 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
       color.value = String(pending.playerColor);
       preview.render({ board: game.board, lastMove: game.lastMove, pendingIndex: -1, hoverIndex: -1, canInteract: false });
       const result = game.winner === 3 ? "平局" : game.winner ? `${game.winner === 1 ? "黑" : "白"}方已成五` : `${game.currentColor === 1 ? "黑" : "白"}方待走`;
-      document.querySelector("#importSummary").textContent = `${parsed.type}棋谱 · ${pending.moves.length} 手 · ${result}`;
+      document.querySelector("#importSummary").textContent = pending.setup
+        ? `自定义局面 · ${pending.setup.board.filter(Boolean).length} 子 · 续下 ${pending.moves.length} 手 · ${result}`
+        : `${parsed.type}棋谱 · ${pending.moves.length} 手 · ${result}`;
       document.querySelector("#importNotices").textContent = parsed.notices.join(" ");
       dialog.showModal(); onModalChange(true);
     } catch (error) { if (serial === readSerial) notify(error.message, true); }
@@ -41,7 +43,7 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
   document.querySelector("#confirmImport").addEventListener("click", () => {
     if (!pending) return;
     try {
-      const saved = applyRecord(createRecord(pending.moves, Number(color.value)));
+      const saved = applyRecord(createRecord(pending.moves, Number(color.value), pending.setup));
       dialog.close();
       notify(saved ? "棋谱已导入" : "棋谱已导入，但此局暂未保存；关闭前请导出棋谱", !saved);
     } catch (error) { notify(error.message, true); }
