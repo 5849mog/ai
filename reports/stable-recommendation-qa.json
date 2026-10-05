@@ -1,0 +1,311 @@
+{
+  "startedAt": "2026-10-05T02:34:51.934Z",
+  "viewports": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "initial": {
+        "x": 68.1875,
+        "y": 78,
+        "width": 183.625,
+        "height": 183.625
+      },
+      "opening": {
+        "board": {
+          "x": 68.1875,
+          "y": 78,
+          "width": 183.625,
+          "height": 183.625
+        },
+        "legend": {
+          "x": 100.609375,
+          "y": 14,
+          "width": 130.8125,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 700
+      },
+      "initial": {
+        "x": 37.1875,
+        "y": 78,
+        "width": 315.625,
+        "height": 315.625
+      },
+      "opening": {
+        "board": {
+          "x": 37.1875,
+          "y": 78,
+          "width": 315.625,
+          "height": 315.625
+        },
+        "legend": {
+          "x": 100.609375,
+          "y": 14,
+          "width": 200.8125,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "initial": {
+        "x": 6,
+        "y": 118.8125,
+        "width": 378,
+        "height": 378
+      },
+      "opening": {
+        "board": {
+          "x": 6,
+          "y": 118.8125,
+          "width": 378,
+          "height": 378
+        },
+        "legend": {
+          "x": 100.609375,
+          "y": 14,
+          "width": 200.8125,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "initial": {
+        "x": 39,
+        "y": 74,
+        "width": 273,
+        "height": 273
+      },
+      "opening": {
+        "board": {
+          "x": 39,
+          "y": 74,
+          "width": 273,
+          "height": 273
+        },
+        "legend": {
+          "x": 112.328125,
+          "y": 10,
+          "width": 464.765625,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 744,
+        "height": 1000
+      },
+      "initial": {
+        "x": 19.09375,
+        "y": 92,
+        "width": 705.8125,
+        "height": 705.8125
+      },
+      "opening": {
+        "board": {
+          "x": 19.09375,
+          "y": 92,
+          "width": 705.8125,
+          "height": 705.8125
+        },
+        "legend": {
+          "x": 113.875,
+          "y": 18,
+          "width": 538.671875,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 900
+      },
+      "initial": {
+        "x": 81.09375,
+        "y": 92,
+        "width": 605.8125,
+        "height": 605.8125
+      },
+      "opening": {
+        "board": {
+          "x": 81.09375,
+          "y": 92,
+          "width": 605.8125,
+          "height": 605.8125
+        },
+        "legend": {
+          "x": 114.359375,
+          "y": 18,
+          "width": 561.703125,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "initial": {
+        "x": 19.359375,
+        "y": 92.265625,
+        "width": 729.28125,
+        "height": 729.28125
+      },
+      "opening": {
+        "board": {
+          "x": 19.359375,
+          "y": 92.265625,
+          "width": 729.28125,
+          "height": 729.28125
+        },
+        "legend": {
+          "x": 114.359375,
+          "y": 18,
+          "width": 561.703125,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 820,
+        "height": 1180
+      },
+      "initial": {
+        "x": 20.390625,
+        "y": 145.296875,
+        "width": 779.21875,
+        "height": 779.21875
+      },
+      "opening": {
+        "board": {
+          "x": 20.390625,
+          "y": 145.296875,
+          "width": 779.21875,
+          "height": 779.21875
+        },
+        "legend": {
+          "x": 115.390625,
+          "y": 18,
+          "width": 611.640625,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "initial": {
+        "x": 34.640625,
+        "y": 92,
+        "width": 636,
+        "height": 636
+      },
+      "opening": {
+        "board": {
+          "x": 34.640625,
+          "y": 92,
+          "width": 636,
+          "height": 636
+        },
+        "legend": {
+          "x": 119.46875,
+          "y": 18,
+          "width": 807.484375,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 1366
+      },
+      "initial": {
+        "x": 24.46875,
+        "y": 140.375,
+        "width": 975.0625,
+        "height": 975.0625
+      },
+      "opening": {
+        "board": {
+          "x": 24.46875,
+          "y": 140.375,
+          "width": 975.0625,
+          "height": 975.0625
+        },
+        "legend": {
+          "x": 119.46875,
+          "y": 18,
+          "width": 807.484375,
+          "height": 20
+        }
+      },
+      "errors": []
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "initial": {
+        "x": 156,
+        "y": 92,
+        "width": 768,
+        "height": 768
+      },
+      "opening": {
+        "board": {
+          "x": 156,
+          "y": 92,
+          "width": 768,
+          "height": 768
+        },
+        "legend": {
+          "x": 127.796875,
+          "y": 18,
+          "width": 1206.828125,
+          "height": 20
+        }
+      },
+      "errors": []
+    }
+  ],
+  "checks": [
+    "Real dual recommendation, two-tap move, AI response, undo, restart and rotation passed; hints clear with game actions",
+    "Opening, longer single-point and dual-point legends preserve exact board x/y/width/height at all 11 sizes",
+    "Initial board geometry matches v17 at checked phone/tablet/desktop sizes",
+    "All content stays in one screen and recommendation text does not overlap branding or the record menu",
+    "Record menu still exposes import and both export options"
+  ],
+  "passed": true,
+  "completedAt": "2026-10-05T02:35:34.956Z"
+}

@@ -7,22 +7,26 @@
     <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
     <title>五目 · Gomoku</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=17" />
+    <link rel="stylesheet" href="./styles.css?v=18" />
   </head>
   <body>
     <div class="app-shell">
       <header class="topbar">
         <a class="brand" href="./" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
+        <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
+          <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
+          <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
+          <span class="recommendation-note" id="recommendationNote"></span>
+        </div>
         <div class="header-tools">
           <details class="record-menu" id="recordMenu">
-            <summary aria-label="棋谱菜单">棋谱 <span aria-hidden="true">⌄</span></summary>
+            <summary aria-label="棋谱菜单"><span>棋谱</span><span aria-hidden="true">⌄</span><span class="board-size">15 × 15</span></summary>
             <div class="record-options">
               <button type="button" id="importRecord">导入棋谱</button>
               <button type="button" id="exportJson">导出五目文件</button>
               <button type="button" id="exportSgf">导出 SGF</button>
             </div>
           </details>
-          <span class="board-size">15 × 15</span>
         </div>
       </header>
       <main class="game-layout">
@@ -35,11 +39,6 @@
           <div class="board-wrap"><div class="board-frame">
             <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
           </div></div>
-          <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
-            <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
-            <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
-            <span class="recommendation-note" id="recommendationNote"></span>
-          </div>
           <aside class="game-sidebar" aria-label="对局操作与分析">
             <div class="board-bottom">
               <div class="game-actions">
