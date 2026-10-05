@@ -7,7 +7,8 @@ const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.c
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
-CORE.push("game-modes.css?v=2", "renju.html", "opening.css", "opening.css?v=1", "opening-session.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js");
+CORE.push("game-modes.css?v=2", "renju.html", "opening.css", "opening.css?v=1", "opening-session.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",
+  "engine.js?v=22", "engine.worker.js?v=22", "engine-protocol.js?v=22", "engine-jobs.js?v=22", "recommendations.js?v=22");
 
 self.addEventListener("install", event => {
   event.waitUntil((async () => {

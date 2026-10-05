@@ -1,0 +1,111 @@
+{
+  "checks": [
+    "RIF manual roles, swap, partial proposals across reload, white selection advice and undo, perspective without restart",
+    "Taraguchi repeated swaps, ten arbitrary non-equivalent proposals, reload and selection reversal",
+    "Custom seed retains follow workflow; forbidden actual move confirms White win and undoes without false winning line",
+    "Real Renju AI places all first three, offers two fifths, and undo restores a human opening choice",
+    "Simple mode long-press recommendation keeps three visible controls and never changes roles or commits advice",
+    "All controls fit one screen on eight phone, tablet, desktop and landscape viewports; embedded manual opens"
+  ],
+  "layouts": [
+    {
+      "width": 360,
+      "height": 740,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        352,
+        352
+      ],
+      "footer": 736
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        382,
+        382
+      ],
+      "footer": 840
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        422,
+        422
+      ],
+      "footer": 928
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        737.28125,
+        737.28125
+      ],
+      "footer": 1024
+    },
+    {
+      "width": 820,
+      "height": 1180,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        787.21875,
+        787.21875
+      ],
+      "footer": 1180
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        644,
+        644
+      ],
+      "footer": 768
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        776,
+        776
+      ],
+      "footer": 900
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "scrollX": false,
+      "scrollY": false,
+      "board": [
+        296,
+        296
+      ],
+      "footer": 390
+    }
+  ],
+  "errors": [],
+  "unitTests": {
+    "passed": 70,
+    "failed": 0
+  },
+  "modelIntegrity": "All chunks and reconstructed Black/White models verified with SHA-256",
+  "nativeForbiddenComparison": {
+    "positions": 49,
+    "emptyPoints": 10261,
+    "differences": 0
+  }
+}

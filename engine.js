@@ -26,7 +26,7 @@ export class GomokuEngine {
     this.onState = onState;
     this.onStats = onStats;
     this.onPonderSlice = onPonderSlice;
-    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js", import.meta.url)));
+    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js?v=22", import.meta.url)));
     this.capabilities = capabilities ?? detectCapabilities();
     this.variant = variant ?? selectVariant(this.capabilities);
     this.threads = this.variant.includes("multi") ? Math.max(1, Math.min(4, threads ?? this.capabilities.threads)) : 1;

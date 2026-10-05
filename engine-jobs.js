@@ -1,4 +1,4 @@
-import { RecommendationCollector } from "./recommendations.js";
+import { RecommendationCollector } from "./recommendations.js?v=22";
 import { AssessmentCollector } from "./engine-assessment.js";
 
 // Cooperative background analysis for both single-thread and pthread WASM.

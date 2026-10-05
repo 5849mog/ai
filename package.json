@@ -17,6 +17,7 @@
     "test:analysis": "node scripts/analysis-qa.js",
     "test:upgrade": "node scripts/upgrade-qa.js",
     "test:modes": "node scripts/game-modes-qa.js",
+    "test:renju": "node scripts/renju-qa.js",
     "benchmark:ponder": "node scripts/ponder-benchmark.js",
     "report:ponder": "node scripts/ponder-report.js",
     "benchmark": "node scripts/benchmark.js",

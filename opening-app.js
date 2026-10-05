@@ -3,7 +3,7 @@ import { moveVerdict } from "./renju-rules.js";
 import { adviseOpening } from "./opening-advisor.js";
 import { createOpeningDialogs } from "./opening-guide.js";
 import { createBoardView } from "./board-view.js";
-import { GomokuEngine } from "./engine.js";
+import { GomokuEngine } from "./engine.js?v=22";
 import { PositionAnalysis } from "./position-analysis.js";
 import { createAnalysisView } from "./analysis-view.js";
 import { describeSearch } from "./search-info.js";
@@ -14,6 +14,7 @@ const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 let session = new OpeningSession(), perspective = 1, state = "idle", serial = 0, requestId = 0;
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false;
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
+let roleHeld = false, roleTimer;
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
 function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
@@ -61,6 +62,7 @@ function renderAnalysis() {
   const info = describeSearch(stats, statsColor, perspective);
   for (const [id, value] of [["searchDepth", info.depth], ["searchScore", info.score], ["searchNodes", info.nodes], ["searchSpeed", info.speed]]) $("#" + id).textContent = value;
   $("#analysisState").textContent = busy ? "AI 分析中" : pondering ? "AI 后台分析中" : "AI 搜索信息";
+  $(".analysis-heading span:last-child").textContent = `正值利于${name}棋`;
 }
 function node(name, attributes) {
   const element = document.createElementNS("http://www.w3.org/2000/svg", name); for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value); return element;
@@ -79,7 +81,7 @@ function decorate() {
   }
 }
 function render() {
-  view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color,
+  view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) }); decorate();
   const text = busy ? session.workflow === "duel" && session.actor === 1 ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text; $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
@@ -100,9 +102,9 @@ function render() {
   svg.setAttribute("aria-disabled", String(!interactive())); Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
   display?.render({ playerColor: session.playerColor, winner: session.winner, state, text, busy });
   if (display?.simple) {
-    $("#simpleColorLabel").textContent = session.decision ? "开局选择" : session.workflow === "follow" ? `看${colorName(perspective)}棋` : `你执${colorName(session.playerColor)}`;
+    $("#simpleColorLabel").textContent = session.decision ? advice?.choice ? `建议${advice.choice === "swap" ? "换色" : "保持"}` : "开局选择" : session.workflow === "follow" ? `看${colorName(perspective)}棋` : `你执${colorName(session.playerColor)}`;
     $("#simpleColor small").textContent = session.decision ? "点击决定" : session.workflow === "follow" ? "点击换视角" : "点击换边新局";
-    $("#simpleColor").setAttribute("aria-label", session.decision ? session.description() + "，点击选择" : session.workflow === "follow" ? "切换分析视角，不更换实际执色" : "切换初始角色并重开");
+    $("#simpleColor").setAttribute("aria-label", (session.decision ? session.description() + "，点击选择" : session.workflow === "follow" ? "切换分析视角，不更换实际执色" : "切换初始角色并重开") + "；长按获取推荐");
   }
   renderAnalysis();
 }
@@ -199,6 +201,7 @@ setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: sessio
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); }
 });
 display = setupDisplayModes({ onNewGame: () => newGame(), onChange: () => { pending = hover = -1; render(); }, onToggleColor: () => {
+  if (roleHeld) { roleHeld = false; return; }
   if (session.decision) {
     onModal(true); const dialog = document.createElement("dialog"); dialog.className = "opening-modal";
     dialog.innerHTML = `<h2>开局选择</h2><p class="mode-description">${session.description()}</p><div class="dialog-actions"><button type="button" data-choice="keep">不交换</button><button type="button" data-choice="swap">交换黑白</button>${session.stage === "route4" ? '<button type="button" data-choice="ten">提出十打</button>' : ""}</div>`;
@@ -207,6 +210,16 @@ display = setupDisplayModes({ onNewGame: () => newGame(), onChange: () => { pend
   } else if (session.workflow === "follow") { cancel(); perspective = 3 - perspective; positionChanged(true); render(); void prepare(); }
   else newGame({ ...session.options, seed: null, initialBlackSeat: 1 - session.options.initialBlackSeat });
 } });
+$("#simpleColor").addEventListener("contextmenu", event => event.preventDefault());
+$("#simpleColor").addEventListener("pointerdown", event => {
+  if (event.button !== 0) return;
+  clearTimeout(roleTimer); roleHeld = false;
+  roleTimer = setTimeout(() => {
+    if (manualTurn() || session.actor === 0 && busy) { roleHeld = true; void recommend(); }
+  }, 650);
+});
+for (const event of ["pointerup", "pointercancel", "pointerleave"]) $("#simpleColor").addEventListener(event, () => clearTimeout(roleTimer));
+$("#simpleColor").addEventListener("keydown", event => { if (event.key.toLowerCase() === "r") { event.preventDefault(); if (manualTurn()) void recommend(); } });
 function download(data, name, type) { const url = URL.createObjectURL(new Blob([data], { type })), link = document.createElement("a"); link.href = url; link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); $("#recordMenu").open = false; }
 $("#exportJson").onclick = () => download(JSON.stringify(session.record(), null, 2), "wumu-opening.json", "application/json");
 $("#exportSgf").onclick = () => {

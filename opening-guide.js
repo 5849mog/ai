@@ -29,7 +29,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     <p>同一手已在某方向形成恰好五连，黑棋获胜优先。跟随方式可录入外部实际禁手，提示原因并确认后判白胜；AI 推荐和自动落子避开禁手。</p>
     <h3>推荐背后与边界</h3><p>落子使用 Rapfi 连珠专用黑白神经网络与搜索。五手两打前三子使用平衡搜索；换色建议比较两种执色；候选提案按黑棋搜索排序并去除对称等价；选案逐点从白棋角度比较。推荐总搜索预算 1 秒，加载、模型计算和调度可能另需时间。</p>
     <p>引擎原生支持连珠落子与禁手，开局流程由本页管理，没有专用的交换与十打博弈搜索。AI 对弈在第四子后使用普通路线；跟随棋局可录入十打并分析候选。胜率是固定执色后的局面估计，尚可换色时不显示；它不是对特定对手的实战胜率，不能承诺接管后必胜。</p>
-    <p>自定义局面无法倒推之前是否曾下禁手。SGF 保留实子与规则说明，完整换色、候选过程请导出五目 JSON，在本页导入；原无禁手棋谱仍在原对战页使用。简洁模式可录入棋子与候选，换色阶段点下方角色按钮选择；长按「新局」返回完整界面。</p>
+    <p>自定义局面无法倒推之前是否曾下禁手。SGF 保留实子与规则说明，完整换色、候选过程请导出五目 JSON，在本页导入；原无禁手棋谱仍在原对战页使用。简洁模式可录入棋子与候选，长按角色按钮获取推荐（键盘聚焦后按 R）；换色阶段短按角色按钮选择；长按「新局」返回完整界面。</p>
     <p>官方规则：<a href="https://www.renju.net/rifrules/" target="_blank" rel="noopener">RIF 连珠规则</a> · <a href="https://www.renju.net/starting/" target="_blank" rel="noopener">开局索引</a> · <a href="https://www.renju.net/rule/1/" target="_blank" rel="noopener">塔拉山口-10</a></p></dialog>`;
   document.body.append(mount);
   const modes = document.querySelector("#modeDialog"), guide = document.querySelector("#guideDialog");
