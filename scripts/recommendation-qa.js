@@ -9,7 +9,7 @@ const origin = `http://127.0.0.1:${server.address().port}`;
 const browsers = [];
 const runtime = await readFile("tests/fixtures/rapfi-protocol-double.js", "utf8");
 const report = { startedAt: new Date().toISOString(), device: `${os.platform()} ${os.arch()}; ${os.cpus()[0]?.model}`,
-  engine: "Rapfi 250615 / mix9svq freestyle", recommendationBudgetMs: 2000, checks: [] };
+  engine: "Rapfi 250615 / mix9svq freestyle", recommendationBudgetMs: 1000, checks: [] };
 const ready = page => page.waitForFunction(() => document.querySelector("#stateText")?.textContent === "轮到你落子", undefined, { timeout: 30_000 });
 const markers = page => page.locator("[data-recommendation]").count();
 const stones = page => page.locator("[data-stone]").count();
@@ -46,14 +46,14 @@ try {
           workerFactory: () => { workers++; return new Worker(new URL("../engine.worker.js", location.href)); } });
         try {
           const blank = new Uint8Array(225);
-          const opening = await engine.search({ board: blank, sideToMove: 1, timeMs: 2000, requestId: 1, multiPV: 2 });
+          const opening = await engine.search({ board: blank, sideToMove: 1, timeMs: 1000, requestId: 1, multiPV: 2 });
           const board = new Uint8Array(225); board[112] = 1;
           const original = [...board];
-          const white = await engine.search({ board, sideToMove: 2, timeMs: 2000, requestId: 2, multiPV: 2 });
+          const white = await engine.search({ board, sideToMove: 2, timeMs: 1000, requestId: 2, multiPV: 2 });
           const whiteUnchanged = JSON.stringify([...board]) === JSON.stringify(original);
           board[white.index] = 2;
           const beforeBlack = [...board];
-          const black = await engine.search({ board, sideToMove: 1, timeMs: 2000, requestId: 3, multiPV: 2 });
+          const black = await engine.search({ board, sideToMove: 1, timeMs: 1000, requestId: 3, multiPV: 2 });
           const blackUnchanged = JSON.stringify([...board]) === JSON.stringify(beforeBlack);
           const normal = await engine.search({ board, sideToMove: 1, timeMs: 200, requestId: 4 });
           return { opening, white, black, normal, whiteUnchanged, blackUnchanged, workers, board: beforeBlack };

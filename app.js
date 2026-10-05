@@ -21,7 +21,7 @@ const recommendButton = document.querySelector("#recommendButton");
 const recommendationLegend = document.querySelector("#recommendationLegend");
 const secondRecommendation = document.querySelector("#secondRecommendation");
 const recommendationNote = document.querySelector("#recommendationNote");
-const RECOMMENDATION_MS = 2000;
+const RECOMMENDATION_MS = 1000;
 const board = new Uint8Array(CELL_COUNT);
 const rounds = [];
 const moves = [];
@@ -137,7 +137,7 @@ function render() {
   ponderToggle.disabled = recommending;
   recommendButton.disabled = !recommending && !recommendations.length && !interactive;
   recommendButton.setAttribute("aria-pressed", String(recommending || recommendations.length > 0));
-  recommendButton.title = recommending ? "取消推荐" : recommendations.length ? "收起推荐（Esc）" : "标出首选和次选落点（最多 2 秒）";
+  recommendButton.title = recommending ? "取消推荐" : recommendations.length ? "收起推荐（Esc）" : `标出首选和次选落点（最多 ${RECOMMENDATION_MS / 1000} 秒）`;
   recommendationLegend.hidden = recommendations.length === 0;
   secondRecommendation.hidden = recommendations.length < 2;
   recommendationNote.textContent = recommendations.length === 1
