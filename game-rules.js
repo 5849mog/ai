@@ -50,14 +50,15 @@ export function winningLines(board, lastMove) {
   return lines;
 }
 
-export function validatePosition(board, sideToMove) {
+export function validatePosition(board, sideToMove, { allowSetup = false } = {}) {
   if (!board || board.length !== CELL_COUNT || Array.from(board).some(c => ![0, BLACK, WHITE].includes(c))) {
     throw new Error("棋盘必须包含 225 个有效交点");
   }
   if (![BLACK, WHITE].includes(sideToMove)) throw new Error("行棋方无效");
+  if (typeof allowSetup !== "boolean") throw new Error("摆局标识无效");
   const black = Array.from(board).filter(c => c === BLACK).length;
   const white = Array.from(board).filter(c => c === WHITE).length;
-  if (!(sideToMove === BLACK ? black === white : black === white + 1)) {
+  if (!allowSetup && !(sideToMove === BLACK ? black === white : black === white + 1)) {
     throw new Error("棋子数量与行棋方不一致");
   }
   if (black + white === CELL_COUNT) throw new Error("棋盘已满");

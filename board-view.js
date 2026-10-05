@@ -35,9 +35,9 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state, idPrefix) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [] } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
-  const lines = winningLines(board, lastMove);
+  const lines = editable ? [] : winningLines(board, lastMove);
   let svg = "";
   svg += "<defs>";
   svg += '<linearGradient id="woodSurface" x1=".1" y1="0" x2=".86" y2="1"><stop offset="0" stop-color="#f0e1bb"/><stop offset=".48" stop-color="#e8d6ad"/><stop offset="1" stop-color="#deca9f"/></linearGradient>';
@@ -77,13 +77,13 @@ function renderBoard(boardSvg, state, idPrefix) {
       svg += '<image class="stone-texture ' + stoneTone + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
         '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none"/>';
       if (index === lastMove) svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3"/>';
-      continue;
+      if (!editable) continue;
     }
 
-    if (hoverIndex === index && pendingIndex !== index && canInteract) {
+    if (!board[index] && hoverIndex === index && pendingIndex !== index && canInteract) {
       svg += '<circle class="hover-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
     }
-    if (pendingIndex === index && canInteract) {
+    if (!board[index] && pendingIndex === index && canInteract) {
       svg += '<circle class="pending-ring" cx="' + p.x + '" cy="' + p.y + '" r="16"/>';
       svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
     }
@@ -95,7 +95,7 @@ function renderBoard(boardSvg, state, idPrefix) {
     }
     if (canInteract) {
       svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
-        '" role="button" aria-label="选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子') + '" tabindex="-1"/>';
+        '" role="button" aria-label="' + (editable ? '编辑 ' + coordinate(index) : '选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子')) + '" tabindex="-1"/>';
     }
   }
   for (const index of new Set(lines.flat())) {

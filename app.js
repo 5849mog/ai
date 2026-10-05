@@ -6,6 +6,8 @@ import { createRecord, replayRecord, loadGame, saveGame } from "./game-record.js
 import { setupRecordUi } from "./record-ui.js";
 import { PositionAnalysis } from "./position-analysis.js";
 import { createAnalysisView } from "./analysis-view.js";
+import { setupCustomUi } from "./setup-ui.js";
+import { setupDisplayModes } from "./display-modes.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -51,6 +53,8 @@ let modalOpen = false;
 let noticeTimer;
 let saveWarningShown = false;
 let analysisSaveTimer;
+let setupPosition = null;
+let displayModes;
 const positionAnalysis = new PositionAnalysis();
 const analysisView = createAnalysisView(document.querySelector("#positionAnalysis"));
 
@@ -68,12 +72,15 @@ function notify(message, error = false) {
 
 function persistGame() {
   let saved = false;
-  try { saved = saveGame(localStorage, createRecord(moves, playerColor)); } catch { /* blocked storage */ }
+  try { saved = saveGame(localStorage, getRecord()); } catch { /* blocked storage */ }
   if (!saved && !saveWarningShown) { notify("此局暂未保存，关闭页面可能丢失；仍可导出棋谱", true); saveWarningShown = true; }
   if (saved) saveWarningShown = false;
   persistAnalysis();
   return saved;
 }
+
+function getRecord() { return createRecord(moves, playerColor, setupPosition); }
+function positionKey() { return setupPosition ? `${setupPosition.sideToMove}:${setupPosition.board.join("")}` : "standard"; }
 
 try {
   const savedTime = localStorage.getItem("gomoku-thinking-ms");
@@ -91,11 +98,12 @@ try {
     board.set(game.board); moves.push(...game.record.moves); rounds.push(...game.rounds);
     playerColor = game.record.playerColor; colorSelect.value = String(playerColor);
     currentColor = game.currentColor; lastMove = game.lastMove; winner = game.winner;
+    setupPosition = game.record.setup ?? null;
     notify("已恢复上次对局");
   } else if (saved.error) notify(saved.error, true);
 } catch { /* blocked storage: current game still works */ }
 
-positionAnalysis.setPosition(moves, playerColor, { reset: true });
+positionAnalysis.setPosition(moves, playerColor, { reset: true, positionKey: positionKey() });
 try { positionAnalysis.load(localStorage); } catch { /* optional derived data */ }
 positionAnalysis.finish(winner);
 
@@ -145,6 +153,7 @@ function render() {
     : "";
   boardSvg.setAttribute("aria-disabled", String(!interactive));
   boardSvg.setAttribute("aria-label", `15 乘 15 五子棋棋盘，${text}。方向键选点，回车落子。`);
+  displayModes?.render({ playerColor, winner, state, text, busy: thinking || state === "loading" || state === "idle" });
   updateClock();
   updateSearchInfo();
 }
@@ -153,6 +162,7 @@ function updateClock() {
   searchClock.textContent = thinking
     ? `${((performance.now() - searchStarted) / 1000).toFixed(1)} 秒`
     : lastResult ? `上一步 ${(lastResult.elapsed / 1000).toFixed(1)} 秒`
+    : setupPosition ? `你执${playerColor === BLACK ? "黑" : "白"} · 自定义局面 · 无禁手`
     : `你执${playerColor === BLACK ? "黑 · 先手" : "白 · AI 先手"} · 无禁手`;
 }
 
@@ -160,6 +170,7 @@ function stopClock() { clearInterval(clockTimer); clockTimer = null; }
 
 function updateSearchInfo() {
   analysisView.render(positionAnalysis, winner);
+  if (setupPosition) document.querySelector("#positionContext").textContent = `续下第 ${moves.length} 手`;
   const info = describeSearch(liveStats, statsSide, 3 - playerColor);
   document.querySelector("#searchDepth").textContent = info.depth;
   document.querySelector("#searchScore").textContent = info.score;
@@ -175,13 +186,15 @@ async function syncPonder() {
   if (engine.pondering) return;
   const id = ++requestId;
   positionAnalysis.begin(id, playerColor);
-  try { await engine.ponder({ board, sideToMove: playerColor, requestId: id }); }
+  try { await engine.ponder({ board, sideToMove: playerColor, requestId: id, allowSetup: Boolean(setupPosition) }); }
   catch (error) { if (error.name !== "AbortError") render(); }
 }
 
 async function prepareEngine() {
+  if (modalOpen) return;
   try {
     await engine.init();
+    if (modalOpen) return;
     if (!winner && currentColor !== playerColor && !thinking) await startSearch();
     else if (!thinking) await syncPonder();
   } catch (error) { if (error.name !== "AbortError") render(); }
@@ -200,7 +213,7 @@ async function recommend() {
   statsPhase = "search";
   render();
   try {
-    const result = await engine.search({ board, sideToMove: playerColor, timeMs: RECOMMENDATION_MS, requestId: id, multiPV: 2 });
+    const result = await engine.search({ board, sideToMove: playerColor, timeMs: RECOMMENDATION_MS, requestId: id, multiPV: 2, allowSetup: Boolean(setupPosition) });
     if (id !== requestId || !recommending) return;
     recommendations = result.recommendations;
     liveStats = result;
@@ -228,7 +241,7 @@ function hideRecommendations() {
 }
 
 async function startSearch() {
-  if (thinking || winner || currentColor === playerColor) return;
+  if (thinking || winner || modalOpen || currentColor === playerColor) return;
   engine.stopPonder();
   const id = ++requestId;
   positionAnalysis.begin(id, 3 - playerColor);
@@ -243,7 +256,7 @@ async function startSearch() {
   clockTimer = setInterval(updateClock, 100);
   render();
   try {
-    const result = await engine.search({ board, sideToMove: 3 - playerColor, timeMs: Number(timeSelect.value), requestId: id });
+    const result = await engine.search({ board, sideToMove: 3 - playerColor, timeMs: Number(timeSelect.value), requestId: id, allowSetup: Boolean(setupPosition) });
     if (id !== requestId || winner || currentColor === playerColor) return;
     if (!validIndex(result.index) || board[result.index]) throw new Error("无效落点");
     positionAnalysis.accept({ requestId: id, sideToMove: 3 - playerColor, stats: result });
@@ -324,7 +337,8 @@ function restart() {
   board.fill(0);
   rounds.length = 0;
   moves.length = 0;
-  positionAnalysis.setPosition(moves, playerColor, { reset: true });
+  setupPosition = null;
+  positionAnalysis.setPosition(moves, playerColor, { reset: true, positionKey: positionKey() });
   currentColor = BLACK;
   winner = 0;
   lastMove = -1;
@@ -371,11 +385,12 @@ boardSvg.addEventListener("keydown", event => {
 timeSelect.addEventListener("change", () => {
   try { localStorage.setItem("gomoku-thinking-ms", timeSelect.value); } catch { /* optional preference */ }
 });
-colorSelect.addEventListener("change", () => {
-  playerColor = Number(colorSelect.value);
-  try { localStorage.setItem("gomoku-player-color", colorSelect.value); } catch { /* optional preference */ }
+function changePlayerColor(color) {
+  playerColor = color; colorSelect.value = String(color);
+  try { localStorage.setItem("gomoku-player-color", String(color)); } catch { /* optional preference */ }
   restart();
-});
+}
+colorSelect.addEventListener("change", () => changePlayerColor(Number(colorSelect.value)));
 ponderToggle.addEventListener("change", () => {
   try { localStorage.setItem("gomoku-pondering", String(ponderToggle.checked)); } catch { /* optional preference */ }
   void syncPonder();
@@ -390,33 +405,43 @@ recommendButton.addEventListener("click", () => {
   else void recommend();
 });
 document.addEventListener("keydown", event => {
-  if (document.querySelector("#recordDialog").open) return;
+  if (document.querySelector("dialog[open]")) return;
   if (event.key === "Escape" && (recommending || recommendations.length)) {
     event.preventDefault();
     hideRecommendations();
   }
 });
 
-setupRecordUi({
-  getRecord: () => createRecord(moves, playerColor), notify,
-  onModalChange: open => {
-    modalOpen = open;
-    if (open) engine.stopPonder();
-    render();
-    if (!open) void syncPonder();
-  },
-  applyRecord: record => {
-    const game = replayRecord(record);
-    invalidateSearch();
-    board.set(game.board); moves.splice(0, moves.length, ...game.record.moves);
-    rounds.splice(0, rounds.length, ...game.rounds);
-    playerColor = game.record.playerColor; colorSelect.value = String(playerColor);
-    try { localStorage.setItem("gomoku-player-color", String(playerColor)); } catch { /* optional preference */ }
-    currentColor = game.currentColor; lastMove = game.lastMove; winner = game.winner;
-    positionAnalysis.setPosition(moves, playerColor, { reset: true });
-    positionAnalysis.finish(winner);
-    keyboardIndex = lastMove < 0 ? 112 : lastMove; lastResult = null;
-    const saved = persistGame(); render(); void prepareEngine(); return saved;
+function applyRecord(record) {
+  const game = replayRecord(record);
+  invalidateSearch();
+  board.set(game.board); moves.splice(0, moves.length, ...game.record.moves);
+  rounds.splice(0, rounds.length, ...game.rounds);
+  playerColor = game.record.playerColor; colorSelect.value = String(playerColor);
+  try { localStorage.setItem("gomoku-player-color", String(playerColor)); } catch { /* optional preference */ }
+  currentColor = game.currentColor; lastMove = game.lastMove; winner = game.winner;
+  setupPosition = game.record.setup ?? null;
+  positionAnalysis.setPosition(moves, playerColor, { reset: true, positionKey: positionKey() });
+  positionAnalysis.finish(winner);
+  keyboardIndex = lastMove < 0 ? 112 : lastMove; lastResult = null;
+  const saved = persistGame(); render(); void prepareEngine(); return saved;
+}
+function onModalChange(open) {
+  modalOpen = open;
+  if (open) engine.stopPonder();
+  render();
+  if (!open) void prepareEngine();
+}
+setupRecordUi({ getRecord, notify, onModalChange, applyRecord });
+setupCustomUi({
+  getPosition: () => ({ board, currentColor, playerColor }), applyRecord, notify,
+  onModalChange: open => { if (open) invalidateSearch(); onModalChange(open); }
+});
+displayModes = setupDisplayModes({
+  onNewGame: restart, onToggleColor: () => changePlayerColor(3 - playerColor),
+  onChange: () => {
+    if (recommending || recommendations.length) hideRecommendations();
+    else { pendingIndex = hoverIndex = -1; render(); }
   }
 });
 

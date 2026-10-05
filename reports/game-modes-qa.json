@@ -1,0 +1,102 @@
+{
+  "engine": "real Rapfi WASM, header-free hosting",
+  "checks": [
+    {
+      "name": "draft replace, erase, undo, clear and cancel leave actual game untouched"
+    },
+    {
+      "name": "arbitrary black-to-move setup continues, recommends, undoes only new moves and reloads"
+    },
+    {
+      "name": "JSON and SGF retain setup and side; import restores them; terminal drafts cannot replace the game"
+    },
+    {
+      "name": "AI takes the explicitly chosen black turn and wins at the correct color"
+    },
+    {
+      "name": "AI takes the explicitly chosen white turn and wins at the correct color"
+    },
+    {
+      "name": "human can begin as white with unequal counts; pondering, recommendation and full-round undo retain all seed stones"
+    },
+    {
+      "name": "opening editor cancels active AI search; cancel resumes the correct turn once without stale moves"
+    },
+    {
+      "name": "simple mode shows exactly two buttons, toggles roles directly, restores on reload, and exits without changing game"
+    },
+    {
+      "name": "v21 caches mode UI; custom setup and simple-mode resume work offline",
+      "cache": "gomoku-rapfi:/ai/:250615-v21",
+      "ready": true
+    }
+  ],
+  "layouts": [
+    {
+      "width": 320,
+      "height": 568,
+      "normalBoard": 187.625,
+      "simpleBoard": 316,
+      "editorBoard": 211.609375,
+      "oneScreen": true
+    },
+    {
+      "width": 390,
+      "height": 700,
+      "normalBoard": 319.625,
+      "simpleBoard": 386,
+      "editorBoard": 343.609375,
+      "oneScreen": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "normalBoard": 382,
+      "simpleBoard": 386,
+      "editorBoard": 354,
+      "oneScreen": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "normalBoard": 281,
+      "simpleBoard": 299,
+      "editorBoard": 307,
+      "oneScreen": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "normalBoard": 737.28125,
+      "simpleBoard": 764,
+      "editorBoard": 663.609375,
+      "oneScreen": true
+    },
+    {
+      "width": 820,
+      "height": 1180,
+      "normalBoard": 787.21875,
+      "simpleBoard": 816,
+      "editorBoard": 780,
+      "oneScreen": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "normalBoard": 644,
+      "simpleBoard": 692,
+      "editorBoard": 646,
+      "oneScreen": true
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "normalBoard": 776,
+      "simpleBoard": 824,
+      "editorBoard": 779.609375,
+      "oneScreen": true
+    }
+  ],
+  "errors": [],
+  "browser": "153.0.8010.0"
+}

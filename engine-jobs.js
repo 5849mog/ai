@@ -16,7 +16,7 @@ export class EngineJobs {
   }
 
   search(job) {
-    this.searchCommands(job.board, job.sideToMove, job.timeMs, job.multiPV);
+    this.searchCommands(job.board, job.sideToMove, job.timeMs, job.multiPV, job.allowSetup);
     if (this.queuedSearch || this.active?.phase === "search") throw new Error("已有搜索正在进行");
     this.background = null;
     this.cancelNext();
@@ -26,7 +26,7 @@ export class EngineJobs {
   }
 
   ponder(job) {
-    this.searchCommands(job.board, job.sideToMove, this.sliceMs);
+    this.searchCommands(job.board, job.sideToMove, this.sliceMs, 1, job.allowSetup);
     if (this.queuedSearch || this.active?.phase === "search") throw new Error("不能在落子搜索时启动后台思考");
     this.background = job;
     this.cancelNext();
@@ -66,7 +66,7 @@ export class EngineJobs {
       const timeMs = phase === "ponder" ? this.sliceMs : job.timeMs;
       // Native automatic pondering must remain disabled: single-thread builds
       // run it synchronously and cannot receive STOP while it is running.
-      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, phase === "search" ? job.multiPV : 1)) this.send(command);
+      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, phase === "search" ? job.multiPV : 1, job.allowSetup)) this.send(command);
     }, this.queuedSearch ? 0 : this.pauseMs);
   }
 

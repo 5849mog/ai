@@ -7,7 +7,8 @@
     <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
     <title>五目 · Gomoku</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=18" />
+    <link rel="stylesheet" href="./styles.css?v=21" />
+    <link rel="stylesheet" href="./game-modes.css?v=1" />
   </head>
   <body>
     <div class="app-shell">
@@ -20,8 +21,11 @@
         </div>
         <div class="header-tools">
           <details class="record-menu" id="recordMenu">
-            <summary aria-label="棋谱菜单"><span>棋谱</span><span aria-hidden="true">⌄</span><span class="board-size">15 × 15</span></summary>
+            <summary aria-label="棋谱与模式菜单"><span>菜单</span><span aria-hidden="true">⌄</span><span class="board-size">15 × 15</span></summary>
             <div class="record-options">
+              <button type="button" id="openSetup">自定义摆局</button>
+              <button type="button" id="enterSimpleMode">简洁模式</button>
+              <hr />
               <button type="button" id="importRecord">导入棋谱</button>
               <button type="button" id="exportJson">导出五目文件</button>
               <button type="button" id="exportSgf">导出 SGF</button>
@@ -82,6 +86,10 @@
           </aside>
         </section>
       </main>
+      <div class="simple-controls" id="simpleControls" hidden>
+        <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局；长按返回完整界面"><span id="simpleRestartLabel">新局</span><small>长按返回</small></button>
+        <button class="icon-button" id="simpleColor" type="button" aria-pressed="true" title="切换执色会开始新局"><i class="simple-black" aria-hidden="true"></i><span id="simpleColorLabel">你执黑</span><small>点击换边</small></button>
+      </div>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
     </div>
     <input type="file" id="recordFile" accept=".json,.sgf,application/json,application/x-go-sgf" hidden />
@@ -95,6 +103,20 @@
       <div class="dialog-actions"><button type="button" id="cancelImport">取消</button><button type="button" id="confirmImport" class="confirm-import">导入继续</button></div>
     </dialog>
     <div class="game-notice" id="gameNotice" role="status" hidden></div>
+    <span class="visually-hidden" id="simpleLive" role="status" aria-live="polite" aria-atomic="true"></span>
+    <dialog class="setup-dialog" id="setupDialog" aria-labelledby="setupTitle">
+      <header class="setup-header"><div><h2 id="setupTitle">自定义摆局</h2><p>点棋盘摆子，自由安排黑白。</p></div><button type="button" id="cancelSetup" aria-label="取消摆局，返回原对局">返回</button></header>
+      <div class="setup-workspace">
+        <div class="setup-board-wrap"><div class="board-frame"><svg class="board-svg" id="setupBoard" viewBox="20 20 580 580" tabindex="0" role="group" aria-label="自定义摆局棋盘"></svg></div></div>
+        <div class="setup-panel">
+          <div class="setup-counts"><span><i class="setup-dot black" aria-hidden="true"></i>黑 <strong id="setupBlackCount">0</strong></span><span><i class="setup-dot white" aria-hidden="true"></i>白 <strong id="setupWhiteCount">0</strong></span><button type="button" id="clearSetup">清空</button></div>
+          <div class="setup-tools" role="group" aria-label="摆局工具"><button type="button" data-setup-tool="1" aria-pressed="true"><i class="setup-dot black" aria-hidden="true"></i>黑棋</button><button type="button" data-setup-tool="2" aria-pressed="false"><i class="setup-dot white" aria-hidden="true"></i>白棋</button><button type="button" data-setup-tool="0" aria-pressed="false">擦除</button><button type="button" id="undoSetup" disabled>撤回</button></div>
+          <div class="setup-turn"><label for="setupSide">下一手棋色<select id="setupSide"><option value="1">黑棋</option><option value="2">白棋</option></select></label><label for="setupActor">这一手谁走<select id="setupActor"><option value="player">我来走</option><option value="ai">AI 来走</option></select></label></div>
+          <p id="setupMessage" class="setup-message" role="status">开始后将替换当前对局；摆好的棋子会作为起始局面保留。</p>
+          <button class="icon-button icon-button-primary" type="button" id="startSetup">开始对弈 <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </dialog>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

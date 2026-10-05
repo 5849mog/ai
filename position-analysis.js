@@ -8,16 +8,16 @@ const validPoint = point => point && Number.isInteger(point.ply) && point.ply >=
 
 export class PositionAnalysis {
   constructor(moves = [], playerColor = 1) {
-    this.moves = [...moves]; this.playerColor = playerColor; this.points = new Map(); this.job = null;
+    this.moves = [...moves]; this.playerColor = playerColor; this.positionKey = "standard"; this.points = new Map(); this.job = null;
   }
-  setPosition(moves, playerColor, { reset = false } = {}) {
+  setPosition(moves, playerColor, { reset = false, positionKey = this.positionKey } = {}) {
     let common = 0;
-    if (!reset && playerColor === this.playerColor) {
+    if (!reset && playerColor === this.playerColor && positionKey === this.positionKey) {
       while (common < Math.min(moves.length, this.moves.length) && moves[common] === this.moves[common]) common++;
     }
-    if (reset || playerColor !== this.playerColor) this.points.clear();
+    if (reset || playerColor !== this.playerColor || positionKey !== this.positionKey) this.points.clear();
     else for (const ply of this.points.keys()) if (ply > common) this.points.delete(ply);
-    this.moves = [...moves]; this.playerColor = playerColor; this.job = null;
+    this.moves = [...moves]; this.playerColor = playerColor; this.positionKey = positionKey; this.job = null;
   }
   begin(requestId, sideToMove) {
     this.job = { requestId, sideToMove, moves: [...this.moves] };
@@ -61,13 +61,13 @@ export class PositionAnalysis {
   get current() { return this.points.get(this.moves.length) ?? null; }
   get history() { return [...this.points.values()].sort((a, b) => a.ply - b.ply); }
   save(storage) {
-    try { storage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, playerColor: this.playerColor, moves: this.moves, points: this.history })); return true; }
+    try { storage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, playerColor: this.playerColor, positionKey: this.positionKey, moves: this.moves, points: this.history })); return true; }
     catch { return false; }
   }
   load(storage) {
     try {
       const data = JSON.parse(storage.getItem(STORAGE_KEY));
-      if (data?.version !== 1 || data.playerColor !== this.playerColor || !Array.isArray(data.moves) ||
+      if (data?.version !== 1 || data.playerColor !== this.playerColor || (data.positionKey ?? "standard") !== this.positionKey || !Array.isArray(data.moves) ||
           !sameMoves(data.moves, this.moves) || !Array.isArray(data.points) || data.points.length > 226 ||
           !data.points.every(point => validPoint(point) && point.ply <= this.moves.length) ||
           new Set(data.points.map(point => point.ply)).size !== data.points.length) return false;

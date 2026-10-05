@@ -2,10 +2,33 @@ import { SIZE, BLACK, WHITE, validatePosition, validIndex } from "./game-rules.j
 
 // BOARD's 1/2 mean own/opponent, not black/white. Always start with black
 // and alternate to preserve the NNUE evaluator's actual color perspective.
-export function boardCommand(board, sideToMove) {
-  validatePosition(board, sideToMove);
+export function boardCommand(board, sideToMove, allowSetup = false) {
+  validatePosition(board, sideToMove, { allowSetup });
   const stones = { [BLACK]: [], [WHITE]: [] };
   board.forEach((color, index) => { if (color) stones[color].push(index); });
+  if (allowSetup) {
+    // Rapfi treats the first move, including a pass, as actual BLACK. Its
+    // documented BOARD loader supports nonconsecutive passes. Use them only
+    // for synchronization: preserve arbitrary setup colors and the chosen
+    // next side without inventing stones or application-history moves.
+    const lines = ["BOARD"];
+    let next = BLACK;
+    const add = (index, color) => {
+      lines.push(`${index < 0 ? -1 : index % SIZE},${index < 0 ? -1 : Math.floor(index / SIZE)},${color === sideToMove ? 1 : 2}`);
+      next = 3 - color;
+    };
+    for (let turn = 0; turn < Math.max(stones[BLACK].length, stones[WHITE].length); turn++) {
+      for (const color of [BLACK, WHITE]) {
+        const index = stones[color][turn];
+        if (index === undefined) continue;
+        if (next !== color) add(-1, next);
+        add(index, color);
+      }
+    }
+    if (next !== sideToMove) add(-1, next);
+    lines.push("DONE");
+    return lines.join("\n");
+  }
   if (!stones[BLACK].length) return "BOARD\nDONE";
   const lines = ["BOARD"];
   for (let turn = 0; turn < stones[BLACK].length; turn += 1) {
@@ -19,10 +42,10 @@ export function boardCommand(board, sideToMove) {
   return lines.join("\n");
 }
 
-export function searchCommands(board, sideToMove, timeMs, multiPV = 1) {
+export function searchCommands(board, sideToMove, timeMs, multiPV = 1, allowSetup = false) {
   if (!Number.isInteger(timeMs) || timeMs < 1 || timeMs > 30_000) throw new Error("思考时间无效");
   if (![1, 2].includes(multiPV)) throw new Error("推荐数量无效");
-  const position = boardCommand(board, sideToMove);
+  const position = boardCommand(board, sideToMove, allowSetup);
   return ["INFO timeout_match 0", `INFO timeout_turn ${timeMs}`, "INFO time_left 2147483647",
     ...(multiPV === 2 ? [position.replace(/^BOARD/, "YXBOARD"), "YXNBEST 2"] : [position])];
 }

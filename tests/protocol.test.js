@@ -42,3 +42,25 @@ test("mate and numeric evaluations clear each other's stale state", () => {
   stats = { ...stats, ...parseOutput("INFO EVAL -140").stats };
   assert.equal(stats.mate, null); assert.equal(stats.evaluation, -140);
 });
+
+test("arbitrary setups sync every actual color and chosen next side without consecutive passes or invented stones", () => {
+  for (const [blacks, whites] of [[0, 0], [0, 6], [9, 0], [9, 5], [5, 9], [7, 7]]) for (const side of [1, 2]) {
+    const board = Array(225).fill(0);
+    for (let i = 0; i < blacks; i++) board[i * 2] = 1;
+    for (let i = 0; i < whites; i++) board[195 + i * 2] = 2;
+    const before = [...board], decoded = Array(225).fill(0);
+    let color = 1, wasPass = false;
+    for (const line of boardCommand(board, side, true).split("\n").slice(1, -1)) {
+      const [x, y, owner] = line.split(",").map(Number);
+      assert.equal(owner, color === side ? 1 : 2);
+      const pass = x === -1 && y === -1;
+      assert.equal(pass && wasPass, false);
+      if (!pass) { const index = y * 15 + x; assert.equal(decoded[index], 0); decoded[index] = color; }
+      wasPass = pass; color = 3 - color;
+    }
+    assert.equal(color, side); assert.deepEqual(decoded, board); assert.deepEqual(board, before);
+    assert.equal(searchCommands(board, side, 1000, 2, true).at(-1), "YXNBEST 2");
+  }
+  const board = Array(225).fill(0); board[112] = 2;
+  assert.throws(() => boardCommand(board, 1), /不一致/);
+});
