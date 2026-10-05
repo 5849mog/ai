@@ -214,6 +214,30 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .game-settings { padding: 0 0 8px; }
   .engine-analysis { padding: 8px 0 0; }
 }
+/* A portrait tablet has enough width for a shallow two-column dock below the
+   board. Reserving less vertical space lets the square board grow naturally
+   while its container still enforces both available dimensions. */
+@media (min-width: 641px) and (max-width: 1199px) and (orientation: portrait) {
+  .game-sidebar { display: grid; grid-template-columns: minmax(216px, .85fr) minmax(0, 1.6fr); grid-template-rows: auto auto; column-gap: clamp(20px, 2.5vw, 32px); padding-top: 8px; border-top: 1px solid var(--line); align-items: start; }
+  .board-bottom { grid-column: 1; grid-row: 1; padding: 0 0 8px; }
+  .game-actions { max-width: none; gap: 8px; }
+  .game-actions .icon-button { padding: 0 6px; gap: 6px; }
+  .game-actions .icon-button span { font-size: 14px; }
+  .game-settings { grid-column: 1; grid-row: 2; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; }
+  .time-control select, .color-control select { font-size: 14px; }
+  .ponder-control { grid-column: 1 / -1; align-items: center; justify-content: space-between; padding: 0 10px; }
+  .ponder-control > span { position: static; }
+  .engine-analysis { grid-column: 2; grid-row: 1 / 3; min-width: 0; padding: 0; border-top: 0; --trend-height: 56px; }
+  .position-analysis { display: grid; grid-template-columns: minmax(0, 1fr) 132px; column-gap: 12px; }
+  .position-heading, .win-rate-labels, .win-rate-bar { grid-column: 1 / -1; }
+  .position-heading p { font-size: 14px; line-height: 1.5; }
+  .trend-heading { grid-column: 1; grid-row: 4; }
+  .trend-chart { grid-column: 1; grid-row: 5; }
+  .engine-metrics { grid-column: 2; grid-row: 4 / 6; margin: 6px 0 0; padding: 0 0 0 10px; border-top: 0; border-left: 1px solid var(--line); }
+  .analysis-values { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .analysis-values div { flex-direction: row; justify-content: space-between; gap: 4px; }
+  .analysis-values dt, .analysis-values dd { white-space: nowrap; }
+}
 @media (min-width: 1000px) and (min-height: 700px) and (orientation: landscape) {
   .app-shell { --side-width: clamp(288px, 22vw, 320px); --layout-gap: clamp(24px, 3vw, 64px); }
   .topbar { min-height: 56px; }
