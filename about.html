@@ -102,7 +102,7 @@
           <div class="recommendation-comparison reveal" aria-label="推荐与 AI 落子的搜索方式比较">
             <div class="shared-engine"><span class="shared-engine-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z" /></svg></span><div><span class="principle-kicker">同一套引擎 · 同一张棋盘</span><p>Rapfi <span>+ mix9svq</span></p></div></div>
             <div class="search-comparison">
-              <article class="search-role search-role-player"><p class="search-role-kicker">为你推荐</p><h3>最多 <strong>2</strong> 秒</h3><p>替你的执色搜索，<br />比较首选与次选。</p><div class="candidate-pair" aria-label="首选与次选标记示意"><span><i class="candidate-first" aria-hidden="true">1</i>首选</span><span><i class="candidate-second" aria-hidden="true">2</i>次选</span></div></article>
+              <article class="search-role search-role-player"><p class="search-role-kicker">为你推荐</p><h3>最多 <strong>1</strong> 秒</h3><p>替你的执色搜索，<br />比较首选与次选。</p><div class="candidate-pair" aria-label="首选与次选标记示意"><span><i class="candidate-first" aria-hidden="true">1</i>首选</span><span><i class="candidate-second" aria-hidden="true">2</i>次选</span></div></article>
               <article class="search-role search-role-ai"><p class="search-role-kicker">对手落子</p><h3><strong>1 / 5 / 10</strong> 秒</h3><p>按设定时间，<br />搜索并落子。</p><span class="search-default">默认最多 10 秒</span></article>
             </div>
             <p class="comparison-note">都是本机推演。找到确定胜着时，搜索可以提前结束。</p>
@@ -117,7 +117,7 @@
           <div class="recommendation-answers reveal">
             <article class="recommendation-answer match-answer" aria-labelledby="recommendationMatchTitle">
               <div><p class="principle-kicker" lang="en">IF YOU FOLLOW EVERY MOVE</p><h3 id="recommendationMatchTitle">全程照着首选，<br />胜率大概多少？</h3></div>
-              <div class="answer-body"><p class="answer-lead">目前没有这项对战的实测胜率。</p><p>每一手都照着首选下，相当于让同一套引擎分别替双方思考。默认设置下，推荐最多搜索 2 秒，还要比较两个候选；对手最多搜索 10 秒，时间预算更充裕。</p><p>执色、开局、设备算力和后台思考也会影响结果。相同引擎不意味着各有 50% 胜率，搜索时间的比例也不能换算成胜率。要给出可靠的百分比，需要固定条件、交换黑白，进行多局完整对战。</p></div>
+              <div class="answer-body"><p class="answer-lead">目前没有这项对战的实测胜率。</p><p>每一手都照着首选下，相当于让同一套引擎分别替双方思考。默认设置下，推荐最多搜索 1 秒，还要比较两个候选；对手最多搜索 10 秒，时间预算更充裕。</p><p>执色、开局、设备算力和后台思考也会影响结果。相同引擎不意味着各有 50% 胜率，搜索时间的比例也不能换算成胜率。要给出可靠的百分比，需要固定条件、交换黑白，进行多局完整对战。</p></div>
             </article>
             <article class="recommendation-answer"><h3>为什么有时只有首选？</h3><div class="answer-body"><p>开局、直接胜着或搜索未形成完整的双候选结果时，可能只显示一个点。推荐不会为了凑满两个而给出未经确认的次选；只有一个点，也不代表它必然是唯一好棋。</p></div></article>
             <article class="recommendation-answer"><h3>胜率条能代表这个胜率吗？</h3><div class="answer-body"><p>胜率条是引擎对当前局面的估算，会随落子和评估更新。它反映这一刻的局势，不表示「全程跟着推荐下」的实测对战胜率。</p></div></article>

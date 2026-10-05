@@ -1,0 +1,36 @@
+{
+  "recommendationBudgetMs": 1000,
+  "view": "390x844 touch, header-free /ai/ hosting",
+  "engine": "real Rapfi single-thread WASM",
+  "recommendations": [
+    {
+      "label": "black opening, pondering enabled",
+      "elapsedMs": 150,
+      "requestBudgetMs": 1000,
+      "sideToMove": 1,
+      "candidates": 1
+    },
+    {
+      "label": "black midgame, pondering enabled",
+      "elapsedMs": 1057,
+      "requestBudgetMs": 1000,
+      "sideToMove": 1,
+      "candidates": 2
+    },
+    {
+      "label": "white response, pondering enabled",
+      "elapsedMs": 904,
+      "requestBudgetMs": 1000,
+      "sideToMove": 2,
+      "candidates": 2
+    }
+  ],
+  "errors": [],
+  "undoDuringSearch": "pass, stale result absent after old 1-second budget",
+  "ui": "one-second button title and about text agree; hints preserve board dimensions; two-tap placement works",
+  "offline": {
+    "version": "gomoku-rapfi:/ai/:250615-v20",
+    "appHasOneSecondBudget": true,
+    "introductionReload": "pass"
+  }
+}
