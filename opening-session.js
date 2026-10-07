@@ -3,9 +3,9 @@ export const RULES = { freestyle: "无禁手", renju: "禁手 · 自由开局", 
 export const colorName = color => color === 1 ? "黑" : "白";
 export const coordinate = index => "ABCDEFGHIJKLMNO"[index % 15] + (15 - Math.floor(index / 15));
 export function isAutomaticTurn(session) {
-  if (!session || session.winner) return false;
+  if (!session || session.winner || session.stage === "setup") return false;
   if (session.workflow === "duel") return session.actor === 1;
-  return session.workflow === "copilot" && session.copilotReady && session.stage !== "setup" && !session.decision && session.actor === 0;
+  return session.workflow === "copilot" && session.copilotReady && !session.decision && session.actor === 0;
 }
 export function canManualTurn(session, { modal = false, busy = false } = {}) {
   if (!session || modal || session.winner || session.stage === "setup") return false;
@@ -19,7 +19,7 @@ const WIDTHS = { b1: 1, w2: 3, b3: 5, w4: 7, b5: 9 };
 // ownership only; proposed fifths do not enter the board before selection.
 export class OpeningSession {
   constructor({ rule = "rif", workflow = "copilot", initialBlackSeat = 0, seed = null } = {}) {
-    if (!Object.hasOwn(RULES, rule) || !["follow", "duel", "copilot"].includes(workflow) || ![0, 1].includes(initialBlackSeat) && !(initialBlackSeat === null && workflow === "copilot" && !seed)) throw new Error("对局设置无效");
+    if (!Object.hasOwn(RULES, rule) || !["follow", "duel", "copilot"].includes(workflow) || ![0, 1].includes(initialBlackSeat) && !(initialBlackSeat === null && !seed)) throw new Error("对局设置无效");
     if (seed) { validateSeed(seed.board); if (![1, 2].includes(seed.sideToMove)) throw new Error("下一手棋色无效"); }
     this.options = { rule, workflow, initialBlackSeat, seed: seed ? { board: Array.from(seed.board), sideToMove: seed.sideToMove } : null };
     const hasFormalOpening = rule === "rif" || rule === "taraguchi10";
@@ -60,7 +60,7 @@ export class OpeningSession {
       if (event.type !== "start" || ![0, 1].includes(event.initialBlackSeat)) throw new Error("请先选择谁先开局");
       this.initialBlackSeat = this.blackSeat = event.initialBlackSeat;
       const formal = this.rule === "rif" || this.rule === "taraguchi10";
-      this.stage = formal ? "b1" : "play"; this.copilotReady = formal;
+      this.stage = formal ? "b1" : "play"; this.copilotReady = this.workflow === "copilot" && formal;
     } else if (event.type === "handoff") {
       if (this.workflow !== "copilot" || this.stage !== "play" || this.copilotReady) throw new Error("当前不需要 AI 接手");
       this.copilotReady = true;

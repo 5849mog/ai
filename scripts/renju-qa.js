@@ -16,8 +16,11 @@ async function menu(page, selector) { await page.locator("#recordMenu summary").
 async function play(page, index) { const target = page.locator(`#boardSvg [data-index="${index}"]`); await target.tap(); await target.tap(); }
 async function configure(page, rule, workflow = "follow", first = "0") {
   await menu(page, "#openModes"); await page.locator("#ruleMode").selectOption(rule); await page.locator("#workflowMode").selectOption(workflow);
-  if (workflow !== "copilot") await page.locator("#firstSeat").selectOption(first);
+  assert.equal(await page.locator("#firstSeat").count(), 0);
   await page.locator("#startMode").click();
+  await stage(page, "setup");
+  assert.equal((await game(page)).moves.length, 0);
+  if (workflow !== "copilot") await page.locator(`#openingFlow [data-flow-action="start"][data-value="${first}"]`).click();
 }
 async function load(page, session) {
   await page.evaluate(record => localStorage.setItem("gomoku-opening:/ai/:v1", JSON.stringify({ record, perspective: 1 })), session.record()); await page.reload();

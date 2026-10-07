@@ -4,14 +4,13 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     <header><div><h2 id="modeTitle">落子之前</h2><p>选规则，也选这盘棋的使用方式。</p></div><button type="button" data-close>返回</button></header>
     <label class="mode-field">棋局规则<select id="ruleMode"><option value="freestyle">无禁手</option><option value="renju">禁手 · 自由开局</option><option value="rif">五手两打</option><option value="taraguchi10">塔拉山口-10</option></select></label>
     <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 附身外部棋局 · 你录开局，AI 替你落子</option><option value="follow">只记录棋局 · 双方手动录入，AI 只建议</option><option value="duel">与 AI 对弈 · AI 自动完成它的回合</option></select></label>
-    <label class="mode-field"><span id="firstSeatLabel">谁先摆开局</span><select id="firstSeat"><option value="0">我方先摆</option><option value="1">对手先摆</option></select></label>
     <p class="mode-description" id="modeDescription">附身模式在棋盘旁逐阶段确认本局角色。己方的开局与应手由 AI 自动给出，对手的操作由你录入。</p>
     <p class="import-warning">开始将替换本页当前对局；可先从菜单导出记录。</p><button type="button" class="confirm-mode" id="startMode">开始新局</button></dialog>
     <dialog class="opening-modal opening-guide" id="guideDialog" aria-labelledby="guideTitle">
     <header><div><h2 id="guideTitle">连珠手帖</h2><p>规则 · 开局 · AI 附身</p></div><button type="button" data-close>返回棋盘</button></header>
     <p class="guide-lead">对手操作，你录入。<br>轮到你，AI 直接出棋。</p>
     <h3>AI 附身外部棋局</h3><ol>
-    <li>在简洁界面点「规则」选择比赛采用的规则。每局开始，五手两打直接在棋盘旁显示「我摆前三子 · 暂执黑」和「对方摆前三子 · 我暂执白」两个按钮，点完消失，不必去设置页面预先决定。</li>
+    <li>选择比赛采用的规则后，每局开始都在棋盘旁选择本局角色，完整界面与简洁界面一致。五手两打显示「我摆前三子 · 暂执黑」和「对方摆前三子 · 我暂执白」两个按钮，点完消失，不必去设置页面预先决定；与 AI 对弈时，对方按钮显示为 AI。</li>
     <li>五手两打前三子始终是黑、白、黑，由暂执黑方一人摆出。你摆时，AI 自动给出三子，并在棋子上标 1、2、3，按顺序照搬；对方摆时，只需按同样顺序录入位置，颜色自动安排。没有白、黑、白的三子开局。</li>
     <li>前三子之后，另一方有换色权。按钮直接出现在棋盘旁：你决定时 AI 自动比较并标出建议，你点按钮确认；对方决定时按对方实际选择点击。交换只改变双方执色，不改变已有棋子，后续 AI 始终负责你的新棋色。</li>
     <li>第四手、第五手提案、选案与第六手也按实际角色衔接：轮到你时 AI 自动操作，轮到对方时录入实际结果。候选标成 A1、A2（十打为 A1–A10），选定前不算实子。对方选案时直接点标记或 A1/A2 按钮；你选案时 AI 自动选定并给出白棋第六手。正常对弈继续录入对方，AI 自动替你回应，无需点推荐触发。</li>
@@ -34,27 +33,22 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     <p>官方规则：<a href="https://www.renju.net/rifrules/" target="_blank" rel="noopener">RIF 连珠规则</a> · <a href="https://www.renju.net/starting/" target="_blank" rel="noopener">开局索引</a> · <a href="https://www.renju.net/rule/1/" target="_blank" rel="noopener">塔拉山口-10</a></p></dialog>`;
   document.body.append(mount);
   const modes = document.querySelector("#modeDialog"), guide = document.querySelector("#guideDialog");
-  const rule = document.querySelector("#ruleMode"), workflow = document.querySelector("#workflowMode"), first = document.querySelector("#firstSeat");
+  const rule = document.querySelector("#ruleMode"), workflow = document.querySelector("#workflowMode");
   for (const dialog of [modes, guide]) { dialog.querySelector("[data-close]").onclick = () => dialog.close(); dialog.addEventListener("close", () => onModal(false)); }
   const open = dialog => { document.querySelector("#recordMenu").open = false; onModal(true); dialog.showModal(); };
   document.querySelector("#openModes").onclick = () => {
-    const session = getSession(); rule.value = session.rule; workflow.value = session.workflow; first.value = String(session.options.initialBlackSeat); workflow.dispatchEvent(new Event("change")); open(modes);
+    const session = getSession(); rule.value = session.rule; workflow.value = session.workflow; workflow.dispatchEvent(new Event("change")); open(modes);
   };
-  const firstSeatLabel = document.querySelector("#firstSeatLabel");
   const syncModeCopy = () => {
-    const freeOpening = ["freestyle", "renju"].includes(rule.value), duel = workflow.value === "duel";
-    first.closest("label").hidden = workflow.value === "copilot";
-    firstSeatLabel.textContent = freeOpening ? "我方执色" : "谁先摆开局";
-    first.options[0].textContent = freeOpening ? (duel ? "你执黑" : "我方执黑") : (duel ? "你先摆" : "我方先摆");
-    first.options[1].textContent = freeOpening ? (duel ? "AI 执黑" : "我方执白") : (duel ? "AI 先摆" : "对手先摆");
+    const freeOpening = ["freestyle", "renju"].includes(rule.value);
     document.querySelector("#modeDescription").textContent = workflow.value === "copilot"
       ? freeOpening ? `${rule.value === "renju" ? "黑棋禁手仍生效。" : "无禁手。"}执色在棋盘旁选择，录完外部开局后点「AI 接手」。` : "本局角色在棋盘旁按实际情况选择。己方开局与应手由 AI 自动给出；对方操作由你录入。简洁界面也可完成全部阶段。"
-      : workflow.value === "follow" ? "双方操作均由你照外部棋局录入。推荐不会自动执行。"
-        : "在本页和 AI 对弈；AI 自动完成它负责的开局与落子。";
+      : workflow.value === "follow" ? "新局开始后在棋盘旁选择本局角色。双方操作均由你照外部棋局录入，推荐不会自动执行。"
+        : "新局开始后在棋盘旁选择本局角色。在本页和 AI 对弈；AI 自动完成它负责的开局与落子。";
   };
   workflow.onchange = syncModeCopy;
   rule.addEventListener("change", syncModeCopy);
-  document.querySelector("#startMode").onclick = () => { onNew({ rule: rule.value, workflow: workflow.value, initialBlackSeat: workflow.value === "copilot" ? null : Number(first.value) }); modes.close(); };
+  document.querySelector("#startMode").onclick = () => { onNew({ rule: rule.value, workflow: workflow.value, initialBlackSeat: null }); modes.close(); };
   document.querySelector("#openGuide").onclick = () => open(guide);
   return { openGuide: () => open(guide) };
 }
