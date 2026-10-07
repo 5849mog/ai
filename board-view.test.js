@@ -87,24 +87,23 @@ test("a second board uses independent paint servers for all stones, shadows and 
   assert.doesNotMatch(svg.innerHTML, /id="(?:blackStone|whiteStone|woodSurface|stoneShadow)"|url\(#(?:blackStone|whiteStone|stoneShadow)\)/);
 });
 
-test("touch preview guides and coordinate stay in bounds and never change occupied input targets", () => {
+test("touch preview guides stay in bounds without displaying move coordinates", () => {
   const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225);
   for (const pendingIndex of [0, 14, 210, 224, 112]) {
     view.render({ board, lastMove: -1, pendingIndex, canInteract: true });
-    assert.match(svg.innerHTML, /class="aim-guides"/); assert.match(svg.innerHTML, /待确认 [A-O]\d+/);
-    const pill = /class="coordinate-pill aiming"[^>]*><rect x="([\d.]+)" y="([\d.]+)"/.exec(svg.innerHTML);
-    assert.ok(+pill[1] >= 30 && +pill[1] + 60 <= 590); assert.ok(+pill[2] >= 30 && +pill[2] + 24 <= 590);
+    assert.match(svg.innerHTML, /class="aim-guides"/);
+    assert.doesNotMatch(svg.innerHTML, /coordinate-pill|待确认 [A-O]\d+/);
     assert.equal((svg.innerHTML.match(/class="hit-target"/g) || []).length, 225);
   }
   for (const state of [{ pendingIndex: -1 }, { pendingIndex: 112, canInteract: false }, { pendingIndex: 112, editable: true }]) {
-    view.render({ board, lastMove: -1, canInteract: true, ...state }); assert.doesNotMatch(svg.innerHTML, /aim-guides|coordinate-pill aiming/);
+    view.render({ board, lastMove: -1, canInteract: true, ...state }); assert.doesNotMatch(svg.innerHTML, /aim-guides|coordinate-pill/);
   }
   board[112] = 1; view.render({ board, lastMove: 112, pendingIndex: 112, canInteract: true }); assert.doesNotMatch(svg.innerHTML, /aim-guides/);
 });
 
 test("AI answer halo requires a known occupied latest answer and editable boards only show correction marks", () => {
   const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225); board[112] = 2;
-  view.render({ board, lastMove: 112, answerIndex: 112, canInteract: false }); assert.match(svg.innerHTML, /data-answer="112"/); assert.match(svg.innerHTML, /AI 落子 H8/);
+  view.render({ board, lastMove: 112, answerIndex: 112, canInteract: false }); assert.match(svg.innerHTML, /data-answer="112"/); assert.doesNotMatch(svg.innerHTML, /coordinate-pill|AI 落子 H8/);
   view.render({ board, lastMove: 112, answerIndex: 111, canInteract: false }); assert.doesNotMatch(svg.innerHTML, /answer-ring|coordinate-pill/);
   view.render({ board, lastMove: 112, answerIndex: 112, canInteract: true, editable: true, uncertain: [112] }); assert.doesNotMatch(svg.innerHTML, /answer-ring|coordinate-pill/); assert.match(svg.innerHTML, /data-uncertain="112"/);
   assert.equal((svg.innerHTML.match(/class="hit-target"/g) || []).length, 225);

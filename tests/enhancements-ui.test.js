@@ -27,7 +27,9 @@ class Element extends EventTarget {
   before(element) { const siblings = this.parentElement.children; siblings.splice(siblings.indexOf(this), 0, element); element.parentElement = this.parentElement; }
   after(element) { const siblings = this.parentElement.children; siblings.splice(siblings.indexOf(this) + 1, 0, element); element.parentElement = this.parentElement; }
   replaceChildren(...children) { this.children = []; this.append(...children); }
+  get innerHTML() { return this._innerHTML ?? ""; }
   set innerHTML(html) {
+    this._innerHTML = html;
     this.children = []; const stack = [this];
     for (const match of html.matchAll(/<\/?[a-zA-Z][^>]*>/g)) {
       const token = match[0]; if (token.startsWith("</")) { stack.pop(); continue; }
@@ -46,9 +48,11 @@ class Element extends EventTarget {
   querySelector(selector) { return this.querySelectorAll(selector)[0] ?? null; }
   closest(selector) { return this.matches(selector) ? this : this.parentElement?.closest(selector) ?? null; }
   getBoundingClientRect() { return { left: 0, top: 0, width: this.width || 650, height: this.height || 660 }; }
+  setPointerCapture() {}
+  releasePointerCapture() {}
   focus() {}
   click() { if (!this.disabled) { this.onclick?.({ target: this }); this.dispatchEvent(new Event("click")); } }
-  getContext() { return { clearRect() {}, drawImage() {}, beginPath() {}, arc() {}, stroke() {}, strokeRect() {}, getImageData: () => globalThis.imagePixels }; }
+  getContext() { return { clearRect() {}, fillRect() {}, drawImage() {}, beginPath() {}, arc() {}, fill() {}, stroke() {}, strokeRect(x, y, width, height) { globalThis.lastImportFrame = { left: x, top: y, right: x + width, bottom: y + height }; }, getImageData: () => globalThis.imagePixels }; }
 }
 function environment() {
   const body = new Element("body"), doc = new Element("document"); doc.append(body); doc.body = body;
@@ -99,19 +103,39 @@ test("undo or record replacement closes a terminal review; image workspace retur
 async function imageDraft(workflow) {
   const { doc, body } = environment(), root = new Element(); body.append(root); let applied = null, closes = 0;
   globalThis.imagePixels = { width: 650, height: 660, data: new Uint8ClampedArray(650 * 660 * 4) };
+  globalThis.lastImportFrame = null;
   for (let i = 0; i < imagePixels.data.length; i += 4) imagePixels.data.set([218, 183, 128, 255], i);
   globalThis.createImageBitmap = async () => ({ width: 650, height: 660, close() {} });
   const ui = createImageImport(root, { getPosition: () => ({ workflow, currentColor: 1 }), applyRecord: record => { replayRecord(record); applied = record; }, close: () => { closes++; ui.dispose(); } });
   ui.open(); const input = root.querySelector("input[type=file]"); input.onchange({ target: { files: [{ type: "image/png", size: 100 }], value: "" } });
   await new Promise(done => setImmediate(done)); const canvas = root.querySelector("canvas");
-  for (const [clientX, clientY] of [[40, 40], [600, 600]]) canvas.onclick({ clientX, clientY });
-  root.querySelector("[data-recognize]").click(); assert.equal(root.querySelector("svg").hidden, false);
+  const recognize = () => {
+    root.querySelector("[data-recognize]").click();
+    assert.equal(root.querySelector("svg").hidden, false);
+    assert.match(root.querySelector("svg").innerHTML, /class="grid-line"/);
+  };
   const point = index => { const target = doc.createElement("circle"); target.setAttribute("data-index", String(index)); root.querySelector("svg").onclick({ target }); };
-  return { root, ui, point, result: () => ({ applied, closes }) };
+  return { root, ui, canvas, point, recognize, result: () => ({ applied, closes }) };
 }
+test("image calibration frame can be dragged and resized with pointer input", async () => {
+  const { ui, canvas } = await imageDraft(), initial = { ...lastImportFrame };
+  assert.ok(initial.right - initial.left > 500);
+  canvas.onpointerdown({ pointerId: 1, button: 0, clientX: 320, clientY: 330, preventDefault() {} });
+  canvas.onpointermove({ pointerId: 1, clientX: 340, clientY: 345 }); canvas.onpointerup({ pointerId: 1 });
+  assert.equal(lastImportFrame.left, initial.left + 20); assert.equal(lastImportFrame.top, initial.top + 15);
+  const moved = { ...lastImportFrame };
+  canvas.onpointerdown({ pointerId: 2, button: 0, clientX: moved.left, clientY: moved.top, preventDefault() {} });
+  canvas.onpointermove({ pointerId: 2, clientX: moved.left - 20, clientY: moved.top - 25 }); canvas.onpointerup({ pointerId: 2 });
+  assert.equal(lastImportFrame.left, moved.left - 20); assert.equal(lastImportFrame.top, moved.top - 25);
+  assert.equal(lastImportFrame.right, moved.right); assert.equal(lastImportFrame.bottom, moved.bottom);
+  ui.dispose();
+});
 test("image calibration/correction remains a draft until confirmation and continuation roles use selected side", async () => {
   for (const workflow of [undefined, "follow", "duel", "copilot"]) for (const side of [1, 2]) for (const actor of ["player", "ai"]) {
-    const { root, point, result } = await imageDraft(workflow);
+    const { root, point, result, recognize } = await imageDraft(workflow);
+    assert.match(root.querySelector(".tool-message").textContent, /A15、右下 O1/);
+    assert.match(root.querySelector(".tool-message").textContent, /不要框进木质边框/);
+    recognize();
     point(112); root.querySelector("[data-color=2]").click(); point(97);
     assert.equal(result().applied, null); root.querySelector("[data-side]").value = String(side); root.querySelector("[data-actor]").value = actor;
     root.querySelector("[data-confirm]").click();
@@ -120,6 +144,6 @@ test("image calibration/correction remains a draft until confirmation and contin
   }
 });
 test("completed board cannot replace the current game through image import", async () => {
-  const { root, point, result, ui } = await imageDraft(); for (let i = 0; i < 5; i++) point(i);
+  const { root, point, result, ui, recognize } = await imageDraft(); recognize(); for (let i = 0; i < 5; i++) point(i);
   root.querySelector("[data-confirm]").click(); assert.equal(result().applied, null); assert.equal(result().closes, 0); assert.match(root.querySelector(".tool-message").textContent, /当前对局保持不变/); ui.dispose();
 });
