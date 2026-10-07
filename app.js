@@ -8,6 +8,7 @@ import { PositionAnalysis } from "./position-analysis.js";
 import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
+import { setupGameEnhancements } from "./game-enhancements.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -56,6 +57,7 @@ let saveWarningShown = false;
 let analysisSaveTimer;
 let setupPosition = null;
 let displayModes;
+let enhancements;
 const positionAnalysis = new PositionAnalysis();
 const analysisView = createAnalysisView(document.querySelector("#positionAnalysis"));
 
@@ -114,6 +116,7 @@ const engine = new GomokuEngine({ onState: event => {
   pondering = Boolean(event.pondering);
   render();
 }, onStats: event => {
+  if (modalOpen) return;
   liveStats = event.stats;
   statsSide = event.sideToMove;
   statsPhase = event.phase;
@@ -128,7 +131,8 @@ function canInteract() { return state === "ready" && !thinking && !recommending 
 
 function render() {
   const interactive = canInteract();
-  view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive, playerColor, recommendations });
+  view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive, playerColor, recommendations,
+    answerIndex: lastMove >= 0 && board[lastMove] === 3 - playerColor ? lastMove : -1 });
   let text = "轮到你落子";
   if (winner) text = winner === playerColor ? "你赢了" : winner === 3 ? "平局" : "AI 获胜";
   else if (state === "error") text = "AI 暂不可用，请重试或悔棋";
@@ -160,6 +164,7 @@ function render() {
   displayModes?.render({ playerColor, winner, state, text, busy: thinking || state === "loading" || state === "idle" });
   updateClock();
   updateSearchInfo();
+  enhancements?.render();
 }
 
 function updateClock() {
@@ -196,7 +201,7 @@ async function syncPonder() {
 }
 
 async function prepareEngine() {
-  if (modalOpen) return;
+  if (modalOpen || winner) return;
   try {
     await engine.init();
     if (modalOpen) return;
@@ -449,6 +454,25 @@ displayModes = setupDisplayModes({
   onChange: () => {
     if (recommending || recommendations.length) hideRecommendations();
     else { pendingIndex = hoverIndex = -1; render(); }
+  }
+});
+
+enhancements = setupGameEnhancements({
+  getPosition: () => ({ board, currentColor, playerColor, winner, ruleLabel: "无禁手" }),
+  getRecord, applyRecord, newGame: restart,
+  onWorkspace: open => {
+    modalOpen = open;
+    if (open) {
+      requestId++; positionAnalysis.cancel(); thinking = recommending = false;
+      recommendations = []; pendingIndex = hoverIndex = -1; stopClock(); engine.cancel();
+    }
+    render(); if (!open) void prepareEngine();
+  },
+  cancelSearch: () => engine.cancel(),
+  search: async options => {
+    await engine.init();
+    if (!modalOpen) throw new DOMException("复盘已取消", "AbortError");
+    return engine.search({ ...options, requestId: ++requestId });
   }
 });
 

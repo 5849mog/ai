@@ -10,12 +10,13 @@ import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { describeSearch } from "./search-info.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
+import { setupGameEnhancements } from "./game-enhancements.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 let session = new OpeningSession({ initialBlackSeat: null }), perspective = 1, state = "idle", serial = 0, requestId = 0;
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false;
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
-let rulesOpen = false, forbiddenInput = null;
+let rulesOpen = false, forbiddenInput = null, enhancements;
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
 function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
@@ -45,7 +46,7 @@ positionChanged(true);
 if (restoredAnalysis) { analysis.load({ getItem: () => JSON.stringify(restoredAnalysis) }); persist(); }
 const engine = new GomokuEngine({ rule: session.rule,
   onState: event => { state = event.state; pondering = Boolean(event.pondering); render(); },
-  onStats: event => { if (event.requestId !== requestId) return; stats = event.stats; statsColor = event.sideToMove; if (["play", "w6"].includes(session.stage)) analysis.accept(event); renderAnalysis(); }
+  onStats: event => { if (modal || event.requestId !== requestId) return; stats = event.stats; statsColor = event.sideToMove; if (["play", "w6"].includes(session.stage)) analysis.accept(event); renderAnalysis(); }
 });
 function cancel() {
   serial++; requestId++; busy = false; advice = null; forbiddenInput = null; pending = hover = -1; analysis.cancel(); engine.stopPonder();
@@ -116,6 +117,7 @@ function renderFlow() {
 function render() {
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
+    answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) }); decorate();
   const text = busy ? isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text; $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
@@ -145,6 +147,7 @@ function render() {
   }
   renderFlow();
   renderAnalysis();
+  enhancements?.render();
 }
 async function syncPonder() {
   if (busy || modal || rulesOpen || forbiddenInput || session.winner || !["play", "w6"].includes(session.stage) || !$("#ponderToggle").checked || document.hidden || advice || isAutomaticTurn(session)) { engine.stopPonder(); return; }
@@ -153,7 +156,7 @@ async function syncPonder() {
   try { await engine.ponder({ board: session.board, sideToMove: session.color, requestId: id, allowSetup: true }); } catch (error) { if (error.name !== "AbortError") render(); }
 }
 async function prepare() {
-  const token = serial; if (modal || rulesOpen || forbiddenInput || session.stage === "setup") return;
+  const token = serial; if (modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
   try { await engine.init(); if (token !== serial || modal) return;
     if (isAutomaticTurn(session)) await autoPlay();
     else if (session.workflow === "copilot" && session.decision && session.actor === 0 && !advice) await recommend();
@@ -275,7 +278,7 @@ display = setupDisplayModes({ onNewGame: () => newSimpleGame(), onChange: () => 
   const open = !rulesOpen; cancel(); rulesOpen = open; render(); if (!open) void prepare();
 } });
 new ResizeObserver(() => {
-  const flow = $("#simpleOpeningFlow"); document.querySelector(".app-shell").style.setProperty("--opening-flow-space", `${flow.hidden ? 0 : flow.getBoundingClientRect().height}px`);
+  const flow = $("#simpleOpeningFlow"); document.querySelector(".app-shell").style.setProperty("--opening-flow-space", `${flow.hidden ? 0 : flow.getBoundingClientRect().height + 8}px`);
 }).observe($("#simpleOpeningFlow"));
 $("#simpleColor").addEventListener("keydown", event => { if (event.key.toLowerCase() === "r") { event.preventDefault(); if (manualTurn()) void recommend(); } });
 function download(data, name, type) { const url = URL.createObjectURL(new Blob([data], { type })), link = document.createElement("a"); link.href = url; link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); $("#recordMenu").open = false; }
@@ -297,6 +300,18 @@ $("#recordFile").onchange = async () => {
 };
 document.addEventListener("visibilitychange", () => { if (document.hidden) persist(); void syncPonder(); }); window.addEventListener("pagehide", persist);
 document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
+enhancements = setupGameEnhancements({
+  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, ruleLabel: RULES[session.rule] }),
+  getRecord: () => session.record(),
+  applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); },
+  onWorkspace: onModal, newGame: () => display?.simple ? newSimpleGame() : newGame(),
+  cancelSearch: () => engine.cancel(),
+  search: async options => {
+    const token = serial; await engine.init();
+    if (!modal || token !== serial) throw new DOMException("复盘已取消", "AbortError");
+    return engine.search({ ...options, requestId: ++requestId });
+  }
+});
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register(new URL("./sw.js", import.meta.url), { scope: "./" }).catch(() => {});
   navigator.serviceWorker.addEventListener("message", ({ data }) => { if (data.type === "offline-ready") $("#offlineState").textContent = "已缓存 · 可离线使用"; });
