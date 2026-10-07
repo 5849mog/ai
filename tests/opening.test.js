@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { OpeningSession, replaySession } from "../opening-session.js";
+import { OpeningSession, replaySession, canManualTurn, isAutomaticTurn } from "../opening-session.js";
 import { blackForbidden, moveVerdict, distinctCandidates, transform, inCentral } from "../renju-rules.js";
 import { adviseOpening } from "../opening-advisor.js";
+import { openingFlow, openingMarks, chosenProposal } from "../opening-flow.js";
 import { searchCommands } from "../engine-protocol.js";
 const stone = (s, index) => s.apply({ type: "stone", index });
 const decide = (s, choice = "keep") => s.apply({ type: "decision", choice });
@@ -72,6 +73,64 @@ test("Duel undo returns to the last human action even after ownership swaps", ()
   const beforeHumanThird = s.undo(); decide(s, "swap"); stone(s, 128);
   assert.equal(s.blackSeat, 1); same(s.undo(), replaySession({ ...s.record(), events: s.events.slice(0, 4) }));
   assert.equal(beforeHumanThird.moves.length, 2);
+});
+test("Copilot handles both opening roles and both swap outcomes, automating only the external user's actions", () => {
+  for (const opener of [0, 1]) for (const swap of [false, true]) {
+    const s = new OpeningSession({ rule: "rif", workflow: "copilot", initialBlackSeat: null });
+    assert.equal(s.stage, "setup"); assert.equal(s.canPoint(112), false); assert.equal(isAutomaticTurn(s), false);
+    assert.throws(() => stone(s, 112)); s.apply({ type: "start", initialBlackSeat: opener });
+    for (const [i, index] of [112, 97, 96].entries()) {
+      assert.equal(s.actor, opener); assert.equal(s.color, [1, 2, 1][i]);
+      assert.equal(isAutomaticTurn(s), opener === 0); assert.equal(canManualTurn(s), opener === 1);
+      s.apply({ type: "stone", index }, { automatic: opener === 0 });
+    }
+    assert.deepEqual(openingMarks(s).map(mark => mark.label), ["1", "2", "3"]);
+    assert.equal(s.stage, "swap3"); assert.equal(isAutomaticTurn(s), false); assert.equal(canManualTurn(s), true);
+    if (opener === 0) assert.equal(s.undo().stage, "setup");
+    decide(s, swap ? "swap" : "keep"); assert.equal(s.playerColor, (opener ^ Number(swap)) === 0 ? 1 : 2);
+    const act = event => { const mine = s.actor === 0; assert.equal(isAutomaticTurn(s), mine); assert.equal(canManualTurn(s), !mine); s.apply(event, { automatic: mine }); };
+    act({ type: "stone", index: 128 });
+    const candidates = distinctCandidates(s.board, s.allowedMoves({ safe: true })).slice(0, 2);
+    for (const index of candidates) act({ type: "offer", index });
+    assert.equal(s.moves.length, 4); act({ type: "select", index: candidates[1] });
+    assert.equal(chosenProposal(s).label, "A2"); act({ type: "stone", index: 129 });
+    assert.equal(s.stage, "play");
+    if (isAutomaticTurn(s)) act({ type: "stone", index: s.allowedMoves({ safe: true })[0] });
+    const beforeReply = replaySession(s.record());
+    act({ type: "stone", index: s.allowedMoves({ safe: true })[0] });
+    act({ type: "stone", index: s.allowedMoves({ safe: true })[0] });
+    same(s.undo(), beforeReply); same(replaySession(s.record()), s);
+    assert.equal(s.events.at(-1).automatic, true); assert.equal(s.colors.at(-1), s.playerColor);
+  }
+});
+test("Inline opening starts and decisions are replayable, show fixed B-W-B, and never turn candidates into stones early", () => {
+  const s = new OpeningSession({ initialBlackSeat: null });
+  assert.equal(openingFlow(s).actions.length, 2); assert.match(openingFlow(s).note, /黑 → 白 → 黑/);
+  assert.throws(() => s.apply({ type: "start", initialBlackSeat: 2 }));
+  s.apply({ type: "start", initialBlackSeat: 1 }); stone(s, 112); stone(s, 97); stone(s, 96);
+  same(replaySession(s.record()), s); decide(s, "swap"); stone(s, 128);
+  for (const index of distinctCandidates(s.board, s.allowedMoves({ safe: true })).slice(0, 2)) s.apply({ type: "offer", index }, { automatic: true });
+  const flow = openingFlow(s); assert.ok(flow.actions[0].label.startsWith("A1")); assert.ok(flow.actions[1].label.startsWith("A2"));
+  assert.equal(s.board.filter(Boolean).length, 4); assert.equal(s.candidates.length, 2);
+  const undone = s.undo(); assert.equal(undone.stage, "w4"); assert.equal(undone.board.filter(Boolean).length, 3);
+  assert.throws(() => new OpeningSession({ workflow: "duel", initialBlackSeat: null }));
+});
+test("Freestyle copilot waits for an explicit handoff and undo returns to the manual opening", () => {
+  const s = new OpeningSession({ rule: "freestyle", workflow: "copilot" });
+  assert.equal(s.copilotReady, false); assert.equal(canManualTurn(s), true); assert.equal(isAutomaticTurn(s), false);
+  stone(s, 112); stone(s, 97); const beforeHandoff = replaySession(s.record());
+  s.apply({ type: "handoff" }); assert.equal(isAutomaticTurn(s), true);
+  s.apply({ type: "stone", index: s.allowedMoves({ safe: true })[0] }, { automatic: true });
+  const replayed = replaySession(s.record()); assert.equal(replayed.copilotReady, true);
+  const undone = s.undo(); same(undone, beforeHandoff); assert.equal(undone.copilotReady, false);
+});
+test("Renju free opening keeps black forbidden moves without forcing the RIF proposal sequence", () => {
+  const s = new OpeningSession({ rule: "renju", workflow: "copilot" });
+  assert.equal(s.stage, "play"); assert.equal(s.width, 15); assert.equal(s.copilotReady, false);
+  const board = points => { const b = new Uint8Array(225); for (const point of points) b[point] = 1; return b; };
+  assert.equal(moveVerdict(board([110, 111, 97, 127]), 112, 1, "renju").forbidden, "三三");
+  stone(s, 112); assert.equal(isAutomaticTurn(s), false); s.apply({ type: "handoff" }); assert.equal(isAutomaticTurn(s), false);
+  stone(s, 97); assert.equal(isAutomaticTurn(s), true);
 });
 test("Seed continues chosen color, records only continuation, and replay rejects impossible actions", () => {
   const b = new Uint8Array(225); b[112] = b[111] = b[97] = 1; b[140] = 2;

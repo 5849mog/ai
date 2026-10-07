@@ -122,7 +122,12 @@ try {
 
   const retained = await position(page); await menu(page, "#enterSimpleMode");
   assert.deepEqual(await position(page), retained);
-  assert.equal(await page.locator("button:visible").count(), 2); assert.equal(await page.locator("select:visible").count(), 0);
+  assert.equal(await page.locator("button:visible").count(), 3); assert.equal(await page.locator("select:visible").count(), 0);
+  if (await page.locator("#simpleRecommendButton").getAttribute("aria-pressed") === "true") await page.locator("#simpleRecommendButton").click();
+  const beforeRecommendation = await position(page);
+  await page.locator("#simpleRecommendButton").click();
+  await page.waitForFunction(() => document.querySelectorAll("[data-recommendation]").length > 0, null, { timeout: 15000 });
+  assert.deepEqual(await position(page), beforeRecommendation);
   await page.locator("#simpleColor").click(); await ready(page);
   assert.equal(await page.locator("#simpleColorLabel").textContent(), "你执黑"); assert.deepEqual(await position(page), []);
   await page.locator("#simpleColor").click(); await ready(page);
@@ -144,7 +149,7 @@ try {
   assert.deepEqual(await position(page), afterPlay);
   await menu(page, "#enterSimpleMode"); await page.locator("#simpleRestart").tap(); await ready(page);
   assert.deepEqual(await position(page), []);
-  mark("simple mode shows exactly two buttons, toggles roles directly, restores on reload, and exits without changing game");
+  mark("simple mode shows three buttons, recommends with one tap, toggles roles directly, restores on reload, and exits without changing game");
   await context.close();
 
   for (const [width, height] of [[320, 568], [390, 700], [390, 844], [667, 375], [768, 1024], [820, 1180], [1024, 768], [1440, 900]]) {
@@ -158,7 +163,7 @@ try {
     assert(simple.width > normal.width, `simple board not larger at ${width}x${height}: ${simple.width} vs ${normal.width}`);
     const bounds = await page.evaluate(() => ({ x: document.documentElement.scrollWidth, y: document.documentElement.scrollHeight, w: innerWidth, h: innerHeight }));
     assert(bounds.x <= bounds.w && bounds.y <= bounds.h, `page overflow at ${width}x${height}`);
-    assert.equal(await page.locator("button:visible").count(), 2);
+    assert.equal(await page.locator("button:visible").count(), 3);
     await page.screenshot({ path: `${output}/simple-${width}-${height}.png` });
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.body.classList.contains("simple-mode"));
@@ -180,16 +185,16 @@ try {
   await offline.waitForFunction(() => navigator.serviceWorker.controller);
   const cached = await offline.evaluate(async () => {
     await navigator.serviceWorker.ready;
-    const name = (await caches.keys()).find(key => key.endsWith("250615-v21"));
+    const name = (await caches.keys()).find(key => key.endsWith("250615-v24"));
     const cache = await caches.open(name);
-    return { cache: name, ready: (await Promise.all(["setup-ui.js", "display-modes.js", "game-modes.css?v=1"].map(path => cache.match(new URL(path, location.href).href)))).every(Boolean) };
+    return { cache: name, ready: (await Promise.all(["setup-ui.js", "display-modes.js", "game-modes.css?v=3"].map(path => cache.match(new URL(path, location.href).href)))).every(Boolean) };
   });
   assert(cached.ready); await offline.context().setOffline(true); await offline.reload(); await ready(offline);
   await draft(offline, [112], [97, 113], 2, "player"); await begin(offline); await ready(offline);
   assert.equal((await record(offline)).version, 2);
   await menu(offline, "#enterSimpleMode"); await offline.reload(); await ready(offline);
-  assert.equal(await offline.locator("button:visible").count(), 2); assert.equal((await position(offline)).length, 3);
-  mark("v21 caches mode UI; custom setup and simple-mode resume work offline", cached);
+  assert.equal(await offline.locator("button:visible").count(), 3); assert.equal((await position(offline)).length, 3);
+  mark("v24 caches mode UI; custom setup and simple-mode resume work offline", cached);
   assert.deepEqual(report.errors, []);
   report.browser = browser.version();
   await writeFile("reports/game-modes-qa.json", JSON.stringify(report, null, 2) + "\n");

@@ -3,11 +3,12 @@
 .record-options .mode-link:hover { background: #f3f0e7; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .simple-controls button, .setup-dialog button, .setup-dialog select { appearance: none; -webkit-appearance: none; }
-.simple-controls { display: flex; flex: 0 0 54px; width: min(100%, 440px); gap: 12px; }
-.simple-controls .icon-button { position: relative; flex: 1; height: 54px; flex-wrap: wrap; column-gap: 8px; row-gap: 0; align-content: center; padding: 5px 12px; }
-.simple-controls .icon-button > span { font-size: 16px; line-height: 1.4; }
-.simple-controls small { width: 100%; font-size: 12px; line-height: 1.5; opacity: .78; }
+.simple-controls { display: flex; flex: 0 0 54px; width: min(100%, 480px); gap: 8px; }
+.simple-controls .icon-button { position: relative; min-width: 0; flex: 1; height: 54px; flex-wrap: wrap; justify-content: center; column-gap: 6px; row-gap: 0; align-content: center; padding: 5px 6px; }
+.simple-controls .icon-button > span { font-size: clamp(12px, 4vw, 16px); line-height: 1.4; text-align: center; }
+.simple-controls small { width: 100%; font-size: 11px; line-height: 1.35; text-align: center; opacity: .78; }
 .simple-controls #simpleRestart { touch-action: none; user-select: none; -webkit-touch-callout: none; }
+.simple-controls .icon-button:disabled { opacity: .45; cursor: default; }
 .simple-black, .setup-dot { display: inline-block; width: 16px; height: 16px; flex: 0 0 16px; border-radius: 50%; vertical-align: middle; box-shadow: 0 1px 2px #292b2429; }
 .simple-black, .setup-dot.black { background: radial-gradient(circle at 30% 25%, #65695b, #242923 55%, #101712); border: 1px solid #212820; }
 .setup-dot.white { background: radial-gradient(circle at 30% 25%, #fffefa, #eeeadd 65%, #cac8b8); border: 1px solid #b6baaa; }

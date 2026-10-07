@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f5f2ea" />
-    <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
-    <title>五目 · 连珠与跟随棋局</title>
+    <meta name="description" content="五目五子棋 · 连珠开局与 AI 附身外部棋局。" />
+    <title>五目 · 连珠与 AI 附身</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./game-modes.css?v=2" />
-    <link rel="stylesheet" href="./opening.css?v=1" />
+    <link rel="stylesheet" href="./game-modes.css?v=3" />
+    <link rel="stylesheet" href="./opening.css?v=2" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -55,8 +55,8 @@
               </div>
             </div>
             <div class="game-settings">
-              <div class="opening-decisions" id="openingDecisions" hidden><button type="button" data-choice="keep">不交换</button><button type="button" data-choice="swap">交换黑白</button><button type="button" data-choice="ten" id="tenChoice">提出十打</button></div>
-              <label class="color-control" for="colorSelect" title="跟随棋局可切换分析视角，不改变双方实际执色"><span id="perspectiveLabel">分析视角</span><select id="colorSelect"><option value="1">看黑棋</option><option value="2">看白棋</option></select></label>
+              <section class="opening-flow" id="openingFlow" aria-label="本局操作"></section>
+              <label class="color-control" for="colorSelect" title="只记录棋局可切换分析视角，不改变双方实际执色"><span id="perspectiveLabel">分析视角</span><select id="colorSelect"><option value="1">看黑棋</option><option value="2">看白棋</option></select></label>
               <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option></select></label>
               <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
             </div>
@@ -90,9 +90,12 @@
           </aside>
         </section>
       </main>
+      <section class="opening-flow" id="simpleOpeningFlow" aria-label="本局操作" hidden></section>
       <div class="simple-controls" id="simpleControls" hidden>
         <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局；长按返回完整界面"><span id="simpleRestartLabel">新局</span><small>长按返回</small></button>
-        <button class="icon-button" id="simpleColor" type="button" aria-pressed="true" title="切换执色会开始新局"><i class="simple-black" aria-hidden="true"></i><span id="simpleColorLabel">你执黑</span><small>点击换边</small></button>
+        <button class="icon-button" id="simpleColor" type="button" title="在棋盘旁选择本局规则"><span id="simpleColorLabel">规则</span><small>五手两打</small></button>
+        <button class="icon-button" id="simpleUndoButton" type="button" disabled><span>悔棋</span><small>撤回上次操作</small></button>
+        <button class="icon-button" id="simpleRecommendButton" type="button" aria-label="推荐落点" title="分析当前开局动作或落点" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span id="simpleRecommendLabel">推荐</span><small id="simpleRecommendNote">AI 落点建议</small></button>
       </div>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
     </div>

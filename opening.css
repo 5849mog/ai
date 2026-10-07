@@ -1,6 +1,4 @@
-.opening-decisions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: center; min-height: 44px; }
-.opening-decisions button { min-height: 44px; padding: 6px 4px; appearance: none; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: linear-gradient(#fffdf7, #f3efe4); font-size: 13px; cursor: pointer; }
-.opening-decisions button[data-suggested="true"] { color: var(--green); border-color: #819476; background: #e9eee2; }
+html.opening-simple, body.opening-page.simple-mode { min-width: 0; }
 .opening-page .board-toolbar { flex-wrap: nowrap; }
 .opening-page .game-state { min-width: 0; }
 .opening-page #stateText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
@@ -12,6 +10,32 @@
 .opening-proposal text { text-anchor: middle; dominant-baseline: central; font: 600 13px system-ui, sans-serif; fill: #a84032; }
 .opening-proposal.suggested circle { fill: #e5ebdb; stroke: #586e57; stroke-dasharray: none; stroke-width: 2.4; }
 .opening-proposal.suggested text { fill: #586e57; }
+.opening-order { text-anchor: middle; dominant-baseline: central; font: 650 16px system-ui, sans-serif; pointer-events: none; fill: #fffdf2; paint-order: stroke; stroke: #24292380; stroke-width: 1px; }
+.opening-order.white { fill: #29352a; stroke: #fffffaaa; }
+.opening-flow { grid-column: 1 / -1; min-width: 0; width: 100%; color: var(--ink); }
+.opening-flow h2 { margin: 0; font-size: 14px; line-height: 1.4; font-weight: 600; }
+.opening-flow p { margin: 3px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); overflow-wrap: anywhere; }
+.opening-flow-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
+.opening-flow-actions:empty { display: none; }
+.opening-flow button { min-width: 0; min-height: 38px; padding: 5px; appearance: none; border: 1px solid var(--line); border-radius: 5px; background: linear-gradient(#fffdf7, #f3efe4); color: var(--ink); font-size: 12px; line-height: 1.35; cursor: pointer; }
+.opening-flow button:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.opening-flow button[data-suggested="true"] { color: var(--green); background: #e9eee2; border-color: #819476; }
+.opening-flow button:disabled { opacity: .5; cursor: default; }
+.opening-page.simple-mode .app-shell { gap: 8px; --simple-board-space: calc(100dvh - 54px - 16px - var(--opening-flow-space, 0px) - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); }
+#simpleOpeningFlow { width: min(100%, 480px); flex: 0 0 auto; }
+.opening-page.simple-mode .simple-controls small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-height: 460px) and (orientation: landscape) {
+  .opening-page.simple-mode .app-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(138px, .7fr); grid-template-rows: minmax(0, 1fr) auto; }
+  .opening-page.simple-mode .game-layout { grid-column: 1; grid-row: 1 / -1; width: min(100%, calc(100dvh - 12px)); justify-self: center; }
+  .opening-page.simple-mode #simpleOpeningFlow { grid-column: 2; grid-row: 1; align-self: center; }
+  .opening-page.simple-mode .simple-controls { grid-column: 2; grid-row: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .opening-page.simple-mode .simple-controls small { display: none; }
+  .opening-page.simple-mode .simple-controls { gap: 4px; }
+  .opening-page.simple-mode .simple-controls .icon-button { height: 32px; }
+  .opening-page.simple-mode .opening-flow h2 { font-size: 12px; }
+  .opening-page.simple-mode .opening-flow p { line-height: 1.3; }
+  .opening-page.simple-mode .opening-flow button { min-height: 30px; padding: 3px; line-height: 1.2; }
+}
 .opening-modal { width: min(94vw, 640px); max-height: 90dvh; padding: 24px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--canvas) url('./assets/paper-fiber.svg') repeat; box-shadow: 0 16px 60px #292b2430; overflow: auto; }
 .opening-modal::backdrop { background: #30342e8c; backdrop-filter: blur(4px); }
 .opening-modal header { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
@@ -30,6 +54,5 @@
 .opening-guide .guide-lead { font: 500 20px/1.6 "Songti SC", "SimSun", serif; }
 .opening-guide .guide-note { padding: 12px 14px; border-left: 2px solid var(--accent); background: #a8403206; }
 .opening-guide a { color: var(--green); text-underline-offset: 3px; }
-@media (min-width: 1000px) and (min-height: 700px) and (orientation: landscape), (min-width: 641px) and (max-width: 1199px) and (orientation: portrait) { .opening-decisions { min-height: 96px; } }
 @media (max-width: 480px) { .opening-page .search-clock { max-width: 34%; overflow: hidden; text-overflow: ellipsis; } .opening-modal { padding: 20px; } }
 @media (forced-colors: active) { .opening-proposal circle, .opening-region { stroke: CanvasText; fill: Canvas; } .opening-proposal text { fill: CanvasText; } }
