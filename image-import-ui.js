@@ -98,13 +98,13 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     const point = canvasPoint(event); if (!point) return;
     if (drag.mode === "move") {
       const width = frame.right - frame.left, height = frame.bottom - frame.top;
-      frame.left = Math.max(0, Math.min(canvas.width - width, point.x - drag.offsetX)); frame.top = Math.max(0, Math.min(canvas.height - height, point.y - drag.offsetY));
+      frame.left = Math.max(0, Math.min(canvas.width - width - 1, point.x - drag.offsetX)); frame.top = Math.max(0, Math.min(canvas.height - height - 1, point.y - drag.offsetY));
       frame.right = frame.left + width; frame.bottom = frame.top + height;
     } else {
       const west = drag.mode.endsWith("w"), north = drag.mode.startsWith("n"), minSize = 84;
-      const x = Math.max(0, Math.min(canvas.width, point.x + drag.offsetX)), y = Math.max(0, Math.min(canvas.height, point.y + drag.offsetY));
-      if (west) frame.left = Math.max(0, Math.min(frame.right - minSize, x)); else frame.right = Math.min(canvas.width, Math.max(frame.left + minSize, x));
-      if (north) frame.top = Math.max(0, Math.min(frame.bottom - minSize, y)); else frame.bottom = Math.min(canvas.height, Math.max(frame.top + minSize, y));
+      const x = Math.max(0, Math.min(canvas.width - 1, point.x + drag.offsetX)), y = Math.max(0, Math.min(canvas.height - 1, point.y + drag.offsetY));
+      if (west) frame.left = Math.max(0, Math.min(frame.right - minSize, x)); else frame.right = Math.min(canvas.width - 1, Math.max(frame.left + minSize, x));
+      if (north) frame.top = Math.max(0, Math.min(frame.bottom - minSize, y)); else frame.bottom = Math.min(canvas.height - 1, Math.max(frame.top + minSize, y));
     }
     draw();
   };
