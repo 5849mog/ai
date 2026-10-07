@@ -143,7 +143,7 @@ function render() {
   else if (pendingIndex >= 0) text = "再点一次确认落子";
   stateText.textContent = text;
   stateIndicator.className = "state-indicator" +
-    (thinking || recommending || state === "loading" || state === "idle" ? " thinking" : winner || state === "error" ? " finished" : "");
+    (winner ? " finished" : thinking || recommending || state === "loading" || state === "idle" ? " thinking" : state === "error" ? " finished" : "");
   undoButton.disabled = rounds.length === 0 && pendingIndex < 0;
   retryButton.hidden = state !== "error";
   timeSelect.disabled = thinking || recommending;
@@ -161,7 +161,7 @@ function render() {
     : "";
   boardSvg.setAttribute("aria-disabled", String(!interactive));
   boardSvg.setAttribute("aria-label", `15 乘 15 五子棋棋盘，${text}。方向键选点，回车落子。`);
-  displayModes?.render({ playerColor, winner, state, text, busy: thinking || state === "loading" || state === "idle" });
+  displayModes?.render({ playerColor, winner, state, text, busy: !winner && (thinking || state === "loading" || state === "idle") });
   updateClock();
   updateSearchInfo();
   enhancements?.render();
