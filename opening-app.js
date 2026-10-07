@@ -6,7 +6,7 @@ import { createOpeningDialogs } from "./opening-guide.js";
 import { createBoardView } from "./board-view.js";
 import { GomokuEngine } from "./engine.js?v=22";
 import { PositionAnalysis } from "./position-analysis.js";
-import { createAnalysisView } from "./analysis-view.js";
+import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { describeSearch } from "./search-info.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
@@ -33,10 +33,12 @@ function persist() {
       analysis: { version: 1, playerColor: analysis.playerColor, positionKey: analysis.positionKey, moves: analysis.moves, points: analysis.history } })); saveFailed = false; return true;
   } catch { if (!saveFailed) notify("此局暂未保存，请从菜单导出完整记录", true); saveFailed = true; return false; }
 }
-function positionChanged(reset = false) {
+function positionChanged(reset = false, automaticResult = null) {
   if (session.workflow !== "follow") perspective = session.playerColor || 1;
   const key = `${session.rule}:${session.options.seed ? session.options.seed.board.join("") + session.options.seed.sideToMove : "opening"}`;
-  analysis.setPosition(session.moves, perspective, { reset, positionKey: key }); analysis.finish(session.winner);
+  if (automaticResult && !reset && perspective === analysis.playerColor && key === analysis.positionKey) analysis.advanceAi(session.moves, session.lastMove, automaticResult.assessment);
+  else analysis.setPosition(session.moves, perspective, { reset, positionKey: key });
+  analysis.finish(session.winner);
   stats = null; pending = hover = -1; advice = null; persist();
 }
 positionChanged(true);
@@ -58,6 +60,7 @@ const interactive = () => manualTurn() && !session.decision;
 const workflowLabel = { copilot: "附身", follow: "记录", duel: "对弈" };
 function renderAnalysis() {
   analysisView.render(analysis, session.winner);
+  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available: ["play", "w6"].includes(session.stage), waiting: session.stage === "setup" ? "等待开局" : ["play", "w6"].includes(session.stage) ? "等待评估" : "开局完成后评估" });
   const name = colorName(perspective), other = colorName(3 - perspective);
   $("#perspectiveName").textContent = `${name}棋`; $("#otherName").textContent = `${other}棋`; $("#trendLegend").textContent = `上方利于${name} · 下方利于${other}`;
   const judgement = $("#positionJudgement"); judgement.textContent = session.winner ? session.description() : !["play", "w6"].includes(session.stage)
@@ -165,7 +168,11 @@ function searchFor(token) { return async options => {
   const result = await engine.search({ ...options, requestId: id });
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError"); return result;
 }; }
-function commit(event, automatic = false) { session.apply(event, { automatic }); positionChanged(); render(); }
+function commit(event, automatic = false, result = null) {
+  const continuation = automatic && event.type === "stone" && ["play", "w6"].includes(session.stage) ? result : null;
+  if (continuation) analysis.accept({ requestId, sideToMove: session.color, stats: continuation });
+  session.apply(event, { automatic }); positionChanged(false, continuation); render();
+}
 async function autoPlay() {
   if (busy || modal || session.winner) return;
   const token = serial; busy = true; engine.stopPonder(); render();
@@ -175,7 +182,7 @@ async function autoPlay() {
     if (token !== serial || modal) return;
     if (session.decision) commit({ type: "decision", choice: suggestion.choice }, true);
     else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index }, true);
-    else commit({ type: session.stage === "choose" ? "select" : "stone", index: suggestion.points[0] }, true);
+    else commit({ type: session.stage === "choose" ? "select" : "stone", index: suggestion.points[0] }, true, suggestion.result);
   } } catch (error) { if (error.name !== "AbortError" && token === serial) { state = "error"; notify(`AI 未完成操作：${error.message}。可重试或悔棋。`, true); } }
   finally { if (token === serial) { busy = false; render(); if (state !== "error") void syncPonder(); } }
 }

@@ -9,6 +9,7 @@ export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
     if (value === simple && controls.hidden === !value) return;
     simple = value;
     document.body.classList.toggle("simple-mode", simple); controls.hidden = !simple;
+    document.documentElement.classList.toggle("simple-view", simple);
     document.querySelector("#boardSvg").setAttribute("viewBox", simple ? "30 30 560 560" : "20 20 580 580");
     onChange(simple);
   }

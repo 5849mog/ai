@@ -8,7 +8,7 @@
     <title>五目 · Gomoku</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=21" />
-    <link rel="stylesheet" href="./game-modes.css?v=3" />
+    <link rel="stylesheet" href="./game-modes.css?v=4" />
   </head>
   <body>
     <div class="app-shell">
@@ -87,6 +87,7 @@
           </aside>
         </section>
       </main>
+      <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待评估</div>
       <div class="simple-controls" id="simpleControls" hidden>
         <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局；长按返回完整界面"><span id="simpleRestartLabel">新局</span><small>长按返回</small></button>
         <button class="icon-button" id="simpleColor" type="button" aria-pressed="true" title="切换执色会开始新局"><i class="simple-black" aria-hidden="true"></i><span id="simpleColorLabel">你执黑</span><small>点击换边</small></button>

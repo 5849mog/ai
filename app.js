@@ -5,7 +5,7 @@ import { describeSearch } from "./search-info.js";
 import { createRecord, replayRecord, loadGame, saveGame } from "./game-record.js";
 import { setupRecordUi } from "./record-ui.js";
 import { PositionAnalysis } from "./position-analysis.js";
-import { createAnalysisView } from "./analysis-view.js";
+import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 
@@ -174,6 +174,7 @@ function stopClock() { clearInterval(clockTimer); clockTimer = null; }
 
 function updateSearchInfo() {
   analysisView.render(positionAnalysis, winner);
+  renderSimpleWinRate(document.querySelector("#simpleWinRate"), positionAnalysis, winner);
   if (setupPosition) document.querySelector("#positionContext").textContent = `续下第 ${moves.length} 手`;
   const info = describeSearch(liveStats, statsSide, 3 - playerColor);
   document.querySelector("#searchDepth").textContent = info.depth;

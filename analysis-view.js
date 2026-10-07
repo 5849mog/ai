@@ -11,6 +11,20 @@ const curve = points => points.reduce((path, point, i) => {
   const previous = points[i - 1], middle = (previous.x + point.x) / 2;
   return path + ` C${middle},${previous.y} ${middle},${point.y} ${point.x},${point.y}`;
 }, "");
+const positionPercent = (point, winner) => {
+  if (point?.winRate == null) return null;
+  const percent = Math.round(point.winRate * 100);
+  return !winner && !point.forcedColor ? Math.min(99, Math.max(1, percent)) : percent;
+};
+
+export function renderSimpleWinRate(root, analysis, winner, { available = true, waiting = "等待评估" } = {}) {
+  const percent = available ? positionPercent(analysis.current, winner) : null;
+  const black = analysis.playerColor === 1 ? percent : percent == null ? null : 100 - percent;
+  const text = winner ? winner === 3 ? "和棋" : `${winner === 1 ? "黑" : "白"}胜`
+    : percent == null ? waiting : `黑 ${black}% · 白 ${100 - black}%`;
+  root.textContent = `胜率 · ${text}`;
+  root.dataset.state = winner ? "finished" : percent == null ? "waiting" : "rated";
+}
 
 export function createAnalysisView(root) {
   const select = selector => root.querySelector(selector);
@@ -23,8 +37,7 @@ export function createAnalysisView(root) {
       if (signature === previousSignature) return;
       previousSignature = signature;
       const known = point?.winRate != null;
-      const rate = known ? Math.round(point.winRate * 100) : null;
-      const percent = known && !winner && !point.forcedColor ? Math.min(99, Math.max(1, rate)) : rate;
+      const percent = positionPercent(point, winner);
       root.dataset.state = winner ? "finished" : known ? "rated" : "waiting";
       select("#positionJudgement").textContent = describePosition(point, analysis.playerColor, winner);
       select("#positionContext").textContent = winner ? "对局已结束" : `第 ${analysis.moves.length} 手`;
