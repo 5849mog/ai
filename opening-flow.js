@@ -23,7 +23,7 @@ export function openingFlow(session, { busy = false, state = "ready", advice = n
   if (rulesOpen) {
     for (const [rule, label] of Object.entries(RULES)) add("rule", rule, label, rule === session.rule);
     add("rules", "close", "返回当前棋局");
-    return { title: "选择本局规则", note: "点选规则会开始新局，执色与开局角色在棋盘旁选择。", actions };
+    return { title: "选择本局规则", note: session.workflow === "duel" ? "点选规则会开始新的 AI 对弈局。" : "点选规则会开始附身新局，执色与开局角色在棋盘旁选择。", actions };
   }
   if (session.stage === "setup") {
     if (session.rule === "rif") {

@@ -8,6 +8,7 @@ import { OpeningSession, replaySession, isAutomaticTurn } from "../opening-sessi
 // The fixture isolates UI/role sequencing from engine strength and availability.
 const mocked = process.argv.includes("--mock-engine");
 const layoutOnly = process.argv.includes("--layout-only");
+const recordsOnly = process.argv.includes("--existing-records-only");
 const fixture = `export class GomokuEngine {
   constructor(options) { Object.assign(this, options); this.ready = false; this.pondering = false; }
   async init() { this.ready = true; this.onState({state:'ready'}); }
@@ -49,7 +50,7 @@ try {
   await mkdir(output, { recursive: true });
   await page.goto(base + "renju.html?view=simple"); await stage("setup");
   assert.equal(await action("start").count(), 2); assert.equal(await page.locator("#boardSvg [data-stone]").count(), 0);
-  if (!layoutOnly) {
+  if (!layoutOnly && !recordsOnly) {
   for (const opener of [0, 1]) for (const swap of ["keep", "swap"]) {
     await page.locator("#simpleRestart").tap(); await stage("setup"); await action("start", opener).tap();
     if (opener === 1) for (const index of [112, 97, 96]) await play(index);
@@ -127,6 +128,22 @@ try {
 
   await selectRule("rif");
   }
+  if (!layoutOnly) {
+    const legacy = new OpeningSession({ rule: "rif", workflow: "follow", initialBlackSeat: 0 });
+    legacy.apply({ type: "stone", index: 112 }); legacy.apply({ type: "stone", index: 97 });
+    for (const restart of ["new", "rule"]) {
+      await page.evaluate(record => sessionStorage.setItem("qaOpeningFixture", JSON.stringify({ record, perspective: 1 })), legacy.record());
+      await page.reload(); await stage("b3");
+      assert.deepEqual(await record(), legacy.record());
+      if (restart === "new") await page.locator("#simpleRestart").tap(); else await selectRule("rif");
+      await stage("setup"); assert.equal((await game()).workflow, "copilot"); assert.equal(await action("start").count(), 2);
+      await action("start", 0).tap(); await stage("swap3");
+      assert.deepEqual((await game()).colors, [1, 2, 1]);
+    }
+    pass("Existing manual records remain intact; simple-mode New and rule selection start the inline copilot flow");
+    await page.locator("#simpleRestart").tap(); await stage("setup");
+  }
+  if (!recordsOnly) {
   for (const [width, height] of [[260,420],[320,480],[360,740],[390,844],[820,1180],[1440,900],[320,240],[560,320],[844,390]]) {
     await page.setViewportSize({ width, height });
     for (const rulesOpen of [false, true]) {
@@ -147,6 +164,7 @@ try {
     if (width === 320 && height === 240) await page.screenshot({path:`${output}/small-window.png`});
   }
   pass("Nine small-window, phone, tablet, desktop and landscape viewports fit the board, inline choices and controls");
+  }
   assert.deepEqual(errors, []); assert.equal(await page.locator("dialog[open]").count(), 0);
   pass(layoutOnly ? "Simple-mode layout verified" : mocked ? "Browser flow verified with deterministic engine fixture (Rapfi strength/runtime not covered)" : "Browser flow verified with real Rapfi engine");
 } catch (error) {
