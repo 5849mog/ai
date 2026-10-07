@@ -163,7 +163,7 @@ try {
     assert(simple.width > normal.width, `simple board not larger at ${width}x${height}: ${simple.width} vs ${normal.width}`);
     const bounds = await page.evaluate(() => ({ x: document.documentElement.scrollWidth, y: document.documentElement.scrollHeight, w: innerWidth, h: innerHeight }));
     assert(bounds.x <= bounds.w && bounds.y <= bounds.h, `page overflow at ${width}x${height}`);
-    assert.equal(await page.locator("button:visible").count(), 2);
+    assert.equal(await page.locator("button:visible").count(), 3);
     await page.screenshot({ path: `${output}/simple-${width}-${height}.png` });
     await page.keyboard.press("Escape");
     await page.waitForFunction(() => !document.body.classList.contains("simple-mode"));
@@ -185,7 +185,7 @@ try {
   await offline.waitForFunction(() => navigator.serviceWorker.controller);
   const cached = await offline.evaluate(async () => {
     await navigator.serviceWorker.ready;
-    const name = (await caches.keys()).find(key => key.endsWith("250615-v23"));
+    const name = (await caches.keys()).find(key => key.endsWith("250615-v24"));
     const cache = await caches.open(name);
     return { cache: name, ready: (await Promise.all(["setup-ui.js", "display-modes.js", "game-modes.css?v=3"].map(path => cache.match(new URL(path, location.href).href)))).every(Boolean) };
   });
@@ -194,7 +194,7 @@ try {
   assert.equal((await record(offline)).version, 2);
   await menu(offline, "#enterSimpleMode"); await offline.reload(); await ready(offline);
   assert.equal(await offline.locator("button:visible").count(), 3); assert.equal((await position(offline)).length, 3);
-  mark("v23 caches mode UI; custom setup and simple-mode resume work offline", cached);
+  mark("v24 caches mode UI; custom setup and simple-mode resume work offline", cached);
   assert.deepEqual(report.errors, []);
   report.browser = browser.version();
   await writeFile("reports/game-modes-qa.json", JSON.stringify(report, null, 2) + "\n");

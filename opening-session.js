@@ -5,12 +5,12 @@ export const coordinate = index => "ABCDEFGHIJKLMNO"[index % 15] + (15 - Math.fl
 export function isAutomaticTurn(session) {
   if (!session || session.winner) return false;
   if (session.workflow === "duel") return session.actor === 1;
-  return session.workflow === "copilot" && session.copilotReady && session.stage === "play" && session.actor === 0;
+  return session.workflow === "copilot" && session.copilotReady && session.stage !== "setup" && !session.decision && session.actor === 0;
 }
 export function canManualTurn(session, { modal = false, busy = false } = {}) {
-  if (!session || modal || session.winner) return false;
+  if (!session || modal || session.winner || session.stage === "setup") return false;
   if (session.workflow === "follow") return true;
-  if (session.workflow === "copilot" && (!session.copilotReady || session.stage !== "play")) return true;
+  if (session.workflow === "copilot" && (!session.copilotReady || session.decision)) return !busy;
   return session.workflow === "copilot" ? session.actor === 1 && !busy : session.actor === 0 && !busy;
 }
 const STONES = { b1: 1, w2: 2, b3: 1, w4: 2, b5: 1, w6: 2 };
@@ -19,20 +19,21 @@ const WIDTHS = { b1: 1, w2: 3, b3: 5, w4: 7, b5: 9 };
 // ownership only; proposed fifths do not enter the board before selection.
 export class OpeningSession {
   constructor({ rule = "rif", workflow = "copilot", initialBlackSeat = 0, seed = null } = {}) {
-    if (!Object.hasOwn(RULES, rule) || !["follow", "duel", "copilot"].includes(workflow) || ![0, 1].includes(initialBlackSeat)) throw new Error("对局设置无效");
+    if (!Object.hasOwn(RULES, rule) || !["follow", "duel", "copilot"].includes(workflow) || ![0, 1].includes(initialBlackSeat) && !(initialBlackSeat === null && workflow === "copilot" && !seed)) throw new Error("对局设置无效");
     if (seed) { validateSeed(seed.board); if (![1, 2].includes(seed.sideToMove)) throw new Error("下一手棋色无效"); }
     this.options = { rule, workflow, initialBlackSeat, seed: seed ? { board: Array.from(seed.board), sideToMove: seed.sideToMove } : null };
     const hasFormalOpening = rule === "rif" || rule === "taraguchi10";
-    const ready = workflow === "copilot" && (Boolean(seed) || hasFormalOpening);
+    const ready = workflow === "copilot" && initialBlackSeat !== null && (Boolean(seed) || hasFormalOpening);
     const freeOpening = rule === "freestyle" || rule === "renju";
-    Object.assign(this, { rule, workflow, copilotReady: ready, blackSeat: initialBlackSeat, board: Uint8Array.from(seed?.board ?? new Uint8Array(225)), stage: seed || freeOpening ? "play" : "b1", next: seed?.sideToMove ?? 1, moves: [], colors: [], events: [], actors: [], candidates: [], winner: 0, forbidden: "", lastMove: -1 });
+    Object.assign(this, { rule, workflow, copilotReady: ready, initialBlackSeat, blackSeat: initialBlackSeat, board: Uint8Array.from(seed?.board ?? new Uint8Array(225)), stage: initialBlackSeat === null ? "setup" : seed || freeOpening ? "play" : "b1", next: seed?.sideToMove ?? 1, moves: [], colors: [], events: [], actors: [], candidates: [], winner: 0, forbidden: "", lastMove: -1 });
   }
   get color() { return STONES[this.stage] ?? (["offer", "offer10", "choose"].includes(this.stage) ? 1 : this.next); }
   get whiteSeat() { return 1 - this.blackSeat; }
-  get playerColor() { return this.blackSeat === 0 ? 1 : 2; }
+  get playerColor() { return this.blackSeat === null ? 0 : this.blackSeat === 0 ? 1 : 2; }
   get actor() {
-    if (this.rule === "rif" && ["b1", "w2", "b3"].includes(this.stage)) return this.options.initialBlackSeat;
-    if (this.stage === "swap3" && this.rule === "rif") return 1 - this.options.initialBlackSeat;
+    if (this.stage === "setup") return 0;
+    if (this.rule === "rif" && ["b1", "w2", "b3"].includes(this.stage)) return this.initialBlackSeat;
+    if (this.stage === "swap3" && this.rule === "rif") return 1 - this.initialBlackSeat;
     if (this.stage.startsWith("swap")) return this.next === 1 ? this.blackSeat : this.whiteSeat;
     if (this.stage === "route4" || this.stage.startsWith("offer")) return this.blackSeat;
     if (this.stage === "choose") return this.whiteSeat;
@@ -42,7 +43,7 @@ export class OpeningSession {
   get offerCount() { return this.stage === "offer10" ? 10 : this.stage === "offer" ? 2 : 0; }
   get width() { return this.rule === "freestyle" || this.rule === "renju" || this.options.seed || this.rule === "rif" && this.stage === "w4" ? 15 : WIDTHS[this.stage] ?? 15; }
   canPoint(index) {
-    if (this.winner || this.decision || !Number.isInteger(index) || index < 0 || index >= 225 || this.board[index]) return false;
+    if (this.winner || this.decision || this.stage === "setup" || !Number.isInteger(index) || index < 0 || index >= 225 || this.board[index]) return false;
     if (this.stage === "choose") return this.candidates.includes(index);
     if (!inCentral(index, this.width)) return false;
     if (this.offerCount) {
@@ -55,7 +56,12 @@ export class OpeningSession {
   apply(event, { automatic = Boolean(event?.automatic) } = {}) {
     if (!event || this.winner) throw new Error("对局已结束或操作无效");
     const actor = this.actor;
-    if (event.type === "handoff") {
+    if (this.stage === "setup") {
+      if (event.type !== "start" || ![0, 1].includes(event.initialBlackSeat)) throw new Error("请先选择谁先开局");
+      this.initialBlackSeat = this.blackSeat = event.initialBlackSeat;
+      const formal = this.rule === "rif" || this.rule === "taraguchi10";
+      this.stage = formal ? "b1" : "play"; this.copilotReady = formal;
+    } else if (event.type === "handoff") {
       if (this.workflow !== "copilot" || this.stage !== "play" || this.copilotReady) throw new Error("当前不需要 AI 接手");
       this.copilotReady = true;
     } else if (this.decision) {
@@ -74,7 +80,8 @@ export class OpeningSession {
       if (choosing) { this.stage = "w6"; this.candidates = []; }
       else if (this.stage !== "play") this.stage = this.rule === "rif" ? { b1: "w2", w2: "b3", b3: "swap3", w4: "offer", w6: "play" }[this.stage] : { b1: "swap1", w2: "swap2", b3: "swap3", w4: "route4", b5: "swap5", w6: "play" }[this.stage];
     }
-    const saved = event.type === "decision" ? { type: event.type, choice: event.choice }
+    const saved = event.type === "start" ? { type: event.type, initialBlackSeat: event.initialBlackSeat }
+      : event.type === "decision" ? { type: event.type, choice: event.choice }
       : event.type === "handoff" ? { type: event.type }
         : { type: event.type, index: event.index };
     if (automatic) saved.automatic = true;
@@ -84,14 +91,15 @@ export class OpeningSession {
     if (!this.events.length) return this;
     let count = this.events.length - 1;
     if (this.workflow === "duel") while (count > 0 && this.actors[count] !== 0) count--;
-    else if (this.workflow === "copilot" && this.stage === "play") while (count > 0 && this.events[count]?.automatic) count--;
+    else if (this.workflow === "copilot") while (count > 0 && this.events[count]?.automatic) count--;
     return replaySession({ ...this.record(), events: this.events.slice(0, count) });
   }
   record() { return { format: "gomoku-opening", version: 1, ...this.options, events: this.events.map(e => ({ ...e })) }; }
   description() {
+    if (this.stage === "setup") return this.rule === "rif" ? "谁摆前三子？请选择开局角色" : "请选择本局最开始的执色";
     if (this.winner) return this.forbidden ? `黑棋${this.forbidden}禁手 · 白胜` : this.winner === 3 ? "棋盘已满 · 和棋" : `${colorName(this.winner)}棋获胜`;
     const actor = this.workflow === "follow" ? `录入${this.actor === 0 ? "我方" : "对方"}`
-      : this.workflow === "copilot" && (!this.copilotReady || this.stage !== "play") ? "录入外部"
+      : this.workflow === "copilot" && !this.copilotReady ? "录入开局"
         : this.workflow === "copilot" ? this.actor === 0 ? "AI替你" : "录入对手"
           : this.actor === 0 ? "你来" : "AI 将";
     if (this.decision) return `${actor}决定${this.stage === "route4" ? "换色或十打" : "是否换色"}`;
