@@ -9,11 +9,15 @@
 .simple-controls small { width: 100%; font-size: 11px; line-height: 1.35; text-align: center; opacity: .78; }
 .simple-controls #simpleRestart { touch-action: none; user-select: none; -webkit-touch-callout: none; }
 .simple-controls .icon-button:disabled { opacity: .45; cursor: default; }
+.simple-win-rate { display: none; }
+html.simple-view, body.simple-mode { min-width: 0; }
+.simple-mode .simple-win-rate { display: flex; flex: 0 0 22px; align-items: center; justify-content: center; width: min(100%, 480px); min-width: 0; height: 22px; font-size: 13px; line-height: 22px; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.simple-mode .simple-win-rate[data-state="waiting"] { color: var(--muted); font-size: 12px; }
 .simple-black, .setup-dot { display: inline-block; width: 16px; height: 16px; flex: 0 0 16px; border-radius: 50%; vertical-align: middle; box-shadow: 0 1px 2px #292b2429; }
 .simple-black, .setup-dot.black { background: radial-gradient(circle at 30% 25%, #65695b, #242923 55%, #101712); border: 1px solid #212820; }
 .setup-dot.white { background: radial-gradient(circle at 30% 25%, #fffefa, #eeeadd 65%, #cac8b8); border: 1px solid #b6baaa; }
 .simple-mode .topbar, .simple-mode .page-footer, .simple-mode .board-toolbar, .simple-mode .game-sidebar, .simple-mode .game-notice { display: none !important; }
-.simple-mode .app-shell { --simple-board-space: calc(100dvh - 54px - 12px - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: max(4px, env(safe-area-inset-top)) max(2px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(2px, env(safe-area-inset-left)); }
+.simple-mode .app-shell { --simple-board-space: calc(100dvh - 54px - 24px - 22px - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: max(4px, env(safe-area-inset-top)) max(2px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(2px, env(safe-area-inset-left)); }
 .simple-mode .game-layout { width: min(100%, var(--simple-board-space)); aspect-ratio: 1; flex: 0 0 auto; padding: 0; }
 .simple-mode .board-card { height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
 .simple-mode .board-wrap { grid-column: 1; grid-row: 1; }

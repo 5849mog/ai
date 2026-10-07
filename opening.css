@@ -21,12 +21,13 @@ html.opening-simple, body.opening-page.simple-mode { min-width: 0; }
 .opening-flow button:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .opening-flow button[data-suggested="true"] { color: var(--green); background: #e9eee2; border-color: #819476; }
 .opening-flow button:disabled { opacity: .5; cursor: default; }
-.opening-page.simple-mode .app-shell { gap: 8px; --simple-board-space: calc(100dvh - 54px - 16px - var(--opening-flow-space, 0px) - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); }
+.opening-page.simple-mode .app-shell { gap: 8px; --simple-board-space: calc(100dvh - 54px - 24px - 22px - var(--opening-flow-space, 0px) - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); }
 #simpleOpeningFlow { width: min(100%, 480px); flex: 0 0 auto; }
 .opening-page.simple-mode .simple-controls small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-height: 460px) and (orientation: landscape) {
   .opening-page.simple-mode .app-shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(138px, .7fr); grid-template-rows: minmax(0, 1fr) auto; }
-  .opening-page.simple-mode .game-layout { grid-column: 1; grid-row: 1 / -1; width: min(100%, calc(100dvh - 12px)); justify-self: center; }
+  .opening-page.simple-mode .game-layout { grid-column: 1; grid-row: 1 / -1; width: min(100%, calc(100dvh - 40px)); justify-self: center; align-self: start; }
+  .opening-page.simple-mode #simpleWinRate { grid-column: 1; grid-row: 1 / -1; align-self: end; font-size: 11px; }
   .opening-page.simple-mode #simpleOpeningFlow { grid-column: 2; grid-row: 1; align-self: center; }
   .opening-page.simple-mode .simple-controls { grid-column: 2; grid-row: 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
   .opening-page.simple-mode .simple-controls small { display: none; }

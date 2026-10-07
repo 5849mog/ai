@@ -1,13 +1,13 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const VERSION = PREFIX + "250615-v25";
+const VERSION = PREFIX + "250615-v26";
 const url = path => new URL(path, BASE).href;
 const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.css", "game-modes.css?v=1", "setup-ui.js", "display-modes.js", "app.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "favicon.svg", "about.html", "about.css", "about.css?v=2", "about.js", "about.js?v=1", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
-CORE.push("game-modes.css?v=2", "game-modes.css?v=3", "renju.html", "opening.css", "opening.css?v=1", "opening.css?v=2", "opening-session.js", "opening-flow.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",
+CORE.push("game-modes.css?v=2", "game-modes.css?v=3", "game-modes.css?v=4", "renju.html", "opening.css", "opening.css?v=1", "opening.css?v=2", "opening.css?v=3", "opening-session.js", "opening-flow.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",
   "engine.js?v=22", "engine.worker.js?v=22", "engine-protocol.js?v=22", "engine-jobs.js?v=22", "recommendations.js?v=22");
 
 self.addEventListener("install", event => {
