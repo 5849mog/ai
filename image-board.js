@@ -3,7 +3,7 @@ const luma = rgb => .2126 * rgb[0] + .7152 * rgb[1] + .0722 * rgb[2];
 const chroma = rgb => Math.max(...rgb) - Math.min(...rgb);
 
 export function boardRectangle(a, b, width, height) {
-  if (![a?.x, a?.y, b?.x, b?.y, width, height].every(Number.isFinite)) throw new Error("请先标定棋盘的两个交点");
+  if (![a?.x, a?.y, b?.x, b?.y, width, height].every(Number.isFinite)) throw new Error("请框选棋盘最外层网格线围成的范围");
   const left = Math.min(a.x, b.x), top = Math.min(a.y, b.y), right = Math.max(a.x, b.x), bottom = Math.max(a.y, b.y);
   if (left < 0 || top < 0 || right >= width || bottom >= height || right - left < 84 || bottom - top < 84) throw new Error("棋盘范围无效或分辨率太低，请重新标定");
   const ratio = (right - left) / (bottom - top);

@@ -114,11 +114,6 @@ function renderBoard(boardSvg, state, idPrefix) {
   if (answer && !editable) {
     const p = point(answerIndex); svg += `<circle class="answer-ring" cx="${p.x}" cy="${p.y}" r="18" data-answer="${answerIndex}"/>`;
   }
-  if (aiming || answer && !editable) {
-    const index = aiming ? pendingIndex : answerIndex, p = point(index);
-    const x = Math.max(34, Math.min(526, p.x + 19)), y = p.y < 78 ? p.y + 20 : p.y - 44;
-    svg += `<g class="coordinate-pill${aiming ? " aiming" : " answer"}" aria-label="${aiming ? "待确认" : "AI 落子"} ${coordinate(index)}"><rect x="${x}" y="${y}" width="60" height="24" rx="5"/><text x="${x + 30}" y="${y + 12}">${coordinate(index)}</text></g>`;
-  }
   // A dialog preview shares the page with the live board. Its SVG paint servers
   // need separate IDs so a hidden preview cannot shadow the live gradients.
   if (idPrefix) {
