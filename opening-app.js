@@ -222,12 +222,12 @@ async function place(index) {
   cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
-function newGame(options = { ...session.options, seed: null, initialBlackSeat: session.workflow === "copilot" ? null : session.initialBlackSeat }) { cancel(); rulesOpen = false; session = new OpeningSession(options); configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
+function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { cancel(); rulesOpen = false; session = new OpeningSession(options); configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
 function newSimpleGame(rule = session.rule) {
   // Existing releases saved manual-follow records. Preserve the current game,
   // but let a fresh simple-mode game use the inline copilot role selection.
   const workflow = session.workflow === "follow" ? "copilot" : session.workflow;
-  newGame({ rule, workflow, initialBlackSeat: workflow === "copilot" ? null : session.initialBlackSeat });
+  newGame({ rule, workflow, initialBlackSeat: null });
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };

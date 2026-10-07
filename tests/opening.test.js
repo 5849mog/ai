@@ -113,7 +113,35 @@ test("Inline opening starts and decisions are replayable, show fixed B-W-B, and 
   const flow = openingFlow(s); assert.ok(flow.actions[0].label.startsWith("A1")); assert.ok(flow.actions[1].label.startsWith("A2"));
   assert.equal(s.board.filter(Boolean).length, 4); assert.equal(s.candidates.length, 2);
   const undone = s.undo(); assert.equal(undone.stage, "w4"); assert.equal(undone.board.filter(Boolean).length, 3);
-  assert.throws(() => new OpeningSession({ workflow: "duel", initialBlackSeat: null }));
+});
+test("Every workflow waits for inline role selection and replays either opener without changing turn ownership", () => {
+  for (const rule of ["rif", "taraguchi10", "freestyle", "renju"]) for (const workflow of ["copilot", "follow", "duel"]) for (const opener of [0, 1]) {
+    const s = new OpeningSession({ rule, workflow, initialBlackSeat: null });
+    assert.equal(s.playerColor, 0); assert.equal(s.stage, "setup");
+    assert.equal(canManualTurn(s), false); assert.equal(isAutomaticTurn(s), false);
+    assert.throws(() => stone(s, 112)); same(replaySession(s.record()), s);
+    const flow = openingFlow(s); assert.deepEqual(flow.actions.map(action => action.value), ["0", "1"]);
+    if (rule === "rif" && workflow === "duel") assert.match(flow.actions[1].label, /AI 摆前三子/);
+    if (rule !== "rif" && workflow !== "copilot") assert.doesNotMatch(flow.note, /AI 接手|AI 只替你/);
+    s.apply({ type: "start", initialBlackSeat: opener });
+    assert.equal(s.playerColor, opener === 0 ? 1 : 2); assert.equal(s.actor, opener);
+    const automatic = workflow === "duel" ? opener === 1 : workflow === "copilot" && ["rif", "taraguchi10"].includes(rule) && opener === 0;
+    assert.equal(isAutomaticTurn(s), automatic); assert.equal(canManualTurn(s), !automatic);
+    same(replaySession(s.record()), s); assert.equal(s.undo().stage, "setup");
+    if (automatic) {
+      const points = rule === "rif" ? [112, 97, 96] : [112];
+      for (const index of points) s.apply({ type: "stone", index }, { automatic: true });
+      same(replaySession(s.record()), s); assert.equal(s.undo().stage, "setup");
+    }
+  }
+});
+test("Seeded games require an established role while legacy games keep their saved opener", () => {
+  for (const workflow of ["copilot", "follow", "duel"]) {
+    assert.throws(() => new OpeningSession({ workflow, initialBlackSeat: null, seed: { board: new Uint8Array(225), sideToMove: 1 } }));
+    const legacy = new OpeningSession({ workflow, initialBlackSeat: 1 });
+    stone(legacy, 112); same(replaySession(legacy.record()), legacy);
+    assert.equal(replaySession(legacy.record()).playerColor, 2);
+  }
 });
 test("Freestyle copilot waits for an explicit handoff and undo returns to the manual opening", () => {
   const s = new OpeningSession({ rule: "freestyle", workflow: "copilot" });

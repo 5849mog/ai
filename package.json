@@ -19,6 +19,7 @@
     "test:modes": "node scripts/game-modes-qa.js",
     "test:renju": "node scripts/renju-qa.js",
     "test:opening-flow": "node scripts/opening-flow-qa.js",
+    "test:opening-startup": "node scripts/opening-startup-qa.js",
     "test:simple-win-rate": "node scripts/simple-win-rate-qa.js",
     "benchmark:ponder": "node scripts/ponder-benchmark.js",
     "report:ponder": "node scripts/ponder-report.js",

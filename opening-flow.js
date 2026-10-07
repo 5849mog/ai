@@ -27,11 +27,14 @@ export function openingFlow(session, { busy = false, state = "ready", advice = n
   }
   if (session.stage === "setup") {
     if (session.rule === "rif") {
-      add("start", 0, "我摆前三子 · 暂执黑"); add("start", 1, "对方摆前三子 · 我暂执白");
+      add("start", 0, "我摆前三子 · 暂执黑"); add("start", 1, session.workflow === "duel" ? "AI 摆前三子 · 我暂执白" : "对方摆前三子 · 我暂执白");
       return { title: "这局谁摆前三子？", note: "同一人按黑 → 白 → 黑摆三子；之后另一方有换色权。", actions };
     }
     add("start", 0, "我最开始执黑"); add("start", 1, "我最开始执白");
-    return { title: "这局你最开始执什么色？", note: session.rule === "taraguchi10" ? "每个换色节点都在这里按实战确认；AI 只替你操作。" : "先录入实际开局，再点「AI 接手」。", actions };
+    const note = session.workflow === "duel" ? "选择后开始与 AI 对弈，AI 自动完成它的回合。"
+      : session.workflow === "follow" ? "按实际执色选择，双方操作由你录入，颜色按规则自动安排。"
+        : session.rule === "taraguchi10" ? "每个换色节点都在这里按实战确认；AI 只替你操作。" : "先录入实际开局，再点「AI 接手」。";
+    return { title: "这局你最开始执什么色？", note, actions };
   }
   if (session.winner) return { title: session.description(), note: "点「新局」重新选择本局角色，或点「悔棋」撤回。", actions };
   if (state === "error") { add("retry", "", "重试 AI"); return { title: "AI 暂未完成操作", note: "当前局面已保留；可以重试、悔棋或重新开局。", actions }; }
