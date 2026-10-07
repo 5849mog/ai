@@ -216,6 +216,12 @@ async function place(index) {
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
 function newGame(options = { ...session.options, seed: null, initialBlackSeat: session.workflow === "copilot" ? null : session.initialBlackSeat }) { cancel(); rulesOpen = false; session = new OpeningSession(options); configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
+function newSimpleGame(rule = session.rule) {
+  // Existing releases saved manual-follow records. Preserve the current game,
+  // but let a fresh simple-mode game use the inline copilot role selection.
+  const workflow = session.workflow === "follow" ? "copilot" : session.workflow;
+  newGame({ rule, workflow, initialBlackSeat: workflow === "copilot" ? null : session.initialBlackSeat });
+}
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
 svg.addEventListener("pointerdown", event => { pointerType = event.pointerType; });
@@ -238,7 +244,7 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
   else if (action === "decision") decision(value);
   else if (action === "select") void place(Number(value));
   else if (action === "handoff") handoff();
-  else if (action === "rule") newGame({ rule: value, workflow: session.workflow, initialBlackSeat: session.workflow === "copilot" ? null : session.initialBlackSeat });
+  else if (action === "rule") newSimpleGame(value);
   else if (action === "rules") { rulesOpen = false; render(); void prepare(); }
   else if (action === "retry") { cancel(); render(); void prepare(); }
   else if (action === "forbidden" && forbiddenInput) {
@@ -258,7 +264,7 @@ $("#ponderToggle").onchange = () => { try { localStorage.setItem("gomoku-ponderi
 setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow }), notify, onModalChange: onModal,
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); }
 });
-display = setupDisplayModes({ onNewGame: () => newGame(), onChange: () => { pending = hover = -1; render(); }, onToggleColor: () => {
+display = setupDisplayModes({ onNewGame: () => newSimpleGame(), onChange: () => { pending = hover = -1; render(); }, onToggleColor: () => {
   const open = !rulesOpen; cancel(); rulesOpen = open; render(); if (!open) void prepare();
 } });
 new ResizeObserver(() => {

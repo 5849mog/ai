@@ -185,7 +185,7 @@ try {
   await offline.waitForFunction(() => navigator.serviceWorker.controller);
   const cached = await offline.evaluate(async () => {
     await navigator.serviceWorker.ready;
-    const name = (await caches.keys()).find(key => key.endsWith("250615-v24"));
+    const name = (await caches.keys()).find(key => key.endsWith("250615-v25"));
     const cache = await caches.open(name);
     return { cache: name, ready: (await Promise.all(["setup-ui.js", "display-modes.js", "game-modes.css?v=3"].map(path => cache.match(new URL(path, location.href).href)))).every(Boolean) };
   });
@@ -194,7 +194,7 @@ try {
   assert.equal((await record(offline)).version, 2);
   await menu(offline, "#enterSimpleMode"); await offline.reload(); await ready(offline);
   assert.equal(await offline.locator("button:visible").count(), 3); assert.equal((await position(offline)).length, 3);
-  mark("v24 caches mode UI; custom setup and simple-mode resume work offline", cached);
+  mark("v25 caches mode UI; custom setup and simple-mode resume work offline", cached);
   assert.deepEqual(report.errors, []);
   report.browser = browser.version();
   await writeFile("reports/game-modes-qa.json", JSON.stringify(report, null, 2) + "\n");
