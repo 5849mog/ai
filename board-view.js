@@ -11,7 +11,7 @@ function point(index) {
   };
 }
 
-function coordinate(index) {
+export function coordinate(index) {
   const x = index % SIZE;
   const y = Math.floor(index / SIZE);
   return COLS[x] + String(SIZE - y);
@@ -35,7 +35,7 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state, idPrefix) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [] } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   const lines = editable ? [] : winningLines(board, lastMove);
   let svg = "";
@@ -64,6 +64,11 @@ function renderBoard(boardSvg, state, idPrefix) {
   for (const line of lines) {
     const start = point(line[0]), end = point(line.at(-1));
     svg += `<line class="winning-connector" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"/>`;
+  }
+  const aiming = Number.isInteger(pendingIndex) && pendingIndex >= 0 && pendingIndex < board.length && !board[pendingIndex] && canInteract && !editable;
+  if (aiming) {
+    const p = point(pendingIndex);
+    svg += `<g class="aim-guides" aria-hidden="true"><line x1="46" y1="${p.y}" x2="574" y2="${p.y}"/><line x1="${p.x}" y1="46" x2="${p.x}" y2="574"/></g>`;
   }
   for (let index = 0; index < board.length; index += 1) {
     const p = point(index);
@@ -101,6 +106,18 @@ function renderBoard(boardSvg, state, idPrefix) {
   for (const index of new Set(lines.flat())) {
     const p = point(index);
     svg += `<circle class="winning-ring" data-winning-stone="${index}" cx="${p.x}" cy="${p.y}" r="17"/>`;
+  }
+  for (const index of uncertain) if (Number.isInteger(index) && index >= 0 && index < board.length) {
+    const p = point(index); svg += `<rect class="uncertain-point" x="${p.x - 18}" y="${p.y - 18}" width="36" height="36" rx="4" data-uncertain="${index}"/>`;
+  }
+  const answer = Number.isInteger(answerIndex) && answerIndex === lastMove && Boolean(board[answerIndex]);
+  if (answer && !editable) {
+    const p = point(answerIndex); svg += `<circle class="answer-ring" cx="${p.x}" cy="${p.y}" r="18" data-answer="${answerIndex}"/>`;
+  }
+  if (aiming || answer && !editable) {
+    const index = aiming ? pendingIndex : answerIndex, p = point(index);
+    const x = Math.max(34, Math.min(526, p.x + 19)), y = p.y < 78 ? p.y + 20 : p.y - 44;
+    svg += `<g class="coordinate-pill${aiming ? " aiming" : " answer"}" aria-label="${aiming ? "待确认" : "AI 落子"} ${coordinate(index)}"><rect x="${x}" y="${y}" width="60" height="24" rx="5"/><text x="${x + 30}" y="${y + 12}">${coordinate(index)}</text></g>`;
   }
   // A dialog preview shares the page with the live board. Its SVG paint servers
   // need separate IDs so a hidden preview cannot shadow the live gradients.

@@ -1,0 +1,64 @@
+.aim-guides, .coordinate-pill, .answer-ring, .uncertain-point { pointer-events: none; }
+.aim-guides line { stroke: #526f4f; stroke-width: 1.4; stroke-dasharray: 5 4; opacity: .8; }
+.coordinate-pill rect { fill: #3f583c; stroke: #fffdf6; stroke-width: 1; }
+.coordinate-pill text { fill: #fffdf6; text-anchor: middle; dominant-baseline: central; font: 600 15px system-ui, sans-serif; }
+.coordinate-pill.aiming rect { fill: #73573b; }
+.answer-ring { fill: none; stroke: #496b43; stroke-width: 2.8; }
+.uncertain-point { fill: none; stroke: #be6d26; stroke-width: 2; stroke-dasharray: 4 3; }
+.simple-status-row, .simple-quick-tools { display: none; }
+.simple-mode .simple-status-row { display: flex; flex: 0 0 28px; align-items: center; width: min(100%, 480px); gap: 6px; min-width: 0; }
+.simple-mode .simple-status-row .simple-win-rate { flex: 1 1 auto; width: auto; min-width: 0; font-size: clamp(10px, 3vw, 13px); }
+.simple-status-row button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; font-size: 11px; height: 28px; background: #fbf9f1; color: var(--ink); cursor: pointer; }
+.simple-mode .simple-quick-tools { display: block; width: min(100%, 480px); flex: 0 0 auto; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); }
+.simple-quick-tools[hidden], .enhancement-workspace[hidden], .enhancement-workspace [hidden], .app-shell[hidden], .game-actions button[hidden], .record-options button[hidden], .simple-status-row button[hidden] { display: none !important; }
+.tool-buttons, .quick-tools-actions { display: flex; gap: 5px; }
+.tool-buttons > button { flex: 1; min-width: 0; }
+.quick-tools-actions { margin-top: 5px; justify-content: space-between; }
+.simple-quick-tools p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+.simple-quick-tools button, .enhancement-workspace button { appearance: none; border: 1px solid var(--line); border-radius: 5px; background: #fbf9f1; color: var(--ink); cursor: pointer; min-height: 34px; padding: 5px 9px; font-size: 12px; }
+.simple-quick-tools button[aria-pressed="true"], .enhancement-workspace button[aria-pressed="true"] { background: #e6edde; border-color: #78936d; color: var(--green); }
+.simple-quick-tools button:disabled, .enhancement-workspace button:disabled { opacity: .45; cursor: default; }
+.simple-mode .app-shell, .opening-page.simple-mode .app-shell { gap: 8px; --simple-board-space: calc(100dvh - 54px - 16px - 28px - var(--quick-tools-space, 0px) - var(--opening-flow-space, 0px) - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); }
+.enhancement-workspace { height: 100dvh; width: 100%; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--canvas); color: var(--ink); overflow: hidden; }
+.enhancement-workspace > div { height: 100%; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.tool-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.tool-header h2 { font-size: 18px; font-weight: 500; margin: 0; }
+.tool-header > div { display: flex; gap: 5px; }
+.tool-message { flex: 0 0 auto; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.tool-workspace { min-height: 0; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.tool-board-area { min-width: 0; min-height: 0; flex: 1 1 0; container-type: size; display: flex; align-items: center; justify-content: center; position: relative; }
+.tool-board-area > svg { width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); }
+.import-image { max-width: 100%; max-height: 100%; object-fit: contain; touch-action: manipulation; }
+.image-picker { position: relative; padding: 7px 10px; background: #faf7edf2; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); cursor: pointer; font-size: 12px; }
+.image-picker input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.tool-panel { flex: 0 0 auto; width: min(100%, 600px); align-self: center; max-height: 48%; overflow-y: auto; overscroll-behavior: contain; }
+.tool-panel p { font-size: 11px; color: var(--muted); line-height: 1.45; margin: 5px 0; }
+.calibration-actions { display: flex; gap: 8px; justify-content: center; }
+.tool-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 6px 0; }
+.tool-fields label { font-size: 11px; color: var(--muted); }
+.tool-fields select { display: block; width: 100%; height: 36px; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; background: #fbf9f1; margin-top: 3px; }
+.enhancement-workspace .tool-primary { width: 100%; background: var(--green); color: #fffdf5; }
+.image-correction > button + button { margin-top: 5px; width: 100%; }
+.review-navigation { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.review-navigation strong { font-size: 12px; font-weight: 500; text-align: center; }
+[data-timeline] { width: 100%; accent-color: var(--green); margin: 8px 0; }
+.review-highlights button { display: block; width: 100%; text-align: left; margin-top: 4px; }
+.review-candidate { pointer-events: none; }
+.review-candidate circle { fill: #f4efdd; stroke: #7a6b4b; stroke-width: 2; }
+.review-candidate text { fill: #725e35; font: 600 12px system-ui, sans-serif; dominant-baseline: central; text-anchor: middle; }
+@media (orientation: landscape) and (min-width: 600px) {
+  .tool-workspace { flex-direction: row; }
+  .tool-panel { width: 280px; max-height: 100%; }
+}
+@media (orientation: landscape) and (max-height: 460px) {
+  .opening-page.simple-mode .app-shell { grid-template-rows: minmax(0, 1fr) auto auto auto; }
+  .opening-page.simple-mode #simpleOpeningFlow { max-height: 100%; overflow-y: auto; }
+  .opening-page.simple-mode .simple-status-row { grid-column: 2; grid-row: 2; width: 100%; }
+  .opening-page.simple-mode .simple-status-row #simpleWinRate { position: static; align-self: center; height: auto; }
+  .opening-page.simple-mode .simple-quick-tools { grid-column: 2; grid-row: 3; }
+  .opening-page.simple-mode #simpleControls { grid-row: 4; }
+  .opening-page.simple-mode .game-layout { grid-row: 1 / -1; }
+  .simple-mode .simple-quick-tools { padding: 4px; }
+  .simple-quick-tools p { display: none; }
+  .simple-quick-tools button { min-height: 28px; padding: 3px 1px; font-size: 10px; white-space: nowrap; }
+}
