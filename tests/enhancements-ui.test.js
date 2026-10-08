@@ -22,6 +22,11 @@ class Element extends EventTarget {
     if (name === "hidden" || name === "disabled") this[name] = true;
     if (name === "value") this.value = String(value);
   }
+  toggleAttribute(name, force) {
+    const present = force ?? !Object.hasOwn(this.attributes, name);
+    if (present) this.setAttribute(name, ""); else delete this.attributes[name];
+    return present;
+  }
   getAttribute(name) { return this.attributes[name] ?? null; }
   append(...children) { for (const child of children) { child.parentElement = this; this.children.push(child); } }
   before(element) { const siblings = this.parentElement.children; siblings.splice(siblings.indexOf(this), 0, element); element.parentElement = this.parentElement; }
@@ -52,7 +57,7 @@ class Element extends EventTarget {
   releasePointerCapture() {}
   focus() {}
   click() { if (!this.disabled) { this.onclick?.({ target: this }); this.dispatchEvent(new Event("click")); } }
-  getContext() { return { clearRect() {}, fillRect() {}, drawImage() {}, beginPath() {}, arc() {}, fill() {}, stroke() {}, strokeRect(x, y, width, height) { globalThis.lastImportFrame = { left: x, top: y, right: x + width, bottom: y + height }; }, getImageData: () => globalThis.imagePixels }; }
+  getContext() { return { clearRect() {}, fillRect() {}, drawImage() {}, beginPath() {}, arc() {}, fill() {}, stroke() {}, moveTo() {}, lineTo() {}, strokeRect(x, y, width, height) { globalThis.lastImportFrame = { left: x, top: y, right: x + width, bottom: y + height }; }, getImageData: () => globalThis.imagePixels }; }
 }
 function environment() {
   const body = new Element("body"), doc = new Element("document"); doc.append(body); doc.body = body;
@@ -111,8 +116,9 @@ async function imageDraft(workflow) {
   await new Promise(done => setImmediate(done)); const canvas = root.querySelector("canvas");
   const recognize = () => {
     root.querySelector("[data-recognize]").click();
-    assert.equal(root.querySelector("svg").hidden, false);
-    assert.match(root.querySelector("svg").innerHTML, /class="grid-line"/);
+    const svg = root.querySelector("svg");
+    assert.equal(svg.getAttribute("hidden"), null); assert.equal(svg.getAttribute("width"), "580"); assert.equal(svg.getAttribute("height"), "580");
+    assert.match(svg.innerHTML, /class="grid-line"/);
   };
   const point = index => { const target = doc.createElement("circle"); target.setAttribute("data-index", String(index)); root.querySelector("svg").onclick({ target }); };
   return { root, ui, canvas, point, recognize, result: () => ({ applied, closes }) };

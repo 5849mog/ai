@@ -1,5 +1,6 @@
 import { createImageImport } from "./image-import-ui.js";
 import { createReviewUi } from "./review-ui.js";
+import { updateControlMarkup } from "./app-update.js";
 
 // Inline quick controls and full-page workspaces share one lifecycle. Neither
 // workspace uses a popup or modifies the live game while it is being inspected.
@@ -10,7 +11,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const reviewEntry = document.createElement("button"); reviewEntry.type = "button"; reviewEntry.textContent = "复盘本局"; reviewEntry.hidden = true; status.append(reviewEntry);
   const toggle = document.createElement("button"); toggle.type = "button"; toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", "simpleQuickTools"); status.append(toggle);
   const panel = document.createElement("div"); panel.id = "simpleQuickTools"; panel.className = "simple-quick-tools"; panel.hidden = true; status.after(panel);
-  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-ponder aria-pressed="true">后台思考</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-collapse>收起</button></div><p>设置影响后续思考；关后台可省电。</p>`;
+  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-ponder aria-pressed="true">后台思考</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-collapse>收起</button></div><p>设置影响后续思考；关后台可省电。</p>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = true; workspace.append(imageRoot, reviewRoot);
