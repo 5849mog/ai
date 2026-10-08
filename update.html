@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f2ea" />
+  <title>五目 · 更新页面</title>
+  <style>
+    * { box-sizing: border-box; } body { margin: 0; background: #f5f2ea; color: #283328; font: 16px/1.6 system-ui, sans-serif; }
+    main { max-width: 560px; margin: 8vh auto; padding: 24px; } h1 { font-size: 24px; } p { color: #687164; }
+    button, a { color: #3f583c; } button { width: 100%; padding: 12px; margin-top: 12px; border: 1px solid #78936d; border-radius: 6px; font: inherit; background: #e6edde; }
+    button:disabled { opacity: .5; } [data-app-version] { display: block; overflow-wrap: anywhere; } nav { display: flex; gap: 20px; margin-top: 24px; }
+  </style>
+</head>
+<body><main>
+  <h1>更新五目</h1>
+  <p>正在检查最新页面。完成后点下方按钮返回棋局。</p>
+  <div><span data-app-version role="status">读取更新组件…</span><button type="button" data-app-update disabled>检查中…</button></div>
+  <p>已保存的棋局会保留。尚未确认的截图需重新选择。</p>
+  <nav><a href="./?view=simple">无禁手棋局</a><a href="./renju.html?view=simple">连珠棋局</a></nav>
+  <script type="module">
+    // A new, versioned module URL also bypasses the pre-v32 cache-first worker.
+    try {
+      const { setupAppUpdates } = await import("./app-update.js?v=32");
+      const query = new URLSearchParams(location.search);
+      const target = new URL(query.get("from") === "renju" ? "./renju.html" : "./", location.href);
+      if (query.get("view") === "simple") target.searchParams.set("view", "simple");
+      const update = setupAppUpdates({ returnWhenCurrent: true, reload: () => location.replace(target.href) });
+      if (update) void update.check();
+    } catch {
+      document.querySelector("[data-app-version]").textContent = "读取失败，请联网后刷新此页重试。";
+    }
+  </script>
+</main></body>
+</html>

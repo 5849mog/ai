@@ -11,6 +11,7 @@ import { describeSearch } from "./search-info.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
+import { setupAppUpdates } from "./app-update.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 let session = new OpeningSession({ initialBlackSeat: null }), perspective = 1, state = "idle", serial = 0, requestId = 0;
@@ -312,8 +313,6 @@ enhancements = setupGameEnhancements({
     return engine.search({ ...options, requestId: ++requestId });
   }
 });
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register(new URL("./sw.js", import.meta.url), { scope: "./" }).catch(() => {});
-  navigator.serviceWorker.addEventListener("message", ({ data }) => { if (data.type === "offline-ready") $("#offlineState").textContent = "已缓存 · 可离线使用"; });
-}
+setupAppUpdates();
+
 render(); void prepare(); if (location.hash === "guide") dialogs.openGuide();

@@ -9,6 +9,7 @@ import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
+import { setupAppUpdates } from "./app-update.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -476,17 +477,7 @@ enhancements = setupGameEnhancements({
   }
 });
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register(new URL("./sw.js", import.meta.url), { scope: "./" })
-    .then(() => {
-      document.querySelector("#offlineState").textContent = "资源缓存后可离线使用";
-      navigator.serviceWorker.controller?.postMessage({ type: "offline-status" });
-    })
-    .catch(() => { /* local computation also works without a service worker */ });
-  navigator.serviceWorker.addEventListener("message", ({ data }) => {
-    if (data.type === "offline-ready") document.querySelector("#offlineState").textContent = "已缓存 · 可离线使用";
-  });
-}
+setupAppUpdates();
 
 render();
 void prepareEngine();
