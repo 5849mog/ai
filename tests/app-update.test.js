@@ -22,10 +22,17 @@ function fixture({ fail = false } = {}) {
 test('both inline update controls show actual code/cache versions and reload only on an explicit click', async () => {
   const f = fixture(); await f.ui.initialized;
   for (const label of f.doc.querySelectorAll('[data-app-version]')) assert.match(label.textContent, new RegExp(APP_VERSION));
-  f.status('2026.10.09.1', false); assert.equal(f.reloads(), 0);
+  f.status('2026.10.10.1', false); assert.equal(f.reloads(), 0);
   for (const button of f.doc.querySelectorAll('[data-app-update]')) assert.equal(button.textContent, '刷新使用新版');
   assert.match(f.doc.querySelector('#offlineState').textContent, /未完成/);
   await f.ui.check(); assert.equal(f.reloads(), 1); f.dom.window.close();
+});
+test('an older installed cache requires an update check rather than a reload back to old code', async () => {
+  const f = fixture(); await f.ui.initialized;
+  f.status('2026.10.08.1', true);
+  assert.equal(f.doc.querySelector('[data-app-update]').textContent, '检查更新');
+  await f.ui.check(); assert.equal(f.updates(), 1); assert.equal(f.reloads(), 0);
+  f.dom.window.close();
 });
 test('a completed manual check offers a separate reload; failures keep the retry action', async () => {
   const good = fixture(); await good.ui.check(); assert.equal(good.updates(), 1); assert.equal(good.reloads(), 0);

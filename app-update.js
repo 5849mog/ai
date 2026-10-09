@@ -1,5 +1,13 @@
 import { APP_VERSION } from "./app-release.js";
 
+function newerVersion(candidate, current) {
+  const valid = version => /^\d{4}\.\d{2}\.\d{2}\.\d+$/.test(version);
+  if (!valid(candidate) || !valid(current)) return false;
+  const a = candidate.split(".").map(Number), b = current.split(".").map(Number);
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i];
+  return false;
+}
+
 export function updateControlMarkup() {
   return `<div class="app-update-control"><span data-app-version role="status">版本 ${APP_VERSION}</span><button type="button" data-app-update>检查更新</button></div>`;
 }
@@ -20,7 +28,7 @@ export function setupAppUpdates({ container = document, serviceWorker = navigato
   if (!serviceWorker) { render(`版本 ${APP_VERSION} · 此浏览器不支持离线更新`); return; }
   serviceWorker.addEventListener("message", ({ data }) => {
     if (data?.type !== "app-status" || typeof data.version !== "string") return;
-    current = data.version; ready = current !== APP_VERSION;
+    current = data.version; ready = newerVersion(current, APP_VERSION);
     render();
     const offline = container.querySelector("#offlineState");
     if (offline) offline.textContent = data.offline ? "已缓存 · 可离线使用" : "页面已缓存 · 引擎离线缓存未完成";

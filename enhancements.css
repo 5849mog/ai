@@ -3,6 +3,9 @@
 .answer-ring { fill: none; stroke: #496b43; stroke-width: 2.8; }
 .uncertain-point { fill: none; stroke: #be6d26; stroke-width: 2; stroke-dasharray: 4 3; }
 .simple-status-row, .simple-quick-tools { display: none; }
+.simple-notice { display: none; }
+.simple-mode .simple-notice { display: block; flex: 0 0 auto; width: min(100%, 480px); max-height: 48px; overflow: auto; padding: 4px 7px; border: 1px solid #b77c61; border-radius: 5px; background: #fbf2ec; color: #714d3d; font-size: 12px; line-height: 1.5; }
+.simple-notice[hidden] { display: none !important; }
 .simple-mode .simple-status-row { display: flex; flex: 0 0 28px; align-items: center; width: min(100%, 480px); gap: 6px; min-width: 0; }
 .simple-mode .simple-status-row .simple-win-rate { flex: 1 1 auto; width: auto; min-width: 0; font-size: clamp(10px, 3vw, 13px); }
 .simple-status-row button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; font-size: 11px; height: 28px; background: #fbf9f1; color: var(--ink); cursor: pointer; }

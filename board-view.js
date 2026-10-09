@@ -126,12 +126,21 @@ function renderBoard(boardSvg, state, idPrefix) {
 
 export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
   if (!/^[a-zA-Z0-9_-]*$/.test(idPrefix)) throw new Error("无效的棋盘标识");
+  let previousKey;
   return {
     nearestIntersection(clientX, clientY) {
       return nearestIntersection(boardSvg, clientX, clientY);
     },
     render(state) {
+      // Snapshot values, not array identity: live boards mutate in place.
+      // Callers with extra SVG overlays include their state in overlayKey and
+      // append those overlays only when render returns true.
+      const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
+        Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
+        (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey]);
+      if (key === previousKey) return false;
       renderBoard(boardSvg, state, idPrefix);
+      previousKey = key; return true;
     }
   };
 }
