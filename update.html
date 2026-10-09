@@ -21,7 +21,7 @@
   <script type="module">
     // A new, versioned module URL also bypasses the pre-v32 cache-first worker.
     try {
-      const { setupAppUpdates } = await import("./app-update.js?v=32");
+      const { setupAppUpdates } = await import("./app-update.js?v=33");
       const query = new URLSearchParams(location.search);
       const target = new URL(query.get("from") === "renju" ? "./renju.html" : "./", location.href);
       if (query.get("view") === "simple") target.searchParams.set("view", "simple");

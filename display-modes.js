@@ -3,7 +3,7 @@
 export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
   const controls = document.querySelector("#simpleControls"), newGame = document.querySelector("#simpleRestart");
   const color = document.querySelector("#simpleColor"), label = document.querySelector("#simpleRestartLabel");
-  let simple = false, holdTimer, held = false, releaseTimer, pressStart;
+  let simple = false, holdTimer, held = false, pressStart, pointerId = null;
   const fromUrl = () => new URL(location.href).searchParams.get("view") === "simple";
   function apply(value) {
     if (value === simple && controls.hidden === !value) return;
@@ -33,23 +33,35 @@ export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
   });
   newGame.addEventListener("contextmenu", event => event.preventDefault());
   newGame.addEventListener("pointerdown", event => {
-    if (event.button !== 0) return;
-    clearTimeout(holdTimer); clearTimeout(releaseTimer); held = false;
+    if (event.button !== 0 || event.isPrimary === false || pointerId !== null) return;
+    clearTimeout(holdTimer); held = false; pointerId = event.pointerId;
     pressStart = [event.clientX, event.clientY];
-    newGame.setPointerCapture(event.pointerId);
+    newGame.setPointerCapture?.(event.pointerId);
     holdTimer = setTimeout(() => { held = true; leave(); }, 700);
   });
   newGame.addEventListener("pointermove", event => {
-    if (pressStart && Math.hypot(event.clientX - pressStart[0], event.clientY - pressStart[1]) > 12) {
+    if (event.pointerId === pointerId && pressStart && Math.hypot(event.clientX - pressStart[0], event.clientY - pressStart[1]) > 12) {
       clearTimeout(holdTimer); held = true;
     }
   });
-  function release() { clearTimeout(holdTimer); pressStart = null; releaseTimer = setTimeout(() => { held = false; }, 50); }
+  function release(event) {
+    if (event && event.pointerId !== pointerId) return;
+    clearTimeout(holdTimer); pressStart = null; pointerId = null;
+  }
+  function cancel(event) {
+    if (pointerId === null || event && event.pointerId !== pointerId) return;
+    held = true; release(event);
+  }
   newGame.addEventListener("pointerup", release);
-  newGame.addEventListener("pointercancel", release);
-  window.addEventListener("blur", release);
+  newGame.addEventListener("pointercancel", cancel);
+  newGame.addEventListener("lostpointercapture", cancel);
+  window.addEventListener("blur", () => cancel());
+  document.addEventListener("visibilitychange", () => { if (document.hidden) cancel(); });
   newGame.addEventListener("click", event => {
-    if (held) { event.preventDefault(); held = false; return; }
+    // Keep suppression until the actual pointer click or the next pointerdown;
+    // mobile synthetic clicks can arrive much later than 50 ms. Keyboard and
+    // assistive clicks (detail 0) still work after a cancelled touch.
+    if (held && event.detail !== 0) { event.preventDefault(); held = false; return; }
     onNewGame();
   });
   color.addEventListener("click", onToggleColor);
@@ -69,7 +81,7 @@ export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
       color.setAttribute("aria-pressed", String(playerBlack));
       color.setAttribute("aria-label", `当前${playerBlack ? "你执黑" : "AI 执黑"}，点击切换并开始新局`);
       label.textContent = winner ? `${winner === 3 ? "平局" : winner === playerColor ? "你赢了" : "AI 赢了"} · 新局`
-        : state === "error" ? "重试 · 新局" : "新局";
+        : "新局";
       if (simple) document.querySelector("#simpleLive").textContent = text;
       document.querySelector("#boardSvg").setAttribute("aria-busy", String(busy));
     }

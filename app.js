@@ -10,6 +10,7 @@ import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
 import { setupAppUpdates } from "./app-update.js";
+import { createScheduledTask } from "./ui-scheduler.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -48,22 +49,22 @@ let lastResult = null;
 let liveStats = null;
 let statsSide = WHITE;
 let statsPhase = "search";
-let statsTimer;
 let pondering = false;
 let recommending = false;
 let recommendations = [];
 let modalOpen = false;
 let noticeTimer;
 let saveWarningShown = false;
-let analysisSaveTimer;
 let setupPosition = null;
 let displayModes;
 let enhancements;
 const positionAnalysis = new PositionAnalysis();
 const analysisView = createAnalysisView(document.querySelector("#positionAnalysis"));
+const statsUpdates = createScheduledTask(updateSearchInfo, 100);
+const analysisUpdates = createScheduledTask(persistAnalysis, 500);
 
 function persistAnalysis() {
-  clearTimeout(analysisSaveTimer); analysisSaveTimer = null;
+  analysisUpdates.cancel();
   try { positionAnalysis.save(localStorage); } catch { /* optional derived data */ }
 }
 
@@ -122,10 +123,9 @@ const engine = new GomokuEngine({ onState: event => {
   statsSide = event.sideToMove;
   statsPhase = event.phase;
   if (positionAnalysis.accept(event)) {
-    clearTimeout(analysisSaveTimer);
-    analysisSaveTimer = setTimeout(persistAnalysis, 500);
+    analysisUpdates.schedule();
   }
-  if (!statsTimer) statsTimer = setTimeout(() => { statsTimer = null; updateSearchInfo(); }, 100);
+  statsUpdates.schedule();
 } });
 
 function canInteract() { return state === "ready" && !thinking && !recommending && !modalOpen && !winner && currentColor === playerColor; }
@@ -179,6 +179,7 @@ function updateClock() {
 function stopClock() { clearInterval(clockTimer); clockTimer = null; }
 
 function updateSearchInfo() {
+  statsUpdates.cancel();
   analysisView.render(positionAnalysis, winner);
   renderSimpleWinRate(document.querySelector("#simpleWinRate"), positionAnalysis, winner);
   if (setupPosition) document.querySelector("#positionContext").textContent = `续下第 ${moves.length} 手`;
@@ -323,7 +324,7 @@ function invalidateSearch() {
   state = "idle";
   pondering = false;
   liveStats = null;
-  clearTimeout(statsTimer); statsTimer = null;
+  statsUpdates.cancel();
   pendingIndex = hoverIndex = -1;
 }
 
@@ -459,7 +460,7 @@ displayModes = setupDisplayModes({
 });
 
 enhancements = setupGameEnhancements({
-  getPosition: () => ({ board, currentColor, playerColor, winner, ruleLabel: "无禁手" }),
+  getPosition: () => ({ board, currentColor, playerColor, winner, state, ruleLabel: "无禁手" }),
   getRecord, applyRecord, newGame: restart,
   onWorkspace: open => {
     modalOpen = open;

@@ -12,6 +12,7 @@ import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
 import { setupAppUpdates } from "./app-update.js";
+import { createScheduledTask } from "./ui-scheduler.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 let session = new OpeningSession({ initialBlackSeat: null }), perspective = 1, state = "idle", serial = 0, requestId = 0;
@@ -19,6 +20,8 @@ let busy = false, modal = false, advice = null, stats = null, statsColor = 1, po
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let rulesOpen = false, forbiddenInput = null, enhancements;
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
+const statsUpdates = createScheduledTask(renderAnalysis, 100);
+const analysisUpdates = createScheduledTask(persist, 500);
 function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
   $("#simpleLive").textContent = message; warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
@@ -30,6 +33,7 @@ try {
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
 function persist() {
+  analysisUpdates.cancel();
   try {
     localStorage.setItem(STORAGE, JSON.stringify({ record: session.record(), perspective,
       analysis: { version: 1, playerColor: analysis.playerColor, positionKey: analysis.positionKey, moves: analysis.moves, points: analysis.history } })); saveFailed = false; return true;
@@ -44,12 +48,18 @@ function positionChanged(reset = false, automaticResult = null) {
   stats = null; pending = hover = -1; advice = null; persist();
 }
 positionChanged(true);
-if (restoredAnalysis) { analysis.load({ getItem: () => JSON.stringify(restoredAnalysis) }); persist(); }
+if (restoredAnalysis) { analysis.load({ getItem: () => JSON.stringify(restoredAnalysis) }); analysis.finish(session.winner); persist(); }
 const engine = new GomokuEngine({ rule: session.rule,
   onState: event => { state = event.state; pondering = Boolean(event.pondering); render(); },
-  onStats: event => { if (modal || event.requestId !== requestId) return; stats = event.stats; statsColor = event.sideToMove; if (["play", "w6"].includes(session.stage)) analysis.accept(event); renderAnalysis(); }
+  onStats: event => {
+    if (modal || event.requestId !== requestId) return;
+    stats = event.stats; statsColor = event.sideToMove;
+    if (["play", "w6"].includes(session.stage) && analysis.accept(event)) analysisUpdates.schedule();
+    statsUpdates.schedule();
+  }
 });
 function cancel() {
+  statsUpdates.cancel();
   serial++; requestId++; busy = false; advice = null; forbiddenInput = null; pending = hover = -1; analysis.cancel(); engine.stopPonder();
   // Recording several external opening stones must not restart model loading.
   // Serial guards cancel the old action; rule changes explicitly reset the worker.
@@ -61,6 +71,7 @@ const manualTurn = () => !rulesOpen && !forbiddenInput && canManualTurn(session,
 const interactive = () => manualTurn() && !session.decision;
 const workflowLabel = { copilot: "附身", follow: "记录", duel: "对弈" };
 function renderAnalysis() {
+  statsUpdates.cancel();
   analysisView.render(analysis, session.winner);
   renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available: ["play", "w6"].includes(session.stage), waiting: session.stage === "setup" ? "等待开局" : ["play", "w6"].includes(session.stage) ? "等待评估" : "开局完成后评估" });
   const name = colorName(perspective), other = colorName(3 - perspective);
@@ -117,9 +128,11 @@ function renderFlow() {
 }
 function render() {
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
-  view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
+  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
+    overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
-    recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) }); decorate();
+    recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
+  if (boardChanged) decorate();
   const text = busy ? isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text; $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${RULES[session.rule]} · ${workflowLabel[session.workflow]}`;

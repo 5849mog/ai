@@ -12,9 +12,10 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame }) {
   function render() {
     if (!review) return;
     const frame = review.frames[step], row = rows.find(r => r.frame === step), suggested = showBest && row;
-    view.render({ board: suggested ? row.before : frame.board, lastMove: suggested ? -1 : frame.lastMove, pendingIndex: -1, canInteract: false,
+    const boardChanged = view.render({ board: suggested ? row.before : frame.board, lastMove: suggested ? -1 : frame.lastMove, pendingIndex: -1, canInteract: false,
+      overlayKey: suggested ? "" : frame.candidates.join(","),
       editable: Boolean(frame.forbidden) && !suggested, recommendations: suggested ? [{ index: row.best }] : [] });
-    if (!suggested) for (const [rank, index] of frame.candidates.entries()) {
+    if (boardChanged && !suggested) for (const [rank, index] of frame.candidates.entries()) {
       const x = 46 + index % 15 * 528 / 14, y = 46 + Math.floor(index / 15) * 528 / 14;
       const group = document.createElementNS("http://www.w3.org/2000/svg", "g"); group.setAttribute("class", "review-candidate");
       group.innerHTML = `<circle cx="${x}" cy="${y}" r="14"/><text x="${x}" y="${y}">A${rank + 1}</text>`; svg.append(group);
