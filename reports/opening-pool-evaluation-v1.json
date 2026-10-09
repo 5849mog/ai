@@ -1,0 +1,1583 @@
+{
+  "version": 1,
+  "implementation": "06d97aa395e782a6e4612a19486d71f65de2d931644ab8a81c8cc35dc945c161",
+  "started": "2026-10-09T23:11:07.378Z",
+  "runtime": "v24.19.0",
+  "platform": "linux",
+  "engine": "1be1551ced57e38d53ed58f6d74bf6f8b4bdc230",
+  "models": [
+    {
+      "name": "mix9svqrenju_bs15_black.bin.lz4",
+      "sha256": "7ab8c974c30da07717ce6a504616a62ac8c981500503f0ced0fadefd3f46c5ec"
+    },
+    {
+      "name": "mix9svqrenju_bs15_white.bin.lz4",
+      "sha256": "a31f318518d3b5630489054d9eb013fd5353c553999640c2bcfd8d95e6fe4e4e"
+    }
+  ],
+  "method": "Each budget clears the hash, searches white fourth, proposes two legal non-equivalent fifths and evaluates both for white. Opener utility is min(blackRate,1-blackRate). Finite search estimates, not a proof of balance.",
+  "cases": [
+    {
+      "key": "96:80",
+      "points": [
+        112,
+        96,
+        80
+      ],
+      "budget": 1000,
+      "fourth": 82,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.428004,
+          "depth": 14,
+          "nodes": 18585,
+          "elapsed": 308,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.620106,
+          "depth": 19,
+          "nodes": 58265,
+          "elapsed": 855,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.37989399999999995,
+      "openerUtility": 0.37989399999999995
+    },
+    {
+      "key": "96:80",
+      "points": [
+        112,
+        96,
+        80
+      ],
+      "budget": 3000,
+      "fourth": 82,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.347511,
+          "depth": 17,
+          "nodes": 72490,
+          "elapsed": 1030,
+          "mate": null
+        },
+        {
+          "index": 68,
+          "whiteRate": 0.593873,
+          "depth": 16,
+          "nodes": 177994,
+          "elapsed": 2873,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.406127,
+      "openerUtility": 0.406127
+    },
+    {
+      "key": "96:81",
+      "points": [
+        112,
+        96,
+        81
+      ],
+      "budget": 1000,
+      "fourth": 83,
+      "fifths": [
+        {
+          "index": 95,
+          "whiteRate": 0.187704,
+          "depth": 16,
+          "nodes": 33498,
+          "elapsed": 401,
+          "mate": null
+        },
+        {
+          "index": 68,
+          "whiteRate": 0.252561,
+          "depth": 13,
+          "nodes": 20438,
+          "elapsed": 314,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.747439,
+      "openerUtility": 0.252561
+    },
+    {
+      "key": "96:81",
+      "points": [
+        112,
+        96,
+        81
+      ],
+      "budget": 3000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 95,
+          "whiteRate": 0.178726,
+          "depth": 21,
+          "nodes": 197617,
+          "elapsed": 2597,
+          "mate": null
+        },
+        {
+          "index": 98,
+          "whiteRate": 0.162465,
+          "depth": 16,
+          "nodes": 200959,
+          "elapsed": 2764,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.8212740000000001,
+      "openerUtility": 0.178726
+    },
+    {
+      "key": "96:82",
+      "points": [
+        112,
+        96,
+        82
+      ],
+      "budget": 1000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.182426,
+          "depth": 16,
+          "nodes": 8694,
+          "elapsed": 118,
+          "mate": null
+        },
+        {
+          "index": 95,
+          "whiteRate": 0.206689,
+          "depth": 14,
+          "nodes": 65169,
+          "elapsed": 927,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.793311,
+      "openerUtility": 0.206689
+    },
+    {
+      "key": "96:82",
+      "points": [
+        112,
+        96,
+        82
+      ],
+      "budget": 3000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.218403,
+          "depth": 16,
+          "nodes": 206213,
+          "elapsed": 2856,
+          "mate": null
+        },
+        {
+          "index": 95,
+          "whiteRate": 0.203429,
+          "depth": 15,
+          "nodes": 19101,
+          "elapsed": 238,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.781597,
+      "openerUtility": 0.218403
+    },
+    {
+      "key": "96:83",
+      "points": [
+        112,
+        96,
+        83
+      ],
+      "budget": 1000,
+      "fourth": 82,
+      "fifths": [
+        {
+          "index": 68,
+          "whiteRate": 0.206689,
+          "depth": 15,
+          "nodes": 2294,
+          "elapsed": 16,
+          "mate": null
+        },
+        {
+          "index": 110,
+          "whiteRate": 0.215008,
+          "depth": 16,
+          "nodes": 31487,
+          "elapsed": 488,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.784992,
+      "openerUtility": 0.215008
+    },
+    {
+      "key": "96:83",
+      "points": [
+        112,
+        96,
+        83
+      ],
+      "budget": 3000,
+      "fourth": 82,
+      "fifths": [
+        {
+          "index": 68,
+          "whiteRate": 0.122927,
+          "depth": 17,
+          "nodes": 146845,
+          "elapsed": 1876,
+          "mate": null
+        },
+        {
+          "index": 110,
+          "whiteRate": 0.184673,
+          "depth": 18,
+          "nodes": 135578,
+          "elapsed": 1794,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.815327,
+      "openerUtility": 0.184673
+    },
+    {
+      "key": "96:84",
+      "points": [
+        112,
+        96,
+        84
+      ],
+      "budget": 1000,
+      "fourth": 127,
+      "fifths": [
+        {
+          "index": 111,
+          "whiteRate": 0.473774,
+          "depth": 18,
+          "nodes": 43207,
+          "elapsed": 649,
+          "mate": null
+        },
+        {
+          "index": 83,
+          "whiteRate": 0.368188,
+          "depth": 16,
+          "nodes": 54008,
+          "elapsed": 699,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.5262260000000001,
+      "openerUtility": 0.473774
+    },
+    {
+      "key": "96:84",
+      "points": [
+        112,
+        96,
+        84
+      ],
+      "budget": 3000,
+      "fourth": 126,
+      "fifths": [
+        {
+          "index": 99,
+          "whiteRate": 0.924142,
+          "depth": 18,
+          "nodes": 324034,
+          "elapsed": 2241,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.448929,
+          "depth": 18,
+          "nodes": 36443,
+          "elapsed": 570,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.07585799999999998,
+      "openerUtility": 0.07585799999999998
+    },
+    {
+      "key": "96:97",
+      "points": [
+        112,
+        96,
+        97
+      ],
+      "budget": 1000,
+      "fourth": 127,
+      "fifths": [
+        {
+          "index": 126,
+          "whiteRate": 0.190002,
+          "depth": 14,
+          "nodes": 66664,
+          "elapsed": 942,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.350919,
+          "depth": 17,
+          "nodes": 24339,
+          "elapsed": 278,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.649081,
+      "openerUtility": 0.350919
+    },
+    {
+      "key": "96:97",
+      "points": [
+        112,
+        96,
+        97
+      ],
+      "budget": 3000,
+      "fourth": 113,
+      "fifths": [
+        {
+          "index": 84,
+          "whiteRate": 0.229701,
+          "depth": 16,
+          "nodes": 85232,
+          "elapsed": 916,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.219257,
+          "depth": 20,
+          "nodes": 186951,
+          "elapsed": 2364,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.7702990000000001,
+      "openerUtility": 0.229701
+    },
+    {
+      "key": "96:98",
+      "points": [
+        112,
+        96,
+        98
+      ],
+      "budget": 1000,
+      "fourth": 126,
+      "fifths": [
+        {
+          "index": 82,
+          "whiteRate": 0.21755,
+          "depth": 15,
+          "nodes": 8226,
+          "elapsed": 95,
+          "mate": null
+        },
+        {
+          "index": 83,
+          "whiteRate": 0.223567,
+          "depth": 13,
+          "nodes": 71750,
+          "elapsed": 697,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.776433,
+      "openerUtility": 0.223567
+    },
+    {
+      "key": "96:98",
+      "points": [
+        112,
+        96,
+        98
+      ],
+      "budget": 3000,
+      "fourth": 126,
+      "fifths": [
+        {
+          "index": 83,
+          "whiteRate": 0.125648,
+          "depth": 19,
+          "nodes": 157600,
+          "elapsed": 1425,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.227058,
+          "depth": 16,
+          "nodes": 174700,
+          "elapsed": 2507,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.772942,
+      "openerUtility": 0.227058
+    },
+    {
+      "key": "96:99",
+      "points": [
+        112,
+        96,
+        99
+      ],
+      "budget": 1000,
+      "fourth": 127,
+      "fifths": [
+        {
+          "index": 83,
+          "whiteRate": 0.268941,
+          "depth": 15,
+          "nodes": 2747,
+          "elapsed": 16,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.324098,
+          "depth": 13,
+          "nodes": 21419,
+          "elapsed": 336,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.675902,
+      "openerUtility": 0.324098
+    },
+    {
+      "key": "96:99",
+      "points": [
+        112,
+        96,
+        99
+      ],
+      "budget": 3000,
+      "fourth": 127,
+      "fifths": [
+        {
+          "index": 83,
+          "whiteRate": 0.0704367,
+          "depth": 16,
+          "nodes": 326315,
+          "elapsed": 2472,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.565865,
+          "depth": 20,
+          "nodes": 58151,
+          "elapsed": 650,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.43413500000000005,
+      "openerUtility": 0.43413500000000005
+    },
+    {
+      "key": "96:113",
+      "points": [
+        112,
+        96,
+        113
+      ],
+      "budget": 1000,
+      "fourth": 114,
+      "fifths": [
+        {
+          "index": 127,
+          "whiteRate": 0.0932147,
+          "depth": 14,
+          "nodes": 11958,
+          "elapsed": 87,
+          "mate": null
+        },
+        {
+          "index": 129,
+          "whiteRate": 0.290079,
+          "depth": 16,
+          "nodes": 59911,
+          "elapsed": 877,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.709921,
+      "openerUtility": 0.290079
+    },
+    {
+      "key": "96:113",
+      "points": [
+        112,
+        96,
+        113
+      ],
+      "budget": 3000,
+      "fourth": 126,
+      "fifths": [
+        {
+          "index": 83,
+          "whiteRate": 0.107168,
+          "depth": 18,
+          "nodes": 333966,
+          "elapsed": 2322,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.223567,
+          "depth": 17,
+          "nodes": 269518,
+          "elapsed": 2761,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.776433,
+      "openerUtility": 0.223567
+    },
+    {
+      "key": "96:114",
+      "points": [
+        112,
+        96,
+        114
+      ],
+      "budget": 1000,
+      "fourth": 111,
+      "fifths": [
+        {
+          "index": 126,
+          "whiteRate": 0.210818,
+          "depth": 15,
+          "nodes": 1900,
+          "elapsed": 8,
+          "mate": null
+        },
+        {
+          "index": 142,
+          "whiteRate": 0.971251,
+          "depth": 18,
+          "nodes": 200520,
+          "elapsed": 899,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.028749000000000025,
+      "openerUtility": 0.028749000000000025
+    },
+    {
+      "key": "96:114",
+      "points": [
+        112,
+        96,
+        114
+      ],
+      "budget": 3000,
+      "fourth": 111,
+      "fifths": [
+        {
+          "index": 126,
+          "whiteRate": 0.194662,
+          "depth": 17,
+          "nodes": 36302,
+          "elapsed": 463,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.395321,
+          "depth": 16,
+          "nodes": 101431,
+          "elapsed": 1579,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.604679,
+      "openerUtility": 0.395321
+    },
+    {
+      "key": "96:128",
+      "points": [
+        112,
+        96,
+        128
+      ],
+      "budget": 1000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.352059,
+          "depth": 16,
+          "nodes": 53508,
+          "elapsed": 749,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.846187,
+          "depth": 20,
+          "nodes": 96992,
+          "elapsed": 780,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.15381299999999998,
+      "openerUtility": 0.15381299999999998
+    },
+    {
+      "key": "96:128",
+      "points": [
+        112,
+        96,
+        128
+      ],
+      "budget": 3000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.357783,
+          "depth": 19,
+          "nodes": 17841,
+          "elapsed": 231,
+          "mate": null
+        },
+        {
+          "index": 95,
+          "whiteRate": 0.282925,
+          "depth": 14,
+          "nodes": 125392,
+          "elapsed": 1699,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.642217,
+      "openerUtility": 0.357783
+    },
+    {
+      "key": "96:129",
+      "points": [
+        112,
+        96,
+        129
+      ],
+      "budget": 1000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 115,
+          "whiteRate": 0.996811,
+          "depth": 17,
+          "nodes": 158211,
+          "elapsed": 730,
+          "mate": null
+        },
+        {
+          "index": 98,
+          "whiteRate": 0.50125,
+          "depth": 18,
+          "nodes": 22599,
+          "elapsed": 256,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.0031889999999999974,
+      "openerUtility": 0.0031889999999999974
+    },
+    {
+      "key": "96:129",
+      "points": [
+        112,
+        96,
+        129
+      ],
+      "budget": 3000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 114,
+          "whiteRate": 0.136461,
+          "depth": 21,
+          "nodes": 95606,
+          "elapsed": 704,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.467546,
+          "depth": 23,
+          "nodes": 76192,
+          "elapsed": 941,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.532454,
+      "openerUtility": 0.467546
+    },
+    {
+      "key": "96:144",
+      "points": [
+        112,
+        96,
+        144
+      ],
+      "budget": 1000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 158,
+          "whiteRate": 0.978959,
+          "depth": 15,
+          "nodes": 103348,
+          "elapsed": 501,
+          "mate": null
+        },
+        {
+          "index": 110,
+          "whiteRate": 1,
+          "depth": 25,
+          "nodes": 149197,
+          "elapsed": 857,
+          "mate": "+M39"
+        }
+      ],
+      "blackRate": 0,
+      "openerUtility": 0
+    },
+    {
+      "key": "96:144",
+      "points": [
+        112,
+        96,
+        144
+      ],
+      "budget": 3000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 158,
+          "whiteRate": 0.988849,
+          "depth": 17,
+          "nodes": 332272,
+          "elapsed": 1363,
+          "mate": null
+        },
+        {
+          "index": 172,
+          "whiteRate": 1,
+          "depth": 22,
+          "nodes": 448616,
+          "elapsed": 2342,
+          "mate": "+M25"
+        }
+      ],
+      "blackRate": 0,
+      "openerUtility": 0
+    },
+    {
+      "key": "97:80",
+      "points": [
+        112,
+        97,
+        80
+      ],
+      "budget": 1000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 111,
+          "whiteRate": 0.538673,
+          "depth": 15,
+          "nodes": 7639,
+          "elapsed": 88,
+          "mate": null
+        },
+        {
+          "index": 94,
+          "whiteRate": 0.458843,
+          "depth": 17,
+          "nodes": 10848,
+          "elapsed": 124,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.46132700000000004,
+      "openerUtility": 0.46132700000000004
+    },
+    {
+      "key": "97:80",
+      "points": [
+        112,
+        97,
+        80
+      ],
+      "budget": 3000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.458843,
+          "depth": 19,
+          "nodes": 141557,
+          "elapsed": 2124,
+          "mate": null
+        },
+        {
+          "index": 111,
+          "whiteRate": 0.423115,
+          "depth": 18,
+          "nodes": 170837,
+          "elapsed": 2548,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.541157,
+      "openerUtility": 0.458843
+    },
+    {
+      "key": "97:81",
+      "points": [
+        112,
+        97,
+        81
+      ],
+      "budget": 1000,
+      "fourth": 111,
+      "fifths": [
+        {
+          "index": 83,
+          "whiteRate": 0.175086,
+          "depth": 17,
+          "nodes": 78130,
+          "elapsed": 868,
+          "mate": null
+        },
+        {
+          "index": 96,
+          "whiteRate": 0.485004,
+          "depth": 16,
+          "nodes": 54785,
+          "elapsed": 834,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.514996,
+      "openerUtility": 0.485004
+    },
+    {
+      "key": "97:81",
+      "points": [
+        112,
+        97,
+        81
+      ],
+      "budget": 3000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 95,
+          "whiteRate": 0.20587,
+          "depth": 15,
+          "nodes": 112841,
+          "elapsed": 1421,
+          "mate": null
+        },
+        {
+          "index": 98,
+          "whiteRate": 0.159092,
+          "depth": 17,
+          "nodes": 99115,
+          "elapsed": 1279,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.79413,
+      "openerUtility": 0.20587
+    },
+    {
+      "key": "97:82",
+      "points": [
+        112,
+        97,
+        82
+      ],
+      "budget": 1000,
+      "fourth": 66,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.2167,
+          "depth": 14,
+          "nodes": 3788,
+          "elapsed": 41,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.210818,
+          "depth": 13,
+          "nodes": 7150,
+          "elapsed": 87,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.7833,
+      "openerUtility": 0.2167
+    },
+    {
+      "key": "97:82",
+      "points": [
+        112,
+        97,
+        82
+      ],
+      "budget": 3000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.191545,
+          "depth": 16,
+          "nodes": 122096,
+          "elapsed": 1553,
+          "mate": null
+        },
+        {
+          "index": 95,
+          "whiteRate": 0.196234,
+          "depth": 15,
+          "nodes": 186735,
+          "elapsed": 2551,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.803766,
+      "openerUtility": 0.196234
+    },
+    {
+      "key": "97:95",
+      "points": [
+        112,
+        97,
+        95
+      ],
+      "budget": 1000,
+      "fourth": 81,
+      "fifths": [
+        {
+          "index": 113,
+          "whiteRate": 0.248804,
+          "depth": 14,
+          "nodes": 1723,
+          "elapsed": 10,
+          "mate": null
+        },
+        {
+          "index": 111,
+          "whiteRate": 0.307891,
+          "depth": 15,
+          "nodes": 40743,
+          "elapsed": 482,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.692109,
+      "openerUtility": 0.307891
+    },
+    {
+      "key": "97:95",
+      "points": [
+        112,
+        97,
+        95
+      ],
+      "budget": 3000,
+      "fourth": 81,
+      "fifths": [
+        {
+          "index": 65,
+          "whiteRate": 0.323004,
+          "depth": 16,
+          "nodes": 41649,
+          "elapsed": 537,
+          "mate": null
+        },
+        {
+          "index": 113,
+          "whiteRate": 0.1002,
+          "depth": 16,
+          "nodes": 247001,
+          "elapsed": 2266,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.6769959999999999,
+      "openerUtility": 0.323004
+    },
+    {
+      "key": "97:96",
+      "points": [
+        112,
+        97,
+        96
+      ],
+      "budget": 1000,
+      "fourth": 128,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.415809,
+          "depth": 16,
+          "nodes": 78253,
+          "elapsed": 649,
+          "mate": null
+        },
+        {
+          "index": 82,
+          "whiteRate": 0.324098,
+          "depth": 14,
+          "nodes": 29208,
+          "elapsed": 320,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.584191,
+      "openerUtility": 0.415809
+    },
+    {
+      "key": "97:96",
+      "points": [
+        112,
+        97,
+        96
+      ],
+      "budget": 3000,
+      "fourth": 128,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.101106,
+          "depth": 18,
+          "nodes": 44676,
+          "elapsed": 397,
+          "mate": null
+        },
+        {
+          "index": 82,
+          "whiteRate": 0.138835,
+          "depth": 15,
+          "nodes": 77224,
+          "elapsed": 906,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.861165,
+      "openerUtility": 0.138835
+    },
+    {
+      "key": "97:110",
+      "points": [
+        112,
+        97,
+        110
+      ],
+      "budget": 1000,
+      "fourth": 113,
+      "fifths": [
+        {
+          "index": 81,
+          "whiteRate": 0.303645,
+          "depth": 15,
+          "nodes": 3855,
+          "elapsed": 37,
+          "mate": null
+        },
+        {
+          "index": 80,
+          "whiteRate": 0.774692,
+          "depth": 17,
+          "nodes": 11721,
+          "elapsed": 105,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.22530799999999995,
+      "openerUtility": 0.22530799999999995
+    },
+    {
+      "key": "97:110",
+      "points": [
+        112,
+        97,
+        110
+      ],
+      "budget": 3000,
+      "fourth": 113,
+      "fifths": [
+        {
+          "index": 81,
+          "whiteRate": 0.12842,
+          "depth": 17,
+          "nodes": 116530,
+          "elapsed": 1168,
+          "mate": null
+        },
+        {
+          "index": 96,
+          "whiteRate": 0.299433,
+          "depth": 17,
+          "nodes": 17681,
+          "elapsed": 244,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.7005669999999999,
+      "openerUtility": 0.299433
+    },
+    {
+      "key": "97:111",
+      "points": [
+        112,
+        97,
+        111
+      ],
+      "budget": 1000,
+      "fourth": 126,
+      "fifths": [
+        {
+          "index": 80,
+          "whiteRate": 0.285978,
+          "depth": 14,
+          "nodes": 71536,
+          "elapsed": 813,
+          "mate": null
+        },
+        {
+          "index": 95,
+          "whiteRate": 0.27488,
+          "depth": 14,
+          "nodes": 38528,
+          "elapsed": 514,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.7140219999999999,
+      "openerUtility": 0.285978
+    },
+    {
+      "key": "97:111",
+      "points": [
+        112,
+        97,
+        111
+      ],
+      "budget": 3000,
+      "fourth": 126,
+      "fifths": [
+        {
+          "index": 128,
+          "whiteRate": 0.231475,
+          "depth": 18,
+          "nodes": 124377,
+          "elapsed": 1593,
+          "mate": null
+        },
+        {
+          "index": 110,
+          "whiteRate": 0.316479,
+          "depth": 16,
+          "nodes": 188727,
+          "elapsed": 2645,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.683521,
+      "openerUtility": 0.316479
+    },
+    {
+      "key": "97:125",
+      "points": [
+        112,
+        97,
+        125
+      ],
+      "budget": 1000,
+      "fourth": 98,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.139434,
+          "depth": 18,
+          "nodes": 104857,
+          "elapsed": 949,
+          "mate": null
+        },
+        {
+          "index": 128,
+          "whiteRate": 0.560945,
+          "depth": 16,
+          "nodes": 13955,
+          "elapsed": 199,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.439055,
+      "openerUtility": 0.439055
+    },
+    {
+      "key": "97:125",
+      "points": [
+        112,
+        97,
+        125
+      ],
+      "budget": 3000,
+      "fourth": 128,
+      "fifths": [
+        {
+          "index": 141,
+          "whiteRate": 0.239577,
+          "depth": 19,
+          "nodes": 8292,
+          "elapsed": 66,
+          "mate": null
+        },
+        {
+          "index": 98,
+          "whiteRate": 0.31432,
+          "depth": 17,
+          "nodes": 162607,
+          "elapsed": 2470,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.6856800000000001,
+      "openerUtility": 0.31432
+    },
+    {
+      "key": "97:126",
+      "points": [
+        112,
+        97,
+        126
+      ],
+      "budget": 1000,
+      "fourth": 98,
+      "fifths": [
+        {
+          "index": 99,
+          "whiteRate": 0.336261,
+          "depth": 15,
+          "nodes": 11756,
+          "elapsed": 175,
+          "mate": null
+        },
+        {
+          "index": 113,
+          "whiteRate": 0.448929,
+          "depth": 14,
+          "nodes": 8069,
+          "elapsed": 110,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.551071,
+      "openerUtility": 0.448929
+    },
+    {
+      "key": "97:126",
+      "points": [
+        112,
+        97,
+        126
+      ],
+      "budget": 3000,
+      "fourth": 98,
+      "fifths": [
+        {
+          "index": 96,
+          "whiteRate": 0.336261,
+          "depth": 18,
+          "nodes": 118566,
+          "elapsed": 1672,
+          "mate": null
+        },
+        {
+          "index": 99,
+          "whiteRate": 0.347511,
+          "depth": 17,
+          "nodes": 67676,
+          "elapsed": 1035,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.652489,
+      "openerUtility": 0.347511
+    },
+    {
+      "key": "97:127",
+      "points": [
+        112,
+        97,
+        127
+      ],
+      "budget": 1000,
+      "fourth": 142,
+      "fifths": [
+        {
+          "index": 126,
+          "whiteRate": 0.221836,
+          "depth": 16,
+          "nodes": 13802,
+          "elapsed": 135,
+          "mate": null
+        },
+        {
+          "index": 111,
+          "whiteRate": 0.250678,
+          "depth": 16,
+          "nodes": 13690,
+          "elapsed": 138,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.749322,
+      "openerUtility": 0.250678
+    },
+    {
+      "key": "97:127",
+      "points": [
+        112,
+        97,
+        127
+      ],
+      "budget": 3000,
+      "fourth": 142,
+      "fifths": [
+        {
+          "index": 126,
+          "whiteRate": 0.407333,
+          "depth": 19,
+          "nodes": 92010,
+          "elapsed": 1101,
+          "mate": null
+        },
+        {
+          "index": 111,
+          "whiteRate": 0.250678,
+          "depth": 20,
+          "nodes": 35629,
+          "elapsed": 404,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.592667,
+      "openerUtility": 0.407333
+    },
+    {
+      "key": "97:140",
+      "points": [
+        112,
+        97,
+        140
+      ],
+      "budget": 1000,
+      "fourth": 98,
+      "fifths": [
+        {
+          "index": 142,
+          "whiteRate": 0.978437,
+          "depth": 19,
+          "nodes": 146586,
+          "elapsed": 694,
+          "mate": null
+        },
+        {
+          "index": 124,
+          "whiteRate": 0.941585,
+          "depth": 17,
+          "nodes": 18298,
+          "elapsed": 128,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.021563,
+      "openerUtility": 0.021563
+    },
+    {
+      "key": "97:140",
+      "points": [
+        112,
+        97,
+        140
+      ],
+      "budget": 3000,
+      "fourth": 98,
+      "fifths": [
+        {
+          "index": 114,
+          "whiteRate": 1,
+          "depth": 28,
+          "nodes": 449602,
+          "elapsed": 2966,
+          "mate": "+M25"
+        },
+        {
+          "index": 142,
+          "whiteRate": 1,
+          "depth": 23,
+          "nodes": 494538,
+          "elapsed": 2276,
+          "mate": "+M29"
+        }
+      ],
+      "blackRate": 0,
+      "openerUtility": 0
+    },
+    {
+      "key": "97:141",
+      "points": [
+        112,
+        97,
+        141
+      ],
+      "budget": 1000,
+      "fourth": 113,
+      "fifths": [
+        {
+          "index": 129,
+          "whiteRate": 0.269926,
+          "depth": 15,
+          "nodes": 4781,
+          "elapsed": 56,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.336261,
+          "depth": 16,
+          "nodes": 16215,
+          "elapsed": 226,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.6637390000000001,
+      "openerUtility": 0.336261
+    },
+    {
+      "key": "97:141",
+      "points": [
+        112,
+        97,
+        141
+      ],
+      "budget": 3000,
+      "fourth": 98,
+      "fifths": [
+        {
+          "index": 96,
+          "whiteRate": 0.272892,
+          "depth": 15,
+          "nodes": 6960,
+          "elapsed": 69,
+          "mate": null
+        },
+        {
+          "index": 113,
+          "whiteRate": 0.455121,
+          "depth": 17,
+          "nodes": 33242,
+          "elapsed": 522,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.544879,
+      "openerUtility": 0.455121
+    },
+    {
+      "key": "97:142",
+      "points": [
+        112,
+        97,
+        142
+      ],
+      "budget": 1000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.214165,
+          "depth": 13,
+          "nodes": 45585,
+          "elapsed": 566,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.367025,
+          "depth": 14,
+          "nodes": 61192,
+          "elapsed": 859,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.6329750000000001,
+      "openerUtility": 0.367025
+    },
+    {
+      "key": "97:142",
+      "points": [
+        112,
+        97,
+        142
+      ],
+      "budget": 3000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.166589,
+          "depth": 20,
+          "nodes": 91561,
+          "elapsed": 1144,
+          "mate": null
+        },
+        {
+          "index": 95,
+          "whiteRate": 0.414595,
+          "depth": 19,
+          "nodes": 146986,
+          "elapsed": 2483,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.585405,
+      "openerUtility": 0.414595
+    }
+  ],
+  "finished": "2026-10-09T23:16:51.979Z",
+  "casesSha256": "f3c39b011ff24d2b55c094fff9c414c8a1c8987b8ffdd887ee311abd9fe1919e"
+}

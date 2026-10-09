@@ -4,6 +4,8 @@ import { JSDOM } from 'jsdom';
 import { readFile } from 'node:fs/promises';
 import { OpeningSession } from '../opening-session.js';
 import { createReviewUi } from '../review-ui.js';
+import { createOpeningBook } from '../opening-book.js';
+import { RIF_OPENINGS } from '../rif-opening-pool.js';
 
 const flush = () => new Promise(done => setImmediate(done));
 let fixtureId = 0;
@@ -127,5 +129,56 @@ test('review proposal overlays remain single instances during repeated seeks and
     assert.equal(root.querySelectorAll('.review-candidate').length, 1);
     seek(first + 1); assert.equal(root.querySelectorAll('.review-candidate').length, 2);
     seek(first); assert.equal(root.querySelectorAll('.review-candidate').length, 1); review.dispose();
+  } finally { f.close(); }
+});
+
+test('RIF simple-mode automatic starts use a complete varied opening and retain numbered stones and inline swaps', async () => {
+  const f = await environment('renju.html');
+  try {
+    await f.load();
+    document.querySelector('#simpleOpeningFlow [data-flow-action="start"][data-value="0"]').click();
+    await flush(); await flush();
+    const saved = JSON.parse(localStorage.getItem(f.storageKey)), restored = new OpeningSession(saved.record);
+    for (const event of saved.record.events) restored.apply(event);
+    assert.equal(restored.stage, 'swap3'); assert.deepEqual(restored.colors, [1, 2, 1]);
+    assert.ok(RIF_OPENINGS.some(entry => entry.key === saved.openingPlan.key));
+    assert.deepEqual(restored.moves, saved.openingPlan.points);
+    assert.deepEqual([...document.querySelectorAll('#boardSvg [data-order-number]')].map(node => node.textContent), ['1', '2', '3']);
+    assert.equal(document.querySelectorAll('#simpleOpeningFlow [data-flow-action="decision"]').length, 2);
+    assert.equal(document.querySelectorAll('dialog[open]').length, 0);
+    assert.equal(f.workers.length, 0);
+    const previous = saved.openingPlan.key;
+    document.querySelector('#simpleRestart').click();
+    document.querySelector('#simpleOpeningFlow [data-flow-action="start"][data-value="0"]').click();
+    await flush(); await flush();
+    const next = JSON.parse(localStorage.getItem(f.storageKey)); assert.notEqual(next.openingPlan.key, previous);
+    assert.equal(next.record.events.filter(event => event.type === 'stone').length, 3);
+  } finally { f.close(); }
+});
+
+test('RIF reload continues its stored third stone without changing the existing two or searching a replacement opening', async () => {
+  const s = new OpeningSession({ rule: 'rif', workflow: 'copilot', initialBlackSeat: 0 });
+  const book = createOpeningBook({ pool: RIF_OPENINGS, random: () => 0 }), plan = book.plan(s);
+  for (const index of plan.points.slice(0, 2)) s.apply({ type: 'stone', index }, { automatic: true });
+  const f = await environment('renju.html', { saved: { record: s.record(), perspective: 1, openingPlan: book.snapshot(s) } });
+  try {
+    await f.load(); const saved = JSON.parse(localStorage.getItem(f.storageKey));
+    assert.deepEqual(saved.record.events.filter(event => event.type === 'stone').map(event => event.index), plan.points);
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length, 3);
+    assert.equal(document.querySelector('#simpleOpeningFlow').dataset.stage, 'swap3');
+    assert.equal(f.workers.length, 0);
+  } finally { f.close(); }
+});
+
+test('RIF opponent opening input is preserved and does not activate the automatic opening book', async () => {
+  const s = new OpeningSession({ rule: 'rif', workflow: 'copilot', initialBlackSeat: 1 });
+  s.apply({ type: 'stone', index: 112 }); s.apply({ type: 'stone', index: 97 });
+  const f = await environment('renju.html', { saved: { record: s.record(), perspective: 2 } });
+  try {
+    await f.load(); const saved = JSON.parse(localStorage.getItem(f.storageKey));
+    assert.equal(saved.openingPlan, null); assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length, 2);
+    assert.equal(document.querySelector('#simpleOpeningFlow').dataset.stage, 'b3');
+    assert.match(document.querySelector('#simpleOpeningFlow').textContent, /录入对方前三子/);
+    assert.equal(f.workers.at(-1).last.type, 'init');
   } finally { f.close(); }
 });
