@@ -5,6 +5,7 @@ import { setupAppUpdates, updateControlMarkup } from '../app-update.js';
 import { APP_VERSION } from '../app-release.js';
 
 const flush = () => new Promise(done => setImmediate(done));
+const newerVersion = APP_VERSION.replace(/\d+$/, suffix => String(Number(suffix) + 1));
 function fixture({ fail = false } = {}) {
   const dom = new JSDOM(`${updateControlMarkup()}${updateControlMarkup()}<p id="offlineState"></p>`), doc = dom.window.document;
   const events = new EventTarget(), registration = new EventTarget();
@@ -22,7 +23,7 @@ function fixture({ fail = false } = {}) {
 test('both inline update controls show actual code/cache versions and reload only on an explicit click', async () => {
   const f = fixture(); await f.ui.initialized;
   for (const label of f.doc.querySelectorAll('[data-app-version]')) assert.match(label.textContent, new RegExp(APP_VERSION));
-  f.status('2026.10.10.1', false); assert.equal(f.reloads(), 0);
+  f.status(newerVersion, false); assert.equal(f.reloads(), 0);
   for (const button of f.doc.querySelectorAll('[data-app-update]')) assert.equal(button.textContent, '刷新使用新版');
   assert.match(f.doc.querySelector('#offlineState').textContent, /未完成/);
   await f.ui.check(); assert.equal(f.reloads(), 1); f.dom.window.close();

@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "implementation": "06d97aa395e782a6e4612a19486d71f65de2d931644ab8a81c8cc35dc945c161",
+  "started": "2026-10-09T23:17:34.639Z",
+  "runtime": "v24.19.0",
+  "platform": "linux",
+  "engine": "1be1551ced57e38d53ed58f6d74bf6f8b4bdc230",
+  "models": [
+    {
+      "name": "mix9svqrenju_bs15_black.bin.lz4",
+      "sha256": "7ab8c974c30da07717ce6a504616a62ac8c981500503f0ced0fadefd3f46c5ec"
+    },
+    {
+      "name": "mix9svqrenju_bs15_white.bin.lz4",
+      "sha256": "a31f318518d3b5630489054d9eb013fd5353c553999640c2bcfd8d95e6fe4e4e"
+    }
+  ],
+  "method": "Each budget clears the hash, searches white fourth, proposes two legal non-equivalent fifths and evaluates both for white. Opener utility is min(blackRate,1-blackRate). Finite search estimates, not a proof of balance.",
+  "cases": [
+    {
+      "key": "96:80",
+      "points": [
+        112,
+        96,
+        80
+      ],
+      "budget": 10000,
+      "fourth": 97,
+      "fifths": [
+        {
+          "index": 95,
+          "whiteRate": 0.5025,
+          "depth": 20,
+          "nodes": 465625,
+          "elapsed": 7835,
+          "mate": null
+        },
+        {
+          "index": 98,
+          "whiteRate": 0.451404,
+          "depth": 24,
+          "nodes": 538711,
+          "elapsed": 8775,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.49750000000000005,
+      "openerUtility": 0.49750000000000005
+    },
+    {
+      "key": "97:80",
+      "points": [
+        112,
+        97,
+        80
+      ],
+      "budget": 10000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.429228,
+          "depth": 21,
+          "nodes": 366864,
+          "elapsed": 5751,
+          "mate": null
+        },
+        {
+          "index": 111,
+          "whiteRate": 0.49375,
+          "depth": 20,
+          "nodes": 570063,
+          "elapsed": 8132,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.50625,
+      "openerUtility": 0.49375
+    },
+    {
+      "key": "97:142",
+      "points": [
+        112,
+        97,
+        142
+      ],
+      "budget": 10000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.0600867,
+          "depth": 20,
+          "nodes": 1164252,
+          "elapsed": 7629,
+          "mate": null
+        },
+        {
+          "index": 126,
+          "whiteRate": 0.253506,
+          "depth": 20,
+          "nodes": 645531,
+          "elapsed": 8178,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.746494,
+      "openerUtility": 0.253506
+    }
+  ],
+  "finished": "2026-10-09T23:19:10.390Z",
+  "casesSha256": "78cc016e19c176a33e312cd0988c5e9d938748c47114c89158bf093b8b6283b2"
+}

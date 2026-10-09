@@ -2,6 +2,8 @@ import { OpeningSession, replaySession, RULES, colorName, coordinate, canManualT
 import { openingFlow, openingMarks, chosenProposal } from "./opening-flow.js";
 import { moveVerdict } from "./renju-rules.js";
 import { adviseOpening } from "./opening-advisor.js";
+import { createOpeningBook } from "./opening-book.js";
+import { RIF_OPENINGS } from "./rif-opening-pool.js";
 import { createOpeningDialogs } from "./opening-guide.js";
 import { createBoardView } from "./board-view.js";
 import { GomokuEngine } from "./engine.js?v=22";
@@ -15,6 +17,8 @@ import { setupAppUpdates } from "./app-update.js";
 import { createScheduledTask } from "./ui-scheduler.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
+const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORAGE}:variety`,
+  storage: { getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) } });
 let session = new OpeningSession({ initialBlackSeat: null }), perspective = 1, state = "idle", serial = 0, requestId = 0;
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false;
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
@@ -28,14 +32,14 @@ function notify(message, error = false) {
 }
 try {
   const saved = JSON.parse(localStorage.getItem(STORAGE));
-  if (saved) { session = replaySession(saved.record); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
+  if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
   const time = localStorage.getItem("gomoku-thinking-ms"); if (["1000", "5000", "10000"].includes(time)) $("#timeSelect").value = time;
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
 function persist() {
   analysisUpdates.cancel();
   try {
-    localStorage.setItem(STORAGE, JSON.stringify({ record: session.record(), perspective,
+    localStorage.setItem(STORAGE, JSON.stringify({ record: session.record(), perspective, openingPlan: openingBook.snapshot(session),
       analysis: { version: 1, playerColor: analysis.playerColor, positionKey: analysis.positionKey, moves: analysis.moves, points: analysis.history } })); saveFailed = false; return true;
   } catch { if (!saveFailed) notify("此局暂未保存，请从菜单导出完整记录", true); saveFailed = true; return false; }
 }
@@ -171,7 +175,9 @@ async function syncPonder() {
 }
 async function prepare() {
   const token = serial; if (modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
-  try { await engine.init(); if (token !== serial || modal) return;
+  try {
+    if (isAutomaticTurn(session) && openingBook.plan(session)) { await autoPlay(); return; }
+    await engine.init(); if (token !== serial || modal) return;
     if (isAutomaticTurn(session)) await autoPlay();
     else if (session.workflow === "copilot" && session.decision && session.actor === 0 && !advice) await recommend();
     else await syncPonder();
@@ -188,14 +194,17 @@ function searchFor(token) { return async options => {
 function commit(event, automatic = false, result = null) {
   const continuation = automatic && event.type === "stone" && ["play", "w6"].includes(session.stage) ? result : null;
   if (continuation) analysis.accept({ requestId, sideToMove: session.color, stats: continuation });
-  session.apply(event, { automatic }); positionChanged(false, continuation); render();
+  session.apply(event, { automatic }); if (automatic && event.type === "stone") openingBook.remember(session);
+  positionChanged(false, continuation); render();
 }
 async function autoPlay() {
   if (busy || modal || session.winner) return;
   const token = serial; busy = true; engine.stopPonder(); render();
   try { while (token === serial && !modal && isAutomaticTurn(session)) {
     const time = Number($("#timeSelect").value), openingBatch = session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage);
-    const suggestion = await adviseOpening(session, searchFor(token), openingBatch ? Math.max(100, Math.floor(time / 2)) : time);
+    const planned = openingBatch ? openingBook.plan(session) : null;
+    const suggestion = planned ? { points: [planned.points[session.moves.length]] }
+      : await adviseOpening(session, searchFor(token), openingBatch ? Math.max(100, Math.floor(time / 2)) : time);
     if (token !== serial || modal) return;
     if (session.decision) commit({ type: "decision", choice: suggestion.choice }, true);
     else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index }, true);
@@ -279,7 +288,7 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
 });
 $("#recommendButton").onclick = recommend;
 $("#simpleRecommendButton").onclick = recommend;
-$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; cancel(); session = session.undo(); positionChanged(); render(); void prepare(); };
+$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; cancel(); const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
 $("#colorSelect").onchange = () => { cancel(); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
