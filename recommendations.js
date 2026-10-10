@@ -11,12 +11,12 @@ export class RecommendationCollector {
     const start = /^INFO PV (\d+)$/.exec(text);
     if (start) { this.frame = { pv: Number(start[1]) }; return; }
     if (!this.frame) return;
-    const stat = /^INFO (NUMPV|DEPTH|EVAL) (.+)$/.exec(text);
+    const stat = /^INFO (NUMPV|DEPTH|EVAL|WINRATE) (.+)$/.exec(text);
     if (stat) {
       if (stat[1] === "EVAL") {
         const mate = /^([+-]?)M(\d+)$/.exec(stat[2]);
         this.frame.score = mate ? (mate[1] === "-" ? -1 : 1) * (30000 - Number(mate[2])) : Number(stat[2]);
-      } else this.frame[stat[1] === "DEPTH" ? "depth" : "count"] = Number(stat[2]);
+      } else this.frame[{ DEPTH: "depth", NUMPV: "count", WINRATE: "winRate" }[stat[1]]] = Number(stat[2]);
       return;
     }
     const bestline = /^INFO BESTLINE (\d+),(\d+)(?:\s|$)/.exec(text);
@@ -56,7 +56,13 @@ export class RecommendationCollector {
     if (new Set(selected).size !== selected.length || selected.some(index => !validIndex(index) || board[index])) {
       throw new Error("引擎返回无效推荐落点");
     }
-    return selected.map((index, rank) => ({ index, x: index % SIZE, y: Math.floor(index / SIZE), rank: rank + 1,
-      ...(this.count > 2 ? this.completed.find(entry => entry.index === index) ?? {} : {}) }));
+    return selected.map((index, rank) => {
+      const frame = !winning.length ? this.completed.find(entry => entry.index === index) : null;
+      return { index, x: index % SIZE, y: Math.floor(index / SIZE), rank: rank + 1,
+        ...(this.count > 2 && frame ? frame : {}),
+        ...(frame ? { score: frame.score, depth: frame.depth } : {}),
+        ...(frame && Number.isFinite(frame.winRate) && frame.winRate >= 0 && frame.winRate <= 1 ? { winRate: frame.winRate } : {}) };
+    });
   }
 }
+

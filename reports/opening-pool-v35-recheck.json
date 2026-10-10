@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "implementation": "06d97aa395e782a6e4612a19486d71f65de2d931644ab8a81c8cc35dc945c161",
+  "advisorImplementation": "8e74850089a2a611db3ddba92a760a1b4e90bbd078382c03f0d42e11f7fcb372",
+  "recommendationsImplementation": "f9fdaf21ca7b8dd9e23033057d8b9772e1c92a00d8ad3058165107110106a5c5",
+  "started": "2026-10-10T12:08:45.413Z",
+  "runtime": "v24.19.0",
+  "platform": "linux",
+  "engine": "1be1551ced57e38d53ed58f6d74bf6f8b4bdc230",
+  "models": [
+    {
+      "name": "mix9svqrenju_bs15_black.bin.lz4",
+      "sha256": "7ab8c974c30da07717ce6a504616a62ac8c981500503f0ced0fadefd3f46c5ec"
+    },
+    {
+      "name": "mix9svqrenju_bs15_white.bin.lz4",
+      "sha256": "a31f318518d3b5630489054d9eb013fd5353c553999640c2bcfd8d95e6fe4e4e"
+    }
+  ],
+  "method": "Each budget clears the hash. Current advisor compares up to three white fourths with two-fifth proposal floors, proposes two legal non-equivalent fifths, then evaluates both for white at the full budget. Opener utility is min(blackRate,1-blackRate). Finite search estimates, not a proof of balance.",
+  "cases": [
+    {
+      "key": "96:80",
+      "points": [
+        112,
+        96,
+        80
+      ],
+      "budget": 1000,
+      "fourth": 82,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.369351,
+          "depth": 16,
+          "nodes": 28522,
+          "elapsed": 511,
+          "mate": null
+        },
+        {
+          "index": 68,
+          "whiteRate": 0.575664,
+          "depth": 16,
+          "nodes": 7638,
+          "elapsed": 112,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.42433600000000005,
+      "openerUtility": 0.42433600000000005
+    },
+    {
+      "key": "96:80",
+      "points": [
+        112,
+        96,
+        80
+      ],
+      "budget": 5000,
+      "fourth": 82,
+      "fifths": [
+        {
+          "index": 110,
+          "whiteRate": 0.370517,
+          "depth": 21,
+          "nodes": 72146,
+          "elapsed": 972,
+          "mate": null
+        },
+        {
+          "index": 68,
+          "whiteRate": 0.552308,
+          "depth": 18,
+          "nodes": 23908,
+          "elapsed": 280,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.447692,
+      "openerUtility": 0.447692
+    },
+    {
+      "key": "97:80",
+      "points": [
+        112,
+        97,
+        80
+      ],
+      "budget": 1000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 66,
+          "whiteRate": 0.513747,
+          "depth": 17,
+          "nodes": 58937,
+          "elapsed": 839,
+          "mate": null
+        },
+        {
+          "index": 98,
+          "whiteRate": 0.407333,
+          "depth": 16,
+          "nodes": 22366,
+          "elapsed": 300,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.48625300000000005,
+      "openerUtility": 0.48625300000000005
+    },
+    {
+      "key": "97:80",
+      "points": [
+        112,
+        97,
+        80
+      ],
+      "budget": 5000,
+      "fourth": 96,
+      "fifths": [
+        {
+          "index": 98,
+          "whiteRate": 0.445221,
+          "depth": 19,
+          "nodes": 29803,
+          "elapsed": 486,
+          "mate": null
+        },
+        {
+          "index": 81,
+          "whiteRate": 0.451404,
+          "depth": 21,
+          "nodes": 264905,
+          "elapsed": 4783,
+          "mate": null
+        }
+      ],
+      "blackRate": 0.548596,
+      "openerUtility": 0.451404
+    }
+  ],
+  "finished": "2026-10-10T12:09:30.308Z",
+  "casesSha256": "8601e1ea59037a9aa2c6c0f7fd28adb1bc5389294a1e81ded33ba9c70b413e6f"
+}

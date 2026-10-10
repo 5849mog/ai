@@ -56,3 +56,14 @@ test("direct-win shortcut yields real winning points and keeps a unique win uniq
   input[0] = 0; input[109] = 2;
   assert.deepEqual(new RecommendationCollector().finish(input, 114, 1).map(move => move.index), [114]);
 });
+
+test("each proposal retains its own completed-depth rate, including after a newer incomplete batch", () => {
+  const collector = new RecommendationCollector();
+  for(const [rank,index,rate] of [[0,111,.9],[1,110,.2]])
+    for(const line of [`INFO PV ${rank}`,"INFO NUMPV 2","INFO DEPTH 12",`INFO EVAL ${rank ? -200 : 400}`,`INFO WINRATE ${rate}`,`INFO BESTLINE ${index%15},${Math.floor(index/15)}`,"INFO PV DONE"])collector.read(line);
+  for(const line of ["INFO PV 0","INFO NUMPV 2","INFO DEPTH 13","INFO EVAL 800","INFO WINRATE .99","INFO BESTLINE 4,7","INFO PV DONE"])collector.read(line);
+  const moves=collector.finish(board(),109,2);
+  assert.deepEqual(moves.map(move=>[move.index,move.depth,move.winRate]),[[111,12,.9],[110,12,.2]]);
+  assert.deepEqual(moves.map(move=>move.score),[400,-200]);
+});
+

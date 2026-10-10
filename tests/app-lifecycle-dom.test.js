@@ -27,9 +27,13 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
       if (data.type === 'init') queueMicrotask(() => this.emit({ type: 'ready' }));
       if (data.type === 'ponder') this.ponderJob = data;
       if (data.type === 'search') queueMicrotask(() => {
+        (this.searches ??= []).push(data);
         if (failSearch && !failed) { failed = true; this.emit({ type: 'error', requestId: data.requestId, message: 'fixture search failure' }); return; }
-        const index = data.board[113] === 0 ? 113 : data.board.findIndex(value => !value);
-        this.emit({ type: 'move', requestId: data.requestId, result: { index, x: index % 15, y: Math.floor(index / 15), elapsed: 10 } });
+        const allowed = data.allowedMoves ?? data.board.flatMap((value,index)=>value ? [] : [index]);
+        const index = allowed.includes(113) ? 113 : allowed[0];
+        const alternatives = [index,...allowed.filter(i=>i!==index)].slice(0,data.multiPV);
+        this.emit({ type: 'move', requestId: data.requestId, result: { index, x: index % 15, y: Math.floor(index / 15), elapsed: 10,
+          ...(data.multiPV>1 ? {recommendations:alternatives.map(index=>({index}))} : {}) } });
       });
     }
     emit(data) { if (!this.dead) this.onmessage?.({ data }); }
@@ -64,6 +68,21 @@ test('freestyle simple-mode retry preserves the existing stone and continues the
     assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length, 2);
     assert.ok(document.querySelector('#boardSvg [data-stone="112"]')); assert.ok(document.querySelector('#boardSvg [data-stone="113"]'));
     assert.equal(retry.hidden, true);
+  } finally { f.close(); }
+});
+
+test('Renju app spends automatic reply time on one line, and its explicit recommendation still requests two', async () => {
+  const board = new Uint8Array(225); board[112]=1; board[97]=2;
+  const session = new OpeningSession({ rule:'rif', workflow:'copilot', seed:{board,sideToMove:1} });
+  const f = await environment('renju.html',{saved:{record:session.record(),perspective:1}});
+  try {
+    await f.load(); const worker=f.workers.at(-1);
+    assert.equal(worker.searches[0].multiPV,1);
+    assert.equal(worker.searches[0].sideToMove,1);
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,3);
+    document.querySelector('#simpleRecommendButton').click(); await flush(); await flush();
+    assert.equal(worker.searches.at(-1).multiPV,2);
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,3);
   } finally { f.close(); }
 });
 

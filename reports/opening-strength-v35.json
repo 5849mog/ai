@@ -1,0 +1,2197 @@
+{
+  "version": 1,
+  "started": "2026-10-10T12:05:27.886Z",
+  "runtime": "v24.19.0",
+  "engine": "1be1551ced57e38d53ed58f6d74bf6f8b4bdc230",
+  "sources": {
+    "opening-advisor.js": "8e74850089a2a611db3ddba92a760a1b4e90bbd078382c03f0d42e11f7fcb372",
+    "recommendations.js": "f9fdaf21ca7b8dd9e23033057d8b9772e1c92a00d8ad3058165107110106a5c5",
+    "scripts/renju-node-engine.js": "06d97aa395e782a6e4612a19486d71f65de2d931644ab8a81c8cc35dc945c161",
+    "scripts/opening-advisor-v34.fixture.js": "256e63536b6891b8c57338153e2664bdaa6d1a3095bcbb0f797ad2496dec973e"
+  },
+  "method": "Same fixed legal opening prefixes, cleared hash per policy. Search budgets 1/5 seconds. Every selected fifth independently re-evaluated for white with 5 seconds. Estimates only; no human-match or Elo measurement.",
+  "cases": [
+    {
+      "name": "taraguchi-fifth-swap",
+      "policy": "v34",
+      "budget": 1000,
+      "advice": {
+        "points": [
+          95,
+          98
+        ],
+        "result": {
+          "depth": 16,
+          "selectiveDepth": 24,
+          "nodes": 26865,
+          "elapsed": 349,
+          "nps": 76977,
+          "evaluation": 321,
+          "mate": null,
+          "winRate": 0.832716,
+          "assessment": {
+            "depth": 16,
+            "winRate": 0.832716,
+            "evaluation": 321,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 95,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "score": 321,
+              "depth": 16,
+              "winRate": 0.832716
+            },
+            {
+              "index": 95,
+              "x": 5,
+              "y": 6,
+              "rank": 2,
+              "score": 321,
+              "depth": 16,
+              "winRate": 0.832716
+            }
+          ]
+        },
+        "note": "推荐只标出落点，请录入外部实际下法。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 81
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 83
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 95
+          }
+        ]
+      },
+      "evaluation": {
+        "depth": 16,
+        "selectiveDepth": 34,
+        "nodes": 146878,
+        "elapsed": 1930,
+        "nps": 76102,
+        "evaluation": -302,
+        "mate": null,
+        "winRate": 0.180939,
+        "assessment": {
+          "depth": 16,
+          "winRate": 0.180939,
+          "evaluation": -302,
+          "mate": null,
+          "bestIndex": 109
+        },
+        "index": 109,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "utility": 0.180939
+    },
+    {
+      "name": "taraguchi-fifth-swap",
+      "policy": "v35",
+      "budget": 1000,
+      "advice": {
+        "points": [
+          84
+        ],
+        "result": {
+          "depth": 17,
+          "selectiveDepth": 22,
+          "nodes": 56020,
+          "elapsed": 950,
+          "nps": 58968,
+          "evaluation": -13,
+          "mate": null,
+          "winRate": 0.483756,
+          "assessment": {
+            "depth": 17,
+            "winRate": 0.483756,
+            "evaluation": -13,
+            "mate": null,
+            "bestIndex": 84
+          },
+          "index": 84,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4"
+        },
+        "note": "落子后对方仍可换色，使用平衡搜索避免把单方优势交给对方。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 81
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 83
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 84
+          }
+        ]
+      },
+      "evaluation": {
+        "depth": 18,
+        "selectiveDepth": 21,
+        "nodes": 132398,
+        "elapsed": 2402,
+        "nps": 55142,
+        "evaluation": -22,
+        "mate": null,
+        "winRate": 0.472528,
+        "assessment": {
+          "depth": 18,
+          "winRate": 0.472528,
+          "evaluation": -22,
+          "mate": null,
+          "bestIndex": 98
+        },
+        "index": 98,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "utility": 0.472528
+    },
+    {
+      "name": "taraguchi-fifth-swap",
+      "policy": "v34",
+      "budget": 5000,
+      "advice": {
+        "points": [
+          110,
+          95
+        ],
+        "result": {
+          "depth": 20,
+          "selectiveDepth": 31,
+          "nodes": 395354,
+          "elapsed": 4439,
+          "nps": 89063,
+          "evaluation": 447,
+          "mate": null,
+          "winRate": 0.903349,
+          "assessment": {
+            "depth": 20,
+            "winRate": 0.903349,
+            "evaluation": 447,
+            "mate": null,
+            "bestIndex": 110
+          },
+          "index": 110,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 110,
+              "x": 5,
+              "y": 7,
+              "rank": 1,
+              "score": 392,
+              "depth": 19,
+              "winRate": 0.876533
+            },
+            {
+              "index": 95,
+              "x": 5,
+              "y": 6,
+              "rank": 2,
+              "score": 296,
+              "depth": 19,
+              "winRate": 0.814573
+            }
+          ]
+        },
+        "note": "推荐只标出落点，请录入外部实际下法。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 81
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 83
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 110
+          }
+        ]
+      },
+      "evaluation": {
+        "depth": 21,
+        "selectiveDepth": 18,
+        "nodes": 121800,
+        "elapsed": 1155,
+        "nps": 105454,
+        "evaluation": -447,
+        "mate": null,
+        "winRate": 0.0966512,
+        "assessment": {
+          "depth": 21,
+          "winRate": 0.0966512,
+          "evaluation": -447,
+          "mate": null,
+          "bestIndex": 99
+        },
+        "index": 99,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "utility": 0.0966512
+    },
+    {
+      "name": "taraguchi-fifth-swap",
+      "policy": "v35",
+      "budget": 5000,
+      "advice": {
+        "points": [
+          66
+        ],
+        "result": {
+          "depth": 21,
+          "selectiveDepth": 22,
+          "nodes": 241903,
+          "elapsed": 4369,
+          "nps": 55368,
+          "evaluation": 1,
+          "mate": null,
+          "winRate": 0.50125,
+          "assessment": {
+            "depth": 21,
+            "winRate": 0.50125,
+            "evaluation": 1,
+            "mate": null,
+            "bestIndex": 66
+          },
+          "index": 66,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4"
+        },
+        "note": "落子后对方仍可换色，使用平衡搜索避免把单方优势交给对方。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 81
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 83
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 66
+          }
+        ]
+      },
+      "evaluation": {
+        "depth": 22,
+        "selectiveDepth": 21,
+        "nodes": 87241,
+        "elapsed": 1560,
+        "nps": 55923,
+        "evaluation": -1,
+        "mate": null,
+        "winRate": 0.49875,
+        "assessment": {
+          "depth": 22,
+          "winRate": 0.49875,
+          "evaluation": -1,
+          "mate": null,
+          "bestIndex": 98
+        },
+        "index": 98,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "utility": 0.49875
+    },
+    {
+      "name": "rif-two-fifths-97:80",
+      "policy": "v34",
+      "budget": 1000,
+      "advice": {
+        "points": [
+          98,
+          94
+        ],
+        "result": {
+          "depth": 9,
+          "selectiveDepth": 13,
+          "nodes": 66271,
+          "elapsed": 463,
+          "nps": 143133,
+          "evaluation": -190,
+          "mate": null,
+          "winRate": 0.278885,
+          "assessment": {
+            "depth": 9,
+            "winRate": 0.786675,
+            "evaluation": 261,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 98,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 32,
+              "depth": 8,
+              "score": 261,
+              "winRate": 0.786675
+            },
+            {
+              "index": 94,
+              "x": 4,
+              "y": 6,
+              "rank": 2,
+              "pv": 1,
+              "count": 32,
+              "depth": 8,
+              "score": 114,
+              "winRate": 0.638763
+            },
+            {
+              "index": 95,
+              "x": 5,
+              "y": 6,
+              "rank": 3,
+              "pv": 2,
+              "count": 32,
+              "depth": 8,
+              "score": 45,
+              "winRate": 0.556014
+            },
+            {
+              "index": 110,
+              "x": 5,
+              "y": 7,
+              "rank": 4,
+              "pv": 5,
+              "count": 32,
+              "depth": 8,
+              "score": 13,
+              "winRate": 0.516244
+            },
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 5,
+              "pv": 3,
+              "count": 32,
+              "depth": 8,
+              "score": -13,
+              "winRate": 0.483756
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 6,
+              "pv": 6,
+              "count": 32,
+              "depth": 8,
+              "score": -66,
+              "winRate": 0.418241
+            },
+            {
+              "index": 81,
+              "x": 6,
+              "y": 5,
+              "rank": 7,
+              "pv": 4,
+              "count": 32,
+              "depth": 8,
+              "score": -79,
+              "winRate": 0.402514
+            },
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 8,
+              "pv": 7,
+              "count": 32,
+              "depth": 8,
+              "score": -119,
+              "winRate": 0.355488
+            },
+            {
+              "index": 79,
+              "x": 4,
+              "y": 5,
+              "rank": 9,
+              "pv": 8,
+              "count": 32,
+              "depth": 8,
+              "score": -133,
+              "winRate": 0.339617
+            },
+            {
+              "index": 99,
+              "x": 9,
+              "y": 6,
+              "rank": 10,
+              "pv": 14,
+              "count": 32,
+              "depth": 8,
+              "score": -140,
+              "winRate": 0.331812
+            },
+            {
+              "index": 109,
+              "x": 4,
+              "y": 7,
+              "rank": 11,
+              "pv": 16,
+              "count": 32,
+              "depth": 8,
+              "score": -162,
+              "winRate": 0.307891
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 12,
+              "pv": 12,
+              "count": 32,
+              "depth": 8,
+              "score": -164,
+              "winRate": 0.305764
+            },
+            {
+              "index": 113,
+              "x": 8,
+              "y": 7,
+              "rank": 13,
+              "pv": 9,
+              "count": 32,
+              "depth": 8,
+              "score": -173,
+              "winRate": 0.296296
+            },
+            {
+              "index": 108,
+              "x": 3,
+              "y": 7,
+              "rank": 14,
+              "pv": 20,
+              "count": 32,
+              "depth": 8,
+              "score": -187,
+              "winRate": 0.281911
+            },
+            {
+              "index": 52,
+              "x": 7,
+              "y": 3,
+              "rank": 15,
+              "pv": 25,
+              "count": 32,
+              "depth": 8,
+              "score": -207,
+              "winRate": 0.262116
+            },
+            {
+              "index": 125,
+              "x": 5,
+              "y": 8,
+              "rank": 16,
+              "pv": 13,
+              "count": 32,
+              "depth": 8,
+              "score": -215,
+              "winRate": 0.254453
+            },
+            {
+              "index": 78,
+              "x": 3,
+              "y": 5,
+              "rank": 17,
+              "pv": 10,
+              "count": 32,
+              "depth": 8,
+              "score": -219,
+              "winRate": 0.250678
+            },
+            {
+              "index": 84,
+              "x": 9,
+              "y": 5,
+              "rank": 18,
+              "pv": 21,
+              "count": 32,
+              "depth": 8,
+              "score": -258,
+              "winRate": 0.215853
+            },
+            {
+              "index": 50,
+              "x": 5,
+              "y": 3,
+              "rank": 19,
+              "pv": 15,
+              "count": 32,
+              "depth": 8,
+              "score": -263,
+              "winRate": 0.211651
+            },
+            {
+              "index": 126,
+              "x": 6,
+              "y": 8,
+              "rank": 20,
+              "pv": 11,
+              "count": 32,
+              "depth": 8,
+              "score": -269,
+              "winRate": 0.206689
+            },
+            {
+              "index": 67,
+              "x": 7,
+              "y": 4,
+              "rank": 21,
+              "pv": 18,
+              "count": 32,
+              "depth": 8,
+              "score": -284,
+              "winRate": 0.194662
+            },
+            {
+              "index": 93,
+              "x": 3,
+              "y": 6,
+              "rank": 22,
+              "pv": 29,
+              "count": 32,
+              "depth": 8,
+              "score": -333,
+              "winRate": 0.159092
+            },
+            {
+              "index": 141,
+              "x": 6,
+              "y": 9,
+              "rank": 23,
+              "pv": 27,
+              "count": 32,
+              "depth": 8,
+              "score": -351,
+              "winRate": 0.147418
+            },
+            {
+              "index": 68,
+              "x": 8,
+              "y": 4,
+              "rank": 24,
+              "pv": 23,
+              "count": 32,
+              "depth": 8,
+              "score": -369,
+              "winRate": 0.136461
+            },
+            {
+              "index": 140,
+              "x": 5,
+              "y": 9,
+              "rank": 25,
+              "pv": 26,
+              "count": 32,
+              "depth": 8,
+              "score": -379,
+              "winRate": 0.130675
+            },
+            {
+              "index": 123,
+              "x": 3,
+              "y": 8,
+              "rank": 26,
+              "pv": 24,
+              "count": 32,
+              "depth": 8,
+              "score": -390,
+              "winRate": 0.124553
+            },
+            {
+              "index": 65,
+              "x": 5,
+              "y": 4,
+              "rank": 27,
+              "pv": 17,
+              "count": 32,
+              "depth": 8,
+              "score": -398,
+              "winRate": 0.120257
+            },
+            {
+              "index": 124,
+              "x": 4,
+              "y": 8,
+              "rank": 28,
+              "pv": 19,
+              "count": 32,
+              "depth": 8,
+              "score": -400,
+              "winRate": 0.119203
+            },
+            {
+              "index": 127,
+              "x": 7,
+              "y": 8,
+              "rank": 29,
+              "pv": 28,
+              "count": 32,
+              "depth": 8,
+              "score": -410,
+              "winRate": 0.114052
+            },
+            {
+              "index": 143,
+              "x": 8,
+              "y": 9,
+              "rank": 30,
+              "pv": 22,
+              "count": 32,
+              "depth": 8,
+              "score": -444,
+              "winRate": 0.0979688
+            },
+            {
+              "index": 114,
+              "x": 9,
+              "y": 7,
+              "rank": 31,
+              "pv": 31,
+              "count": 32,
+              "depth": 8,
+              "score": -503,
+              "winRate": 0.0748133
+            },
+            {
+              "index": 128,
+              "x": 8,
+              "y": 8,
+              "rank": 32,
+              "pv": 30,
+              "count": 32,
+              "depth": 8,
+              "score": -615,
+              "winRate": 0.0441503
+            }
+          ]
+        },
+        "note": "按黑棋搜索排序并排除对称等价；候选由白方选定后才成为实子。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "stone",
+            "index": 97
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          }
+        ]
+      },
+      "fifths": [
+        {
+          "index": 98,
+          "evaluation": {
+            "depth": 18,
+            "selectiveDepth": 32,
+            "nodes": 223164,
+            "elapsed": 4267,
+            "nps": 52299,
+            "evaluation": -9,
+            "mate": null,
+            "winRate": 0.488752,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.488752,
+              "evaluation": -9,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "index": 94,
+          "evaluation": {
+            "depth": 21,
+            "selectiveDepth": 28,
+            "nodes": 182977,
+            "elapsed": 3151,
+            "nps": 58069,
+            "evaluation": 40,
+            "mate": null,
+            "winRate": 0.549834,
+            "assessment": {
+              "depth": 21,
+              "winRate": 0.549834,
+              "evaluation": 40,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "utility": 0.45016599999999996
+    },
+    {
+      "name": "rif-two-fifths-97:80",
+      "policy": "v35",
+      "budget": 1000,
+      "advice": {
+        "points": [
+          98,
+          66
+        ],
+        "result": {
+          "depth": 14,
+          "selectiveDepth": 14,
+          "nodes": 24792,
+          "elapsed": 346,
+          "nps": 71653,
+          "evaluation": 66,
+          "mate": null,
+          "winRate": 0.581759,
+          "assessment": {
+            "depth": 14,
+            "winRate": 0.581759,
+            "evaluation": 66,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 98,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "score": 66,
+              "depth": 13,
+              "winRate": 0.581759
+            },
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 2,
+              "score": 58,
+              "depth": 13,
+              "winRate": 0.571996
+            }
+          ]
+        },
+        "note": "集中搜索所需的非等价候选；按整组提案评估，白方选定后才成为实子。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "stone",
+            "index": 97
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          }
+        ]
+      },
+      "fifths": [
+        {
+          "index": 98,
+          "evaluation": {
+            "depth": 18,
+            "selectiveDepth": 31,
+            "nodes": 258042,
+            "elapsed": 4408,
+            "nps": 58539,
+            "evaluation": 2,
+            "mate": null,
+            "winRate": 0.5025,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.5025,
+              "evaluation": 2,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "index": 66,
+          "evaluation": {
+            "depth": 21,
+            "selectiveDepth": 29,
+            "nodes": 101649,
+            "elapsed": 1511,
+            "nps": 67272,
+            "evaluation": -7,
+            "mate": null,
+            "winRate": 0.491251,
+            "assessment": {
+              "depth": 21,
+              "winRate": 0.491251,
+              "evaluation": -7,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "utility": 0.49750000000000005
+    },
+    {
+      "name": "rif-two-fifths-96:80",
+      "policy": "v34",
+      "budget": 1000,
+      "advice": {
+        "points": [
+          98,
+          94
+        ],
+        "result": {
+          "depth": 9,
+          "selectiveDepth": 13,
+          "nodes": 66271,
+          "elapsed": 463,
+          "nps": 143133,
+          "evaluation": -190,
+          "mate": null,
+          "winRate": 0.278885,
+          "assessment": {
+            "depth": 9,
+            "winRate": 0.786675,
+            "evaluation": 261,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 98,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 32,
+              "depth": 8,
+              "score": 261,
+              "winRate": 0.786675
+            },
+            {
+              "index": 94,
+              "x": 4,
+              "y": 6,
+              "rank": 2,
+              "pv": 1,
+              "count": 32,
+              "depth": 8,
+              "score": 114,
+              "winRate": 0.638763
+            },
+            {
+              "index": 95,
+              "x": 5,
+              "y": 6,
+              "rank": 3,
+              "pv": 2,
+              "count": 32,
+              "depth": 8,
+              "score": 45,
+              "winRate": 0.556014
+            },
+            {
+              "index": 110,
+              "x": 5,
+              "y": 7,
+              "rank": 4,
+              "pv": 5,
+              "count": 32,
+              "depth": 8,
+              "score": 13,
+              "winRate": 0.516244
+            },
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 5,
+              "pv": 3,
+              "count": 32,
+              "depth": 8,
+              "score": -13,
+              "winRate": 0.483756
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 6,
+              "pv": 6,
+              "count": 32,
+              "depth": 8,
+              "score": -66,
+              "winRate": 0.418241
+            },
+            {
+              "index": 81,
+              "x": 6,
+              "y": 5,
+              "rank": 7,
+              "pv": 4,
+              "count": 32,
+              "depth": 8,
+              "score": -79,
+              "winRate": 0.402514
+            },
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 8,
+              "pv": 7,
+              "count": 32,
+              "depth": 8,
+              "score": -119,
+              "winRate": 0.355488
+            },
+            {
+              "index": 79,
+              "x": 4,
+              "y": 5,
+              "rank": 9,
+              "pv": 8,
+              "count": 32,
+              "depth": 8,
+              "score": -133,
+              "winRate": 0.339617
+            },
+            {
+              "index": 99,
+              "x": 9,
+              "y": 6,
+              "rank": 10,
+              "pv": 14,
+              "count": 32,
+              "depth": 8,
+              "score": -140,
+              "winRate": 0.331812
+            },
+            {
+              "index": 109,
+              "x": 4,
+              "y": 7,
+              "rank": 11,
+              "pv": 16,
+              "count": 32,
+              "depth": 8,
+              "score": -162,
+              "winRate": 0.307891
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 12,
+              "pv": 12,
+              "count": 32,
+              "depth": 8,
+              "score": -164,
+              "winRate": 0.305764
+            },
+            {
+              "index": 113,
+              "x": 8,
+              "y": 7,
+              "rank": 13,
+              "pv": 9,
+              "count": 32,
+              "depth": 8,
+              "score": -173,
+              "winRate": 0.296296
+            },
+            {
+              "index": 108,
+              "x": 3,
+              "y": 7,
+              "rank": 14,
+              "pv": 20,
+              "count": 32,
+              "depth": 8,
+              "score": -187,
+              "winRate": 0.281911
+            },
+            {
+              "index": 52,
+              "x": 7,
+              "y": 3,
+              "rank": 15,
+              "pv": 25,
+              "count": 32,
+              "depth": 8,
+              "score": -207,
+              "winRate": 0.262116
+            },
+            {
+              "index": 125,
+              "x": 5,
+              "y": 8,
+              "rank": 16,
+              "pv": 13,
+              "count": 32,
+              "depth": 8,
+              "score": -215,
+              "winRate": 0.254453
+            },
+            {
+              "index": 78,
+              "x": 3,
+              "y": 5,
+              "rank": 17,
+              "pv": 10,
+              "count": 32,
+              "depth": 8,
+              "score": -219,
+              "winRate": 0.250678
+            },
+            {
+              "index": 84,
+              "x": 9,
+              "y": 5,
+              "rank": 18,
+              "pv": 21,
+              "count": 32,
+              "depth": 8,
+              "score": -258,
+              "winRate": 0.215853
+            },
+            {
+              "index": 50,
+              "x": 5,
+              "y": 3,
+              "rank": 19,
+              "pv": 15,
+              "count": 32,
+              "depth": 8,
+              "score": -263,
+              "winRate": 0.211651
+            },
+            {
+              "index": 126,
+              "x": 6,
+              "y": 8,
+              "rank": 20,
+              "pv": 11,
+              "count": 32,
+              "depth": 8,
+              "score": -269,
+              "winRate": 0.206689
+            },
+            {
+              "index": 67,
+              "x": 7,
+              "y": 4,
+              "rank": 21,
+              "pv": 18,
+              "count": 32,
+              "depth": 8,
+              "score": -284,
+              "winRate": 0.194662
+            },
+            {
+              "index": 93,
+              "x": 3,
+              "y": 6,
+              "rank": 22,
+              "pv": 29,
+              "count": 32,
+              "depth": 8,
+              "score": -333,
+              "winRate": 0.159092
+            },
+            {
+              "index": 141,
+              "x": 6,
+              "y": 9,
+              "rank": 23,
+              "pv": 27,
+              "count": 32,
+              "depth": 8,
+              "score": -351,
+              "winRate": 0.147418
+            },
+            {
+              "index": 68,
+              "x": 8,
+              "y": 4,
+              "rank": 24,
+              "pv": 23,
+              "count": 32,
+              "depth": 8,
+              "score": -369,
+              "winRate": 0.136461
+            },
+            {
+              "index": 140,
+              "x": 5,
+              "y": 9,
+              "rank": 25,
+              "pv": 26,
+              "count": 32,
+              "depth": 8,
+              "score": -379,
+              "winRate": 0.130675
+            },
+            {
+              "index": 123,
+              "x": 3,
+              "y": 8,
+              "rank": 26,
+              "pv": 24,
+              "count": 32,
+              "depth": 8,
+              "score": -390,
+              "winRate": 0.124553
+            },
+            {
+              "index": 65,
+              "x": 5,
+              "y": 4,
+              "rank": 27,
+              "pv": 17,
+              "count": 32,
+              "depth": 8,
+              "score": -398,
+              "winRate": 0.120257
+            },
+            {
+              "index": 124,
+              "x": 4,
+              "y": 8,
+              "rank": 28,
+              "pv": 19,
+              "count": 32,
+              "depth": 8,
+              "score": -400,
+              "winRate": 0.119203
+            },
+            {
+              "index": 127,
+              "x": 7,
+              "y": 8,
+              "rank": 29,
+              "pv": 28,
+              "count": 32,
+              "depth": 8,
+              "score": -410,
+              "winRate": 0.114052
+            },
+            {
+              "index": 143,
+              "x": 8,
+              "y": 9,
+              "rank": 30,
+              "pv": 22,
+              "count": 32,
+              "depth": 8,
+              "score": -444,
+              "winRate": 0.0979688
+            },
+            {
+              "index": 114,
+              "x": 9,
+              "y": 7,
+              "rank": 31,
+              "pv": 31,
+              "count": 32,
+              "depth": 8,
+              "score": -503,
+              "winRate": 0.0748133
+            },
+            {
+              "index": 128,
+              "x": 8,
+              "y": 8,
+              "rank": 32,
+              "pv": 30,
+              "count": 32,
+              "depth": 8,
+              "score": -615,
+              "winRate": 0.0441503
+            }
+          ]
+        },
+        "note": "按黑棋搜索排序并排除对称等价；候选由白方选定后才成为实子。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97
+          }
+        ]
+      },
+      "fifths": [
+        {
+          "index": 98,
+          "evaluation": {
+            "depth": 18,
+            "selectiveDepth": 32,
+            "nodes": 223164,
+            "elapsed": 4576,
+            "nps": 48768,
+            "evaluation": -9,
+            "mate": null,
+            "winRate": 0.488752,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.488752,
+              "evaluation": -9,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "index": 94,
+          "evaluation": {
+            "depth": 21,
+            "selectiveDepth": 28,
+            "nodes": 182977,
+            "elapsed": 2921,
+            "nps": 62641,
+            "evaluation": 40,
+            "mate": null,
+            "winRate": 0.549834,
+            "assessment": {
+              "depth": 21,
+              "winRate": 0.549834,
+              "evaluation": 40,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "utility": 0.45016599999999996
+    },
+    {
+      "name": "rif-two-fifths-96:80",
+      "policy": "v35",
+      "budget": 1000,
+      "advice": {
+        "points": [
+          98,
+          66
+        ],
+        "result": {
+          "depth": 14,
+          "selectiveDepth": 14,
+          "nodes": 24792,
+          "elapsed": 588,
+          "nps": 42163,
+          "evaluation": 66,
+          "mate": null,
+          "winRate": 0.581759,
+          "assessment": {
+            "depth": 14,
+            "winRate": 0.581759,
+            "evaluation": 66,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 98,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "score": 66,
+              "depth": 13,
+              "winRate": 0.581759
+            },
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 2,
+              "score": 58,
+              "depth": 13,
+              "winRate": 0.571996
+            }
+          ]
+        },
+        "note": "集中搜索所需的非等价候选；按整组提案评估，白方选定后才成为实子。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97
+          }
+        ]
+      },
+      "fifths": [
+        {
+          "index": 98,
+          "evaluation": {
+            "depth": 16,
+            "selectiveDepth": 30,
+            "nodes": 193530,
+            "elapsed": 3857,
+            "nps": 50176,
+            "evaluation": -8,
+            "mate": null,
+            "winRate": 0.490001,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.490001,
+              "evaluation": -8,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "index": 66,
+          "evaluation": {
+            "depth": 21,
+            "selectiveDepth": 23,
+            "nodes": 109319,
+            "elapsed": 1523,
+            "nps": 71778,
+            "evaluation": -5,
+            "mate": null,
+            "winRate": 0.49375,
+            "assessment": {
+              "depth": 21,
+              "winRate": 0.49375,
+              "evaluation": -5,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "utility": 0.50625
+    },
+    {
+      "name": "taraguchi-ten-96",
+      "policy": "v35",
+      "budget": 1000,
+      "advice": {
+        "choice": "keep",
+        "result": {
+          "depth": 16,
+          "selectiveDepth": 16,
+          "nodes": 16332,
+          "elapsed": 186,
+          "nps": 87806,
+          "evaluation": 3,
+          "mate": null,
+          "winRate": 0.50375,
+          "assessment": {
+            "depth": 16,
+            "winRate": 0.50375,
+            "evaluation": 3,
+            "mate": null,
+            "bestIndex": 110
+          },
+          "index": 110,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4"
+        },
+        "note": "已比较平衡第五手与十个非等价提案；十打按白方最有利的选点评估。"
+      },
+      "offered": {
+        "points": [
+          98,
+          111,
+          95,
+          110,
+          66,
+          81,
+          94,
+          82,
+          83,
+          126
+        ],
+        "result": {
+          "depth": 12,
+          "selectiveDepth": 19,
+          "nodes": 80089,
+          "elapsed": 864,
+          "nps": 92695,
+          "evaluation": -28,
+          "mate": null,
+          "winRate": 0.465057,
+          "assessment": {
+            "depth": 12,
+            "winRate": 0.628316,
+            "evaluation": 105,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 98,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 10,
+              "depth": 11,
+              "score": 105,
+              "winRate": 0.628316
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 2,
+              "pv": 6,
+              "count": 10,
+              "depth": 11,
+              "score": 90,
+              "winRate": 0.610639
+            },
+            {
+              "index": 95,
+              "x": 5,
+              "y": 6,
+              "rank": 3,
+              "pv": 1,
+              "count": 10,
+              "depth": 11,
+              "score": 64,
+              "winRate": 0.579324
+            },
+            {
+              "index": 110,
+              "x": 5,
+              "y": 7,
+              "rank": 4,
+              "pv": 2,
+              "count": 10,
+              "depth": 11,
+              "score": 62,
+              "winRate": 0.576885
+            },
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 5,
+              "pv": 3,
+              "count": 10,
+              "depth": 11,
+              "score": 60,
+              "winRate": 0.574443
+            },
+            {
+              "index": 81,
+              "x": 6,
+              "y": 5,
+              "rank": 6,
+              "pv": 4,
+              "count": 10,
+              "depth": 11,
+              "score": 0,
+              "winRate": 0.5
+            },
+            {
+              "index": 94,
+              "x": 4,
+              "y": 6,
+              "rank": 7,
+              "pv": 5,
+              "count": 10,
+              "depth": 11,
+              "score": -72,
+              "winRate": 0.41096
+            },
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 8,
+              "pv": 8,
+              "count": 10,
+              "depth": 11,
+              "score": -109,
+              "winRate": 0.367025
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 9,
+              "pv": 7,
+              "count": 10,
+              "depth": 11,
+              "score": -141,
+              "winRate": 0.330705
+            },
+            {
+              "index": 126,
+              "x": 6,
+              "y": 8,
+              "rank": 10,
+              "pv": 9,
+              "count": 10,
+              "depth": 11,
+              "score": -186,
+              "winRate": 0.282925
+            }
+          ]
+        },
+        "note": "集中搜索所需的非等价候选；按整组提案评估，白方选定后才成为实子。"
+      },
+      "selected": {
+        "points": [
+          126,
+          83
+        ],
+        "note": "绿圈首选：从白棋角度逐一比较已提出的第五手。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "ten"
+          },
+          {
+            "type": "offer",
+            "index": 98
+          },
+          {
+            "type": "offer",
+            "index": 111
+          },
+          {
+            "type": "offer",
+            "index": 95
+          },
+          {
+            "type": "offer",
+            "index": 110
+          },
+          {
+            "type": "offer",
+            "index": 66
+          },
+          {
+            "type": "offer",
+            "index": 81
+          },
+          {
+            "type": "offer",
+            "index": 94
+          },
+          {
+            "type": "offer",
+            "index": 82
+          },
+          {
+            "type": "offer",
+            "index": 83
+          },
+          {
+            "type": "offer",
+            "index": 126
+          },
+          {
+            "type": "select",
+            "index": 126
+          }
+        ]
+      },
+      "evaluation": {
+        "depth": 25,
+        "selectiveDepth": 36,
+        "nodes": 686397,
+        "elapsed": 3903,
+        "nps": 175863,
+        "evaluation": null,
+        "mate": "+M57",
+        "winRate": 1,
+        "assessment": {
+          "depth": 25,
+          "winRate": 1,
+          "evaluation": null,
+          "mate": "+M57",
+          "bestIndex": 98
+        },
+        "index": 98,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "utility": 0
+    },
+    {
+      "name": "taraguchi-ten-160",
+      "policy": "v35",
+      "budget": 1000,
+      "advice": {
+        "choice": "ten",
+        "result": {
+          "depth": 11,
+          "selectiveDepth": 17,
+          "nodes": 23826,
+          "elapsed": 291,
+          "nps": 81876,
+          "evaluation": 208,
+          "mate": null,
+          "winRate": 0.73885,
+          "assessment": {
+            "depth": 11,
+            "winRate": 0.73885,
+            "evaluation": 208,
+            "mate": null,
+            "bestIndex": 161
+          },
+          "index": 161,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4"
+        },
+        "note": "已比较平衡第五手与十个非等价提案；十打按白方最有利的选点评估。"
+      },
+      "offered": {
+        "points": [
+          110,
+          81,
+          111,
+          126,
+          141,
+          82,
+          83,
+          80,
+          128,
+          113
+        ],
+        "result": {
+          "depth": 11,
+          "selectiveDepth": 19,
+          "nodes": 160532,
+          "elapsed": 906,
+          "nps": 177187,
+          "evaluation": 717,
+          "mate": null,
+          "winRate": 0.973012,
+          "assessment": {
+            "depth": 11,
+            "winRate": 0.96158,
+            "evaluation": 644,
+            "mate": null,
+            "bestIndex": 80
+          },
+          "index": 110,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 110,
+              "x": 5,
+              "y": 7,
+              "rank": 1,
+              "pv": 4,
+              "count": 10,
+              "depth": 11,
+              "score": 1012,
+              "winRate": 0.993694
+            },
+            {
+              "index": 81,
+              "x": 6,
+              "y": 5,
+              "rank": 2,
+              "pv": 3,
+              "count": 10,
+              "depth": 11,
+              "score": 967,
+              "winRate": 0.992116
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 3,
+              "pv": 1,
+              "count": 10,
+              "depth": 11,
+              "score": 951,
+              "winRate": 0.991465
+            },
+            {
+              "index": 126,
+              "x": 6,
+              "y": 8,
+              "rank": 4,
+              "pv": 2,
+              "count": 10,
+              "depth": 11,
+              "score": 746,
+              "winRate": 0.976569
+            },
+            {
+              "index": 141,
+              "x": 6,
+              "y": 9,
+              "rank": 5,
+              "pv": 7,
+              "count": 10,
+              "depth": 11,
+              "score": 738,
+              "winRate": 0.975636
+            },
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 6,
+              "pv": 9,
+              "count": 10,
+              "depth": 11,
+              "score": 717,
+              "winRate": 0.973012
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 7,
+              "pv": 8,
+              "count": 10,
+              "depth": 11,
+              "score": 660,
+              "winRate": 0.964429
+            },
+            {
+              "index": 80,
+              "x": 5,
+              "y": 5,
+              "rank": 8,
+              "pv": 0,
+              "count": 10,
+              "depth": 11,
+              "score": 644,
+              "winRate": 0.96158
+            },
+            {
+              "index": 128,
+              "x": 8,
+              "y": 8,
+              "rank": 9,
+              "pv": 6,
+              "count": 10,
+              "depth": 11,
+              "score": 635,
+              "winRate": 0.959883
+            },
+            {
+              "index": 113,
+              "x": 8,
+              "y": 7,
+              "rank": 10,
+              "pv": 5,
+              "count": 10,
+              "depth": 11,
+              "score": 621,
+              "winRate": 0.957099
+            }
+          ]
+        },
+        "note": "集中搜索所需的非等价候选；按整组提案评估，白方选定后才成为实子。"
+      },
+      "selected": {
+        "points": [
+          128,
+          113
+        ],
+        "note": "绿圈首选：从白棋角度逐一比较已提出的第五手。"
+      },
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "follow",
+        "initialBlackSeat": 0,
+        "seed": null,
+        "events": [
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 160
+          },
+          {
+            "type": "decision",
+            "choice": "ten"
+          },
+          {
+            "type": "offer",
+            "index": 110
+          },
+          {
+            "type": "offer",
+            "index": 81
+          },
+          {
+            "type": "offer",
+            "index": 111
+          },
+          {
+            "type": "offer",
+            "index": 126
+          },
+          {
+            "type": "offer",
+            "index": 141
+          },
+          {
+            "type": "offer",
+            "index": 82
+          },
+          {
+            "type": "offer",
+            "index": 83
+          },
+          {
+            "type": "offer",
+            "index": 80
+          },
+          {
+            "type": "offer",
+            "index": 128
+          },
+          {
+            "type": "offer",
+            "index": 113
+          },
+          {
+            "type": "select",
+            "index": 128
+          }
+        ]
+      },
+      "evaluation": {
+        "depth": 24,
+        "selectiveDepth": 20,
+        "nodes": 601844,
+        "elapsed": 4394,
+        "nps": 136969,
+        "evaluation": null,
+        "mate": "-M22",
+        "winRate": 0,
+        "assessment": {
+          "depth": 24,
+          "winRate": 0,
+          "evaluation": null,
+          "mate": "-M22",
+          "bestIndex": 80
+        },
+        "index": 80,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "utility": 1
+    }
+  ],
+  "finished": "2026-10-10T12:06:52.901Z",
+  "casesSha256": "70cac2e3742e80ccbc10f903c7633d5da5db8ae3d73748723dc50b7537049421"
+}
