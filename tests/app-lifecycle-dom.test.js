@@ -2,14 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { readFile } from 'node:fs/promises';
-import { OpeningSession } from '../opening-session.js';
+import { OpeningSession, replaySession, isAutomaticTurn } from '../opening-session.js';
+import { distinctCandidates } from '../renju-rules.js';
 import { createReviewUi } from '../review-ui.js';
 import { createOpeningBook } from '../opening-book.js';
 import { RIF_OPENINGS } from '../rif-opening-pool.js';
 
 const flush = () => new Promise(done => setImmediate(done));
 let fixtureId = 0;
-async function environment(page, { saved = null, failSearch = false, blockSave = false } = {}) {
+async function environment(page, { saved = null, failSearch = false, blockSave = false, completeAssessment = false, holdSearch = false } = {}) {
   const html = await readFile(new URL('../' + page, import.meta.url), 'utf8');
   const dom = new JSDOM(html, { url: `https://example.com/ai/${page}?view=simple`, pretendToBeVisual: true });
   dom.window.HTMLCanvasElement.prototype.getContext = () => ({});
@@ -28,12 +29,14 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
       if (data.type === 'ponder') this.ponderJob = data;
       if (data.type === 'search') queueMicrotask(() => {
         (this.searches ??= []).push(data);
+        if (holdSearch) return;
         if (failSearch && !failed) { failed = true; this.emit({ type: 'error', requestId: data.requestId, message: 'fixture search failure' }); return; }
         const allowed = data.allowedMoves ?? data.board.flatMap((value,index)=>value ? [] : [index]);
         const index = allowed.includes(113) ? 113 : allowed[0];
         const alternatives = [index,...allowed.filter(i=>i!==index)].slice(0,data.multiPV);
         this.emit({ type: 'move', requestId: data.requestId, result: { index, x: index % 15, y: Math.floor(index / 15), elapsed: 10,
-          ...(data.multiPV>1 ? {recommendations:alternatives.map(index=>({index}))} : {}) } });
+          ...(completeAssessment ? { assessment: { depth: 12, bestIndex: index, winRate: .55, evaluation: 20, mate: null } } : {}),
+          ...(data.multiPV>1 ? {recommendations:alternatives.map(index=>({index, ...(completeAssessment ? {score:20, depth:12, winRate:.55} : {})}))} : {}) } });
       });
     }
     emit(data) { if (!this.dead) this.onmessage?.({ data }); }
@@ -69,6 +72,104 @@ test('freestyle simple-mode retry preserves the existing stone and continues the
     assert.ok(document.querySelector('#boardSvg [data-stone="112"]')); assert.ok(document.querySelector('#boardSvg [data-stone="113"]'));
     assert.equal(retry.hidden, true);
   } finally { f.close(); }
+});
+
+const settled = async () => { for (let n = 0; n < 24; n++) await flush(); };
+function savedSession(f) { return replaySession(JSON.parse(localStorage.getItem(f.storageKey)).record); }
+function clickPoint(f, index) { document.querySelector(`#boardSvg [data-index="${index}"]`).dispatchEvent(new f.dom.window.MouseEvent('click', { bubbles: true })); }
+function verifyFormalDom(f, s) {
+  assert.equal(document.querySelector('#boardSvg').dataset.stage, s.stage);
+  assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length, s.moves.length);
+  assert.equal(document.querySelectorAll('#boardSvg [data-proposal]').length, s.candidates.length);
+  assert.equal(document.querySelectorAll('dialog[open]').length, 0);
+  assert.equal(document.querySelector('#retryButton').hidden, true);
+  assert.equal(JSON.parse(localStorage.getItem(f.storageKey)).perspective, s.playerColor);
+  if (!['play', 'w6'].includes(s.stage)) assert.equal(document.querySelector('#simpleWinRate').dataset.state, 'waiting');
+}
+
+// Actual application entry point, rendered inline controls, stored records and
+// automatic-turn scheduling. The Worker is deterministic; native engine
+// strength and legal search are checked separately by formal-modes-eval.js.
+const formalBranches = [
+  ...[0,1].flatMap(opener => [0,1].map(mask => ({rule:'rif', opener, mask, ten:false}))),
+  ...[0,1].flatMap(opener => Array.from({length:32}, (_,mask) => ({rule:'taraguchi10', opener, mask, ten:false}))),
+  ...[0,1].flatMap(opener => Array.from({length:8}, (_,mask) => ({rule:'taraguchi10', opener, mask, ten:true})))
+];
+for (const branch of formalBranches) test(`formal simple app: ${branch.rule} seat${branch.opener} mask${branch.mask} ${branch.ten?'ten':'normal'}`, async () => {
+  const setup = new OpeningSession({rule:branch.rule, workflow:'copilot', initialBlackSeat:null});
+  const f = await environment('renju.html', {saved:{record:setup.record(), perspective:1}, completeAssessment:true});
+  try {
+    await f.load(); document.querySelector(`#simpleOpeningFlow [data-flow-action="start"][data-value="${branch.opener}"]`).click(); await settled();
+    let s = savedSession(f), expectedBlack = branch.opener, actions = 0;
+    while (s.stage !== 'play') {
+      assert.ok(++actions < 30, 'Opening must finish'); verifyFormalDom(f, s);
+      assert.equal(isAutomaticTurn(s), false, 'Automatic groups finish before external input');
+      if (s.decision) {
+        const turn = branch.rule === 'rif' ? 0 : {swap1:0,swap2:1,swap3:2,route4:3,swap5:4}[s.stage];
+        const choice = branch.ten && s.stage==='route4' ? 'ten' : branch.mask & (1<<turn) ? 'swap' : 'keep';
+        const board = s.board.slice();
+        document.querySelector(`#simpleOpeningFlow [data-flow-action="decision"][data-value="${choice}"]`).click();
+        if (choice === 'swap') expectedBlack = 1-expectedBlack;
+        await settled(); const next=savedSession(f);
+        assert.equal(next.blackSeat, expectedBlack);
+        for (const [index,value] of board.entries()) if (value) assert.equal(next.board[index], value, 'Swaps never recolor stones');
+      } else if (s.stage === 'choose') {
+        assert.equal(s.actor,1); const selected=s.candidates.at(-1);
+        if(s.candidates.length<=2) document.querySelector(`#simpleOpeningFlow [data-flow-action="select"][data-value="${selected}"]`).click();
+        else clickPoint(f,selected); // Ten proposals are selected on the board.
+        await settled();
+        assert.equal(savedSession(f).board[selected],1);
+      } else {
+        assert.equal(s.actor,1);
+        const index = s.offerCount ? distinctCandidates(s.board,[...s.candidates,...s.allowedMoves({safe:true})])[s.candidates.length] : s.allowedMoves({safe:true})[0];
+        clickPoint(f,index); await settled();
+        if (s.offerCount) {
+          const next=savedSession(f);
+          if (next.stage.startsWith('offer') || next.stage==='choose') assert.equal(next.moves.length,4);
+        }
+      }
+      s=savedSession(f);
+    }
+    verifyFormalDom(f,s); assert.equal(s.blackSeat,expectedBlack); assert.equal(s.actor,1);
+    const before=s.record(), ownColor=s.playerColor, count=s.moves.length, opponent=s.allowedMoves({safe:true})[0];
+    clickPoint(f,opponent); await settled(); s=savedSession(f);
+    assert.equal(s.moves.length,count+2); assert.equal(s.colors.at(-1),ownColor); assert.equal(s.events.at(-1).automatic,true); assert.equal(s.actor,1);
+    assert.equal(document.querySelector('#simpleWinRate').dataset.state,'rated');
+    assert.equal(JSON.parse(localStorage.getItem(f.storageKey)).analysis.playerColor,ownColor);
+    const lastSearch=f.workers.at(-1).searches.at(-1); assert.equal(lastSearch.multiPV,1); assert.equal(lastSearch.sideToMove,ownColor);
+    document.querySelector('#simpleUndoButton').click(); await settled();
+    assert.deepEqual(savedSession(f).record(),before, 'Undo removes one external move and its AI answer');
+  } finally { f.close(); }
+});
+
+for (const rule of ['rif','taraguchi10']) test(`${rule}: reload partial proposals and resume selection with the same colors`, async () => {
+  const s=new OpeningSession({rule,workflow:'copilot',initialBlackSeat:1});
+  for(const index of [112,97,96,128]) { s.apply({type:'stone',index}); if(s.decision && s.stage!=='route4') s.apply({type:'decision',choice:'keep'}); }
+  if(s.stage==='route4') s.apply({type:'decision',choice:'ten'});
+  const count=s.offerCount, points=distinctCandidates(s.board,s.allowedMoves({safe:true})).slice(0,count);
+  for(const index of points.slice(0,count-1)) s.apply({type:'offer',index});
+  const f=await environment('renju.html',{saved:{record:s.record(),perspective:2},completeAssessment:true});
+  try {
+    await f.load(); await settled(); verifyFormalDom(f,savedSession(f));
+    assert.deepEqual(savedSession(f).candidates,s.candidates);
+    clickPoint(f,points.at(-1)); await settled(); const next=savedSession(f);
+    assert.equal(next.moves.length,6); assert.equal(next.stage,'play'); assert.equal(next.actor,1);
+    assert.equal(next.colors[4],1); assert.equal(next.colors[5],2); assert.equal(next.candidates.length,0);
+    assert.equal(next.record().events.filter(e=>e.type==='select').length,1);
+  } finally { f.close(); }
+});
+
+for (const rule of ['rif','taraguchi10']) test(`${rule}: a late opening search cannot add stones after starting a new game`, async () => {
+  const s=new OpeningSession({rule,workflow:'copilot',initialBlackSeat:1});
+  for(const index of [112,97,96]) {s.apply({type:'stone',index}); if(s.decision) s.apply({type:'decision',choice:'keep'});}
+  const f=await environment('renju.html',{saved:{record:s.record(),perspective:2},holdSearch:true});
+  try {
+    await f.load(); await settled(); const worker=f.workers.at(-1), job=worker.searches.at(-1); assert.ok(job);
+    document.querySelector('#simpleRestart').click(); await settled();
+    worker.emit({type:'move',requestId:job.requestId,result:{index:113,x:8,y:7,assessment:{depth:12,bestIndex:113,winRate:.8,mate:null}}}); await settled();
+    const next=savedSession(f); assert.equal(next.stage,'setup'); assert.equal(next.moves.length,0); assert.equal(next.events.length,0);
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,0);
+  } finally {f.close();}
 });
 
 test('Renju app spends automatic reply time on one line, and its explicit recommendation still requests two', async () => {
