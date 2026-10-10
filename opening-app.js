@@ -149,7 +149,7 @@ function render() {
   $("#simpleRecommendButton").setAttribute("aria-pressed", $("#recommendButton").getAttribute("aria-pressed"));
   $("#simpleRecommendButton").title = $("#recommendButton").title;
   $("#recommendationLegend").hidden = !advice; $("#secondRecommendation").hidden = (advice?.points?.length ?? 0) < 2 || session.offerCount || session.stage === "choose";
-  $("#recommendationNote").textContent = advice?.choice ? `建议${advice.choice === "swap" ? "交换" : "保持"}` : advice && session.offerCount ? "候选建议" : advice && session.stage === "choose" ? "绿圈首选" : "";
+  $("#recommendationNote").textContent = advice?.choice ? `建议${({ swap: "交换", keep: "保持", ten: "十打" })[advice.choice]}` : advice && session.offerCount ? "候选建议" : advice && session.stage === "choose" ? "绿圈首选" : "";
   $("#recommendationLegend .first").hidden = !advice?.points || Boolean(session.offerCount) || session.stage === "choose";
   for (const selector of [".color-control", ".time-control", ".ponder-control"]) $(selector).hidden = session.decision;
   $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
@@ -204,7 +204,7 @@ async function autoPlay() {
     const time = Number($("#timeSelect").value), openingBatch = session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage);
     const planned = openingBatch ? openingBook.plan(session) : null;
     const suggestion = planned ? { points: [planned.points[session.moves.length]] }
-      : await adviseOpening(session, searchFor(token), openingBatch ? Math.max(100, Math.floor(time / 2)) : time);
+      : await adviseOpening(session, searchFor(token), openingBatch ? Math.max(100, Math.floor(time / 2)) : time, { includeAlternative: false });
     if (token !== serial || modal) return;
     if (session.decision) commit({ type: "decision", choice: suggestion.choice }, true);
     else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index }, true);

@@ -45,9 +45,10 @@ export function openingFlow(session, { busy = false, state = "ready", advice = n
   if (session.decision) {
     add("decision", "keep", `不交换 · 你执${colorName(session.playerColor)}`, advice?.choice === "keep");
     add("decision", "swap", `交换 · 你执${colorName(3 - session.playerColor)}`, advice?.choice === "swap");
-    if (session.stage === "route4") add("decision", "ten", "提出十打");
+    if (session.stage === "route4") add("decision", "ten", "提出十打", advice?.choice === "ten");
     return { title: mine ? busy ? "AI 正在比较执色…" : `轮到你${session.stage === "route4" ? "选择路线" : "决定是否交换"}` : `对方${session.stage === "route4" ? "选择了哪条路线？" : "是否交换了执色？"}`,
-      note: copy + (mine ? advice?.choice ? `AI 建议${advice.choice === "swap" ? "交换" : "不交换"}；点按钮确认实际选择。` : "点按钮确认实际选择；换色只改变归属，不改变棋子颜色。" : "按对方实际选择点击；换色后后续操作自动按新执色安排。"), actions };
+      note: copy + (mine ? advice?.choice ? `AI 建议${({ swap: "交换", keep: "不交换", ten: "提出十打" })[advice.choice]}；点按钮确认实际选择。` : "点按钮确认实际选择；换色只改变归属，不改变棋子颜色。" : "按对方实际选择点击；换色后后续操作自动按新执色安排。")
+        + (session.stage === "route4" ? "十打是可选路线，白方会选最有利的候选。" : ""), actions };
   }
   if (copilot && !session.copilotReady) {
     add("handoff", "", "开局录完 · AI 接手");

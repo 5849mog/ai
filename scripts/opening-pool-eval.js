@@ -29,11 +29,14 @@ const rate = result => {
 let report;
 try { report = JSON.parse(await readFile(output, "utf8")); } catch {}
 const implementation = createHash("sha256").update(await readFile(new URL("./renju-node-engine.js", import.meta.url))).digest("hex");
+const advisorImplementation = createHash("sha256").update(await readFile(new URL("../opening-advisor.js", import.meta.url))).digest("hex");
+const recommendationsImplementation = createHash("sha256").update(await readFile(new URL("../recommendations.js", import.meta.url))).digest("hex");
 if (report && report.implementation !== implementation) throw new Error("Evaluation implementation changed; use a new output file");
+if (report && (report.advisorImplementation !== advisorImplementation || report.recommendationsImplementation !== recommendationsImplementation)) throw new Error("Opening strategy changed; use a new output file");
 const models = JSON.parse(await readFile(new URL("../engine/renju-250615/manifest.json", import.meta.url)));
-report ??= { version: 1, implementation, started: new Date().toISOString(), runtime: process.version, platform: process.platform,
+report ??= { version: 1, implementation, advisorImplementation, recommendationsImplementation, started: new Date().toISOString(), runtime: process.version, platform: process.platform,
   engine: "1be1551ced57e38d53ed58f6d74bf6f8b4bdc230", models: models.models.map(m => ({ name: m.name, sha256: m.sha256 })),
-  method: "Each budget clears the hash, searches white fourth, proposes two legal non-equivalent fifths and evaluates both for white. Opener utility is min(blackRate,1-blackRate). Finite search estimates, not a proof of balance.", cases: [] };
+  method: "Each budget clears the hash. Current advisor compares up to three white fourths with two-fifth proposal floors, proposes two legal non-equivalent fifths, then evaluates both for white at the full budget. Opener utility is min(blackRate,1-blackRate). Finite search estimates, not a proof of balance.", cases: [] };
 for (const candidate of candidates.values()) for (const budget of budgets) {
   if (selectedKeys && !selectedKeys.has(candidate.key)) continue;
   if (report.cases.some(c => c.key === candidate.key && c.budget === budget)) continue;
