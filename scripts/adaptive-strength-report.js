@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
+import { basename } from "node:path";
 import { moveVerdict } from "../renju-rules.js";
 import { replaySession } from "../opening-session.js";
 
@@ -116,9 +117,12 @@ const turnStats = method => {
 const adaptiveTime = turnStats("adaptive"), fixedTime = turnStats("fixed");
 const durationMinutes = Math.round((Date.parse(report.finishedAt) - Date.parse(report.startedAt)) / 60000);
 const fmt = rate => `${(rate * 100).toFixed(1)}%`;
+const budgetSeconds = report.identity.budgetMs / 1000;
+const budgetLabel = `${budgetSeconds}秒`;
+const rawReportLink = `./${basename(input)}`;
 const lines = [
   "# 自适应深思棋力配对实测", "",
-  `日期：${report.startedAt.slice(0, 10)}。基线提交：\`${report.identity.sourceCommit}\`。完整逐手数据见 [原始比赛记录](./adaptive-strength-match-v1.json)。`, "",
+  `日期：${report.startedAt.slice(0, 10)}。基线提交：\`${report.identity.sourceCommit}\`。完整逐手数据见 [原始比赛记录](${rawReportLink})。`, "",
   "## 测试方法", "",
   `使用 Rapfi \`${report.identity.rapfiCommit}\` 的单线程 SIMD WASM 和固定连珠权重，在同一设备上比较自适应搜索（每步总预算最多 ${report.identity.budgetMs / 1000} 秒）与固定 ${report.identity.budgetMs / 1000} 秒单线搜索。每次实际落子前清空哈希；规则、引擎、权重、设备和每步预算上限相同。`, "",
   `选取 ${report.identity.seeds.length} 个已完成正式开局流程的固定局面，每个局面交换两种搜索执黑 / 执白，合计 ${overall.games} 盘完整对局、${durationMinutes} 分钟。固定开局棋谱不由本次两种搜索重新选择，因此本测试只测正式开局后的普通行棋搜索，不测开局建议质量。`, "",
@@ -136,11 +140,11 @@ const lines = [
   "## 搜索耗时", "",
   "| 搜索方式 | 落子数 | 平均 | 中位数 | P90 | 最长 |",
   "|---|---:|---:|---:|---:|---:|",
-  `| 自适应 0～6 秒 | ${adaptiveTime.turns} | ${(adaptiveTime.meanMs / 1000).toFixed(2)} 秒 | ${(adaptiveTime.medianMs / 1000).toFixed(2)} 秒 | ${(adaptiveTime.p90Ms / 1000).toFixed(2)} 秒 | ${(adaptiveTime.maxMs / 1000).toFixed(2)} 秒 |`,
-  `| 固定 6 秒 | ${fixedTime.turns} | ${(fixedTime.meanMs / 1000).toFixed(2)} 秒 | ${(fixedTime.medianMs / 1000).toFixed(2)} 秒 | ${(fixedTime.p90Ms / 1000).toFixed(2)} 秒 | ${(fixedTime.maxMs / 1000).toFixed(2)} 秒 |`, "",
+  `| 自适应 0～${budgetSeconds} 秒 | ${adaptiveTime.turns} | ${(adaptiveTime.meanMs / 1000).toFixed(2)} 秒 | ${(adaptiveTime.medianMs / 1000).toFixed(2)} 秒 | ${(adaptiveTime.p90Ms / 1000).toFixed(2)} 秒 | ${(adaptiveTime.maxMs / 1000).toFixed(2)} 秒 |`,
+  `| 固定 ${budgetLabel} | ${fixedTime.turns} | ${(fixedTime.meanMs / 1000).toFixed(2)} 秒 | ${(fixedTime.medianMs / 1000).toFixed(2)} 秒 | ${(fixedTime.p90Ms / 1000).toFixed(2)} 秒 | ${(fixedTime.maxMs / 1000).toFixed(2)} 秒 |`, "",
   "## 结论边界", "",
-  `这 ${overall.games} 盘的总得分率为 ${fmt(overall.scoreRate)}，两种搜索各胜 ${overall.wins} 盘、和 ${overall.draws} 盘；本样本没有显示自适应搜索稳定胜过固定 6 秒搜索。只有 ${bySeed.length} 个开局配对，且两种方法使用同一引擎和权重，因此不能推导统计显著的棋力提升、Elo、真人胜率或对特定对手的胜率。不同开局配对的结果差异也说明样本还不足以作稳定判断。`, "",
-  "此处的 0～6 秒是上限预算；唯一胜点、唯一合法点或必须防守等局面可能快速返回。自适应的过程统计也不是每次搜索节点总和，不能拿最后一段的深度 / 节点数直接与固定搜索比较。", "",
+  `这 ${overall.games} 盘中，自适应搜索取得 ${overall.wins} 胜、${overall.draws} 和、${overall.losses} 负，得分率 ${fmt(overall.scoreRate)}；本样本没有显示自适应搜索稳定胜过固定 ${budgetLabel} 搜索。只有 ${bySeed.length} 个开局配对，且两种方法使用同一引擎和权重，因此不能推导统计显著的棋力提升、Elo、真人胜率或对特定对手的胜率。不同开局配对的结果差异也说明样本还不足以作稳定判断。`, "",
+  `此处的 0～${budgetSeconds} 秒是上限预算；唯一胜点、唯一合法点或必须防守等局面可能快速返回。自适应的过程统计也不是每次搜索节点总和，不能拿最后一段的深度 / 节点数直接与固定搜索比较。`, "",
   `设备：${report.device.cpu}，Node ${report.device.node}，${report.device.os} / ${report.device.arch}。验证脚本会逐手重放所有棋谱、核对禁手、起局哈希及引擎 / 权重 SHA-256。`
 ];
 await writeFile(output, lines.join("\n") + "\n");

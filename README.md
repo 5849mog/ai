@@ -171,7 +171,7 @@ npm run report
 
 `benchmark:ponder` 顺序运行冻结的 12 个局面 × 2 档预算 × 3 次配对，以及 12 个独立战术对照；时间较长，可用 `--resume` 继续相同实现已完成的实验对。`report:ponder` 重新验证原始结果、落点合法性和战术证明，生成 [后台思考报告](./reports/ponder-benchmark.md)。不需要重跑完整 40 局对战来评估此次交互变更。
 
-`benchmark:adaptive-strength` 使用真实单线程 SIMD WASM，在四个固定五手两打 / 塔拉山口开局后的局面上，分别让自适应深思与固定 6 秒搜索执黑、执白进行完整配对赛。默认预算为 6 秒；报告逐手保存棋谱、耗时、搜索信息和源码 / 权重哈希。运行时间较长，中断后用 `npm run benchmark:adaptive-strength -- --resume` 续跑同一组设置；有限局数的自我对弈只作描述性对照，不能推导真人胜率或 Elo。`report:adaptive-strength` 会验证输入哈希、逐手重放禁手规则并生成 [实测结果报告](./reports/adaptive-strength-match-v1.md)。
+`benchmark:adaptive-strength` 使用真实单线程 SIMD WASM，在固定五手两打 / 塔拉山口开局后的局面上，让自适应深思与同预算固定搜索交换执黑、执白完成配对赛。默认 6 秒预算的基准见 [第一批结果](./reports/adaptive-strength-match-v1.md)；额外 6 个局面以 600 毫秒预算完成了[快速补充对照](./reports/adaptive-strength-match-v2-600ms.md)。报告逐手保存棋谱、耗时、搜索信息和源码 / 权重哈希。运行时间较长，中断后用 `npm run benchmark:adaptive-strength -- --resume` 续跑同一组设置；有限局数的自我对弈只作描述性对照，不能推导真人胜率或 Elo。`report:adaptive-strength` 会验证哈希、逐手重放禁手规则并生成报告；可在命令后指定不同 JSON 输入和报告输出路径。
 
 本次选色、搜索信息与后台思考的专项验证见 [功能验证报告](./reports/turn-features.md)。`npm run test:features` 使用 Playwright Chromium：首次运行可执行 `npx playwright install chromium`，或用 `CHROME_PATH` 指定已有 Chromium；需要额外启动参数时，`CHROME_ARGS` 接受 JSON 字符串数组。专项测试先运行四种原版 Rapfi WASM 及真实页面，再用确定性的协议测试替身覆盖快速切色、白方胜负、触屏和暂停等边界情况；输出到 `.cache/feature-qa/`。它不替代原有跨浏览器、离线和棋力验收。
 
