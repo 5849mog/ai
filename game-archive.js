@@ -53,7 +53,7 @@ export function createGameArchive({ storage, page, now = Date.now, id = () => gl
       const summary=archiveSummary(record); if(!summary.meaningful) {const entries=read();return entries.some(e=>e.id===active)?write(entries.filter(e=>e.id!==active)):true;}
       if(!active) use(); const entries=read(), existing=entries.find(e=>e.id===active), stamp=now();
       const entry={id:active,createdAt:existing?.createdAt??stamp,updatedAt:stamp,favorite:existing?.favorite??false,record:summary.record,
-        meta:{version:meta.version,timeMs:meta.timeMs,openingPlan:meta.openingPlan??null}};
+        meta:{version:meta.version,timeMs:meta.timeMs,mode:meta.mode,openingPlan:meta.openingPlan??null}};
       if(existing) entries.splice(entries.indexOf(existing),1); entries.push(entry); return write(entries);
     },
     favorite(value) {const entries=read(), entry=entries.find(e=>e.id===value); if(!entry)return false;entry.favorite=!entry.favorite;return write(entries);},

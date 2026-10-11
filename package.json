@@ -22,6 +22,7 @@
     "test:opening-startup": "node scripts/opening-startup-qa.js",
     "test:formal-native": "node scripts/formal-modes-eval.js",
     "test:deep-native": "node scripts/deep-review-eval.js",
+    "test:adaptive-native": "node scripts/adaptive-eval.js",
     "test:simple-win-rate": "node scripts/simple-win-rate-qa.js",
     "benchmark:ponder": "node scripts/ponder-benchmark.js",
     "report:ponder": "node scripts/ponder-report.js",
