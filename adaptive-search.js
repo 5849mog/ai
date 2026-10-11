@@ -58,44 +58,31 @@ export async function thinkAdaptive(options,search,settings={}) {
   const threats=immediateWins(board,3-color,empty,rule);
   if(threats.length===1 && allowed.includes(threats[0]))return finish({index:threats[0]},"必须防守",{reason:"unique-immediate-block"});
   const root={...options,board,allowedMoves:allowed,sideToMove:color,rule,allowSetup:options.allowSetup??true};
-  let best=null, probe=null, checked=[], status="有限复核";
+  let best=null, probe=null, status="有限复核";
+  const mate = r => Boolean(r && r.assessment?.bestIndex===r.index && /^\+?M\d+$/.test(r.assessment.mate??""));
+  const depth = r => r && r.assessment?.bestIndex===r.index && Number.isInteger(r.assessment.depth) ? r.assessment.depth : null;
   try {
-    probe=await budget.run({...root,multiPV:2},350,"筛选候选",{root:true});
-    if(!legal(board,probe.index,color,rule,allowed))throw new Error("深思返回了非法落点");best=probe;
-    const batch=(probe.recommendations??[]).filter(p=>legal(board,p.index,color,rule,allowed));
-    const comparable=batch.length>=2 && batch.every(p=>Number.isFinite(p.winRate) && p.winRate>=0 && p.winRate<=1 && Number.isInteger(p.depth) && p.depth===batch[0].depth)
-      && new Set(batch.map(p=>p.index)).size===batch.length;
-    const gap=comparable?Math.abs(batch[0].winRate-batch[1].winRate):null, initial=atomicRate(probe);
-    const difficult=gap===null || gap<.10 || initial===null || initial<.10 || initial>.90 || threats.length>0;
-    const refined=await budget.run({...root,multiPV:1},difficult?1400:750,"确认主线",{root:true});
-    if(!legal(board,refined.index,color,rule,allowed))throw new Error("深思返回了非法落点");best=refined;
-    const p=atomicRate(refined), stable=refined.index===probe.index && p!==null && initial!==null && Math.abs(p-initial)<=.06;
-    if(stable && !difficult)return finish(best,"首选稳定",{gap,candidateChecks:0});
-    // Use actual opponent searches on separate boards. No assumed compliance,
-    // repeated blind restarts, or penalty for legitimate forcing moves.
-    const candidates=[...new Set([best.index,probe.index,...batch.map(p=>p.index)])].slice(0,3);
-    const per=Math.min(650,Math.floor(budget.left*.45/candidates.length));
-    for(const index of candidates) {
-      const next=board.slice();next[index]=color;
-      if(immediateWins(next,3-color,empty,rule).length){checked.push({index,rate:0,immediateLoss:true});continue;}
-      const reply=await budget.run({board:next,sideToMove:3-color,rule,allowSetup:true,multiPV:1},per,"复核对手应手",{root:false});
-      if(!legal(next,reply.index,3-color,rule))throw new Error("对手复核返回了非法落点");
-      const white=atomicRate(reply);checked.push({index,rate:white===null?null:1-white,reply:reply.index});
+    // A sub-second budget cannot support a multi-stage verification pipeline.
+    // Let the native alpha-beta tree compare both sides at the original root.
+    if(budget.left>1200) {
+      probe=await budget.run({...root,multiPV:2},Math.min(300,budget.left*.08),"筛选候选",{root:true});
+      if(!legal(board,probe.index,color,rule,allowed))throw new Error("深思返回了非法落点");best=probe;
+      // Matching shallow moves / rounded probabilities are not a stopping proof.
+      if(mate(probe))return finish(best,"已找到杀棋",{strategy:"root-continuation",reason:"mate",candidateChecks:0});
     }
-    // Return to an unrestricted root search so shallow reply checks cannot
-    // select a move on incomparable scores or hide a stronger unlisted move.
-    const losing=new Set(checked.filter(c=>c.immediateLoss).map(c=>c.index));
-    const safe=allowed.filter(i=>!losing.has(i));
-    if(budget.left>180) {
-      const final=await budget.run({...root,multiPV:1,allowedMoves:safe.length?safe:allowed},budget.left-60,"综合复核",{root:true});
-      if(!legal(board,final.index,color,rule,allowed))throw new Error("综合复核返回了非法落点");best=final;
-    }
-    const q=atomicRate(best);
-    status=q!==null && q<.02 ? "局面仍不利" : best.index!==probe.index ? "复核后调整" : gap!==null&&gap<.05 ? "候选仍接近" : "首选稳定";
-    if(q===null || gap===null || checked.some(c=>c.rate===null))status="有限复核";
+    const final=await budget.run({...root,multiPV:1},budget.left,"深入比较攻防",{root:true});
+    if(!legal(board,final.index,color,rule,allowed))throw new Error("深思返回了非法落点");
+    // A partial or shallower restart must not replace a completed deeper root.
+    if(!best || mate(final) || depth(best)===null || depth(final)===null || depth(final)>=depth(best))best=final;
+    const q=atomicRate(best), initial=atomicRate(probe);
+    status=mate(best)?"已找到杀棋":q===null?"有限复核":q<.02?"局面仍不利"
+      :probe && best.index!==probe.index?"复核后调整"
+        :probe && depth(best)>depth(probe) && initial!==null && Math.abs(q-initial)<=.06?"主线加深":"预算内完成搜索";
   } catch(error) {
     budget.guard();if(error.name==="AbortError" || !best)throw error;
     status=error.name==="BudgetExhausted"?"预算内完成复核":"有限复核";
   }
-  return finish(best,status,{candidateChecks:checked.length,candidates:checked});
+  return finish(best,status,{strategy:"root-continuation",candidateChecks:0,
+    probeIndex:probe?.index??null,probeDepth:depth(probe),finalDepth:depth(best),
+    rootBudgetMs:budget.traces.reduce((sum,t)=>sum+t.timeMs,0)});
 }

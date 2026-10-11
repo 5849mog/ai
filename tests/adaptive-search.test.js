@@ -27,18 +27,18 @@ test('single legal point is immediate; old 30-second preference migrates to adap
  const f=fixture(),r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1,allowedMoves:[112]},f.search,f.settings);assert.equal(r.index,112);assert.equal(f.calls.length,0);
  assert.deepEqual(thinkingSettings('30000'),{mode:'adaptive',timeMs:6000});
 });
-test('clear stable candidates stop early after discovery and single-line confirmation',async()=>{
+test('matching shallow candidates cannot stop early without a completed winning proof',async()=>{
  const f=fixture((o,c,n,index)=>({assessment:{bestIndex:index,winRate:.7,depth:15},recommendations:[{index:0,depth:15,winRate:.7},{index:1,depth:15,winRate:.4}]}));
- const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(f.calls.length,2);assert.equal(r.adaptive.status,'首选稳定');assert.equal(f.time(),1100);assert.equal(f.calls[1].options.multiPV,1);
+ const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(f.calls.length,2);assert.ok(f.time()>5800&&f.time()<=6000);assert.equal(f.calls[1].options.multiPV,1);assert.doesNotMatch(r.adaptive.status,/首选稳定/);
 });
-test('close candidates trigger opponent replies and an unrestricted final root, sharing 6 seconds',async()=>{
+test('close candidates keep the full root and put most of the deadline into native attack/defence search',async()=>{
  const f=fixture(),b=board([[112,1]]),original=b.slice();const r=await thinkAdaptive({board:b,sideToMove:2},f.search,f.settings);
- assert.ok(f.calls.some(c=>c.context.root===false&&c.options.sideToMove===1));assert.equal(f.calls.at(-1).context.root,true);assert.ok(f.calls.at(-1).options.allowedMoves.length>2);
- assert.ok(f.time()<=6000);assert.ok(r.adaptive.candidateChecks>=2);assert.deepEqual(b,original);
+ assert.ok(f.calls.every(c=>c.context.root===true&&c.options.sideToMove===2));assert.ok(f.calls.at(-1).options.allowedMoves.length>2);
+ assert.ok(f.calls.at(-1).options.timeMs>5400);assert.ok(f.time()<=6000);assert.equal(r.adaptive.strategy,'root-continuation');assert.deepEqual(b,original);
 });
 test('mismatched assessment PV cannot establish stability or attach a score to the chosen move',async()=>{
  const f=fixture((o,c,n,index)=>({assessment:{bestIndex:index+1,winRate:.7,depth:15},recommendations:[{index:0,depth:15,winRate:.7},{index:1,depth:15,winRate:.3}]}));
- const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.ok(f.calls.length>2);assert.equal(r.adaptive.status,'有限复核');
+ const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(f.calls.length,2);assert.equal(r.adaptive.status,'有限复核');
 });
 test('0% without a completed mate proof is described as unfavorable, never proven defeat',async()=>{
  const f=fixture((o,c,n,index)=>({assessment:{bestIndex:index,winRate:0,depth:12,mate:null}}));const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);
@@ -47,12 +47,12 @@ test('0% without a completed mate proof is described as unfavorable, never prove
 test('deadline stops a hung follow-up search and returns only a previously completed legal root',async()=>{
  let calls=0,cancelled=0;const result=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},async o=>{
   if(++calls>1)return new Promise(()=>{});return {index:112,recommendations:[{index:112},{index:113}]};
- },{budgetMs:150,cancelSearch:()=>cancelled++});assert.equal(result.index,112);assert.equal(cancelled,1);assert.equal(calls,2);assert.match(result.adaptive.status,/预算/);
+ },{budgetMs:1300,cancelSearch:()=>cancelled++});assert.equal(result.index,112);assert.equal(cancelled,1);assert.equal(calls,2);assert.match(result.adaptive.status,/预算/);
 });
-test('cancellation after any hypothetical reply emits neither a final search nor a stale result',async()=>{
- let cancelled=false;const f=fixture((o,c)=>{if(c.root===false)cancelled=true;return {};});
+test('cancellation during the deeper root emits no stale result',async()=>{
+ let cancelled=false;const f=fixture((o,c,n)=>{if(n===2)cancelled=true;return {};});
  await assert.rejects(thinkAdaptive({board:board([[112,1]]),sideToMove:2},f.search,{...f.settings,isCancelled:()=>cancelled}),{name:'AbortError'});
- assert.equal(f.calls.at(-1).context.root,false);
+ assert.equal(f.calls.at(-1).context.root,true);
 });
 test('nested search allocation and elapsed overhead consume the same deadline',async()=>{
  let time=0;const b=createThinkingBudget(async o=>{time+=o.timeMs+100;return {index:112};},{now:()=>time,budgetMs:1000});
@@ -80,11 +80,69 @@ for(const [rule,stage] of [['rif','swap3'],['rif','w4'],['taraguchi10','route4']
  const before=JSON.stringify(input.record()),f=fixture();const r=await adviseAdaptiveOpening(input,f.search,f.settings);
  assert.ok(f.time()<=6000);assert.equal(JSON.stringify(input.record()),before);assert.ok(r.choice || r.points?.length);assert.ok(r.adaptive.searches>1);
 });
-test('an incomplete candidate batch stays a limited review even when the final root score is known',async()=>{
- const f=fixture((o,c,n,index)=>({recommendations:[{index}]}));const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(r.adaptive.status,'有限复核');
+test('an incomplete probe cannot establish stability, but a completed final root remains usable',async()=>{
+ const f=fixture((o,c,n,index)=>({recommendations:[{index}]}));const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(r.index,0);assert.doesNotMatch(r.adaptive.status,/首选稳定/);
 });
 test('a forbidden sole blocking point cannot become a zero-search black defence',async()=>{
  const b=board([[0,1],[1,1],[2,1],[4,1],[5,1],[78,1],[18,2],[33,2],[48,2],[63,2]]),f=fixture();
  assert.equal(moveVerdict(b,3,1,'renju').forbidden,'长连');const r=await thinkAdaptive({board:b,sideToMove:1,rule:'renju'},f.search,f.settings);
  assert.notEqual(r.index,3);assert.ok(f.calls.length>0);assert.equal(moveVerdict(b,r.index,1,'renju').forbidden,'');
+});
+for(const limit of [600,1000,1200])test(`short ${limit}ms budget goes to one complete root search`,async()=>{
+ const f=fixture(undefined,limit);await thinkAdaptive({board:board([[112,1]]),sideToMove:2,rule:'renju'},f.search,f.settings);
+ assert.equal(f.calls.length,1);assert.equal(f.calls[0].options.multiPV,1);assert.ok(f.time()>=limit-60);assert.ok(f.time()<=limit);
+});
+test('a completed positive mate can end early; a high estimate or negative mate cannot',async()=>{
+ for(const mate of ['+M7','-M7',null]) {
+  const f=fixture((o,c,n,index)=>({assessment:{bestIndex:index,winRate:mate==='-M7'?0:1,depth:18,mate}}));
+  const r=await thinkAdaptive({board:board([[112,1]]),sideToMove:2},f.search,f.settings);
+  assert.equal(f.calls.length,mate==='+M7'?1:2);if(mate==='+M7')assert.equal(r.adaptive.reason,'mate');else assert.ok(f.time()>5800);
+ }
+});
+test('a late shallow restart cannot replace a deeper completed root',async()=>{
+ const f=fixture((o,c,n)=>({index:n===1?112:113,assessment:{bestIndex:n===1?112:113,depth:n===1?18:12,winRate:.5}}));
+ const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(r.index,112);assert.equal(r.adaptive.finalDepth,18);
+});
+test('a native final move outside the last completed PV is usable without borrowing its score',async()=>{
+ const f=fixture((o,c,n)=>({index:n===1?112:113,assessment:{bestIndex:112,depth:n===1?12:20,winRate:.9}}));
+ const r=await thinkAdaptive({board:new Uint8Array(225),sideToMove:1},f.search,f.settings);assert.equal(r.index,113);
+ assert.equal(r.adaptive.finalDepth,null);assert.equal(r.adaptive.status,'有限复核');
+});
+test('Taraguchi fourth-hand route evaluates swap as well as keep and ten, from the acting player perspective',async()=>{
+ for(const [white,tenFloor,choice] of [[.9,.8,'swap'],[.9,.96,'ten'],[.5,.4,'keep']]) {
+  const s=formal('taraguchi10'),before=JSON.stringify(s.record());
+  const f=fixture((o,c,n,index)=>({assessment:{bestIndex:index,depth:12,winRate:o.sideToMove===2?white:.5},
+    ...(o.multiPV===10?{recommendations:o.allowedMoves.slice(0,10).map(index=>({index,depth:12,winRate:tenFloor,score:0}))}:{})}));
+  const r=await adviseAdaptiveOpening(s,f.search,f.settings);assert.equal(r.choice,choice);assert.equal(r.adaptive.status,'三条路线已复核');
+  assert.equal(r.adaptive.swapValue,Math.max(white,1-white));assert.equal(JSON.stringify(s.record()),before);assert.ok(f.time()<=6000);
+ }
+});
+test('a fifth-hand candidate is chosen for its weaker color after the opponent can swap',async()=>{
+ const s=formal('taraguchi10');s.apply({type:'decision',choice:'keep'});const before=JSON.stringify(s.record()),pool=[];
+ const f=fixture((o,c,n,index)=>{
+  if(o.balance){pool.push(index);return {};}
+  const candidate=pool.find(i=>o.board[i]===1),white=[.98,.55,.75][pool.indexOf(candidate)];
+  return {assessment:{bestIndex:index,depth:12,winRate:white}};
+ });
+ const r=await adviseAdaptiveOpening(s,f.search,f.settings);assert.equal(r.points[0],pool[1]);assert.ok(Math.abs(r.adaptive.blackFloor-.45)<1e-9);
+ assert.equal(JSON.stringify(s.record()),before);assert.ok(f.time()<=6000);
+});
+test('fourth-hand continuation rejects a balanced-looking candidate with a strong opponent ten-offer',async()=>{
+ const s=new OpeningSession({rule:'taraguchi10',workflow:'follow'});
+ for(const index of [112,97,96]){s.apply({type:'stone',index});if(s.decision)s.apply({type:'decision',choice:'keep'});}
+ const before=JSON.stringify(s.record()),fourths=[];
+ const f=fixture((o,c,n,index)=>{
+  if(o.sideToMove===2 && o.balance){fourths.push(index);return {};}
+  if(o.multiPV===10){const current=fourths.find(i=>o.board[i]===2),rate=current===fourths[0]?.95:.4;
+   return {recommendations:o.allowedMoves.slice(0,10).map(index=>({index,depth:12,winRate:rate,score:0}))};}
+  return {assessment:{bestIndex:index,depth:12,winRate:.5}};
+ });
+ const r=await adviseAdaptiveOpening(s,f.search,f.settings);assert.equal(r.points[0],fourths[1]);assert.equal(r.adaptive.status,'第四手延续已复核');
+ assert.equal(JSON.stringify(s.record()),before);assert.ok(f.time()<=6000);
+});
+test('Taraguchi final swap uses the available full root budget and preserves ownership',async()=>{
+ const s=formal('taraguchi10');s.apply({type:'decision',choice:'keep'});s.apply({type:'stone',index:s.allowedMoves({safe:true})[0]});
+ const before=JSON.stringify(s.record()),f=fixture((o,c,n,index)=>({assessment:{bestIndex:index,depth:20,winRate:.1}}));
+ const r=await adviseAdaptiveOpening(s,f.search,f.settings);assert.equal(r.choice,'swap');assert.equal(f.calls.length,1);assert.ok(f.time()>5800);
+ assert.equal(JSON.stringify(s.record()),before);
 });

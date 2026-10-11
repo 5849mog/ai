@@ -8,10 +8,10 @@ import { moveVerdict,distinctCandidates } from '../renju-rules.js';
 import { thinkAdaptive } from '../adaptive-search.js';
 import { adviseAdaptiveOpening } from '../adaptive-opening.js';
 import { APP_VERSION } from '../app-release.js';
-const output=process.argv[2]??'reports/adaptive-v37.json',digest=b=>createHash('sha256').update(b).digest('hex');
+const output=process.argv[2]??'reports/adaptive-v39.json',digest=b=>createHash('sha256').update(b).digest('hex');
 const old=JSON.parse(await readFile(new URL('../reports/formal-modes-v35.json',import.meta.url)));
 const report={version:1,appVersion:APP_VERSION,started:new Date().toISOString(),runtime:process.version,budgetMs:6000,
- method:'Shipped single-thread SIMD WASM, verified Renju weights; fixed legal positions, clear hash per case. Adaptive uses one total wall deadline after warmup, candidate discovery, opponent replies and unrestricted final root; opening comparisons share their deadline. Shortcuts use shared exact legality rules. This checks finite mechanisms, legality and timing, not human win-rate or guaranteed superiority over fixed 6-second search.',sources:{},assets:{},cases:[]};
+ method:'Shipped single-thread SIMD WASM, verified Renju weights; fixed legal positions, clear hash per case. Adaptive uses one total wall deadline after warmup, a small root probe and a deeper native root attack/defence search; Taraguchi fourth/fifth continuations and keep/swap/ten comparisons share their deadline. Shortcuts use shared exact legality rules. This checks finite mechanisms, legality and timing, not human win-rate or guaranteed superiority over fixed 6-second search.',sources:{},assets:{},cases:[]};
 for(const name of ['adaptive-search.js','adaptive-opening.js','opening-advisor.js','renju-rules.js','scripts/renju-node-engine.js','scripts/adaptive-eval.js'])report.sources[name]=digest(await readFile(new URL('../'+name,import.meta.url)));
 for(const [name,hash]of Object.entries(old.engineAssets)){report.assets[name]=digest(await readFile(new URL('../'+name,import.meta.url)));assert.equal(report.assets[name],hash);}
 const engine=await createRenjuNodeEngine();const warm=replaySession(old.cases[0].record);await engine.search({board:warm.board,sideToMove:warm.color,timeMs:100,allowSetup:true});
@@ -37,6 +37,10 @@ for(const name of ['rif-seat0-keep','taraguchi-seat0-normal-mixed']){
 for(const stage of ['swap3','w4','offer','choose']){
  const source=old.cases[0].record,s=replaySession({...source,events:[]});for(const event of source.events){if(s.stage===stage)break;s.apply(event);}
  assert.equal(s.stage,stage);await check('rif-'+stage,s,'opening');
+}
+for(const stage of ['swap3','w4','b5','swap5']){
+ const source=old.cases.find(c=>c.name==='taraguchi-seat0-normal-mixed').record,s=replaySession({...source,events:[]});for(const event of source.events){if(s.stage===stage)break;s.apply(event);}
+ assert.equal(s.stage,stage);await check('taraguchi-'+stage,s,'opening');
 }
 for(const stage of ['route4','offer10','choose']){
  const source=old.cases.find(c=>c.negativeControl).record,s=replaySession({...source,events:[]});for(const event of source.events){if(s.stage===stage)break;s.apply(event);}

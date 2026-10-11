@@ -1,7 +1,7 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.10.11.3";
-const VERSION = PREFIX + "261011-v38";
+const RELEASE = "2026.10.11.4";
+const VERSION = PREFIX + "261011-v39";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;

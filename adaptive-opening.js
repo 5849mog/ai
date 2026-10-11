@@ -65,6 +65,73 @@ export async function adviseAdaptiveOpening(session,search,settings={}) {
     return {points,result:root,rate:Math.min(sorted[need-1].rate,...values.filter(v=>s.candidates.includes(v.index)).map(v=>v.rate)),checks:values.length,gap,
       status:!groupEqual(points,initial)?"复核后调整":gap<.06?"候选仍接近":"提案已复核"};
   }
+  // Taraguchi scores belong to players, whose colors may change. After a
+  // normal fifth the chooser can take either color; a ten-offer has no swap.
+  async function route(s, allocation, onNormal = () => {}) {
+    const start=b.left, left=()=>Math.max(0,Math.min(b.left,allocation-(start-b.left)));
+    const normal=replaySession(s.record());normal.apply({type:"decision",choice:"keep"});
+    const fifth=await run({board:normal.board,sideToMove:1,balance:true,multiPV:1,
+      allowedMoves:normal.allowedMoves({safe:true})},Math.floor(allocation*.25),"搜索可换色第五手");
+    if(!valid(normal.board,fifth.index,1,normal.allowedMoves({safe:true})))throw new Error("普通路线落点不合法");
+    normal.apply({type:"stone",index:fifth.index});
+    const white=await score(normal.board,2,Math.min(left(),allocation*.25),"复核第五手后的选色");
+    if(white===null)throw new Error("普通路线评估未完成");
+    const keep=Math.min(white,1-white), swap=Math.max(white,1-white);
+    let choice=swap>keep+.02?"swap":"keep", value=choice==="swap"?swap:keep;
+    onNormal({choice,value,keep,swap,fifth:fifth.index});
+    const choices=distinctCandidates(s.board,Array.from(s.board,(v,i)=>v?-1:i).filter(i=>i>=0 && valid(s.board,i,1)));
+    const ten=await run({board:s.board,sideToMove:1,multiPV:10,allowedMoves:choices},left(),"比较十打最弱提案");
+    const batch=(ten.recommendations??[]).slice(0,10);
+    const complete=batch.length===10 && new Set(batch.map(p=>p.index)).size===10
+      && batch.every(p=>valid(s.board,p.index,1,choices) && Number.isInteger(p.depth) && p.depth===batch[0].depth
+        && Number.isFinite(p.winRate) && p.winRate>=0 && p.winRate<=1);
+    const tenFloor=complete?Math.min(...batch.map(p=>p.winRate)):null;
+    if(tenFloor!==null && tenFloor>value+.02){choice="ten";value=tenFloor;}
+    return {choice,value,keep,swap,tenFloor,complete,fifth:fifth.index,tenPoints:batch.map(p=>p.index)};
+  }
+  async function balancedFifths(s, initial, allocation) {
+    const start=b.left, left=()=>Math.max(0,Math.min(b.left,allocation-(start-b.left)));
+    const pool=[{index:initial.points[0],result:initial.result}];
+    for(let n=0;n<2 && left()>200;n++) {
+      const available=distinctCandidates(s.board,[...pool.map(p=>p.index),...s.allowedMoves({safe:true})]).slice(pool.length);
+      if(!available.length)break;
+      const result=await run({board:s.board,sideToMove:1,balance:true,multiPV:1,allowedMoves:available},
+        Math.min(500,allocation*.10),"扩展平衡第五手");
+      if(!valid(s.board,result.index,1,available))throw new Error("平衡第五手不合法");
+      pool.push({index:result.index,result});
+    }
+    const per=Math.floor((left()-60)/pool.length);
+    const values=await evaluatePoints(s.board,pool.map(p=>p.index),per);
+    if(values.some(v=>v.rate===null))throw new Error("第五手选色复核未完成");
+    const ranked=values.map(v=>({...v,floor:Math.min(v.rate,1-v.rate)})).sort((a,c)=>c.floor-a.floor);
+    return {points:ranked.slice(0,2).map(v=>v.index),result:pool.find(p=>p.index===ranked[0].index).result,
+      floor:ranked[0].floor,checks:values.length,values:ranked,
+      note:"比较落第五手后对方选择黑白的结果，优先保留较强的最弱一方。"};
+  }
+  async function fourths(s, initial, allocation) {
+    const start=b.left, left=()=>Math.max(0,Math.min(b.left,allocation-(start-b.left)));
+    const pool=[{index:initial.points[0],result:initial.result}];
+    const available=distinctCandidates(s.board,[pool[0].index,...s.allowedMoves({safe:true})]).slice(1);
+    if(available.length) {
+      const result=await run({board:s.board,sideToMove:2,balance:true,multiPV:1,allowedMoves:available},
+        Math.min(500,allocation*.10),"扩展第四手候选");
+      if(!valid(s.board,result.index,2,available))throw new Error("第四手候选不合法");
+      pool.push({index:result.index,result});
+    }
+    // Equal allocations for every candidate, including all three opponent
+    // route choices. An incomplete ten batch cannot establish a safe fourth.
+    const per=Math.floor((left()-80)/pool.length), values=[];
+    for(const candidate of pool) {
+      const next=replaySession(s.record());next.apply({type:"stone",index:candidate.index});
+      const r=await route(next,per);
+      if(!r.complete)throw new Error("第四手的十打延续未完成");
+      values.push({index:candidate.index,white:1-r.value,route:r});
+    }
+    values.sort((a,c)=>c.white-a.white);
+    return {points:values.map(v=>v.index),result:pool.find(p=>p.index===values[0].index).result,
+      whiteRate:values[0].white,values,checks:values.length,
+      note:"第四手已比较对方保持、换色与十打的有限延续。"};
+  }
   let base=null;
   try {
     if(session.stage==="choose") {
@@ -88,6 +155,31 @@ export async function adviseAdaptiveOpening(session,search,settings={}) {
     }
     const allowed=session.decision?null:session.allowedMoves({safe:true});
     if(allowed?.length===1)return finish({points:allowed},"唯一合法落点",{reason:"only-legal"});
+    if(rule==="taraguchi10" && session.stage==="route4") {
+      const r=await route(session,b.left-80,normal=>{base={choice:normal.choice,note:"普通路线已复核，十打仍待确认。"};});
+      return finish({choice:r.choice,note:"已比较保持、换色与十打；按我方最终执色评估。"},
+        r.complete?"三条路线已复核":"路线有限复核",{normalFloor:r.keep,swapValue:r.swap,blackFloor:r.tenFloor,
+          candidateChecks:r.tenPoints.length,provisional:true});
+    }
+    if(rule==="taraguchi10" && ["w4","b5","swap3"].includes(session.stage)) {
+      const next=replaySession(session.record());if(next.decision)next.apply({type:"decision",choice:"keep"});
+      const initial=await adviseOpening(next,(o)=>run(o,o.timeMs,"筛选平衡开局"),500,{includeAlternative:false});
+      // The last verified stage advice remains available if the shared deadline
+      // expires; no hypothetical swap / candidate modifies the live session.
+      if(session.decision)base=await adviseOpening(session,(o)=>run(o,o.timeMs,"保留换色建议"),300,{includeAlternative:false});
+      else base=initial;
+      if(next.stage==="b5") {
+        const r=await balancedFifths(next,initial,b.left-80);
+        return finish(r,"第五手选色已复核",{blackFloor:r.floor,candidateChecks:r.checks,provisional:true});
+      }
+      const r=await fourths(next,initial,b.left-80);
+      const advice=session.decision?{choice:r.whiteRate<.5?"swap":"keep",note:r.note}:r;
+      return finish(advice,"第四手延续已复核",{whiteRate:r.whiteRate,candidateChecks:r.checks,provisional:true});
+    }
+    if(rule==="taraguchi10" && session.stage==="swap5") {
+      base=await adviseOpening(session,(o)=>run(o,o.timeMs,"评估最终执色"),Math.floor(b.left),{includeAlternative:false});
+      return finish(base,"最终执色已复核",{provisional:true});
+    }
     base=await adviseOpening(session,(o)=>run(o,o.timeMs,"检查开局延续"),900,{includeAlternative:false});
     if(rule==="rif" && ["w4","swap3"].includes(session.stage)) {
       const next=replaySession(session.record());if(next.decision)next.apply({type:"decision",choice:"keep"});
@@ -104,18 +196,6 @@ export async function adviseAdaptiveOpening(session,search,settings={}) {
       const advice=session.decision?{...base,choice:(session.actor===session.blackSeat?black:1-black)<.5?"swap":"keep"}
         :{...base,points:results.slice(0,2).map(v=>v.index),blackRate:black};
       return finish(advice,"开局延续已复核",{candidateChecks:results.length,blackFloor:black});
-    }
-    if(session.stage==="route4") {
-      const ten=replaySession(session.record());ten.apply({type:"decision",choice:"ten"});
-      const group=await proposals(ten,Math.min(3000,b.left*.65));
-      const normal=replaySession(session.record());normal.apply({type:"decision",choice:"keep"});
-      const balanced=await run({board:normal.board,sideToMove:1,balance:true,multiPV:1,allowedMoves:normal.allowedMoves({safe:true})},Math.min(750,b.left*.45),"复核普通路线");
-      if(!valid(normal.board,balanced.index,1,normal.allowedMoves({safe:true})))throw new Error("普通路线落点不合法");
-      normal.apply({type:"stone",index:balanced.index});const white=await score(normal.board,2,b.left-70,"检查第五手后选色");
-      if(white===null || group.rate===null)throw new Error("路线比较评估未完成");
-      const value=Math.min(white,1-white);
-      return finish({...base,choice:group.rate>value+.02?"ten":"keep"},"路线已复核",{candidateChecks:group.checks,blackFloor:group.rate,normalFloor:value,
-        provisional:true});
     }
     // Early Taraguchi moves still allow later swaps: retain balance searches,
     // compare stability, and never label a low stage estimate as a proven loss.

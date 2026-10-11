@@ -23,6 +23,7 @@
     "test:formal-native": "node scripts/formal-modes-eval.js",
     "test:deep-native": "node scripts/deep-review-eval.js",
     "test:adaptive-native": "node scripts/adaptive-eval.js",
+    "test:adaptive-defense": "node scripts/adaptive-defense-eval.js",
     "benchmark:adaptive-strength": "node scripts/adaptive-strength-match.js",
     "report:adaptive-strength": "node scripts/adaptive-strength-report.js",
     "test:simple-win-rate": "node scripts/simple-win-rate-qa.js",
