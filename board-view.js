@@ -1,4 +1,5 @@
 import { SIZE, winningLines } from "./game-rules.js";
+import { fitBoardToSlot } from "./board-layout.js";
 
 const PAD = 46;
 const STEP = 528 / (SIZE - 1);
@@ -126,6 +127,7 @@ function renderBoard(boardSvg, state, idPrefix) {
 
 export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
   if (!/^[a-zA-Z0-9_-]*$/.test(idPrefix)) throw new Error("无效的棋盘标识");
+  fitBoardToSlot(boardSvg);
   let previousKey;
   return {
     nearestIntersection(clientX, clientY) {

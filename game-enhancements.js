@@ -20,7 +20,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const sourceNotice = $("#gameNotice");
   function syncNotice() {
     notice.hidden = !sourceNotice || sourceNotice.hidden || !sourceNotice.classList.contains("error");
-    notice.textContent = notice.hidden ? "" : sourceNotice.textContent; measure();
+    notice.textContent = notice.hidden ? "" : sourceNotice.textContent;
   }
   if (sourceNotice && typeof MutationObserver === "function") new MutationObserver(syncNotice).observe(sourceNotice,
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
@@ -29,8 +29,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
   let active = null, recordKey = null, opening = false, currentReview=true;
-  function collapse() { panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); measure(); }
-  function measure() { shell.style.setProperty("--quick-tools-space", `${(panel.hidden ? 0 : panel.getBoundingClientRect().height + 8) + (notice.hidden ? 0 : notice.getBoundingClientRect().height + 8)}px`); }
+  function collapse() { panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); }
   function close({ resume = true } = {}) {
     if (!active) return;
     const previous = active; active = null;
@@ -51,7 +50,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     if (kind === "image") image.open(); else if(kind==="review")void review.open(record);else history.open();
     $("#recordMenu").open = false;
   }
-  toggle.onclick = () => { panel.hidden = !panel.hidden; toggle.setAttribute("aria-expanded", String(!panel.hidden)); measure(); };
+  toggle.onclick = () => { panel.hidden = !panel.hidden; toggle.setAttribute("aria-expanded", String(!panel.hidden)); };
   panel.querySelector("[data-collapse]").onclick = collapse;
   for (const button of panel.querySelectorAll("[data-time]")) button.onclick = () => {
     const select = $("#timeSelect"); if (select.disabled) return;
@@ -83,7 +82,6 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     // screenshot is allowed to finish its own close without reentrant disposal.
     if (active === "review" && currentReview && !opening && (!position.winner || JSON.stringify(getRecord()) !== recordKey)) close();
   }
-  const sizeObserver = new ResizeObserver(measure); sizeObserver.observe(panel); sizeObserver.observe(notice);
   document.addEventListener("keydown", event => { if (event.key === "Escape" && active) { event.preventDefault(); event.stopImmediatePropagation(); close(); } }, true);
   $("#timeSelect").addEventListener("change", render); $("#ponderToggle").addEventListener("change", render);
   render(); return { render, close, get active() { return active; } };
