@@ -319,9 +319,6 @@ setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: sessio
 display = setupDisplayModes({ onNewGame: () => newSimpleGame(), onChange: () => { pending = hover = -1; render(); }, onToggleColor: () => {
   const open = !rulesOpen; cancel(); rulesOpen = open; render(); if (!open) void prepare();
 } });
-new ResizeObserver(() => {
-  const flow = $("#simpleOpeningFlow"); document.querySelector(".app-shell").style.setProperty("--opening-flow-space", `${flow.hidden ? 0 : flow.getBoundingClientRect().height + 8}px`);
-}).observe($("#simpleOpeningFlow"));
 $("#simpleColor").addEventListener("keydown", event => { if (event.key.toLowerCase() === "r") { event.preventDefault(); if (manualTurn()) void recommend(); } });
 function download(data, name, type) { const url = URL.createObjectURL(new Blob([data], { type })), link = document.createElement("a"); link.href = url; link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); $("#recordMenu").open = false; }
 $("#exportJson").onclick = () => download(JSON.stringify(session.record(), null, 2), "wumu-opening.json", "application/json");

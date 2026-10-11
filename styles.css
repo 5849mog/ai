@@ -76,8 +76,9 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .game-notice { position: fixed; z-index: 20; left: 50%; bottom: max(4px,calc(env(safe-area-inset-bottom) + 4px)); transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px); border-radius: 9px; padding: 6px 12px; background: #303a33; color: #fffefa; box-shadow: 0 5px 20px #25272026; font-size: 12px; line-height: 1.5; pointer-events: none; }
 .game-notice.error { background: #714d3d; }
 .retry-button { border: 1px solid rgba(182,76,53,.3); border-radius: 6px; background: #fbf2ec; color: #9e3c28; font-size: 12px; padding: 5px 10px; cursor: pointer; }
-.board-wrap { grid-row: 2; min-width: 0; min-height: 0; container-type: size; display: flex; align-items: center; justify-content: center; }
-.board-frame { width: min(100cqw, 100cqh); flex: 0 0 auto; padding: 4px; border-radius: 7px; background: linear-gradient(135deg, #f9eaca, #c9af81 52%, #ead6b0); box-shadow: inset 0 1px 0 #fffae6, 0 1px 0 #b79a6b, 0 3px 0 #c5aa7f, 0 5px 6px #5e4f2d1c, 0 14px 26px #5e4f2d14; }
+.board-wrap { grid-row: 2; min-width: 0; min-height: 0; position: relative; }
+.board-frame { width: min(100%, 70dvh); max-width: 100%; flex: 0 0 auto; padding: 4px; border-radius: 7px; background: linear-gradient(135deg, #f9eaca, #c9af81 52%, #ead6b0); box-shadow: inset 0 1px 0 #fffae6, 0 1px 0 #b79a6b, 0 3px 0 #c5aa7f, 0 5px 6px #5e4f2d1c, 0 14px 26px #5e4f2d14; }
+.board-wrap > .board-frame, .setup-board-wrap > .board-frame { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
 .board-svg { display: block; width: 100%; height: auto; border-radius: 4px; touch-action: manipulation; user-select: none; }
 .board-svg .board-surface { fill: url(#woodSurface); }
 .board-svg .wood-texture { opacity: .8; mix-blend-mode: multiply; pointer-events: none; }
@@ -186,7 +187,8 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
   .header-tools { gap: 10px; }
   .board-toolbar { padding: 0 12px 4px; }
   .game-state { gap: 8px; }
-  .board-frame { width: min(calc(100cqw - 8px), 100cqh); padding: 2px; border-radius: 5px; }
+  .board-wrap > .board-frame { max-width: calc(100% - 8px); }
+  .board-frame { padding: 2px; border-radius: 5px; }
   .board-bottom { padding: 4px 12px 6px; }
   .game-actions { max-width: none; }
   .icon-button { padding: 0 8px; gap: 6px; }

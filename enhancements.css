@@ -18,7 +18,7 @@
 .simple-quick-tools button, .enhancement-workspace button { appearance: none; border: 1px solid var(--line); border-radius: 5px; background: #fbf9f1; color: var(--ink); cursor: pointer; min-height: 34px; padding: 5px 9px; font-size: 12px; }
 .simple-quick-tools button[aria-pressed="true"], .enhancement-workspace button[aria-pressed="true"] { background: #e6edde; border-color: #78936d; color: var(--green); }
 .simple-quick-tools button:disabled, .enhancement-workspace button:disabled { opacity: .45; cursor: default; }
-.simple-mode .app-shell, .opening-page.simple-mode .app-shell { gap: 8px; --simple-board-space: calc(100dvh - 54px - 16px - 28px - var(--quick-tools-space, 0px) - var(--opening-flow-space, 0px) - max(4px, env(safe-area-inset-top)) - max(6px, env(safe-area-inset-bottom))); }
+.simple-mode .app-shell, .opening-page.simple-mode .app-shell { gap: 8px; }
 .enhancement-workspace { height: 100dvh; width: 100%; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--canvas); color: var(--ink); overflow: hidden; }
 .enhancement-workspace > div { height: 100%; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
 .tool-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }

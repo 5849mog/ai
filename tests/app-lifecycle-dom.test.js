@@ -16,8 +16,12 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
   const html = await readFile(new URL('../' + page, import.meta.url), 'utf8');
   const dom = new JSDOM(html, { url: `https://example.com/ai/${page}?view=simple`, pretendToBeVisual: true });
   dom.window.HTMLCanvasElement.prototype.getContext = () => ({});
+  const resizeObservers=[];
   const values = { window: dom.window, document: dom.window.document, location: dom.window.location, history: dom.window.history, localStorage: dom.window.localStorage,
-    navigator: { hardwareConcurrency: 2 }, MutationObserver: dom.window.MutationObserver, Event: dom.window.Event, ResizeObserver: class { observe() {} } };
+    navigator: { hardwareConcurrency: 2 }, MutationObserver: dom.window.MutationObserver, Event: dom.window.Event, ResizeObserver: class {
+      constructor(callback){this.callback=callback;this.targets=[];resizeObservers.push(this);}
+      observe(target){this.targets.push(target);}
+    } };
   let time = 0, timerId = 0, failed = false; const timers = new Map(), workers = [];
   values.setTimeout = (run, delay = 0) => { const key = ++timerId; timers.set(key, { run, at: time + delay }); return key; };
   values.clearTimeout = key => timers.delete(key);
@@ -59,7 +63,7 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
     workers.forEach(worker => worker.terminate()); timers.clear(); dom.window.close();
     for (const [key, descriptor] of original) descriptor ? Object.defineProperty(globalThis, key, descriptor) : delete globalThis[key];
   };
-  return { dom, workers, storageKey, advance, close, async load() { await import(`../${page === 'index.html' ? 'app.js' : 'opening-app.js'}?dom-case=${++fixtureId}`); await flush(); await flush(); } };
+  return { dom, workers, storageKey, advance, close, resizeObservers, async load() { await import(`../${page === 'index.html' ? 'app.js' : 'opening-app.js'}?dom-case=${++fixtureId}`); await flush(); await flush(); } };
 }
 
 test('freestyle simple-mode retry preserves the existing stone and continues the failed AI turn', async () => {
@@ -413,5 +417,27 @@ test('adaptive own RIF exchange advice remains a user choice and can be paused b
   byText('暂停思考').click();await settled();assert.deepEqual(savedSession(f).record(),s.record());assert.equal(byText('继续思考').hidden,false);
   worker.onmessage({data:{type:'move',requestId:q.requestId,result:{index:113,x:8,y:7}}});await settled();assert.deepEqual(savedSession(f).record(),s.record());
   byText('继续思考').click();await settled();assert.equal(savedSession(f).stage,'swap3');assert.equal(savedSession(f).blackSeat,1);
+ }finally{f.close();}
+});
+
+for(const rule of ['freestyle','renju','rif','taraguchi10'])test(`${rule}: rotation notifications resize only the frame and preserve game and engine jobs`,async()=>{
+ const s=rule==='freestyle'?null:new OpeningSession({rule,workflow:'copilot',initialBlackSeat:null});
+ const f=await environment(rule==='freestyle'?'index.html':'renju.html',{saved:s?{record:s.record(),perspective:1}:null});
+ try{
+  await f.load();await settled();
+  const slot=document.querySelector('.board-wrap'),frame=slot.querySelector('.board-frame');
+  const observer=f.resizeObservers.find(o=>o.targets.includes(slot));assert.ok(observer);
+  assert.equal(f.resizeObservers.length,2,'only the live and custom board slots are observed');
+  const svg=document.querySelector('#boardSvg'),original=svg.innerHTML;
+  const storageBefore=[...Array(localStorage.length)].map((_,i)=>[localStorage.key(i),localStorage.getItem(localStorage.key(i))]);
+  const searchesBefore=f.workers.reduce((n,w)=>n+(w.searches?.length??0),0);
+  for(const [width,height,side]of [[390,620,'390px'],[530,280,'280px'],[390,620,'390px']]){
+   observer.callback([{target:slot,contentRect:{width,height}}]);assert.equal(frame.style.width,side);
+  }
+  for(let i=0;i<1000;i++)observer.callback([{target:slot,contentRect:{width:390,height:620}}]);
+  assert.equal(svg.innerHTML,original);
+  assert.equal(f.workers.reduce((n,w)=>n+(w.searches?.length??0),0),searchesBefore);
+  assert.deepEqual([...Array(localStorage.length)].map((_,i)=>[localStorage.key(i),localStorage.getItem(localStorage.key(i))]),storageBefore);
+  assert.equal(document.querySelector('.app-shell').style.length,0,'no measured height is fed back into the parent layout');
  }finally{f.close();}
 });
