@@ -1,0 +1,3758 @@
+{
+  "version": 1,
+  "appVersion": "2026.10.11.1",
+  "started": "2026-10-11T01:26:05.307Z",
+  "runtime": "v24.19.0",
+  "method": "Shipped single-thread SIMD WASM and verified Renju NNUE; hash cleared per budget comparison; sequential 1/10/30-second searches on identical legal positions. Review uses real opening prefixes from the v35 flow report, with synthetic legal finishing stones solely to activate terminal-only review. No browser, human win-rate, Elo, exhaustive solver or guaranteed strength improvement.",
+  "sources": {
+    "game-review.js": "d91b14abf21c97fe52065c98c124d68e174b198b780ec0a710383874181459f5",
+    "opening-review.js": "42ee99b1acf3e9a1c8009e69d730f4ffed1654fd495ee425e68b5ff0ec049646",
+    "opening-advisor.js": "8e74850089a2a611db3ddba92a760a1b4e90bbd078382c03f0d42e11f7fcb372",
+    "scripts/deep-review-eval.js": "a545c0497ab7cc6e77433c531cf79d6ffb53e0c0a0032e0b56ffad14bd93dc9c",
+    "scripts/renju-node-engine.js": "06d97aa395e782a6e4612a19486d71f65de2d931644ab8a81c8cc35dc945c161"
+  },
+  "assets": {
+    "engine/rapfi-250615/rapfi-single-simd128.js": "345ead03ed648d7ff9724c7f1cc589d607d66ee8f1a7017c219258ebb1a63f93",
+    "engine/rapfi-250615/rapfi-single-simd128.wasm": "b59b574131dd6f520bb281dd771529cfc1896a3cb68fc364426f895a3e7759d0",
+    "engine/rapfi-250615/rapfi.data": "ffdfcd33f35ab916abefa62eafa105b32a9f9a1afdacf49ff6d11d02c44e5415",
+    "engine/renju-250615/config.toml": "5eeba142e8c5fb50716c5cb348082493662c6234330aacf0ad900fbb5648a545"
+  },
+  "budgets": [
+    {
+      "name": "rif-seat0-keep",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "select",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 82
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 111
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 93
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          }
+        ]
+      },
+      "boardSha256": "09f883b987a0dc6251656519b783edf6acaa8828ec23d0329e825d3d29288266",
+      "sideToMove": 1,
+      "searches": [
+        {
+          "timeMs": 1000,
+          "wallMs": 999,
+          "result": {
+            "depth": 19,
+            "selectiveDepth": 14,
+            "nodes": 13406,
+            "elapsed": 226,
+            "nps": 59318,
+            "evaluation": 77,
+            "mate": null,
+            "winRate": 0.595078,
+            "assessment": {
+              "depth": 19,
+              "winRate": 0.595078,
+              "evaluation": 77,
+              "mate": null,
+              "bestIndex": 63
+            },
+            "index": 63,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "timeMs": 10000,
+          "wallMs": 9990,
+          "result": {
+            "depth": 26,
+            "selectiveDepth": 37,
+            "nodes": 446758,
+            "elapsed": 6379,
+            "nps": 70035,
+            "evaluation": 20,
+            "mate": null,
+            "winRate": 0.524979,
+            "assessment": {
+              "depth": 26,
+              "winRate": 0.524979,
+              "evaluation": 20,
+              "mate": null,
+              "bestIndex": 63
+            },
+            "index": 63,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "timeMs": 30000,
+          "wallMs": 23293,
+          "result": {
+            "depth": 28,
+            "selectiveDepth": 40,
+            "nodes": 1577637,
+            "elapsed": 23280,
+            "nps": 67767,
+            "evaluation": 80,
+            "mate": null,
+            "winRate": 0.598688,
+            "assessment": {
+              "depth": 28,
+              "winRate": 0.598688,
+              "evaluation": 80,
+              "mate": null,
+              "bestIndex": 63
+            },
+            "index": 63,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ]
+    },
+    {
+      "name": "taraguchi-seat0-normal-mixed",
+      "rule": "taraguchi10",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 66
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 126
+          },
+          {
+            "type": "stone",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          },
+          {
+            "type": "stone",
+            "index": 111,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 109
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          }
+        ]
+      },
+      "boardSha256": "7532969686937ddb1012370a67960d0af36d7f9da04d2206755e52417e7b49f6",
+      "sideToMove": 1,
+      "searches": [
+        {
+          "timeMs": 1000,
+          "wallMs": 983,
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 16,
+            "nodes": 20291,
+            "elapsed": 351,
+            "nps": 57809,
+            "evaluation": -107,
+            "mate": null,
+            "winRate": 0.369351,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.369351,
+              "evaluation": -107,
+              "mate": null,
+              "bestIndex": 114
+            },
+            "index": 114,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "timeMs": 10000,
+          "wallMs": 9995,
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 35,
+            "nodes": 137955,
+            "elapsed": 2323,
+            "nps": 59386,
+            "evaluation": -63,
+            "mate": null,
+            "winRate": 0.421895,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.421895,
+              "evaluation": -63,
+              "mate": null,
+              "bestIndex": 114
+            },
+            "index": 114,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "timeMs": 30000,
+          "wallMs": 28376,
+          "result": {
+            "depth": 20,
+            "selectiveDepth": 51,
+            "nodes": 1733276,
+            "elapsed": 28365,
+            "nps": 61106,
+            "evaluation": -201,
+            "mate": null,
+            "winRate": 0.26796,
+            "assessment": {
+              "depth": 20,
+              "winRate": 0.26796,
+              "evaluation": -201,
+              "mate": null,
+              "bestIndex": 114
+            },
+            "index": 114,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ]
+    }
+  ],
+  "reviews": [
+    {
+      "name": "rif-seat0-keep",
+      "rule": "rif",
+      "terminalActivation": "synthetic legal finish",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "select",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 82
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 111
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 93
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          },
+          {
+            "type": "stone",
+            "index": 0
+          },
+          {
+            "type": "stone",
+            "index": 1
+          },
+          {
+            "type": "stone",
+            "index": 2
+          },
+          {
+            "type": "stone",
+            "index": 3
+          },
+          {
+            "type": "stone",
+            "index": 4
+          },
+          {
+            "type": "stone",
+            "index": 5
+          },
+          {
+            "type": "stone",
+            "index": 6
+          },
+          {
+            "type": "stone",
+            "index": 7
+          },
+          {
+            "type": "stone",
+            "index": 8
+          },
+          {
+            "type": "stone",
+            "index": 9
+          },
+          {
+            "type": "stone",
+            "index": 10
+          },
+          {
+            "type": "stone",
+            "index": 11
+          },
+          {
+            "type": "stone",
+            "index": 12
+          },
+          {
+            "type": "stone",
+            "index": 13
+          },
+          {
+            "type": "stone",
+            "index": 14
+          },
+          {
+            "type": "stone",
+            "index": 15
+          },
+          {
+            "type": "stone",
+            "index": 16
+          },
+          {
+            "type": "stone",
+            "index": 17
+          },
+          {
+            "type": "stone",
+            "index": 18
+          },
+          {
+            "type": "stone",
+            "index": 19
+          },
+          {
+            "type": "stone",
+            "index": 20
+          },
+          {
+            "type": "stone",
+            "index": 21
+          },
+          {
+            "type": "stone",
+            "index": 22
+          },
+          {
+            "type": "stone",
+            "index": 23
+          },
+          {
+            "type": "stone",
+            "index": 24
+          },
+          {
+            "type": "stone",
+            "index": 25
+          },
+          {
+            "type": "stone",
+            "index": 26
+          },
+          {
+            "type": "stone",
+            "index": 27
+          },
+          {
+            "type": "stone",
+            "index": 28
+          },
+          {
+            "type": "stone",
+            "index": 29
+          },
+          {
+            "type": "stone",
+            "index": 30
+          },
+          {
+            "type": "stone",
+            "index": 31
+          },
+          {
+            "type": "stone",
+            "index": 32
+          },
+          {
+            "type": "stone",
+            "index": 33
+          },
+          {
+            "type": "stone",
+            "index": 34
+          },
+          {
+            "type": "stone",
+            "index": 35
+          },
+          {
+            "type": "stone",
+            "index": 36
+          },
+          {
+            "type": "stone",
+            "index": 37
+          },
+          {
+            "type": "stone",
+            "index": 38
+          },
+          {
+            "type": "stone",
+            "index": 39
+          },
+          {
+            "type": "stone",
+            "index": 40
+          },
+          {
+            "type": "stone",
+            "index": 41
+          },
+          {
+            "type": "stone",
+            "index": 42
+          },
+          {
+            "type": "stone",
+            "index": 43
+          },
+          {
+            "type": "stone",
+            "index": 44
+          },
+          {
+            "type": "stone",
+            "index": 45
+          },
+          {
+            "type": "stone",
+            "index": 46
+          },
+          {
+            "type": "stone",
+            "index": 47
+          },
+          {
+            "type": "stone",
+            "index": 48
+          },
+          {
+            "type": "stone",
+            "index": 49
+          },
+          {
+            "type": "stone",
+            "index": 51
+          },
+          {
+            "type": "stone",
+            "index": 50
+          },
+          {
+            "type": "stone",
+            "index": 52
+          },
+          {
+            "type": "stone",
+            "index": 53
+          },
+          {
+            "type": "stone",
+            "index": 55
+          },
+          {
+            "type": "stone",
+            "index": 54
+          },
+          {
+            "type": "stone",
+            "index": 57
+          },
+          {
+            "type": "stone",
+            "index": 56
+          },
+          {
+            "type": "stone",
+            "index": 58
+          },
+          {
+            "type": "stone",
+            "index": 59
+          },
+          {
+            "type": "stone",
+            "index": 60
+          }
+        ]
+      },
+      "searches": [
+        {
+          "boardSha256": "eb80eebb9ff01f82061c2fa1dd90dad3d5dfa41d1ce9b1172f7998ee8b5c94b0",
+          "sideToMove": 2,
+          "timeMs": 250,
+          "multiPV": 3,
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 22,
+            "nodes": 20874,
+            "elapsed": 180,
+            "nps": 115966,
+            "evaluation": -225,
+            "mate": null,
+            "winRate": 0.245085,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.439055,
+              "evaluation": -49,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "pv": 0,
+                "count": 3,
+                "depth": 11,
+                "score": -49,
+                "winRate": 0.439055
+              },
+              {
+                "index": 128,
+                "x": 8,
+                "y": 8,
+                "rank": 2,
+                "pv": 1,
+                "count": 3,
+                "depth": 11,
+                "score": -156,
+                "winRate": 0.31432
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 3,
+                "pv": 2,
+                "count": 3,
+                "depth": 11,
+                "score": -225,
+                "winRate": 0.245085
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "sideToMove": 1,
+          "timeMs": 200,
+          "multiPV": 2,
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 20,
+            "nodes": 11661,
+            "elapsed": 160,
+            "nps": 72881,
+            "evaluation": 41,
+            "mate": null,
+            "winRate": 0.551071,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.551071,
+              "evaluation": 41,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "score": 49,
+                "depth": 10,
+                "winRate": 0.560945
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 2,
+                "score": -24,
+                "depth": 10,
+                "winRate": 0.470036
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "f71408f91c25f8731832e181737f5018f6b0aa79b4e5413ac1464dcb7a00d2cb",
+          "sideToMove": 1,
+          "timeMs": 200,
+          "multiPV": 2,
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 21,
+            "nodes": 16364,
+            "elapsed": 171,
+            "nps": 95695,
+            "evaluation": 137,
+            "mate": null,
+            "winRate": 0.664854,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.784147,
+              "evaluation": 258,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "score": 258,
+                "depth": 12,
+                "winRate": 0.784147
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 2,
+                "score": 137,
+                "depth": 12,
+                "winRate": 0.664854
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "65d244953d8730056ba7b8d8cd01452a30440f9c409320f2291c7b522a1ac8eb",
+          "sideToMove": 1,
+          "timeMs": 200,
+          "multiPV": 2,
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 14,
+            "nodes": 3169,
+            "elapsed": 27,
+            "nps": 117370,
+            "evaluation": 338,
+            "mate": null,
+            "winRate": 0.844224,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.844224,
+              "evaluation": 338,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "score": 338,
+                "depth": 12,
+                "winRate": 0.844224
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 2,
+                "score": 236,
+                "depth": 12,
+                "winRate": 0.764948
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "sideToMove": 1,
+          "timeMs": 1000,
+          "multiPV": 2,
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 28,
+            "nodes": 58255,
+            "elapsed": 866,
+            "nps": 67269,
+            "evaluation": -21,
+            "mate": null,
+            "winRate": 0.473774,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.649081,
+              "evaluation": 123,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "score": 123,
+                "depth": 13,
+                "winRate": 0.649081
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 2,
+                "score": -21,
+                "depth": 13,
+                "winRate": 0.473774
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 11,
+            "nodes": 5268,
+            "elapsed": 64,
+            "nps": 82312,
+            "evaluation": -123,
+            "mate": null,
+            "winRate": 0.350919,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.350919,
+              "evaluation": -123,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 16,
+            "nodes": 6670,
+            "elapsed": 93,
+            "nps": 72500,
+            "evaluation": 21,
+            "mate": null,
+            "winRate": 0.526226,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.526226,
+              "evaluation": 21,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 23,
+            "nodes": 53028,
+            "elapsed": 882,
+            "nps": 60122,
+            "evaluation": -41,
+            "mate": null,
+            "winRate": 0.448929,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.448929,
+              "evaluation": -41,
+              "mate": null,
+              "bestIndex": 79
+            },
+            "index": 79,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "stage": "swap3",
+          "actor": 1,
+          "frame": 5,
+          "ply": 3,
+          "before": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 1,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 0,
+            "97": 2,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 1,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0,
+            "166": 0,
+            "167": 0,
+            "168": 0,
+            "169": 0,
+            "170": 0,
+            "171": 0,
+            "172": 0,
+            "173": 0,
+            "174": 0,
+            "175": 0,
+            "176": 0,
+            "177": 0,
+            "178": 0,
+            "179": 0,
+            "180": 0,
+            "181": 0,
+            "182": 0,
+            "183": 0,
+            "184": 0,
+            "185": 0,
+            "186": 0,
+            "187": 0,
+            "188": 0,
+            "189": 0,
+            "190": 0,
+            "191": 0,
+            "192": 0,
+            "193": 0,
+            "194": 0,
+            "195": 0,
+            "196": 0,
+            "197": 0,
+            "198": 0,
+            "199": 0,
+            "200": 0,
+            "201": 0,
+            "202": 0,
+            "203": 0,
+            "204": 0,
+            "205": 0,
+            "206": 0,
+            "207": 0,
+            "208": 0,
+            "209": 0,
+            "210": 0,
+            "211": 0,
+            "212": 0,
+            "213": 0,
+            "214": 0,
+            "215": 0,
+            "216": 0,
+            "217": 0,
+            "218": 0,
+            "219": 0,
+            "220": 0,
+            "221": 0,
+            "222": 0,
+            "223": 0,
+            "224": 0
+          },
+          "record": {
+            "format": "gomoku-opening",
+            "version": 1,
+            "rule": "rif",
+            "workflow": "copilot",
+            "initialBlackSeat": null,
+            "seed": null,
+            "events": [
+              {
+                "type": "start",
+                "initialBlackSeat": 0
+              },
+              {
+                "type": "stone",
+                "index": 112,
+                "automatic": true
+              },
+              {
+                "type": "stone",
+                "index": 97,
+                "automatic": true
+              },
+              {
+                "type": "stone",
+                "index": 80,
+                "automatic": true
+              }
+            ]
+          },
+          "event": {
+            "type": "decision",
+            "choice": "keep"
+          },
+          "label": "保持执色",
+          "loss": 0,
+          "best": null,
+          "points": [],
+          "beforeRate": 0.529964,
+          "afterRate": 0.529964,
+          "note": "已考虑有限第四手、两打与白方选点的延续。",
+          "choices": {
+            "keep": 0.529964,
+            "swap": 0.470036
+          },
+          "choice": "keep"
+        },
+        {
+          "stage": "offer",
+          "actor": 0,
+          "frame": 8,
+          "ply": 4,
+          "before": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 1,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 2,
+            "97": 2,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 1,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0,
+            "166": 0,
+            "167": 0,
+            "168": 0,
+            "169": 0,
+            "170": 0,
+            "171": 0,
+            "172": 0,
+            "173": 0,
+            "174": 0,
+            "175": 0,
+            "176": 0,
+            "177": 0,
+            "178": 0,
+            "179": 0,
+            "180": 0,
+            "181": 0,
+            "182": 0,
+            "183": 0,
+            "184": 0,
+            "185": 0,
+            "186": 0,
+            "187": 0,
+            "188": 0,
+            "189": 0,
+            "190": 0,
+            "191": 0,
+            "192": 0,
+            "193": 0,
+            "194": 0,
+            "195": 0,
+            "196": 0,
+            "197": 0,
+            "198": 0,
+            "199": 0,
+            "200": 0,
+            "201": 0,
+            "202": 0,
+            "203": 0,
+            "204": 0,
+            "205": 0,
+            "206": 0,
+            "207": 0,
+            "208": 0,
+            "209": 0,
+            "210": 0,
+            "211": 0,
+            "212": 0,
+            "213": 0,
+            "214": 0,
+            "215": 0,
+            "216": 0,
+            "217": 0,
+            "218": 0,
+            "219": 0,
+            "220": 0,
+            "221": 0,
+            "222": 0,
+            "223": 0,
+            "224": 0
+          },
+          "record": {
+            "format": "gomoku-opening",
+            "version": 1,
+            "rule": "rif",
+            "workflow": "copilot",
+            "initialBlackSeat": null,
+            "seed": null,
+            "events": [
+              {
+                "type": "start",
+                "initialBlackSeat": 0
+              },
+              {
+                "type": "stone",
+                "index": 112,
+                "automatic": true
+              },
+              {
+                "type": "stone",
+                "index": 97,
+                "automatic": true
+              },
+              {
+                "type": "stone",
+                "index": 80,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 96
+              }
+            ]
+          },
+          "event": {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          "label": "两打整组提案",
+          "kind": "group",
+          "points": [
+            98,
+            95
+          ],
+          "loss": 0,
+          "best": null,
+          "beforeRate": 0.47377400000000003,
+          "afterRate": 0.551071,
+          "note": "从黑方角度比较整组最弱候选；白方可选择对黑方最不利的一点。"
+        },
+        {
+          "stage": "choose",
+          "actor": 1,
+          "frame": 9,
+          "ply": 5,
+          "before": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 1,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 2,
+            "97": 2,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 1,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0,
+            "166": 0,
+            "167": 0,
+            "168": 0,
+            "169": 0,
+            "170": 0,
+            "171": 0,
+            "172": 0,
+            "173": 0,
+            "174": 0,
+            "175": 0,
+            "176": 0,
+            "177": 0,
+            "178": 0,
+            "179": 0,
+            "180": 0,
+            "181": 0,
+            "182": 0,
+            "183": 0,
+            "184": 0,
+            "185": 0,
+            "186": 0,
+            "187": 0,
+            "188": 0,
+            "189": 0,
+            "190": 0,
+            "191": 0,
+            "192": 0,
+            "193": 0,
+            "194": 0,
+            "195": 0,
+            "196": 0,
+            "197": 0,
+            "198": 0,
+            "199": 0,
+            "200": 0,
+            "201": 0,
+            "202": 0,
+            "203": 0,
+            "204": 0,
+            "205": 0,
+            "206": 0,
+            "207": 0,
+            "208": 0,
+            "209": 0,
+            "210": 0,
+            "211": 0,
+            "212": 0,
+            "213": 0,
+            "214": 0,
+            "215": 0,
+            "216": 0,
+            "217": 0,
+            "218": 0,
+            "219": 0,
+            "220": 0,
+            "221": 0,
+            "222": 0,
+            "223": 0,
+            "224": 0
+          },
+          "record": {
+            "format": "gomoku-opening",
+            "version": 1,
+            "rule": "rif",
+            "workflow": "copilot",
+            "initialBlackSeat": null,
+            "seed": null,
+            "events": [
+              {
+                "type": "start",
+                "initialBlackSeat": 0
+              },
+              {
+                "type": "stone",
+                "index": 112,
+                "automatic": true
+              },
+              {
+                "type": "stone",
+                "index": 97,
+                "automatic": true
+              },
+              {
+                "type": "stone",
+                "index": 80,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 96
+              },
+              {
+                "type": "offer",
+                "index": 98,
+                "automatic": true
+              },
+              {
+                "type": "offer",
+                "index": 81,
+                "automatic": true
+              }
+            ]
+          },
+          "event": {
+            "type": "select",
+            "index": 81
+          },
+          "label": "第 5 手 · 黑 G10",
+          "loss": 0,
+          "best": 81,
+          "points": [
+            81
+          ],
+          "beforeRate": 0.448929,
+          "afterRate": 0.448929,
+          "note": "从选点方（白方）角度逐一比较实际候选；候选不会成为多枚实子。"
+        }
+      ]
+    },
+    {
+      "name": "taraguchi-forced-ten-negative-control",
+      "rule": "taraguchi10",
+      "terminalActivation": "synthetic legal finish",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 1
+          },
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "ten"
+          },
+          {
+            "type": "offer",
+            "index": 98
+          },
+          {
+            "type": "offer",
+            "index": 81
+          },
+          {
+            "type": "offer",
+            "index": 95
+          },
+          {
+            "type": "offer",
+            "index": 110
+          },
+          {
+            "type": "offer",
+            "index": 66
+          },
+          {
+            "type": "offer",
+            "index": 83
+          },
+          {
+            "type": "offer",
+            "index": 94
+          },
+          {
+            "type": "offer",
+            "index": 82
+          },
+          {
+            "type": "offer",
+            "index": 111
+          },
+          {
+            "type": "offer",
+            "index": 126
+          },
+          {
+            "type": "select",
+            "index": 126,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 113,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 110
+          },
+          {
+            "type": "stone",
+            "index": 99,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 100
+          },
+          {
+            "type": "stone",
+            "index": 65,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 83,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 0
+          },
+          {
+            "type": "stone",
+            "index": 1
+          },
+          {
+            "type": "stone",
+            "index": 2
+          },
+          {
+            "type": "stone",
+            "index": 3
+          },
+          {
+            "type": "stone",
+            "index": 4
+          },
+          {
+            "type": "stone",
+            "index": 5
+          },
+          {
+            "type": "stone",
+            "index": 6
+          },
+          {
+            "type": "stone",
+            "index": 7
+          },
+          {
+            "type": "stone",
+            "index": 8
+          },
+          {
+            "type": "stone",
+            "index": 9
+          },
+          {
+            "type": "stone",
+            "index": 10
+          },
+          {
+            "type": "stone",
+            "index": 11
+          },
+          {
+            "type": "stone",
+            "index": 12
+          },
+          {
+            "type": "stone",
+            "index": 13
+          },
+          {
+            "type": "stone",
+            "index": 14
+          },
+          {
+            "type": "stone",
+            "index": 15
+          },
+          {
+            "type": "stone",
+            "index": 16
+          },
+          {
+            "type": "stone",
+            "index": 17
+          },
+          {
+            "type": "stone",
+            "index": 18
+          },
+          {
+            "type": "stone",
+            "index": 19
+          },
+          {
+            "type": "stone",
+            "index": 20
+          },
+          {
+            "type": "stone",
+            "index": 21
+          },
+          {
+            "type": "stone",
+            "index": 22
+          },
+          {
+            "type": "stone",
+            "index": 23
+          },
+          {
+            "type": "stone",
+            "index": 24
+          },
+          {
+            "type": "stone",
+            "index": 25
+          },
+          {
+            "type": "stone",
+            "index": 26
+          },
+          {
+            "type": "stone",
+            "index": 27
+          },
+          {
+            "type": "stone",
+            "index": 28
+          },
+          {
+            "type": "stone",
+            "index": 29
+          },
+          {
+            "type": "stone",
+            "index": 30
+          },
+          {
+            "type": "stone",
+            "index": 31
+          },
+          {
+            "type": "stone",
+            "index": 32
+          },
+          {
+            "type": "stone",
+            "index": 33
+          },
+          {
+            "type": "stone",
+            "index": 34
+          },
+          {
+            "type": "stone",
+            "index": 35
+          },
+          {
+            "type": "stone",
+            "index": 36
+          },
+          {
+            "type": "stone",
+            "index": 37
+          },
+          {
+            "type": "stone",
+            "index": 38
+          },
+          {
+            "type": "stone",
+            "index": 39
+          },
+          {
+            "type": "stone",
+            "index": 40
+          },
+          {
+            "type": "stone",
+            "index": 41
+          },
+          {
+            "type": "stone",
+            "index": 42
+          },
+          {
+            "type": "stone",
+            "index": 43
+          },
+          {
+            "type": "stone",
+            "index": 44
+          },
+          {
+            "type": "stone",
+            "index": 45
+          },
+          {
+            "type": "stone",
+            "index": 46
+          },
+          {
+            "type": "stone",
+            "index": 47
+          },
+          {
+            "type": "stone",
+            "index": 48
+          },
+          {
+            "type": "stone",
+            "index": 49
+          }
+        ]
+      },
+      "searches": [
+        {
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "sideToMove": 1,
+          "timeMs": 1000,
+          "multiPV": 10,
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 20,
+            "nodes": 75053,
+            "elapsed": 819,
+            "nps": 91639,
+            "evaluation": -258,
+            "mate": null,
+            "winRate": 0.215853,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.564636,
+              "evaluation": 52,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 1,
+                "pv": 1,
+                "count": 10,
+                "depth": 11,
+                "score": 74,
+                "winRate": 0.591459
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "pv": 0,
+                "count": 10,
+                "depth": 11,
+                "score": 52,
+                "winRate": 0.564636
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 3,
+                "pv": 2,
+                "count": 10,
+                "depth": 11,
+                "score": 46,
+                "winRate": 0.557248
+              },
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 4,
+                "pv": 3,
+                "count": 10,
+                "depth": 11,
+                "score": 5,
+                "winRate": 0.50625
+              },
+              {
+                "index": 82,
+                "x": 7,
+                "y": 5,
+                "rank": 5,
+                "pv": 6,
+                "count": 10,
+                "depth": 11,
+                "score": -16,
+                "winRate": 0.480011
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 6,
+                "pv": 5,
+                "count": 10,
+                "depth": 11,
+                "score": -23,
+                "winRate": 0.471282
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 7,
+                "pv": 4,
+                "count": 10,
+                "depth": 11,
+                "score": -35,
+                "winRate": 0.456361
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 8,
+                "pv": 7,
+                "count": 10,
+                "depth": 11,
+                "score": -98,
+                "winRate": 0.379894
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 9,
+                "pv": 8,
+                "count": 10,
+                "depth": 11,
+                "score": -175,
+                "winRate": 0.294215
+              },
+              {
+                "index": 99,
+                "x": 9,
+                "y": 6,
+                "rank": 10,
+                "pv": 9,
+                "count": 10,
+                "depth": 11,
+                "score": -258,
+                "winRate": 0.215853
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 27,
+            "nodes": 58037,
+            "elapsed": 852,
+            "nps": 68118,
+            "evaluation": 7,
+            "mate": null,
+            "winRate": 0.508749,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.508749,
+              "evaluation": 7,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 27,
+            "nodes": 45615,
+            "elapsed": 801,
+            "nps": 56947,
+            "evaluation": -12,
+            "mate": null,
+            "winRate": 0.485004,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.485004,
+              "evaluation": -12,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 25,
+            "nodes": 41904,
+            "elapsed": 638,
+            "nps": 65680,
+            "evaluation": 1,
+            "mate": null,
+            "winRate": 0.50125,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.50125,
+              "evaluation": 1,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "5f193074000ee8c6ede21ad6fc0738d3a8809c4c4c9f118c32f90555537ab069",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 25,
+            "nodes": 51728,
+            "elapsed": 789,
+            "nps": 65561,
+            "evaluation": 51,
+            "mate": null,
+            "winRate": 0.563407,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.563407,
+              "evaluation": 51,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "33365b5665d0cc55699dd8b10e686ba5bc3259c1b6d6763d664cae57725cdd72",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 29,
+            "nodes": 22849,
+            "elapsed": 315,
+            "nps": 72536,
+            "evaluation": 41,
+            "mate": null,
+            "winRate": 0.551071,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.551071,
+              "evaluation": 41,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "254985d1a2f0c8b5dae4d6ea920c58c94fa5f9d750606e3fe10cc576f1958d85",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 13,
+            "nodes": 2351,
+            "elapsed": 20,
+            "nps": 117550,
+            "evaluation": 23,
+            "mate": null,
+            "winRate": 0.528718,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.528718,
+              "evaluation": 23,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 20,
+            "nodes": 24708,
+            "elapsed": 376,
+            "nps": 65888,
+            "evaluation": -42,
+            "mate": null,
+            "winRate": 0.447692,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.447692,
+              "evaluation": -42,
+              "mate": null,
+              "bestIndex": 83
+            },
+            "index": 83,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 30,
+            "nodes": 50685,
+            "elapsed": 834,
+            "nps": 60773,
+            "evaluation": 13,
+            "mate": null,
+            "winRate": 0.516244,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.516244,
+              "evaluation": 13,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "b67f18877bb2f508df9c55d778c12b2671fbd14c5b63014ec5a792171b717064",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 16,
+            "nodes": 6679,
+            "elapsed": 76,
+            "nps": 87881,
+            "evaluation": 175,
+            "mate": null,
+            "winRate": 0.705785,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.705785,
+              "evaluation": 175,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "07448311ed2e45f4eb3d711e3520a614a6b37636b0789b15b4bab1b944b9a70b",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 26,
+            "nodes": 25625,
+            "elapsed": 363,
+            "nps": 70592,
+            "evaluation": 254,
+            "mate": null,
+            "winRate": 0.780743,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.780743,
+              "evaluation": 254,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "sideToMove": 1,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 20,
+            "selectiveDepth": 15,
+            "nodes": 11808,
+            "elapsed": 81,
+            "nps": 145777,
+            "evaluation": -7,
+            "mate": null,
+            "winRate": 0.491251,
+            "assessment": {
+              "depth": 20,
+              "winRate": 0.491251,
+              "evaluation": -7,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "sideToMove": 1,
+          "timeMs": 1000,
+          "multiPV": 10,
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 24,
+            "nodes": 109732,
+            "elapsed": 964,
+            "nps": 113829,
+            "evaluation": -78,
+            "mate": null,
+            "winRate": 0.403717,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.534943,
+              "evaluation": 28,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 1,
+                "pv": 0,
+                "count": 10,
+                "depth": 12,
+                "score": 70,
+                "winRate": 0.586618
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 2,
+                "pv": 7,
+                "count": 10,
+                "depth": 12,
+                "score": 47,
+                "winRate": 0.558481
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 3,
+                "pv": 1,
+                "count": 10,
+                "depth": 12,
+                "score": 28,
+                "winRate": 0.534943
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 4,
+                "pv": 2,
+                "count": 10,
+                "depth": 12,
+                "score": 0,
+                "winRate": 0.5
+              },
+              {
+                "index": 82,
+                "x": 7,
+                "y": 5,
+                "rank": 5,
+                "pv": 3,
+                "count": 10,
+                "depth": 12,
+                "score": -21,
+                "winRate": 0.473774
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 6,
+                "pv": 4,
+                "count": 10,
+                "depth": 12,
+                "score": -26,
+                "winRate": 0.467546
+              },
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 7,
+                "pv": 5,
+                "count": 10,
+                "depth": 12,
+                "score": -39,
+                "winRate": 0.451404
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 8,
+                "pv": 6,
+                "count": 10,
+                "depth": 12,
+                "score": -62,
+                "winRate": 0.423115
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 9,
+                "pv": 8,
+                "count": 10,
+                "depth": 12,
+                "score": -146,
+                "winRate": 0.325195
+              },
+              {
+                "index": 125,
+                "x": 5,
+                "y": 8,
+                "rank": 10,
+                "pv": 9,
+                "count": 10,
+                "depth": 12,
+                "score": -214,
+                "winRate": 0.255403
+              }
+            ]
+          }
+        },
+        {
+          "boardSha256": "79fa88de0991b428dac4479c3085987c3b95eee39486d3ca3d58a3b763bc2b83",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 32,
+            "nodes": 63338,
+            "elapsed": 869,
+            "nps": 72886,
+            "evaluation": 271,
+            "mate": null,
+            "winRate": 0.794946,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.794946,
+              "evaluation": 271,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "boardSha256": "0e85523120a87bd353c7db48a7578b7eb8bc62ed160c08acb89d9da91612c7a5",
+          "sideToMove": 2,
+          "timeMs": 1000,
+          "multiPV": 1,
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 32,
+            "nodes": 102789,
+            "elapsed": 758,
+            "nps": 135605,
+            "evaluation": 907,
+            "mate": null,
+            "winRate": 0.989387,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.989387,
+              "evaluation": 907,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "stage": "route4",
+          "actor": 1,
+          "frame": 9,
+          "ply": 4,
+          "before": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 1,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 2,
+            "97": 2,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 1,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0,
+            "166": 0,
+            "167": 0,
+            "168": 0,
+            "169": 0,
+            "170": 0,
+            "171": 0,
+            "172": 0,
+            "173": 0,
+            "174": 0,
+            "175": 0,
+            "176": 0,
+            "177": 0,
+            "178": 0,
+            "179": 0,
+            "180": 0,
+            "181": 0,
+            "182": 0,
+            "183": 0,
+            "184": 0,
+            "185": 0,
+            "186": 0,
+            "187": 0,
+            "188": 0,
+            "189": 0,
+            "190": 0,
+            "191": 0,
+            "192": 0,
+            "193": 0,
+            "194": 0,
+            "195": 0,
+            "196": 0,
+            "197": 0,
+            "198": 0,
+            "199": 0,
+            "200": 0,
+            "201": 0,
+            "202": 0,
+            "203": 0,
+            "204": 0,
+            "205": 0,
+            "206": 0,
+            "207": 0,
+            "208": 0,
+            "209": 0,
+            "210": 0,
+            "211": 0,
+            "212": 0,
+            "213": 0,
+            "214": 0,
+            "215": 0,
+            "216": 0,
+            "217": 0,
+            "218": 0,
+            "219": 0,
+            "220": 0,
+            "221": 0,
+            "222": 0,
+            "223": 0,
+            "224": 0
+          },
+          "record": {
+            "format": "gomoku-opening",
+            "version": 1,
+            "rule": "taraguchi10",
+            "workflow": "copilot",
+            "initialBlackSeat": null,
+            "seed": null,
+            "events": [
+              {
+                "type": "start",
+                "initialBlackSeat": 1
+              },
+              {
+                "type": "stone",
+                "index": 112
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 97,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 80
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 96,
+                "automatic": true
+              }
+            ]
+          },
+          "event": {
+            "type": "decision",
+            "choice": "ten"
+          },
+          "label": "选择十打",
+          "loss": 0.27199399999999996,
+          "best": null,
+          "points": [],
+          "beforeRate": 0.491251,
+          "afterRate": 0.21925700000000004,
+          "note": "有限比较十打整组与平衡第五手；普通路线按后续选色权保守估计，保持/交换按同等近似处理。",
+          "choices": {
+            "keep": 0.491251,
+            "swap": 0.491251,
+            "ten": 0.21925700000000004
+          },
+          "choice": "keep"
+        },
+        {
+          "stage": "offer10",
+          "actor": 1,
+          "frame": 19,
+          "ply": 4,
+          "before": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 1,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 2,
+            "97": 2,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 1,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0,
+            "166": 0,
+            "167": 0,
+            "168": 0,
+            "169": 0,
+            "170": 0,
+            "171": 0,
+            "172": 0,
+            "173": 0,
+            "174": 0,
+            "175": 0,
+            "176": 0,
+            "177": 0,
+            "178": 0,
+            "179": 0,
+            "180": 0,
+            "181": 0,
+            "182": 0,
+            "183": 0,
+            "184": 0,
+            "185": 0,
+            "186": 0,
+            "187": 0,
+            "188": 0,
+            "189": 0,
+            "190": 0,
+            "191": 0,
+            "192": 0,
+            "193": 0,
+            "194": 0,
+            "195": 0,
+            "196": 0,
+            "197": 0,
+            "198": 0,
+            "199": 0,
+            "200": 0,
+            "201": 0,
+            "202": 0,
+            "203": 0,
+            "204": 0,
+            "205": 0,
+            "206": 0,
+            "207": 0,
+            "208": 0,
+            "209": 0,
+            "210": 0,
+            "211": 0,
+            "212": 0,
+            "213": 0,
+            "214": 0,
+            "215": 0,
+            "216": 0,
+            "217": 0,
+            "218": 0,
+            "219": 0,
+            "220": 0,
+            "221": 0,
+            "222": 0,
+            "223": 0,
+            "224": 0
+          },
+          "record": {
+            "format": "gomoku-opening",
+            "version": 1,
+            "rule": "taraguchi10",
+            "workflow": "copilot",
+            "initialBlackSeat": null,
+            "seed": null,
+            "events": [
+              {
+                "type": "start",
+                "initialBlackSeat": 1
+              },
+              {
+                "type": "stone",
+                "index": 112
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 97,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 80
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 96,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "ten"
+              }
+            ]
+          },
+          "event": {
+            "type": "offer",
+            "index": 126
+          },
+          "label": "十打整组提案",
+          "kind": "group",
+          "points": [
+            81,
+            95,
+            98,
+            111,
+            82,
+            66,
+            110,
+            94,
+            83,
+            125
+          ],
+          "loss": 0.19444099999999997,
+          "best": null,
+          "beforeRate": 0.20505399999999996,
+          "afterRate": 0.010612999999999984,
+          "note": "从黑方角度比较整组最弱候选；白方可选择对黑方最不利的一点。"
+        },
+        {
+          "stage": "choose",
+          "actor": 0,
+          "frame": 20,
+          "ply": 5,
+          "before": {
+            "0": 0,
+            "1": 0,
+            "2": 0,
+            "3": 0,
+            "4": 0,
+            "5": 0,
+            "6": 0,
+            "7": 0,
+            "8": 0,
+            "9": 0,
+            "10": 0,
+            "11": 0,
+            "12": 0,
+            "13": 0,
+            "14": 0,
+            "15": 0,
+            "16": 0,
+            "17": 0,
+            "18": 0,
+            "19": 0,
+            "20": 0,
+            "21": 0,
+            "22": 0,
+            "23": 0,
+            "24": 0,
+            "25": 0,
+            "26": 0,
+            "27": 0,
+            "28": 0,
+            "29": 0,
+            "30": 0,
+            "31": 0,
+            "32": 0,
+            "33": 0,
+            "34": 0,
+            "35": 0,
+            "36": 0,
+            "37": 0,
+            "38": 0,
+            "39": 0,
+            "40": 0,
+            "41": 0,
+            "42": 0,
+            "43": 0,
+            "44": 0,
+            "45": 0,
+            "46": 0,
+            "47": 0,
+            "48": 0,
+            "49": 0,
+            "50": 0,
+            "51": 0,
+            "52": 0,
+            "53": 0,
+            "54": 0,
+            "55": 0,
+            "56": 0,
+            "57": 0,
+            "58": 0,
+            "59": 0,
+            "60": 0,
+            "61": 0,
+            "62": 0,
+            "63": 0,
+            "64": 0,
+            "65": 0,
+            "66": 0,
+            "67": 0,
+            "68": 0,
+            "69": 0,
+            "70": 0,
+            "71": 0,
+            "72": 0,
+            "73": 0,
+            "74": 0,
+            "75": 0,
+            "76": 0,
+            "77": 0,
+            "78": 0,
+            "79": 0,
+            "80": 1,
+            "81": 0,
+            "82": 0,
+            "83": 0,
+            "84": 0,
+            "85": 0,
+            "86": 0,
+            "87": 0,
+            "88": 0,
+            "89": 0,
+            "90": 0,
+            "91": 0,
+            "92": 0,
+            "93": 0,
+            "94": 0,
+            "95": 0,
+            "96": 2,
+            "97": 2,
+            "98": 0,
+            "99": 0,
+            "100": 0,
+            "101": 0,
+            "102": 0,
+            "103": 0,
+            "104": 0,
+            "105": 0,
+            "106": 0,
+            "107": 0,
+            "108": 0,
+            "109": 0,
+            "110": 0,
+            "111": 0,
+            "112": 1,
+            "113": 0,
+            "114": 0,
+            "115": 0,
+            "116": 0,
+            "117": 0,
+            "118": 0,
+            "119": 0,
+            "120": 0,
+            "121": 0,
+            "122": 0,
+            "123": 0,
+            "124": 0,
+            "125": 0,
+            "126": 0,
+            "127": 0,
+            "128": 0,
+            "129": 0,
+            "130": 0,
+            "131": 0,
+            "132": 0,
+            "133": 0,
+            "134": 0,
+            "135": 0,
+            "136": 0,
+            "137": 0,
+            "138": 0,
+            "139": 0,
+            "140": 0,
+            "141": 0,
+            "142": 0,
+            "143": 0,
+            "144": 0,
+            "145": 0,
+            "146": 0,
+            "147": 0,
+            "148": 0,
+            "149": 0,
+            "150": 0,
+            "151": 0,
+            "152": 0,
+            "153": 0,
+            "154": 0,
+            "155": 0,
+            "156": 0,
+            "157": 0,
+            "158": 0,
+            "159": 0,
+            "160": 0,
+            "161": 0,
+            "162": 0,
+            "163": 0,
+            "164": 0,
+            "165": 0,
+            "166": 0,
+            "167": 0,
+            "168": 0,
+            "169": 0,
+            "170": 0,
+            "171": 0,
+            "172": 0,
+            "173": 0,
+            "174": 0,
+            "175": 0,
+            "176": 0,
+            "177": 0,
+            "178": 0,
+            "179": 0,
+            "180": 0,
+            "181": 0,
+            "182": 0,
+            "183": 0,
+            "184": 0,
+            "185": 0,
+            "186": 0,
+            "187": 0,
+            "188": 0,
+            "189": 0,
+            "190": 0,
+            "191": 0,
+            "192": 0,
+            "193": 0,
+            "194": 0,
+            "195": 0,
+            "196": 0,
+            "197": 0,
+            "198": 0,
+            "199": 0,
+            "200": 0,
+            "201": 0,
+            "202": 0,
+            "203": 0,
+            "204": 0,
+            "205": 0,
+            "206": 0,
+            "207": 0,
+            "208": 0,
+            "209": 0,
+            "210": 0,
+            "211": 0,
+            "212": 0,
+            "213": 0,
+            "214": 0,
+            "215": 0,
+            "216": 0,
+            "217": 0,
+            "218": 0,
+            "219": 0,
+            "220": 0,
+            "221": 0,
+            "222": 0,
+            "223": 0,
+            "224": 0
+          },
+          "record": {
+            "format": "gomoku-opening",
+            "version": 1,
+            "rule": "taraguchi10",
+            "workflow": "copilot",
+            "initialBlackSeat": null,
+            "seed": null,
+            "events": [
+              {
+                "type": "start",
+                "initialBlackSeat": 1
+              },
+              {
+                "type": "stone",
+                "index": 112
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 97,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 80
+              },
+              {
+                "type": "decision",
+                "choice": "keep"
+              },
+              {
+                "type": "stone",
+                "index": 96,
+                "automatic": true
+              },
+              {
+                "type": "decision",
+                "choice": "ten"
+              },
+              {
+                "type": "offer",
+                "index": 98
+              },
+              {
+                "type": "offer",
+                "index": 81
+              },
+              {
+                "type": "offer",
+                "index": 95
+              },
+              {
+                "type": "offer",
+                "index": 110
+              },
+              {
+                "type": "offer",
+                "index": 66
+              },
+              {
+                "type": "offer",
+                "index": 83
+              },
+              {
+                "type": "offer",
+                "index": 94
+              },
+              {
+                "type": "offer",
+                "index": 82
+              },
+              {
+                "type": "offer",
+                "index": 111
+              },
+              {
+                "type": "offer",
+                "index": 126
+              }
+            ]
+          },
+          "event": {
+            "type": "select",
+            "index": 126,
+            "automatic": true
+          },
+          "label": "第 5 手 · 黑 G7",
+          "loss": 0,
+          "best": 126,
+          "points": [
+            126
+          ],
+          "beforeRate": 0.989387,
+          "afterRate": 0.989387,
+          "note": "从选点方（白方）角度逐一比较实际候选；候选不会成为多枚实子。"
+        }
+      ]
+    }
+  ],
+  "finished": "2026-10-11T01:27:38.318Z"
+}

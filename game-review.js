@@ -5,7 +5,7 @@ import { moveVerdict } from "./renju-rules.js";
 // Keep ownership and candidate choices in their original order. A proposed
 // fifth is an action, not a stone; the selected fifth is placed exactly once.
 export function reviewFrames(record) {
-  const frames = [], moves = [];
+  const frames = [], moves = [], openings = [];
   let rule = "freestyle", winner;
   if (record?.format === "gomoku-opening") {
     const final = replaySession(record); winner = final.winner; rule = final.rule;
@@ -14,13 +14,20 @@ export function reviewFrames(record) {
       label: label + (session.forbidden ? ` · ${session.forbidden}禁手（白胜）` : ""), winner: session.winner, forbidden: session.forbidden });
     frames.push(frame(record.seed ? "起始摆局" : "开局"));
     for (const event of record.events) {
-      const before = frame(""), stage = session.stage, color = session.color, actor = session.actor;
+      const before = frame(""), stage = session.stage, color = session.color, actor = session.actor, prefix = session.record();
       session.apply(event);
       const label = event.type === "stone" || event.type === "select" ? `第 ${session.moves.length} 手 · ${colorName(color)} ${coordinate(event.index)}`
         : event.type === "offer" ? `第五手候选 A${session.candidates.length} · ${coordinate(event.index)}`
           : event.type === "decision" ? event.choice === "swap" ? "交换黑白" : event.choice === "ten" ? "选择十打" : "保持执色"
             : event.type === "start" ? "确定开局角色" : "AI 接手";
       frames.push(frame(label));
+      if (["rif", "taraguchi10"].includes(rule) && !record.seed) {
+        const node = {stage,actor,frame:frames.length-1,ply:session.moves.length,before:before.board,record:prefix,event:{...event},label};
+        if(event.type==="decision" || event.type==="select" || event.type==="stone" && ["w4","b5"].includes(stage)) openings.push(node);
+        if(event.type==="stone" && stage==="b3") openings.push({...node,kind:"three",record:session.record(),label:"前三子布局"});
+        if(event.type==="offer" && session.stage==="choose") openings.push({...node,kind:"group",points:[...session.candidates],
+          record:{...prefix,events:session.events.slice(0,-session.candidates.length)},label:`${session.candidates.length===2?"两打":"十打"}整组提案`});
+      }
       if (event.type === "stone" && ["play", "w6"].includes(stage)) moves.push({ before: before.board, after: session.board.slice(), index: event.index, color, actor, ply: session.moves.length, frame: frames.length - 1, winner: session.winner });
     }
   } else {
@@ -35,7 +42,7 @@ export function reviewFrames(record) {
     }
   }
   if (!winner) throw new Error("对局结束后才可复盘");
-  return { frames, moves, rule, winner };
+  return { frames, moves, openings, rule, winner };
 }
 
 const aborted = signal => { if (signal?.aborted) throw new DOMException("复盘已取消", "AbortError"); };
@@ -62,7 +69,7 @@ export async function analyzeReview(review, search, { signal, timeMs = 500, onPr
   async function evaluate(board, color) {
     aborted(signal); const key = `${color}:${board.join("")}`;
     if (!cache.has(key)) {
-      const result = await search({ board: board.slice(), sideToMove: color, timeMs, allowSetup: true });
+      const result = await search({ board: board.slice(), sideToMove: color, timeMs, allowSetup: true, rule: review.rule });
       aborted(signal); cache.set(key, evaluatedMove(result, board, color, review.rule));
     }
     return cache.get(key);

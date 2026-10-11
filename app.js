@@ -11,6 +11,8 @@ import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
 import { setupAppUpdates } from "./app-update.js";
 import { createScheduledTask } from "./ui-scheduler.js";
+import { createGameArchive, queueArchiveRestore, takeArchiveRestore } from "./game-archive.js";
+import { APP_VERSION } from "./app-release.js";
 
 const boardSvg = document.querySelector("#boardSvg");
 const view = createBoardView(boardSvg);
@@ -58,6 +60,8 @@ let saveWarningShown = false;
 let setupPosition = null;
 let displayModes;
 let enhancements;
+let paused=false;
+const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"freestyle"});
 const positionAnalysis = new PositionAnalysis();
 const analysisView = createAnalysisView(document.querySelector("#positionAnalysis"));
 const statsUpdates = createScheduledTask(updateSearchInfo, 100);
@@ -81,7 +85,12 @@ function persistGame() {
   if (!saved && !saveWarningShown) { notify("此局暂未保存，关闭页面可能丢失；仍可导出棋谱", true); saveWarningShown = true; }
   if (saved) saveWarningShown = false;
   persistAnalysis();
+  archiveCurrent();
   return saved;
+}
+function archiveCurrent() {
+  const warned=archive.failed;
+  if(!archive.capture(getRecord(),{version:APP_VERSION,timeMs:Number(timeSelect.value)})&&!warned)notify("近期对局暂未保存，可先导出棋谱",true);
 }
 
 function getRecord() { return createRecord(moves, playerColor, setupPosition); }
@@ -111,6 +120,7 @@ try {
 positionAnalysis.setPosition(moves, playerColor, { reset: true, positionKey: positionKey() });
 try { positionAnalysis.load(localStorage); } catch { /* optional derived data */ }
 positionAnalysis.finish(winner);
+archive.resume(getRecord());archiveCurrent();
 
 const engine = new GomokuEngine({ onState: event => {
   state = event.state;
@@ -128,7 +138,7 @@ const engine = new GomokuEngine({ onState: event => {
   statsUpdates.schedule();
 } });
 
-function canInteract() { return state === "ready" && !thinking && !recommending && !modalOpen && !winner && currentColor === playerColor; }
+function canInteract() { return !paused && state === "ready" && !thinking && !recommending && !modalOpen && !winner && currentColor === playerColor; }
 
 function render() {
   const interactive = canInteract();
@@ -136,6 +146,7 @@ function render() {
     answerIndex: lastMove >= 0 && board[lastMove] === 3 - playerColor ? lastMove : -1 });
   let text = "轮到你落子";
   if (winner) text = winner === playerColor ? "你赢了" : winner === 3 ? "平局" : "AI 获胜";
+  else if(paused)text="思考已暂停 · 可继续或悔棋";
   else if (state === "error") text = "AI 暂不可用，请重试或悔棋";
   else if (state === "loading" || state === "idle") text = Number.isFinite(loadingProgress)
     ? `正在加载 AI · ${Math.round(loadingProgress * 100)}%` : "正在准备 AI";
@@ -203,7 +214,7 @@ async function syncPonder() {
 }
 
 async function prepareEngine() {
-  if (modalOpen || winner) return;
+  if (modalOpen || winner || paused) return;
   try {
     await engine.init();
     if (modalOpen) return;
@@ -253,7 +264,7 @@ function hideRecommendations() {
 }
 
 async function startSearch() {
-  if (thinking || winner || modalOpen || currentColor === playerColor) return;
+  if (thinking || winner || modalOpen || paused || currentColor === playerColor) return;
   engine.stopPonder();
   const id = ++requestId;
   positionAnalysis.begin(id, 3 - playerColor);
@@ -332,6 +343,7 @@ function undo() {
   if (pendingIndex >= 0 && !thinking && !recommending) { pendingIndex = -1; render(); return; }
   const saved = rounds.pop();
   if (!saved) return;
+  paused=false;
   invalidateSearch();
   lastMove = restore(board, saved);
   moves.length = saved.moveCount;
@@ -344,7 +356,8 @@ function undo() {
   void prepareEngine();
 }
 
-function restart() {
+function restart({archivePrevious=true}={}) {
+  if(archivePrevious)archiveCurrent();archive.begin();paused=false;
   invalidateSearch();
   board.fill(0);
   rounds.length = 0;
@@ -398,9 +411,10 @@ timeSelect.addEventListener("change", () => {
   try { localStorage.setItem("gomoku-thinking-ms", timeSelect.value); } catch { /* optional preference */ }
 });
 function changePlayerColor(color) {
+  archiveCurrent();
   playerColor = color; colorSelect.value = String(color);
   try { localStorage.setItem("gomoku-player-color", String(color)); } catch { /* optional preference */ }
-  restart();
+  restart({archivePrevious:false});
 }
 colorSelect.addEventListener("change", () => changePlayerColor(Number(colorSelect.value)));
 ponderToggle.addEventListener("change", () => {
@@ -426,8 +440,9 @@ document.addEventListener("keydown", event => {
   }
 });
 
-function applyRecord(record) {
+function applyRecord(record, archiveId=null) {
   const game = replayRecord(record);
+  archiveCurrent();archiveId?archive.use(archiveId):archive.begin();paused=false;
   invalidateSearch();
   board.set(game.board); moves.splice(0, moves.length, ...game.record.moves);
   rounds.splice(0, rounds.length, ...game.rounds);
@@ -460,25 +475,36 @@ displayModes = setupDisplayModes({
 });
 
 enhancements = setupGameEnhancements({
-  getPosition: () => ({ board, currentColor, playerColor, winner, state, ruleLabel: "无禁手" }),
+  getPosition: () => ({ board, currentColor, playerColor, winner, state, busy:thinking,paused,ruleLabel: "无禁手" }),
   getRecord, applyRecord, newGame: restart,
+  archive,resumeRecord:entry=>{
+    if(entry.record.format==="gomoku-studio"){applyRecord(entry.record,entry.id);return true;}
+    archiveCurrent();location.assign(queueArchiveRestore(localStorage,entry));return false;
+  },
+  pauseSearch:()=>{if(!thinking)return;invalidateSearch();paused=true;persistGame();render();},
+  resumeSearch:()=>{paused=false;render();void prepareEngine();},
   onWorkspace: open => {
     modalOpen = open;
     if (open) {
       requestId++; positionAnalysis.cancel(); thinking = recommending = false;
       recommendations = []; pendingIndex = hoverIndex = -1; stopClock(); engine.cancel();
     }
+    if(!open && engine.rule!=="freestyle"){engine.reset();engine.rule="freestyle";}
     render(); if (!open) void prepareEngine();
   },
   cancelSearch: () => engine.cancel(),
   search: async options => {
+    const rule=options.rule??"freestyle";
+    if((engine.rule==="freestyle")!==(rule==="freestyle"))engine.reset();engine.rule=rule;
+    const id=++requestId;
     await engine.init();
-    if (!modalOpen) throw new DOMException("复盘已取消", "AbortError");
-    return engine.search({ ...options, requestId: ++requestId });
+    if (!modalOpen || id!==requestId) throw new DOMException("复盘已取消", "AbortError");
+    return engine.search({ ...options, requestId: id });
   }
 });
 
 setupAppUpdates();
+const transferred=takeArchiveRestore(localStorage,"gomoku-studio");if(transferred)applyRecord(transferred.record,transferred.id);
 
 render();
 void prepareEngine();
