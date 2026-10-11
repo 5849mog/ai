@@ -1,0 +1,880 @@
+{
+  "version": 1,
+  "started": "2026-10-11T13:52:02.765Z",
+  "runtime": "v24.19.0",
+  "budgetMs": 6000,
+  "replyBudgetMs": 5000,
+  "method": "Same frozen positions, cleared hash before each v37/current decision and each independent opponent search. Reply estimates are diagnostics, not human win rates or a match result.",
+  "sources": {
+    "adaptive-search.js": "821ba83b66ba3508bbb9fc2b918827924a520fd224805ea479e353ecf80973d9",
+    "adaptive-opening.js": "89791ecb0f603f0493bf589c8f2d6d157bf76743ebffd38183197c8a43d62ad3",
+    "scripts/adaptive-search-v37.fixture.js": "942df6f03d4b99844bdef7d593887852a71d3969c7d64a00ab8457ca8d3a6b26",
+    "scripts/adaptive-opening-v37.fixture.js": "4446858f90521e211a2a58a14aa2b5b142d2afe84d3d0bffc64f150d4a86fcd1",
+    "scripts/adaptive-defense-eval.js": "5ae822f1d6325f24ff6039dd67b1e763d5c5613b1c7f981d45acab62eb2e95ac"
+  },
+  "cases": [
+    {
+      "name": "rif-seat0-keep",
+      "kind": "ordinary",
+      "policy": "v37",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "select",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 82
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 111
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 93
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          }
+        ]
+      },
+      "result": {
+        "depth": 20,
+        "selectiveDepth": 36,
+        "nodes": 226626,
+        "elapsed": 5630.2211879999995,
+        "nps": 67168,
+        "evaluation": 0,
+        "mate": null,
+        "winRate": 0.5,
+        "assessment": {
+          "depth": 20,
+          "winRate": 0.5,
+          "evaluation": 0,
+          "mate": null,
+          "bestIndex": 63
+        },
+        "index": 63,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5630.2211879999995,
+          "status": "有限复核",
+          "searches": 5,
+          "candidateChecks": 2,
+          "candidates": [
+            {
+              "index": 63,
+              "rate": 0.509999,
+              "reply": 126
+            },
+            {
+              "index": 127,
+              "rate": null,
+              "reply": 51
+            }
+          ]
+        }
+      },
+      "reply": {
+        "depth": 17,
+        "selectiveDepth": 48,
+        "nodes": 165047,
+        "elapsed": 2554,
+        "nps": 64648,
+        "evaluation": -50,
+        "mate": null,
+        "winRate": 0.437824,
+        "assessment": {
+          "depth": 17,
+          "winRate": 0.437824,
+          "evaluation": -50,
+          "mate": null,
+          "bestIndex": 126
+        },
+        "index": 126,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "moverRate": 0.562176
+    },
+    {
+      "name": "rif-seat0-keep",
+      "kind": "ordinary",
+      "policy": "v39",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "select",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 82
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 111
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 93
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          }
+        ]
+      },
+      "result": {
+        "depth": 21,
+        "selectiveDepth": 28,
+        "nodes": 218405,
+        "elapsed": 5935.475689000001,
+        "nps": 64655,
+        "evaluation": 63,
+        "mate": null,
+        "winRate": 0.578105,
+        "assessment": {
+          "depth": 21,
+          "winRate": 0.578105,
+          "evaluation": 63,
+          "mate": null,
+          "bestIndex": 63
+        },
+        "index": 63,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5935.475689000001,
+          "status": "预算内完成搜索",
+          "searches": 2,
+          "strategy": "root-continuation",
+          "candidateChecks": 0,
+          "probeIndex": 63,
+          "probeDepth": 15,
+          "finalDepth": 21,
+          "rootBudgetMs": 5978
+        }
+      },
+      "reply": {
+        "depth": 17,
+        "selectiveDepth": 48,
+        "nodes": 165047,
+        "elapsed": 2532,
+        "nps": 65184,
+        "evaluation": -50,
+        "mate": null,
+        "winRate": 0.437824,
+        "assessment": {
+          "depth": 17,
+          "winRate": 0.437824,
+          "evaluation": -50,
+          "mate": null,
+          "bestIndex": 126
+        },
+        "index": 126,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "moverRate": 0.562176
+    },
+    {
+      "name": "taraguchi-seat0-normal-mixed",
+      "kind": "ordinary",
+      "policy": "v37",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 66
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 126
+          },
+          {
+            "type": "stone",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          },
+          {
+            "type": "stone",
+            "index": 111,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 109
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          }
+        ]
+      },
+      "result": {
+        "depth": 17,
+        "selectiveDepth": 20,
+        "nodes": 13466,
+        "elapsed": 5921.0811969999995,
+        "nps": 82109,
+        "evaluation": -61,
+        "mate": null,
+        "winRate": 0.424336,
+        "assessment": {
+          "depth": 17,
+          "winRate": 0.424336,
+          "evaluation": -61,
+          "mate": null,
+          "bestIndex": 114
+        },
+        "index": 114,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5921.0811969999995,
+          "status": "复核后调整",
+          "searches": 5,
+          "candidateChecks": 2,
+          "candidates": [
+            {
+              "index": 114,
+              "rate": 0.42067600000000005,
+              "reply": 113
+            },
+            {
+              "index": 98,
+              "rate": 0.27788,
+              "reply": 114
+            }
+          ]
+        }
+      },
+      "reply": {
+        "depth": 17,
+        "selectiveDepth": 37,
+        "nodes": 309547,
+        "elapsed": 4919,
+        "nps": 62928,
+        "evaluation": 194,
+        "mate": null,
+        "winRate": 0.725119,
+        "assessment": {
+          "depth": 17,
+          "winRate": 0.725119,
+          "evaluation": 194,
+          "mate": null,
+          "bestIndex": 113
+        },
+        "index": 113,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "moverRate": 0.27488100000000004
+    },
+    {
+      "name": "taraguchi-seat0-normal-mixed",
+      "kind": "ordinary",
+      "policy": "v39",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 66
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 126
+          },
+          {
+            "type": "stone",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          },
+          {
+            "type": "stone",
+            "index": 111,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 109
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          }
+        ]
+      },
+      "result": {
+        "depth": 15,
+        "selectiveDepth": 21,
+        "nodes": 27468,
+        "elapsed": 5929.869333000002,
+        "nps": 67158,
+        "evaluation": -64,
+        "mate": null,
+        "winRate": 0.420676,
+        "assessment": {
+          "depth": 15,
+          "winRate": 0.420676,
+          "evaluation": -64,
+          "mate": null,
+          "bestIndex": 114
+        },
+        "index": 114,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5929.869333000002,
+          "status": "复核后调整",
+          "searches": 2,
+          "strategy": "root-continuation",
+          "candidateChecks": 0,
+          "probeIndex": 98,
+          "probeDepth": 11,
+          "finalDepth": 15,
+          "rootBudgetMs": 5941
+        }
+      },
+      "reply": {
+        "depth": 16,
+        "selectiveDepth": 30,
+        "nodes": 44022,
+        "elapsed": 887,
+        "nps": 49630,
+        "evaluation": 108,
+        "mate": null,
+        "winRate": 0.631812,
+        "assessment": {
+          "depth": 16,
+          "winRate": 0.631812,
+          "evaluation": 108,
+          "mate": null,
+          "bestIndex": 113
+        },
+        "index": 113,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "moverRate": 0.36818799999999996
+    },
+    {
+      "name": "taraguchi-b5",
+      "kind": "opening",
+      "policy": "v37",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          }
+        ]
+      },
+      "result": {
+        "points": [
+          94
+        ],
+        "result": {
+          "depth": 20,
+          "selectiveDepth": 29,
+          "nodes": 68019,
+          "elapsed": 2600.764581000003,
+          "nps": 61278,
+          "evaluation": 2,
+          "mate": null,
+          "winRate": 0.5025,
+          "assessment": {
+            "depth": 20,
+            "winRate": 0.5025,
+            "evaluation": 2,
+            "mate": null,
+            "bestIndex": 110
+          },
+          "index": 94,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 2600.764581000003,
+            "status": "开局建议已调整",
+            "searches": 2,
+            "provisional": true
+          }
+        },
+        "note": "落子后对方仍可换色，使用平衡搜索避免把单方优势交给对方。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 2600.764581000003,
+          "status": "开局建议已调整",
+          "searches": 2,
+          "provisional": true
+        }
+      },
+      "reply": {
+        "depth": 18,
+        "selectiveDepth": 22,
+        "nodes": 83946,
+        "elapsed": 1303,
+        "nps": 64425,
+        "evaluation": 50,
+        "mate": null,
+        "winRate": 0.562177,
+        "assessment": {
+          "depth": 18,
+          "winRate": 0.562177,
+          "evaluation": 50,
+          "mate": null,
+          "bestIndex": 66
+        },
+        "index": 66,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "swapFloor": 0.43782299999999996
+    },
+    {
+      "name": "taraguchi-b5",
+      "kind": "opening",
+      "policy": "v39",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          }
+        ]
+      },
+      "result": {
+        "points": [
+          66,
+          111
+        ],
+        "result": {
+          "depth": 17,
+          "selectiveDepth": 25,
+          "nodes": 19233,
+          "elapsed": 5517.787549000001,
+          "nps": 53723,
+          "evaluation": 28,
+          "mate": null,
+          "winRate": 0.534943,
+          "assessment": {
+            "depth": 17,
+            "winRate": 0.534943,
+            "evaluation": 28,
+            "mate": null,
+            "bestIndex": 66
+          },
+          "index": 66,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 5517.787549000001,
+            "status": "第五手选色已复核",
+            "searches": 6,
+            "blackFloor": 0.491251,
+            "candidateChecks": 3,
+            "provisional": true
+          }
+        },
+        "floor": 0.491251,
+        "checks": 3,
+        "values": [
+          {
+            "index": 66,
+            "rate": 0.491251,
+            "floor": 0.491251
+          },
+          {
+            "index": 111,
+            "rate": 0.48625300000000005,
+            "floor": 0.48625300000000005
+          },
+          {
+            "index": 110,
+            "rate": 0.467546,
+            "floor": 0.467546
+          }
+        ],
+        "note": "比较落第五手后对方选择黑白的结果，优先保留较强的最弱一方。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5517.787549000001,
+          "status": "第五手选色已复核",
+          "searches": 6,
+          "blackFloor": 0.491251,
+          "candidateChecks": 3,
+          "provisional": true
+        }
+      },
+      "reply": {
+        "depth": 22,
+        "selectiveDepth": 32,
+        "nodes": 160358,
+        "elapsed": 2656,
+        "nps": 60375,
+        "evaluation": 16,
+        "mate": null,
+        "winRate": 0.519989,
+        "assessment": {
+          "depth": 22,
+          "winRate": 0.519989,
+          "evaluation": 16,
+          "mate": null,
+          "bestIndex": 94
+        },
+        "index": 94,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      },
+      "swapFloor": 0.48001099999999997
+    }
+  ],
+  "finished": "2026-10-11T13:53:04.923Z"
+}

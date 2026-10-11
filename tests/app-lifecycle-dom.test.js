@@ -398,16 +398,19 @@ for(const page of ['index.html','renju.html'])test(`${page}: selecting adaptive 
   const job=f.workers.at(-1).searches.at(-1);assert.equal(job.timeMs,1000);assert.equal(job.multiPV,2);assert.equal(document.querySelectorAll('dialog[open]').length,0);
  }finally{f.close();}
 });
-test('adaptive opponent reply statistics cannot overwrite the actual rate, and Undo drops a late reply',async()=>{
- const f=await environment('index.html',{holdSearch:true,timeMs:'adaptive'});
- try {await f.load();clickPoint(f,112);await settled();const w=f.workers.at(-1);
-  for(let pass=0;pass<2;pass++){const q=w.searches.at(-1),allowed=q.allowedMoves,index=113;
-   w.emit({type:'move',requestId:q.requestId,result:{index,x:8,y:7,assessment:{depth:15,bestIndex:index,winRate:.55,mate:null},recommendations:allowed.slice(0,q.multiPV).map(index=>({index,depth:15,winRate:.55}))}});await settled();}
-  const child=w.searches.at(-1);assert.equal(child.sideToMove,1);assert.equal(child.board[113],2);
+test('Taraguchi hypothetical fifth statistics cannot overwrite the actual rate, and Undo drops a late reply',async()=>{
+ const s=new OpeningSession({rule:'taraguchi10',workflow:'copilot',initialBlackSeat:0});
+ for(const index of [112,97,96,128]){s.apply({type:'stone',index});if(s.decision)s.apply({type:'decision',choice:'keep'});}
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:1},holdSearch:true,timeMs:'adaptive'});
+ try {await f.load();await settled();const w=f.workers.at(-1);
+  for(let pass=0;pass<3;pass++){const q=w.searches.at(-1),index=q.allowedMoves[0];
+   w.emit({type:'move',requestId:q.requestId,result:{index,x:index%15,y:Math.floor(index/15),assessment:{depth:15,bestIndex:index,winRate:.55,mate:null}}});await settled();}
+  const child=w.searches.at(-1);assert.equal(child.sideToMove,2);assert.equal(child.board.filter(Boolean).length,5);
   const before=document.querySelector('#simpleWinRate').textContent;
-  w.emit({type:'stats',requestId:child.requestId,sideToMove:1,phase:'search',stats:{assessment:{depth:40,bestIndex:114,winRate:0,mate:'-M20'}}});f.advance(500);await settled();
+  w.emit({type:'stats',requestId:child.requestId,sideToMove:2,phase:'search',stats:{assessment:{depth:40,bestIndex:114,winRate:1,mate:'+M20'}}});f.advance(500);await settled();
   assert.equal(document.querySelector('#simpleWinRate').textContent,before);document.querySelector('#undoButton').click();await settled();
-  w.onmessage({data:{type:'move',requestId:child.requestId,result:{index:114,x:9,y:7}}});await settled();assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,0);
+  const count=document.querySelectorAll('#boardSvg [data-stone]').length;
+  w.onmessage({data:{type:'move',requestId:child.requestId,result:{index:114,x:9,y:7}}});await settled();assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,count);
  }finally{f.close();}
 });
 test('adaptive own RIF exchange advice remains a user choice and can be paused before any hypothetical result applies',async()=>{
