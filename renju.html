@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="./styles.css?v=21" />
     <link rel="stylesheet" href="./game-modes.css?v=4" />
     <link rel="stylesheet" href="./opening.css?v=3" />
-    <link rel="stylesheet" href="./enhancements.css?v=33" />
+    <link rel="stylesheet" href="./enhancements.css?v=36" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -58,7 +58,7 @@
             <div class="game-settings">
               <section class="opening-flow" id="openingFlow" aria-label="本局操作"></section>
               <label class="color-control" for="colorSelect" title="只记录棋局可切换分析视角，不改变双方实际执色"><span id="perspectiveLabel">分析视角</span><select id="colorSelect"><option value="1">看黑棋</option><option value="2">看白棋</option></select></label>
-              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option></select></label>
+              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option><option value="30000">深度思考 · 最多 30 秒</option></select></label>
               <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
             </div>
             <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于当前视角">

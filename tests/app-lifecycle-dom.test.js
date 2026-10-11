@@ -7,10 +7,12 @@ import { distinctCandidates } from '../renju-rules.js';
 import { createReviewUi } from '../review-ui.js';
 import { createOpeningBook } from '../opening-book.js';
 import { RIF_OPENINGS } from '../rif-opening-pool.js';
+import { createGameArchive, ARCHIVE_KEY } from '../game-archive.js';
+import { RECORD_KEY, createRecord } from '../game-record.js';
 
 const flush = () => new Promise(done => setImmediate(done));
 let fixtureId = 0;
-async function environment(page, { saved = null, failSearch = false, blockSave = false, completeAssessment = false, holdSearch = false } = {}) {
+async function environment(page, { saved = null, failSearch = false, blockSave = false, completeAssessment = false, holdSearch = false, timeMs = null } = {}) {
   const html = await readFile(new URL('../' + page, import.meta.url), 'utf8');
   const dom = new JSDOM(html, { url: `https://example.com/ai/${page}?view=simple`, pretendToBeVisual: true });
   dom.window.HTMLCanvasElement.prototype.getContext = () => ({});
@@ -24,7 +26,7 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
     constructor() { workers.push(this); this.dead = false; }
     terminate() { this.dead = true; }
     postMessage(data) {
-      this.last = data;
+      this.last = data;if(data.type==='init')this.initMessage=data;
       if (data.type === 'init') queueMicrotask(() => this.emit({ type: 'ready' }));
       if (data.type === 'ponder') this.ponderJob = data;
       if (data.type === 'search') queueMicrotask(() => {
@@ -45,6 +47,7 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
   for (const [key, value] of Object.entries(values)) { original.set(key, Object.getOwnPropertyDescriptor(globalThis, key)); Object.defineProperty(globalThis, key, { value, configurable: true, writable: true }); }
   const storageKey = `gomoku-opening:${new URL('../', import.meta.url).pathname}:v1`;
   if (saved) localStorage.setItem(storageKey, JSON.stringify(saved));
+  if(timeMs)localStorage.setItem('gomoku-thinking-ms',String(timeMs));
   if (blockSave) dom.window.Storage.prototype.setItem = () => { throw new Error('quota exceeded'); };
   const advance = ms => {
     const end = time + ms; for (;;) {
@@ -301,4 +304,81 @@ test('RIF opponent opening input is preserved and does not activate the automati
     assert.match(document.querySelector('#simpleOpeningFlow').textContent, /录入对方前三子/);
     assert.equal(f.workers.at(-1).last.type, 'init');
   } finally { f.close(); }
+});
+
+const byText = text => [...document.querySelectorAll('button')].find(b=>b.textContent===text);
+test('freestyle deep mode uses 30 seconds, pauses without placing a move, and ignores a late result before continuing',async()=>{
+  const f=await environment('index.html',{holdSearch:true,timeMs:30000});
+  try {
+    await f.load();clickPoint(f,112);await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.equal(job.timeMs,30000);
+    assert.equal(byText('暂停思考').hidden,false);byText('暂停思考').click();await settled();
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,1);assert.equal(byText('继续思考').hidden,false);
+    old.onmessage({data:{type:'move',requestId:job.requestId,result:{index:113,x:8,y:7}}});await settled();assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,1);
+    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.notEqual(next,old);assert.equal(search.timeMs,30000);
+    next.emit({type:'move',requestId:search.requestId,result:{index:113,x:8,y:7,assessment:{depth:15,bestIndex:113,winRate:.55,mate:null}}});await settled();
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,2);assert.equal(byText('继续思考').hidden,true);
+    document.querySelector('#simpleRestart').click();await settled();const entries=JSON.parse(localStorage.getItem(ARCHIVE_KEY)).entries;assert.equal(entries.length,1);assert.deepEqual(entries[0].record.moves,[112,113]);
+    assert.equal(entries[0].meta.timeMs,30000);assert.equal(JSON.parse(localStorage.getItem(RECORD_KEY)).moves.length,0);
+  }finally{f.close();}
+});
+for(const rule of ['freestyle','renju','rif','taraguchi10']) test(`${rule}: deep copilot pause preserves seed, continuation uses 30 seconds and New drops late answers`,async()=>{
+  const board=new Uint8Array(225);board[112]=1;const s=new OpeningSession({rule,workflow:'copilot',initialBlackSeat:1,seed:{board,sideToMove:2}});
+  const f=await environment('renju.html',{saved:{record:s.record(),perspective:2},holdSearch:true,timeMs:30000});
+  try {
+    await f.load();await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.equal(job.timeMs,30000);assert.equal(job.sideToMove,2);
+    byText('暂停思考').click();await settled();assert.equal(savedSession(f).events.length,0);assert.equal(savedSession(f).board[112],1);
+    old.onmessage({data:{type:'move',requestId:job.requestId,result:{index:113,x:8,y:7}}});await settled();assert.equal(savedSession(f).events.length,0);
+    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.equal(search.timeMs,30000);
+    document.querySelector('#simpleRestart').click();await settled();next.onmessage({data:{type:'move',requestId:search.requestId,result:{index:113,x:8,y:7}}});await settled();
+    assert.equal(savedSession(f).stage,'setup');assert.equal(savedSession(f).moves.length,0);assert.equal(byText('继续思考').hidden,true);
+  }finally{f.close();}
+});
+test('history can restore a partial RIF proposal from a different live rule without losing the live game',async()=>{
+  const old=new OpeningSession({rule:'rif',workflow:'copilot',initialBlackSeat:1});
+  for(const index of [112,97,96,128]){old.apply({type:'stone',index});if(old.decision)old.apply({type:'decision',choice:'keep'});}
+  old.apply({type:'offer',index:0});
+  const board=new Uint8Array(225);board[112]=1;const current=new OpeningSession({rule:'taraguchi10',workflow:'copilot',initialBlackSeat:0,seed:{board,sideToMove:2}});
+  const f=await environment('renju.html',{saved:{record:current.record(),perspective:1},completeAssessment:true});
+  try {
+    const archive=createGameArchive({storage:localStorage,page:'opening'});archive.begin();archive.capture(old.record());const id=archive.list()[0].id;
+    await f.load();await settled();document.querySelector('[aria-controls="simpleQuickTools"]').click();document.querySelector('[data-archive]').click();
+    assert.equal(document.querySelector('.app-shell').hidden,true);document.querySelector(`[data-archive-id="${id}"] button`).click();await settled();
+    const restored=savedSession(f);assert.deepEqual(restored.record(),old.record());assert.equal(restored.stage,'offer');assert.equal(restored.playerColor,2);
+    const entries=JSON.parse(localStorage.getItem(ARCHIVE_KEY)).entries;assert.equal(entries.length,2);assert.ok(entries.some(e=>e.record.rule==='taraguchi10'));
+    assert.equal(document.querySelector('.app-shell').hidden,false);assert.equal(document.querySelectorAll('#boardSvg [data-proposal]').length,1);
+  }finally{f.close();}
+});
+
+for(const page of ['index.html','renju.html']) test(`${page}: reviewing archived games selects their actual model and restores the untouched live game`,async()=>{
+  const board=new Uint8Array(225);board[112]=1;
+  const current=new OpeningSession({rule:'rif',workflow:'copilot',initialBlackSeat:0,seed:{board,sideToMove:2}});
+  const f=await environment(page,{saved:page==='renju.html'?{record:current.record(),perspective:1}:null,holdSearch:true});
+  try {
+    let record;
+    if(page==='renju.html')record=createRecord([0,15,1,16,2,17,3,18,4],1);
+    else {
+      const old=new OpeningSession({rule:'rif',workflow:'follow',initialBlackSeat:1,seed:{board,sideToMove:2}});
+      while(!old.winner)old.apply({type:'stone',index:old.allowedMoves({safe:true})[0]});record=old.record();
+    }
+    const archive=createGameArchive({storage:localStorage,page:page==='renju.html'?'opening':'freestyle'});archive.begin();archive.capture(record);const id=archive.list()[0].id;
+    await f.load();await settled();const before=page==='renju.html'?savedSession(f).record():JSON.parse(localStorage.getItem(RECORD_KEY));
+    document.querySelector('[data-archive]').click();document.querySelector(`[data-archive-id="${id}"] button`).click();await settled();
+    const search=f.workers.at(-1).searches.at(-1);assert.equal(search.rule,page==='renju.html'?'freestyle':'rif');
+    assert.equal(document.querySelector('.app-shell').hidden,true);byText('返回结果').click();await settled();
+    assert.equal(f.workers.at(-1).initMessage.rule,page==='renju.html'?'rif':'freestyle');
+    assert.deepEqual(page==='renju.html'?savedSession(f).record():JSON.parse(localStorage.getItem(RECORD_KEY)),before);
+    assert.equal(document.querySelector('.app-shell').hidden,false);
+  }finally{f.close();}
+});
+test('restoring archived partial own RIF opening retains the exact planned third stone',async()=>{
+  const old=new OpeningSession({rule:'rif',workflow:'copilot',initialBlackSeat:0});
+  const book=createOpeningBook({pool:RIF_OPENINGS,random:()=>.8}),plan=book.plan(old);
+  for(const index of plan.points.slice(0,2))old.apply({type:'stone',index},{automatic:true});
+  const current=new OpeningSession({rule:'rif',workflow:'copilot',initialBlackSeat:null});
+  const f=await environment('renju.html',{saved:{record:current.record(),perspective:1}});
+  try {
+    const archive=createGameArchive({storage:localStorage,page:'opening'});archive.begin();archive.capture(old.record(),{openingPlan:book.snapshot(old)});const id=archive.list()[0].id;
+    await f.load();document.querySelector('[data-archive]').click();document.querySelector(`[data-archive-id="${id}"] button`).click();await settled();
+    assert.deepEqual(savedSession(f).moves,plan.points);assert.equal(savedSession(f).stage,'swap3');assert.equal(f.workers.length,0);
+  }finally{f.close();}
 });

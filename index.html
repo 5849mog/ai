@@ -9,7 +9,7 @@
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=21" />
     <link rel="stylesheet" href="./game-modes.css?v=4" />
-    <link rel="stylesheet" href="./enhancements.css?v=33" />
+    <link rel="stylesheet" href="./enhancements.css?v=36" />
   </head>
   <body>
     <div class="app-shell">
@@ -55,7 +55,7 @@
             </div>
             <div class="game-settings">
               <label class="color-control" for="colorSelect" title="更换执色会开始新局"><span>你的执色</span><select id="colorSelect"><option value="1">执黑先手</option><option value="2">执白后手</option></select></label>
-              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option></select></label>
+              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option><option value="30000">深度思考 · 最多 30 秒</option></select></label>
               <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
             </div>
             <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于 AI">

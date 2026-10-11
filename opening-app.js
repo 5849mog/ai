@@ -15,6 +15,8 @@ import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
 import { setupAppUpdates } from "./app-update.js";
 import { createScheduledTask } from "./ui-scheduler.js";
+import { createGameArchive, queueArchiveRestore, takeArchiveRestore } from "./game-archive.js";
+import { APP_VERSION } from "./app-release.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORAGE}:variety`,
@@ -23,6 +25,8 @@ let session = new OpeningSession({ initialBlackSeat: null }), perspective = 1, s
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false;
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let rulesOpen = false, forbiddenInput = null, enhancements;
+let paused=false;
+const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"opening"});
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
 const statsUpdates = createScheduledTask(renderAnalysis, 100);
 const analysisUpdates = createScheduledTask(persist, 500);
@@ -33,16 +37,19 @@ function notify(message, error = false) {
 try {
   const saved = JSON.parse(localStorage.getItem(STORAGE));
   if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
-  const time = localStorage.getItem("gomoku-thinking-ms"); if (["1000", "5000", "10000"].includes(time)) $("#timeSelect").value = time;
+  const time = localStorage.getItem("gomoku-thinking-ms"); if (["1000", "5000", "10000", "30000"].includes(time)) $("#timeSelect").value = time;
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
 function persist() {
   analysisUpdates.cancel();
+  if(archiveReady)archiveCurrent();
   try {
     localStorage.setItem(STORAGE, JSON.stringify({ record: session.record(), perspective, openingPlan: openingBook.snapshot(session),
       analysis: { version: 1, playerColor: analysis.playerColor, positionKey: analysis.positionKey, moves: analysis.moves, points: analysis.history } })); saveFailed = false; return true;
   } catch { if (!saveFailed) notify("此局暂未保存，请从菜单导出完整记录", true); saveFailed = true; return false; }
 }
+let archiveReady=false;
+function archiveCurrent() {const warned=archive.failed;if(!archive.capture(session.record(),{version:APP_VERSION,timeMs:Number($("#timeSelect").value),openingPlan:openingBook.snapshot(session)})&&!warned)notify("近期对局暂未保存，可先导出棋谱",true);}
 function positionChanged(reset = false, automaticResult = null) {
   if (session.workflow !== "follow") perspective = session.playerColor || 1;
   const key = `${session.rule}:${session.options.seed ? session.options.seed.board.join("") + session.options.seed.sideToMove : "opening"}`;
@@ -53,6 +60,7 @@ function positionChanged(reset = false, automaticResult = null) {
 }
 positionChanged(true);
 if (restoredAnalysis) { analysis.load({ getItem: () => JSON.stringify(restoredAnalysis) }); analysis.finish(session.winner); persist(); }
+archive.resume(session.record());archiveReady=true;archiveCurrent();
 const engine = new GomokuEngine({ rule: session.rule,
   onState: event => { state = event.state; pondering = Boolean(event.pondering); render(); },
   onStats: event => {
@@ -71,7 +79,7 @@ function cancel() {
   state = engine.ready ? "ready" : engine.initPromise ? "loading" : "idle"; pondering = false; stats = null;
 }
 function configureRule() { if ((engine.rule === "freestyle") !== (session.rule === "freestyle")) { engine.reset(); state = "idle"; } engine.rule = session.rule; }
-const manualTurn = () => !rulesOpen && !forbiddenInput && canManualTurn(session, { modal, busy });
+const manualTurn = () => !paused && !rulesOpen && !forbiddenInput && canManualTurn(session, { modal, busy });
 const interactive = () => manualTurn() && !session.decision;
 const workflowLabel = { copilot: "附身", follow: "记录", duel: "对弈" };
 function renderAnalysis() {
@@ -137,7 +145,7 @@ function render() {
     answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
   if (boardChanged) decorate();
-  const text = busy ? isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
+  const text = paused ? "思考已暂停 · 可继续或悔棋" : busy ? isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…" : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text; $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${RULES[session.rule]} · ${workflowLabel[session.workflow]}`;
   $("#searchClock").title = `${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"} · ${RULES[session.rule]}`;
@@ -174,7 +182,7 @@ async function syncPonder() {
   try { await engine.ponder({ board: session.board, sideToMove: session.color, requestId: id, allowSetup: true }); } catch (error) { if (error.name !== "AbortError") render(); }
 }
 async function prepare() {
-  const token = serial; if (modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
+  const token = serial; if (paused || modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
   try {
     if (isAutomaticTurn(session) && openingBook.plan(session)) { await autoPlay(); return; }
     await engine.init(); if (token !== serial || modal) return;
@@ -227,7 +235,7 @@ function handoff() {
   if (!manualTurn() || session.workflow !== "copilot" || session.stage !== "play" || session.copilotReady) return;
   cancel(); commit({ type: "handoff" }); void prepare();
 }
-function onModal(open) { if (open) cancel(); modal = open; render(); if (!open) void prepare(); }
+function onModal(open) { if (open) cancel(); modal = open; if(!open)configureRule();render(); if (!open) void prepare(); }
 function confirmation(title, message, label) {
   const dialog = document.createElement("dialog"); dialog.className = "opening-modal";
   dialog.innerHTML = `<h2></h2><p class="mode-description"></p><div class="dialog-actions"><button type="button" data-cancel>返回</button><button type="button" class="confirm-import" data-confirm></button></div>`;
@@ -248,7 +256,11 @@ async function place(index) {
   cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
-function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { cancel(); rulesOpen = false; session = new OpeningSession(options); configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
+function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); rulesOpen = false; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
+function restoreArchived(entry) {
+  if(entry.record.format!=="gomoku-opening"){archiveCurrent();location.assign(queueArchiveRestore(localStorage,entry));return false;}
+  const next=replaySession(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();rulesOpen=false;session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);render();if(!modal)void prepare();return true;
+}
 function newSimpleGame(rule = session.rule) {
   // Existing releases saved manual-follow records. Preserve the current game,
   // but let a fresh simple-mode game use the inline copilot role selection.
@@ -288,7 +300,7 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
 });
 $("#recommendButton").onclick = recommend;
 $("#simpleRecommendButton").onclick = recommend;
-$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; cancel(); const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
+$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
 $("#colorSelect").onchange = () => { cancel(); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
@@ -317,24 +329,30 @@ $("#recordFile").onchange = async () => {
   const file = $("#recordFile").files[0]; $("#recordFile").value = ""; if (!file) return;
   try { if (file.size > 100000) throw new Error("记录文件过大"); const imported = replaySession(JSON.parse(await file.text()));
     const yes = await confirmation("导入开局记录", `${RULES[imported.rule]} · ${imported.moves.length} 手 · ${imported.events.length} 个操作。导入将替换本页当前对局。`, "导入继续");
-    if (yes) { cancel(); session = imported; configureRule(); perspective = session.playerColor; positionChanged(true); notify("完整开局记录已恢复"); }
+    if (yes) {archiveCurrent();archive.begin();paused=false; cancel(); session = imported; configureRule(); perspective = session.playerColor; positionChanged(true); notify("完整开局记录已恢复"); }
     render(); void prepare();
   } catch (error) { notify(`导入失败：${error.message}；当前对局保持不变。`, true); }
 };
 document.addEventListener("visibilitychange", () => { if (document.hidden) persist(); void syncPonder(); }); window.addEventListener("pagehide", persist);
 document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
 enhancements = setupGameEnhancements({
-  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, ruleLabel: RULES[session.rule] }),
+  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, state,busy:busy&&isAutomaticTurn(session),paused,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
+  archive,resumeRecord:restoreArchived,
+  pauseSearch:()=>{if(!busy)return;cancel();paused=true;persist();render();},
+  resumeSearch:()=>{paused=false;render();void prepare();},
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); },
   onWorkspace: onModal, newGame: () => display?.simple ? newSimpleGame() : newGame(),
   cancelSearch: () => engine.cancel(),
   search: async options => {
-    const token = serial; await engine.init();
+    const token = serial,rule=options.rule??session.rule;
+    if((engine.rule==="freestyle")!==(rule==="freestyle")){engine.reset();state="idle";}engine.rule=rule;
+    await engine.init();
     if (!modal || token !== serial) throw new DOMException("复盘已取消", "AbortError");
     return engine.search({ ...options, requestId: ++requestId });
   }
 });
 setupAppUpdates();
+const transferred=takeArchiveRestore(localStorage,"gomoku-opening");if(transferred)restoreArchived(transferred);
 
 render(); void prepare(); if (location.hash === "guide") dialogs.openGuide();
