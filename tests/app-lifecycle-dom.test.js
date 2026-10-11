@@ -307,28 +307,32 @@ test('RIF opponent opening input is preserved and does not activate the automati
 });
 
 const byText = text => [...document.querySelectorAll('button')].find(b=>b.textContent===text);
-test('freestyle deep mode uses 30 seconds, pauses without placing a move, and ignores a late result before continuing',async()=>{
+test('freestyle deep mode uses adaptive budget, pauses without placing a move, and ignores a late result before continuing',async()=>{
   const f=await environment('index.html',{holdSearch:true,timeMs:30000});
   try {
-    await f.load();clickPoint(f,112);await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.equal(job.timeMs,30000);
+    await f.load();clickPoint(f,112);await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.ok(job.timeMs>0&&job.timeMs<=6000);
     assert.equal(byText('暂停思考').hidden,false);byText('暂停思考').click();await settled();
     assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,1);assert.equal(byText('继续思考').hidden,false);
     old.onmessage({data:{type:'move',requestId:job.requestId,result:{index:113,x:8,y:7}}});await settled();assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,1);
-    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.notEqual(next,old);assert.equal(search.timeMs,30000);
-    next.emit({type:'move',requestId:search.requestId,result:{index:113,x:8,y:7,assessment:{depth:15,bestIndex:113,winRate:.55,mate:null}}});await settled();
+    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.notEqual(next,old);assert.ok(search.timeMs>0&&search.timeMs<=6000);
+    for(let pass=0;pass<10;pass++) {
+      const w=f.workers.at(-1),q=w.searches.at(-1);if(!q||q.answered)break;q.answered=true;
+      const allowed=q.allowedMoves??q.board.flatMap((v,i)=>v?[]:[i]),index=allowed.includes(113)?113:allowed[0];
+      w.emit({type:'move',requestId:q.requestId,result:{index,x:index%15,y:Math.floor(index/15),assessment:{depth:15,bestIndex:index,winRate:.55,mate:null},recommendations:allowed.slice(0,q.multiPV).map(index=>({index,depth:15,winRate:.55}))}});await settled();
+    }
     assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,2);assert.equal(byText('继续思考').hidden,true);
     document.querySelector('#simpleRestart').click();await settled();const entries=JSON.parse(localStorage.getItem(ARCHIVE_KEY)).entries;assert.equal(entries.length,1);assert.deepEqual(entries[0].record.moves,[112,113]);
-    assert.equal(entries[0].meta.timeMs,30000);assert.equal(JSON.parse(localStorage.getItem(RECORD_KEY)).moves.length,0);
+    assert.equal(entries[0].meta.timeMs,6000);assert.equal(entries[0].meta.mode,'adaptive');assert.equal(JSON.parse(localStorage.getItem(RECORD_KEY)).moves.length,0);
   }finally{f.close();}
 });
-for(const rule of ['freestyle','renju','rif','taraguchi10']) test(`${rule}: deep copilot pause preserves seed, continuation uses 30 seconds and New drops late answers`,async()=>{
+for(const rule of ['freestyle','renju','rif','taraguchi10']) test(`${rule}: deep copilot pause preserves seed, continuation uses adaptive budget and New drops late answers`,async()=>{
   const board=new Uint8Array(225);board[112]=1;const s=new OpeningSession({rule,workflow:'copilot',initialBlackSeat:1,seed:{board,sideToMove:2}});
   const f=await environment('renju.html',{saved:{record:s.record(),perspective:2},holdSearch:true,timeMs:30000});
   try {
-    await f.load();await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.equal(job.timeMs,30000);assert.equal(job.sideToMove,2);
+    await f.load();await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.ok(job.timeMs>0&&job.timeMs<=6000);assert.equal(job.sideToMove,2);
     byText('暂停思考').click();await settled();assert.equal(savedSession(f).events.length,0);assert.equal(savedSession(f).board[112],1);
     old.onmessage({data:{type:'move',requestId:job.requestId,result:{index:113,x:8,y:7}}});await settled();assert.equal(savedSession(f).events.length,0);
-    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.equal(search.timeMs,30000);
+    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.ok(search.timeMs>0&&search.timeMs<=6000);
     document.querySelector('#simpleRestart').click();await settled();next.onmessage({data:{type:'move',requestId:search.requestId,result:{index:113,x:8,y:7}}});await settled();
     assert.equal(savedSession(f).stage,'setup');assert.equal(savedSession(f).moves.length,0);assert.equal(byText('继续思考').hidden,true);
   }finally{f.close();}
@@ -381,4 +385,33 @@ test('restoring archived partial own RIF opening retains the exact planned third
     await f.load();document.querySelector('[data-archive]').click();document.querySelector(`[data-archive-id="${id}"] button`).click();await settled();
     assert.deepEqual(savedSession(f).moves,plan.points);assert.equal(savedSession(f).stage,'swap3');assert.equal(f.workers.length,0);
   }finally{f.close();}
+});
+for(const page of ['index.html','renju.html'])test(`${page}: selecting adaptive mode keeps explicit recommendations on one-second budget`,async()=>{
+ const board=new Uint8Array(225);board[112]=1;const s=new OpeningSession({rule:'renju',workflow:'copilot',initialBlackSeat:0,seed:{board,sideToMove:2}});
+ const f=await environment(page,{saved:page==='renju.html'?{record:s.record(),perspective:1}:null,completeAssessment:true});
+ try {await f.load();document.querySelector('[data-time="adaptive"]').click();assert.equal(document.querySelector('#timeSelect').value,'adaptive');
+  assert.equal(localStorage.getItem('gomoku-thinking-ms'),'adaptive');document.querySelector('#simpleRecommendButton').click();await settled();
+  const job=f.workers.at(-1).searches.at(-1);assert.equal(job.timeMs,1000);assert.equal(job.multiPV,2);assert.equal(document.querySelectorAll('dialog[open]').length,0);
+ }finally{f.close();}
+});
+test('adaptive opponent reply statistics cannot overwrite the actual rate, and Undo drops a late reply',async()=>{
+ const f=await environment('index.html',{holdSearch:true,timeMs:'adaptive'});
+ try {await f.load();clickPoint(f,112);await settled();const w=f.workers.at(-1);
+  for(let pass=0;pass<2;pass++){const q=w.searches.at(-1),allowed=q.allowedMoves,index=113;
+   w.emit({type:'move',requestId:q.requestId,result:{index,x:8,y:7,assessment:{depth:15,bestIndex:index,winRate:.55,mate:null},recommendations:allowed.slice(0,q.multiPV).map(index=>({index,depth:15,winRate:.55}))}});await settled();}
+  const child=w.searches.at(-1);assert.equal(child.sideToMove,1);assert.equal(child.board[113],2);
+  const before=document.querySelector('#simpleWinRate').textContent;
+  w.emit({type:'stats',requestId:child.requestId,sideToMove:1,phase:'search',stats:{assessment:{depth:40,bestIndex:114,winRate:0,mate:'-M20'}}});f.advance(500);await settled();
+  assert.equal(document.querySelector('#simpleWinRate').textContent,before);document.querySelector('#undoButton').click();await settled();
+  w.onmessage({data:{type:'move',requestId:child.requestId,result:{index:114,x:9,y:7}}});await settled();assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,0);
+ }finally{f.close();}
+});
+test('adaptive own RIF exchange advice remains a user choice and can be paused before any hypothetical result applies',async()=>{
+ const s=new OpeningSession({rule:'rif',workflow:'copilot',initialBlackSeat:1});for(const index of [112,97,96])s.apply({type:'stone',index});assert.equal(s.actor,0);assert.equal(s.stage,'swap3');
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:2},holdSearch:true,timeMs:'adaptive'});
+ try {await f.load();await settled();const worker=f.workers.at(-1),q=worker.searches.at(-1);assert.ok(q.timeMs<=6000);assert.equal(byText('暂停思考').hidden,false);
+  byText('暂停思考').click();await settled();assert.deepEqual(savedSession(f).record(),s.record());assert.equal(byText('继续思考').hidden,false);
+  worker.onmessage({data:{type:'move',requestId:q.requestId,result:{index:113,x:8,y:7}}});await settled();assert.deepEqual(savedSession(f).record(),s.record());
+  byText('继续思考').click();await settled();assert.equal(savedSession(f).stage,'swap3');assert.equal(savedSession(f).blackSeat,1);
+ }finally{f.close();}
 });

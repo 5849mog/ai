@@ -8,7 +8,7 @@ export function createArchiveUi(root,{archive,close,resume,review,exportRecord})
     for(const entry of entries) {
       const card=document.createElement("article"),title=document.createElement("p"),detail=document.createElement("p"),actions=document.createElement("div");
       card.className="archive-card";card.dataset.archiveId=entry.id;title.textContent=archiveTitle(entry);
-      detail.textContent=new Date(entry.updatedAt).toLocaleString("zh-CN")+(entry.meta?.timeMs?` · 每步最多 ${entry.meta.timeMs/1000} 秒`:"");
+      detail.textContent=new Date(entry.updatedAt).toLocaleString("zh-CN")+(entry.meta?.mode==="adaptive"?" · 自适应深思 0～6 秒":entry.meta?.timeMs?` · 每步最多 ${entry.meta.timeMs/1000} 秒`:"");
       const button=(text,run)=>{const b=document.createElement("button");b.type="button";b.textContent=text;b.onclick=()=>{try {run();}catch(error){root.querySelector(".archive-notice").textContent=error.message;}};actions.append(b);};
       if(entry.winner) button("复盘",()=>review(entry.record));else button("继续这局",()=>resume(entry));
       button("导出",()=>exportRecord(entry.record));button(entry.favorite?"取消收藏":"收藏",()=>{archive.favorite(entry.id);render();});

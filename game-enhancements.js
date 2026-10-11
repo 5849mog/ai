@@ -24,7 +24,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   }
   if (sourceNotice && typeof MutationObserver === "function") new MutationObserver(syncNotice).observe(sourceNotice,
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
-  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="30000">深思 30 秒</button><button type="button" data-ponder aria-pressed="true">后台思考</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button><button type="button" data-collapse>收起</button></div><p>影响后续自动应手；深思最多 30 秒，推荐仍为 1 秒。关后台可省电。</p>${updateControlMarkup()}`;
+  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button><button type="button" data-collapse>收起</button></div><p>影响后续自动应手；深思自动分配 0～6 秒，先比较候选再复核应手，推荐仍为 1 秒。关后台可省电。</p>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
@@ -70,12 +70,12 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   function render() {
     const position = getPosition();
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
-    pauseEntry.hidden=!(position.busy && $("#timeSelect").value==="30000" && pauseSearch);resumeEntry.hidden=!position.paused;
+    pauseEntry.hidden=!(position.busy && $("#timeSelect").value==="adaptive" && pauseSearch);resumeEntry.hidden=!position.paused;
     fullPause.hidden=pauseEntry.hidden&&resumeEntry.hidden;fullPause.textContent=position.paused?"继续思考":"暂停思考";
     syncNotice();
     for (const b of [reviewEntry, fullReview, resultButton]) b.hidden = !position.winner;
-    const time = $("#timeSelect"), ponder = $("#ponderToggle"); toggle.textContent = `${time.value==="30000"?"深思":Number(time.value) / 1000+"秒"} · 更多`;
-    toggle.setAttribute("aria-label", `每步最多 ${Number(time.value) / 1000} 秒，展开快捷设置与截图导入`);
+    const time = $("#timeSelect"), ponder = $("#ponderToggle"); toggle.textContent = `${time.value==="adaptive"?"深思":Number(time.value) / 1000+"秒"} · 更多`;
+    toggle.setAttribute("aria-label", time.value==="adaptive"?"自适应深思 0～6 秒，展开快捷设置":`每步最多 ${Number(time.value) / 1000} 秒，展开快捷设置与截图导入`);
     for (const b of panel.querySelectorAll("[data-time]")) { b.disabled = time.disabled; b.setAttribute("aria-pressed", String(b.dataset.time === time.value)); }
     const p = panel.querySelector("[data-ponder]"); p.disabled = ponder.disabled; p.setAttribute("aria-pressed", String(ponder.checked)); p.textContent = `后台${ponder.checked ? "开" : "关"}`;
     if (!document.body.classList.contains("simple-mode")) collapse();

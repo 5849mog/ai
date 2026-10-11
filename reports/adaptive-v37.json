@@ -1,0 +1,5916 @@
+{
+  "version": 1,
+  "appVersion": "2026.10.11.2",
+  "started": "2026-10-11T04:21:07.730Z",
+  "runtime": "v24.19.0",
+  "budgetMs": 6000,
+  "method": "Shipped single-thread SIMD WASM, verified Renju weights; fixed legal positions, clear hash per case. Adaptive uses one total wall deadline after warmup, candidate discovery, opponent replies and unrestricted final root; opening comparisons share their deadline. Shortcuts use shared exact legality rules. This checks finite mechanisms, legality and timing, not human win-rate or guaranteed superiority over fixed 6-second search.",
+  "sources": {
+    "adaptive-search.js": "c640ab7e251ca9dfbdbe8650f524573e44c1a6b87610d55c312854d8205346ea",
+    "adaptive-opening.js": "71a641f66981cacda14f1dbd23f2835ccba0d040e8136c0f1bc8eba94ed57d68",
+    "opening-advisor.js": "8e74850089a2a611db3ddba92a760a1b4e90bbd078382c03f0d42e11f7fcb372",
+    "renju-rules.js": "8ea162f32ce3c9080d87fab5d7ddd17744a120e591131fb2777074eedd24f9c7",
+    "scripts/renju-node-engine.js": "06d97aa395e782a6e4612a19486d71f65de2d931644ab8a81c8cc35dc945c161",
+    "scripts/adaptive-eval.js": "a083d1e713d989f31f5de2f7bc91fffd289b5d27715c3263aeda3a0cf9b45fe0"
+  },
+  "assets": {
+    "engine/rapfi-250615/rapfi-single-simd128.js": "345ead03ed648d7ff9724c7f1cc589d607d66ee8f1a7017c219258ebb1a63f93",
+    "engine/rapfi-250615/rapfi-single-simd128.wasm": "b59b574131dd6f520bb281dd771529cfc1896a3cb68fc364426f895a3e7759d0",
+    "engine/rapfi-250615/rapfi.data": "ffdfcd33f35ab916abefa62eafa105b32a9f9a1afdacf49ff6d11d02c44e5415",
+    "engine/renju-250615/config.toml": "5eeba142e8c5fb50716c5cb348082493662c6234330aacf0ad900fbb5648a545"
+  },
+  "cases": [
+    {
+      "name": "rif-seat0-keep-fixed6",
+      "kind": "fixed",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "select",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 82
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 111
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 93
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          }
+        ]
+      },
+      "wallMs": 4541,
+      "result": {
+        "depth": 22,
+        "selectiveDepth": 37,
+        "nodes": 268932,
+        "elapsed": 4522,
+        "nps": 59471,
+        "evaluation": 20,
+        "mate": null,
+        "winRate": 0.524979,
+        "assessment": {
+          "depth": 22,
+          "winRate": 0.524979,
+          "evaluation": 20,
+          "mate": null,
+          "bestIndex": 63
+        },
+        "index": 63,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      }
+    },
+    {
+      "name": "rif-seat0-keep",
+      "kind": "ordinary",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "select",
+            "index": 81
+          },
+          {
+            "type": "stone",
+            "index": 82
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 111
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          },
+          {
+            "type": "stone",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 93
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 1,
+          "timeMs": 350,
+          "multiPV": 2,
+          "root": true,
+          "boardSha256": "09f883b987a0dc6251656519b783edf6acaa8828ec23d0329e825d3d29288266",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 16,
+            "nodes": 16786,
+            "elapsed": 259,
+            "nps": 64810,
+            "evaluation": -120,
+            "mate": null,
+            "winRate": 0.354344,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.668188,
+              "evaluation": 140,
+              "mate": null,
+              "bestIndex": 63
+            },
+            "index": 63,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 63,
+                "x": 3,
+                "y": 4,
+                "rank": 1,
+                "score": 140,
+                "depth": 15,
+                "winRate": 0.668188
+              },
+              {
+                "index": 127,
+                "x": 7,
+                "y": 8,
+                "rank": 2,
+                "score": -120,
+                "depth": 15,
+                "winRate": 0.354344
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 750,
+          "multiPV": 1,
+          "root": true,
+          "boardSha256": "09f883b987a0dc6251656519b783edf6acaa8828ec23d0329e825d3d29288266",
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 20,
+            "nodes": 10070,
+            "elapsed": 117,
+            "nps": 86068,
+            "evaluation": 87,
+            "mate": null,
+            "winRate": 0.607067,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.607067,
+              "evaluation": 87,
+              "mate": null,
+              "bestIndex": 63
+            },
+            "index": 63,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 650,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "7ec84b0794dc72e13b3a5c1ed54e3cf69b96ddb658ceb7ab8147e49509b0e722",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 15,
+            "nodes": 7076,
+            "elapsed": 64,
+            "nps": 110562,
+            "evaluation": 57,
+            "mate": null,
+            "winRate": 0.570772,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.570772,
+              "evaluation": 57,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 650,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "26b1994704c042218cf02d604ab46c193d8211482985f4d34c3f9c734a4d6970",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 21,
+            "nodes": 31143,
+            "elapsed": 499,
+            "nps": 62410,
+            "evaluation": 51,
+            "mate": null,
+            "winRate": 0.563407,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.563407,
+              "evaluation": 51,
+              "mate": null,
+              "bestIndex": 51
+            },
+            "index": 51,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 3796,
+          "multiPV": 1,
+          "root": true,
+          "boardSha256": "09f883b987a0dc6251656519b783edf6acaa8828ec23d0329e825d3d29288266",
+          "result": {
+            "depth": 19,
+            "selectiveDepth": 28,
+            "nodes": 77454,
+            "elapsed": 1441,
+            "nps": 53750,
+            "evaluation": -11,
+            "mate": null,
+            "winRate": 0.486253,
+            "assessment": {
+              "depth": 19,
+              "winRate": 0.486253,
+              "evaluation": -11,
+              "mate": null,
+              "bestIndex": 63
+            },
+            "index": 63,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "depth": 19,
+        "selectiveDepth": 28,
+        "nodes": 77454,
+        "elapsed": 5920.377145,
+        "nps": 53750,
+        "evaluation": -11,
+        "mate": null,
+        "winRate": 0.486253,
+        "assessment": {
+          "depth": 19,
+          "winRate": 0.486253,
+          "evaluation": -11,
+          "mate": null,
+          "bestIndex": 63
+        },
+        "index": 63,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5920.377145,
+          "status": "首选稳定",
+          "searches": 5,
+          "candidateChecks": 2,
+          "candidates": [
+            {
+              "index": 63,
+              "rate": 0.42922800000000005,
+              "reply": 126
+            },
+            {
+              "index": 127,
+              "rate": 0.436593,
+              "reply": 51
+            }
+          ]
+        }
+      },
+      "wallMs": 5936
+    },
+    {
+      "name": "taraguchi-seat0-normal-mixed-fixed6",
+      "kind": "fixed",
+      "rule": "taraguchi10",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 66
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 126
+          },
+          {
+            "type": "stone",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          },
+          {
+            "type": "stone",
+            "index": 111,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 109
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          }
+        ]
+      },
+      "wallMs": 6002,
+      "result": {
+        "depth": 17,
+        "selectiveDepth": 35,
+        "nodes": 137955,
+        "elapsed": 3252,
+        "nps": 42421,
+        "evaluation": -63,
+        "mate": null,
+        "winRate": 0.421895,
+        "assessment": {
+          "depth": 17,
+          "winRate": 0.421895,
+          "evaluation": -63,
+          "mate": null,
+          "bestIndex": 114
+        },
+        "index": 114,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4"
+      }
+    },
+    {
+      "name": "taraguchi-seat0-normal-mixed",
+      "kind": "ordinary",
+      "rule": "taraguchi10",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "swap"
+          },
+          {
+            "type": "stone",
+            "index": 94,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 66
+          },
+          {
+            "type": "stone",
+            "index": 110,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 126
+          },
+          {
+            "type": "stone",
+            "index": 81,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 79
+          },
+          {
+            "type": "stone",
+            "index": 111,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 109
+          },
+          {
+            "type": "stone",
+            "index": 125,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 95
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 1,
+          "timeMs": 350,
+          "multiPV": 2,
+          "root": true,
+          "boardSha256": "7532969686937ddb1012370a67960d0af36d7f9da04d2206755e52417e7b49f6",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 16,
+            "nodes": 8560,
+            "elapsed": 182,
+            "nps": 47032,
+            "evaluation": -56,
+            "mate": null,
+            "winRate": 0.430454,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.453881,
+              "evaluation": -37,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "score": -37,
+                "depth": 11,
+                "winRate": 0.453881
+              },
+              {
+                "index": 114,
+                "x": 9,
+                "y": 7,
+                "rank": 2,
+                "score": -56,
+                "depth": 11,
+                "winRate": 0.430454
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 1400,
+          "multiPV": 1,
+          "root": true,
+          "boardSha256": "7532969686937ddb1012370a67960d0af36d7f9da04d2206755e52417e7b49f6",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 28,
+            "nodes": 31747,
+            "elapsed": 898,
+            "nps": 35353,
+            "evaluation": -82,
+            "mate": null,
+            "winRate": 0.398912,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.398912,
+              "evaluation": -82,
+              "mate": null,
+              "bestIndex": 114
+            },
+            "index": 114,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 650,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "5147e7b91008fffb0929a21dab4edf6a5037ef65a3bc3ac32361afc29a97b8ab",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 14,
+            "nodes": 5797,
+            "elapsed": 91,
+            "nps": 63703,
+            "evaluation": 70,
+            "mate": null,
+            "winRate": 0.586618,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.586618,
+              "evaluation": 70,
+              "mate": null,
+              "bestIndex": 113
+            },
+            "index": 113,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 650,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "cf5207f6b1056ce44e313c9e1ca0a3270f8eb9dcb3be4e736344740ff4ffe09b",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 20,
+            "nodes": 11926,
+            "elapsed": 214,
+            "nps": 55728,
+            "evaluation": 252,
+            "mate": null,
+            "winRate": 0.779026,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.779026,
+              "evaluation": 252,
+              "mate": null,
+              "bestIndex": 114
+            },
+            "index": 114,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 2915,
+          "multiPV": 1,
+          "root": true,
+          "boardSha256": "7532969686937ddb1012370a67960d0af36d7f9da04d2206755e52417e7b49f6",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 24,
+            "nodes": 43533,
+            "elapsed": 923,
+            "nps": 47164,
+            "evaluation": -74,
+            "mate": null,
+            "winRate": 0.408541,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.408541,
+              "evaluation": -74,
+              "mate": null,
+              "bestIndex": 114
+            },
+            "index": 114,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "depth": 16,
+        "selectiveDepth": 24,
+        "nodes": 43533,
+        "elapsed": 5933.699649999999,
+        "nps": 47164,
+        "evaluation": -74,
+        "mate": null,
+        "winRate": 0.408541,
+        "assessment": {
+          "depth": 16,
+          "winRate": 0.408541,
+          "evaluation": -74,
+          "mate": null,
+          "bestIndex": 114
+        },
+        "index": 114,
+        "weight": "mix9svqrenju_bs15_white.bin.lz4",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5933.699649999999,
+          "status": "复核后调整",
+          "searches": 5,
+          "candidateChecks": 2,
+          "candidates": [
+            {
+              "index": 114,
+              "rate": 0.413382,
+              "reply": 113
+            },
+            {
+              "index": 98,
+              "rate": 0.220974,
+              "reply": 114
+            }
+          ]
+        }
+      },
+      "wallMs": 5955
+    },
+    {
+      "name": "rif-swap3",
+      "kind": "opening",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 2,
+          "timeMs": 225,
+          "multiPV": 3,
+          "root": false,
+          "boardSha256": "eb80eebb9ff01f82061c2fa1dd90dad3d5dfa41d1ce9b1172f7998ee8b5c94b0",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 20,
+            "nodes": 17774,
+            "elapsed": 186,
+            "nps": 95559,
+            "evaluation": -156,
+            "mate": null,
+            "winRate": 0.31432,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.439055,
+              "evaluation": -49,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "pv": 0,
+                "count": 3,
+                "depth": 10,
+                "score": -49,
+                "winRate": 0.439055
+              },
+              {
+                "index": 128,
+                "x": 8,
+                "y": 8,
+                "rank": 2,
+                "pv": 1,
+                "count": 3,
+                "depth": 10,
+                "score": -243,
+                "winRate": 0.228818
+              },
+              {
+                "index": 64,
+                "x": 4,
+                "y": 4,
+                "rank": 3,
+                "pv": 2,
+                "count": 3,
+                "depth": 10,
+                "score": -367,
+                "winRate": 0.137644
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 180,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 10,
+            "selectiveDepth": 17,
+            "nodes": 6756,
+            "elapsed": 95,
+            "nps": 71115,
+            "evaluation": -24,
+            "mate": null,
+            "winRate": 0.470036,
+            "assessment": {
+              "depth": 10,
+              "winRate": 0.560945,
+              "evaluation": 49,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "score": 49,
+                "depth": 10,
+                "winRate": 0.560945
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 2,
+                "score": -24,
+                "depth": 10,
+                "winRate": 0.470036
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 180,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "f71408f91c25f8731832e181737f5018f6b0aa79b4e5413ac1464dcb7a00d2cb",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 21,
+            "nodes": 11537,
+            "elapsed": 120,
+            "nps": 96141,
+            "evaluation": 235,
+            "mate": null,
+            "winRate": 0.764048,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.764048,
+              "evaluation": 235,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "score": 280,
+                "depth": 11,
+                "winRate": 0.802184
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 2,
+                "score": 211,
+                "depth": 11,
+                "winRate": 0.741734
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 180,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "f5b00a67b399e17c148e6ec9da994d02d48fef2a69f6b1b94a4b6f76d869d25a",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 14,
+            "nodes": 6194,
+            "elapsed": 68,
+            "nps": 92447,
+            "evaluation": 371,
+            "mate": null,
+            "winRate": 0.864713,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.864713,
+              "evaluation": 371,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 126,
+                "x": 6,
+                "y": 8,
+                "rank": 1,
+                "score": 450,
+                "depth": 10,
+                "winRate": 0.904651
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "score": 367,
+                "depth": 10,
+                "winRate": 0.862356
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 482,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 22,
+            "nodes": 30557,
+            "elapsed": 407,
+            "nps": 75078,
+            "evaluation": -35,
+            "mate": null,
+            "winRate": 0.456361,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.596283,
+              "evaluation": 78,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 1,
+                "pv": 0,
+                "count": 4,
+                "depth": 12,
+                "score": 78,
+                "winRate": 0.596283
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "pv": 1,
+                "count": 4,
+                "depth": 12,
+                "score": 76,
+                "winRate": 0.593873
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 3,
+                "pv": 2,
+                "count": 4,
+                "depth": 12,
+                "score": 7,
+                "winRate": 0.508749
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 4,
+                "pv": 3,
+                "count": 4,
+                "depth": 12,
+                "score": -35,
+                "winRate": 0.456361
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 287,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "5f193074000ee8c6ede21ad6fc0738d3a8809c4c4c9f118c32f90555537ab069",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 21,
+            "nodes": 9147,
+            "elapsed": 196,
+            "nps": 46668,
+            "evaluation": 16,
+            "mate": null,
+            "winRate": 0.519989,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.519989,
+              "evaluation": 16,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 287,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 14,
+            "nodes": 2697,
+            "elapsed": 40,
+            "nps": 67425,
+            "evaluation": -76,
+            "mate": null,
+            "winRate": 0.406127,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.406127,
+              "evaluation": -76,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 287,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 14,
+            "nodes": 3146,
+            "elapsed": 39,
+            "nps": 80666,
+            "evaluation": -7,
+            "mate": null,
+            "winRate": 0.491251,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.491251,
+              "evaluation": -7,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 287,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 16,
+            "nodes": 6733,
+            "elapsed": 95,
+            "nps": 70873,
+            "evaluation": 12,
+            "mate": null,
+            "winRate": 0.514996,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.514996,
+              "evaluation": 12,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 517,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "f71408f91c25f8731832e181737f5018f6b0aa79b4e5413ac1464dcb7a00d2cb",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 21,
+            "nodes": 37916,
+            "elapsed": 414,
+            "nps": 91584,
+            "evaluation": 123,
+            "mate": null,
+            "winRate": 0.649081,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.856313,
+              "evaluation": 357,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "pv": 1,
+                "count": 4,
+                "depth": 11,
+                "score": 357,
+                "winRate": 0.856313
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 2,
+                "pv": 0,
+                "count": 4,
+                "depth": 11,
+                "score": 303,
+                "winRate": 0.819801
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 3,
+                "pv": 2,
+                "count": 4,
+                "depth": 11,
+                "score": 127,
+                "winRate": 0.653622
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 4,
+                "pv": 3,
+                "count": 4,
+                "depth": 11,
+                "score": 63,
+                "winRate": 0.578105
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 299,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "578acdb835fcf948541c798cba907378d41cb8cf97ad68088a88569f9349b3fa",
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 15,
+            "nodes": 19522,
+            "elapsed": 234,
+            "nps": 83785,
+            "evaluation": -357,
+            "mate": null,
+            "winRate": 0.143687,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.143687,
+              "evaluation": -357,
+              "mate": null,
+              "bestIndex": 113
+            },
+            "index": 113,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 299,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "73e433bbf4d63940cb7488fa0cf4cacb0d8debc6c0b0d6f382533a1606d639ba",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 14,
+            "nodes": 1880,
+            "elapsed": 14,
+            "nps": 134285,
+            "evaluation": -326,
+            "mate": null,
+            "winRate": 0.16383,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.16383,
+              "evaluation": -326,
+              "mate": null,
+              "bestIndex": 83
+            },
+            "index": 83,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 299,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ccabfe8c88cc799ca79f9e51a1f03d87e76a54ba2411b5e8ee7bb139eed6ac2e",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 20,
+            "nodes": 24354,
+            "elapsed": 238,
+            "nps": 102327,
+            "evaluation": -460,
+            "mate": null,
+            "winRate": 0.091123,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.091123,
+              "evaluation": -460,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 299,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "decf849ecc908c3fd9798e8a5dfc224f580cad6d78b3555b4dd831d874715b9c",
+          "result": {
+            "depth": 19,
+            "selectiveDepth": 16,
+            "nodes": 18213,
+            "elapsed": 270,
+            "nps": 67455,
+            "evaluation": -62,
+            "mate": null,
+            "winRate": 0.423115,
+            "assessment": {
+              "depth": 19,
+              "winRate": 0.423115,
+              "evaluation": -62,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 605,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "f5b00a67b399e17c148e6ec9da994d02d48fef2a69f6b1b94a4b6f76d869d25a",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 17,
+            "nodes": 35026,
+            "elapsed": 407,
+            "nps": 86058,
+            "evaluation": 410,
+            "mate": null,
+            "winRate": 0.885948,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.926218,
+              "evaluation": 506,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 126,
+                "x": 6,
+                "y": 8,
+                "rank": 1,
+                "pv": 0,
+                "count": 4,
+                "depth": 12,
+                "score": 506,
+                "winRate": 0.926218
+              },
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 2,
+                "pv": 3,
+                "count": 4,
+                "depth": 12,
+                "score": 410,
+                "winRate": 0.885948
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 3,
+                "pv": 1,
+                "count": 4,
+                "depth": 12,
+                "score": 371,
+                "winRate": 0.864713
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 4,
+                "pv": 2,
+                "count": 4,
+                "depth": 12,
+                "score": 342,
+                "winRate": 0.846836
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 349,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "f050d3b8405810b29297ffe7a203ffaeb11a07b2f1923bad807c5e0f31371ebd",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 11,
+            "nodes": 4459,
+            "elapsed": 39,
+            "nps": 114333,
+            "evaluation": -418,
+            "mate": null,
+            "winRate": 0.110073,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.110073,
+              "evaluation": -418,
+              "mate": null,
+              "bestIndex": 140
+            },
+            "index": 140,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 349,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ca174f164f6d55888dbee1743e8a75f86b013f3beb1b64a2789621a1053039f6",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 14,
+            "nodes": 2383,
+            "elapsed": 19,
+            "nps": 125421,
+            "evaluation": -410,
+            "mate": null,
+            "winRate": 0.114052,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.114052,
+              "evaluation": -410,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 349,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "b8593ba7db5723a002601441d36f5ce3c1d7d29fe372580ae914f4410d5d55d0",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 18,
+            "nodes": 3758,
+            "elapsed": 45,
+            "nps": 83511,
+            "evaluation": -371,
+            "mate": null,
+            "winRate": 0.135287,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.135287,
+              "evaluation": -371,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 349,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "393df1c3f0f599f56e43c9fbd4456e214ea559ca01b2fe0a3d54cb096bb22842",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 21,
+            "nodes": 23479,
+            "elapsed": 245,
+            "nps": 96225,
+            "evaluation": -341,
+            "mate": null,
+            "winRate": 0.153813,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.153813,
+              "evaluation": -341,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "choice": "swap",
+        "result": {
+          "depth": 11,
+          "selectiveDepth": 20,
+          "nodes": 17774,
+          "elapsed": 5571.904018000001,
+          "nps": 95559,
+          "evaluation": -156,
+          "mate": null,
+          "winRate": 0.31432,
+          "assessment": {
+            "depth": 11,
+            "winRate": 0.439055,
+            "evaluation": -49,
+            "mate": null,
+            "bestIndex": 96
+          },
+          "index": 96,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 10,
+              "score": -49,
+              "winRate": 0.439055
+            },
+            {
+              "index": 128,
+              "x": 8,
+              "y": 8,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 10,
+              "score": -243,
+              "winRate": 0.228818
+            },
+            {
+              "index": 64,
+              "x": 4,
+              "y": 4,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 10,
+              "score": -367,
+              "winRate": 0.137644
+            }
+          ],
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 5571.904018000001,
+            "status": "开局延续已复核",
+            "searches": 19,
+            "candidateChecks": 3,
+            "blackFloor": 0.508749
+          }
+        },
+        "note": "换色建议已考虑白棋第四手、黑方两打和白方选点；按外部对局确认实际选择。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5571.904018000001,
+          "status": "开局延续已复核",
+          "searches": 19,
+          "candidateChecks": 3,
+          "blackFloor": 0.508749
+        }
+      },
+      "wallMs": 5572
+    },
+    {
+      "name": "rif-w4",
+      "kind": "opening",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 2,
+          "timeMs": 225,
+          "multiPV": 3,
+          "root": false,
+          "boardSha256": "eb80eebb9ff01f82061c2fa1dd90dad3d5dfa41d1ce9b1172f7998ee8b5c94b0",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 20,
+            "nodes": 17774,
+            "elapsed": 231,
+            "nps": 77278,
+            "evaluation": -156,
+            "mate": null,
+            "winRate": 0.31432,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.439055,
+              "evaluation": -49,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "pv": 0,
+                "count": 3,
+                "depth": 10,
+                "score": -49,
+                "winRate": 0.439055
+              },
+              {
+                "index": 128,
+                "x": 8,
+                "y": 8,
+                "rank": 2,
+                "pv": 1,
+                "count": 3,
+                "depth": 10,
+                "score": -243,
+                "winRate": 0.228818
+              },
+              {
+                "index": 64,
+                "x": 4,
+                "y": 4,
+                "rank": 3,
+                "pv": 2,
+                "count": 3,
+                "depth": 10,
+                "score": -367,
+                "winRate": 0.137644
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 180,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 10,
+            "selectiveDepth": 15,
+            "nodes": 5843,
+            "elapsed": 122,
+            "nps": 47893,
+            "evaluation": -3,
+            "mate": null,
+            "winRate": 0.49625,
+            "assessment": {
+              "depth": 10,
+              "winRate": 0.595078,
+              "evaluation": 77,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "score": 77,
+                "depth": 10,
+                "winRate": 0.595078
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 2,
+                "score": -3,
+                "depth": 10,
+                "winRate": 0.49625
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 180,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "f71408f91c25f8731832e181737f5018f6b0aa79b4e5413ac1464dcb7a00d2cb",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 19,
+            "nodes": 11224,
+            "elapsed": 153,
+            "nps": 73359,
+            "evaluation": 255,
+            "mate": null,
+            "winRate": 0.781597,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.805338,
+              "evaluation": 284,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 96,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 1,
+                "score": 284,
+                "depth": 11,
+                "winRate": 0.805338
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 2,
+                "score": 255,
+                "depth": 11,
+                "winRate": 0.781597
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 180,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "f5b00a67b399e17c148e6ec9da994d02d48fef2a69f6b1b94a4b6f76d869d25a",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 14,
+            "nodes": 6246,
+            "elapsed": 64,
+            "nps": 97593,
+            "evaluation": 371,
+            "mate": null,
+            "winRate": 0.864713,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.864713,
+              "evaluation": 371,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 126,
+                "x": 6,
+                "y": 8,
+                "rank": 1,
+                "score": 450,
+                "depth": 10,
+                "winRate": 0.904651
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "score": 367,
+                "depth": 10,
+                "winRate": 0.862356
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 482,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 17,
+            "nodes": 14217,
+            "elapsed": 167,
+            "nps": 85131,
+            "evaluation": 37,
+            "mate": null,
+            "winRate": 0.546119,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.703704,
+              "evaluation": 173,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 1,
+                "pv": 0,
+                "count": 4,
+                "depth": 11,
+                "score": 173,
+                "winRate": 0.703704
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 2,
+                "pv": 2,
+                "count": 4,
+                "depth": 11,
+                "score": 73,
+                "winRate": 0.59025
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 3,
+                "pv": 1,
+                "count": 4,
+                "depth": 11,
+                "score": 40,
+                "winRate": 0.549834
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 4,
+                "pv": 3,
+                "count": 4,
+                "depth": 11,
+                "score": 37,
+                "winRate": 0.546119
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 278,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 17,
+            "nodes": 14076,
+            "elapsed": 204,
+            "nps": 69000,
+            "evaluation": -5,
+            "mate": null,
+            "winRate": 0.49375,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.49375,
+              "evaluation": -5,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 278,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 21,
+            "nodes": 2755,
+            "elapsed": 31,
+            "nps": 88870,
+            "evaluation": 91,
+            "mate": null,
+            "winRate": 0.611827,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.611827,
+              "evaluation": 91,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 278,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 15,
+            "nodes": 2644,
+            "elapsed": 41,
+            "nps": 64487,
+            "evaluation": -95,
+            "mate": null,
+            "winRate": 0.383434,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.383434,
+              "evaluation": -95,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 278,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 16,
+            "nodes": 9446,
+            "elapsed": 205,
+            "nps": 46078,
+            "evaluation": -36,
+            "mate": null,
+            "winRate": 0.455121,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.455121,
+              "evaluation": -36,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 525,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "f71408f91c25f8731832e181737f5018f6b0aa79b4e5413ac1464dcb7a00d2cb",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 16,
+            "nodes": 30883,
+            "elapsed": 385,
+            "nps": 80215,
+            "evaluation": 63,
+            "mate": null,
+            "winRate": 0.578105,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.805338,
+              "evaluation": 284,
+              "mate": null,
+              "bestIndex": 96
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 1,
+                "pv": 2,
+                "count": 4,
+                "depth": 11,
+                "score": 347,
+                "winRate": 0.850051
+              },
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 2,
+                "pv": 0,
+                "count": 4,
+                "depth": 11,
+                "score": 284,
+                "winRate": 0.805338
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 3,
+                "pv": 1,
+                "count": 4,
+                "depth": 11,
+                "score": 221,
+                "winRate": 0.751196
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 4,
+                "pv": 3,
+                "count": 4,
+                "depth": 11,
+                "score": 63,
+                "winRate": 0.578105
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 327,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "73e433bbf4d63940cb7488fa0cf4cacb0d8debc6c0b0d6f382533a1606d639ba",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 19,
+            "nodes": 3763,
+            "elapsed": 41,
+            "nps": 91780,
+            "evaluation": -355,
+            "mate": null,
+            "winRate": 0.144922,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.144922,
+              "evaluation": -355,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 327,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "578acdb835fcf948541c798cba907378d41cb8cf97ad68088a88569f9349b3fa",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 13,
+            "nodes": 12656,
+            "elapsed": 170,
+            "nps": 74447,
+            "evaluation": -284,
+            "mate": null,
+            "winRate": 0.194662,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.194662,
+              "evaluation": -284,
+              "mate": null,
+              "bestIndex": 113
+            },
+            "index": 113,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 327,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ccabfe8c88cc799ca79f9e51a1f03d87e76a54ba2411b5e8ee7bb139eed6ac2e",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 12,
+            "nodes": 1739,
+            "elapsed": 11,
+            "nps": 158090,
+            "evaluation": -269,
+            "mate": null,
+            "winRate": 0.206689,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.206689,
+              "evaluation": -269,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 327,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "decf849ecc908c3fd9798e8a5dfc224f580cad6d78b3555b4dd831d874715b9c",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 15,
+            "nodes": 6375,
+            "elapsed": 94,
+            "nps": 67819,
+            "evaluation": -71,
+            "mate": null,
+            "winRate": 0.41217,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.41217,
+              "evaluation": -71,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 591,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "f5b00a67b399e17c148e6ec9da994d02d48fef2a69f6b1b94a4b6f76d869d25a",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 35,
+            "nodes": 44176,
+            "elapsed": 514,
+            "nps": 85945,
+            "evaluation": 430,
+            "mate": null,
+            "winRate": 0.895669,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.93963,
+              "evaluation": 549,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 126,
+                "x": 6,
+                "y": 8,
+                "rank": 1,
+                "pv": 0,
+                "count": 4,
+                "depth": 11,
+                "score": 549,
+                "winRate": 0.93963
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 2,
+                "pv": 3,
+                "count": 4,
+                "depth": 11,
+                "score": 402,
+                "winRate": 0.881843
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 3,
+                "pv": 1,
+                "count": 4,
+                "depth": 11,
+                "score": 371,
+                "winRate": 0.864713
+              },
+              {
+                "index": 96,
+                "x": 6,
+                "y": 6,
+                "rank": 4,
+                "pv": 2,
+                "count": 4,
+                "depth": 11,
+                "score": 277,
+                "winRate": 0.799793
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 342,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "f050d3b8405810b29297ffe7a203ffaeb11a07b2f1923bad807c5e0f31371ebd",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 12,
+            "nodes": 2879,
+            "elapsed": 26,
+            "nps": 110730,
+            "evaluation": -549,
+            "mate": null,
+            "winRate": 0.0603697,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.0603697,
+              "evaluation": -549,
+              "mate": null,
+              "bestIndex": 125
+            },
+            "index": 140,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 342,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "393df1c3f0f599f56e43c9fbd4456e214ea559ca01b2fe0a3d54cb096bb22842",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 17,
+            "nodes": 2325,
+            "elapsed": 15,
+            "nps": 155000,
+            "evaluation": -253,
+            "mate": null,
+            "winRate": 0.220114,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.220114,
+              "evaluation": -253,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 342,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "b8593ba7db5723a002601441d36f5ce3c1d7d29fe372580ae914f4410d5d55d0",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 11,
+            "nodes": 3158,
+            "elapsed": 38,
+            "nps": 83105,
+            "evaluation": -371,
+            "mate": null,
+            "winRate": 0.135287,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.135287,
+              "evaluation": -371,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 342,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ca174f164f6d55888dbee1743e8a75f86b013f3beb1b64a2789621a1053039f6",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 14,
+            "nodes": 6020,
+            "elapsed": 68,
+            "nps": 88529,
+            "evaluation": -369,
+            "mate": null,
+            "winRate": 0.136461,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.136461,
+              "evaluation": -369,
+              "mate": null,
+              "bestIndex": 65
+            },
+            "index": 65,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "points": [
+          96,
+          128
+        ],
+        "result": {
+          "depth": 11,
+          "selectiveDepth": 20,
+          "nodes": 17774,
+          "elapsed": 5665.131029000004,
+          "nps": 77278,
+          "evaluation": -156,
+          "mate": null,
+          "winRate": 0.31432,
+          "assessment": {
+            "depth": 11,
+            "winRate": 0.439055,
+            "evaluation": -49,
+            "mate": null,
+            "bestIndex": 96
+          },
+          "index": 96,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 10,
+              "score": -49,
+              "winRate": 0.439055
+            },
+            {
+              "index": 128,
+              "x": 8,
+              "y": 8,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 10,
+              "score": -243,
+              "winRate": 0.228818
+            },
+            {
+              "index": 64,
+              "x": 4,
+              "y": 4,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 10,
+              "score": -367,
+              "winRate": 0.137644
+            }
+          ],
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 5665.131029000004,
+            "status": "开局延续已复核",
+            "searches": 19,
+            "candidateChecks": 3,
+            "blackFloor": 0.544879
+          }
+        },
+        "blackRate": 0.544879,
+        "note": "第四手同时比较黑方两打与白方选点；采用有限候选的开局延续评估。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5665.131029000004,
+          "status": "开局延续已复核",
+          "searches": 19,
+          "candidateChecks": 3,
+          "blackFloor": 0.544879
+        }
+      },
+      "wallMs": 5665
+    },
+    {
+      "name": "rif-offer",
+      "kind": "opening",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 1,
+          "timeMs": 600,
+          "multiPV": 2,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 21,
+            "nodes": 23094,
+            "elapsed": 524,
+            "nps": 44072,
+            "evaluation": 66,
+            "mate": null,
+            "winRate": 0.581759,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.571996,
+              "evaluation": 58,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "score": 66,
+                "depth": 13,
+                "winRate": 0.581759
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 2,
+                "score": 58,
+                "depth": 13,
+                "winRate": 0.571996
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 1100,
+          "multiPV": 4,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 19,
+            "nodes": 50737,
+            "elapsed": 1034,
+            "nps": 49068,
+            "evaluation": 10,
+            "mate": null,
+            "winRate": 0.512497,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.581759,
+              "evaluation": 66,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 95,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 1,
+                "pv": 3,
+                "count": 4,
+                "depth": 11,
+                "score": 70,
+                "winRate": 0.586618
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "pv": 0,
+                "count": 4,
+                "depth": 11,
+                "score": 66,
+                "winRate": 0.581759
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 3,
+                "pv": 1,
+                "count": 4,
+                "depth": 11,
+                "score": 58,
+                "winRate": 0.571996
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 4,
+                "pv": 2,
+                "count": 4,
+                "depth": 11,
+                "score": 3,
+                "winRate": 0.50375
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 450,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 15,
+            "nodes": 1809,
+            "elapsed": 15,
+            "nps": 120600,
+            "evaluation": 12,
+            "mate": null,
+            "winRate": 0.514996,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.514996,
+              "evaluation": 12,
+              "mate": null,
+              "bestIndex": 82
+            },
+            "index": 79,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 450,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 12,
+            "nodes": 1334,
+            "elapsed": 15,
+            "nps": 88933,
+            "evaluation": -66,
+            "mate": null,
+            "winRate": 0.418241,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.418241,
+              "evaluation": -66,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 450,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 16,
+            "nodes": 12746,
+            "elapsed": 226,
+            "nps": 56398,
+            "evaluation": 82,
+            "mate": null,
+            "winRate": 0.601088,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.601088,
+              "evaluation": 82,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 450,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 20,
+            "nodes": 17252,
+            "elapsed": 396,
+            "nps": 43565,
+            "evaluation": -10,
+            "mate": null,
+            "winRate": 0.487503,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.487503,
+              "evaluation": -10,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 633,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 26,
+            "nodes": 20708,
+            "elapsed": 539,
+            "nps": 38419,
+            "evaluation": -54,
+            "mate": null,
+            "winRate": 0.432907,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.432907,
+              "evaluation": -54,
+              "mate": null,
+              "bestIndex": 79
+            },
+            "index": 79,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 633,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 26,
+            "nodes": 12148,
+            "elapsed": 250,
+            "nps": 48592,
+            "evaluation": -36,
+            "mate": null,
+            "winRate": 0.455121,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.455121,
+              "evaluation": -36,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 633,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 17,
+            "nodes": 15942,
+            "elapsed": 292,
+            "nps": 54595,
+            "evaluation": 49,
+            "mate": null,
+            "winRate": 0.560945,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.560945,
+              "evaluation": 49,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 633,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 20,
+            "nodes": 13197,
+            "elapsed": 219,
+            "nps": 60260,
+            "evaluation": 41,
+            "mate": null,
+            "winRate": 0.551071,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.551071,
+              "evaluation": 41,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "points": [
+          81,
+          98
+        ],
+        "result": {
+          "depth": 12,
+          "selectiveDepth": 19,
+          "nodes": 50737,
+          "elapsed": 5797.349934999998,
+          "nps": 49068,
+          "evaluation": 10,
+          "mate": null,
+          "winRate": 0.512497,
+          "assessment": {
+            "depth": 12,
+            "winRate": 0.581759,
+            "evaluation": 66,
+            "mate": null,
+            "bestIndex": 98
+          },
+          "index": 95,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 81,
+              "x": 6,
+              "y": 5,
+              "rank": 1,
+              "pv": 3,
+              "count": 4,
+              "depth": 11,
+              "score": 70,
+              "winRate": 0.586618
+            },
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 2,
+              "pv": 0,
+              "count": 4,
+              "depth": 11,
+              "score": 66,
+              "winRate": 0.581759
+            },
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 3,
+              "pv": 1,
+              "count": 4,
+              "depth": 11,
+              "score": 58,
+              "winRate": 0.571996
+            },
+            {
+              "index": 94,
+              "x": 4,
+              "y": 6,
+              "rank": 4,
+              "pv": 2,
+              "count": 4,
+              "depth": 11,
+              "score": 3,
+              "winRate": 0.50375
+            }
+          ],
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 5797.349934999998,
+            "status": "提案已复核",
+            "searches": 10,
+            "candidateChecks": 4,
+            "blackFloor": 0.544879
+          }
+        },
+        "rate": 0.544879,
+        "checks": 4,
+        "gap": 0.09594999999999998,
+        "status": "提案已复核",
+        "note": "扩大非等价候选，按白方应手复核整组最弱第五手。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5797.349934999998,
+          "status": "提案已复核",
+          "searches": 10,
+          "candidateChecks": 4,
+          "blackFloor": 0.544879
+        }
+      },
+      "wallMs": 5797
+    },
+    {
+      "name": "rif-choose",
+      "kind": "opening",
+      "rule": "rif",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "rif",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 0
+          },
+          {
+            "type": "stone",
+            "index": 112,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "stone",
+            "index": 80,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96
+          },
+          {
+            "type": "offer",
+            "index": 98,
+            "automatic": true
+          },
+          {
+            "type": "offer",
+            "index": 81,
+            "automatic": true
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 2,
+          "timeMs": 500,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 19,
+            "nodes": 15860,
+            "elapsed": 368,
+            "nps": 43097,
+            "evaluation": -98,
+            "mate": null,
+            "winRate": 0.379894,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.379894,
+              "evaluation": -98,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 500,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 16,
+            "nodes": 15598,
+            "elapsed": 345,
+            "nps": 45211,
+            "evaluation": -22,
+            "mate": null,
+            "winRate": 0.472528,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.472528,
+              "evaluation": -22,
+              "mate": null,
+              "bestIndex": 83
+            },
+            "index": 83,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 650,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 11,
+            "nodes": 1809,
+            "elapsed": 11,
+            "nps": 164454,
+            "evaluation": -98,
+            "mate": null,
+            "winRate": 0.379894,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.379894,
+              "evaluation": -98,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 650,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 14,
+            "nodes": 2061,
+            "elapsed": 12,
+            "nps": 171750,
+            "evaluation": -22,
+            "mate": null,
+            "winRate": 0.472528,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.472528,
+              "evaluation": -22,
+              "mate": null,
+              "bestIndex": 83
+            },
+            "index": 83,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "points": [
+          81,
+          98
+        ],
+        "note": "从白方角度逐一复核实际候选。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 2147.2996889999995,
+          "status": "选点稳定",
+          "searches": 4,
+          "candidateChecks": 2
+        }
+      },
+      "wallMs": 2147
+    },
+    {
+      "name": "negative-route",
+      "kind": "opening",
+      "rule": "taraguchi10",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 1
+          },
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96,
+            "automatic": true
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 1,
+          "timeMs": 432,
+          "multiPV": 10,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 10,
+            "selectiveDepth": 15,
+            "nodes": 28578,
+            "elapsed": 376,
+            "nps": 76005,
+            "evaluation": 3,
+            "mate": null,
+            "winRate": 0.50375,
+            "assessment": {
+              "depth": 10,
+              "winRate": 0.56832,
+              "evaluation": 55,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 1,
+                "pv": 0,
+                "count": 10,
+                "depth": 9,
+                "score": 76,
+                "winRate": 0.593873
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "pv": 1,
+                "count": 10,
+                "depth": 9,
+                "score": 49,
+                "winRate": 0.560945
+              },
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 3,
+                "pv": 5,
+                "count": 10,
+                "depth": 9,
+                "score": 38,
+                "winRate": 0.547358
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 4,
+                "pv": 3,
+                "count": 10,
+                "depth": 9,
+                "score": 36,
+                "winRate": 0.544879
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 5,
+                "pv": 6,
+                "count": 10,
+                "depth": 9,
+                "score": 16,
+                "winRate": 0.519989
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 6,
+                "pv": 2,
+                "count": 10,
+                "depth": 9,
+                "score": -13,
+                "winRate": 0.483756
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 7,
+                "pv": 4,
+                "count": 10,
+                "depth": 9,
+                "score": -43,
+                "winRate": 0.446456
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 8,
+                "pv": 7,
+                "count": 10,
+                "depth": 9,
+                "score": -118,
+                "winRate": 0.356635
+              },
+              {
+                "index": 65,
+                "x": 5,
+                "y": 4,
+                "rank": 9,
+                "pv": 9,
+                "count": 10,
+                "depth": 9,
+                "score": -120,
+                "winRate": 0.354344
+              },
+              {
+                "index": 125,
+                "x": 5,
+                "y": 8,
+                "rank": 10,
+                "pv": 8,
+                "count": 10,
+                "depth": 9,
+                "score": -233,
+                "winRate": 0.23776
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 360,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 14,
+            "nodes": 11889,
+            "elapsed": 146,
+            "nps": 81431,
+            "evaluation": 3,
+            "mate": null,
+            "winRate": 0.50375,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.50375,
+              "evaluation": 3,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 840,
+          "multiPV": 12,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 14,
+            "nodes": 69748,
+            "elapsed": 795,
+            "nps": 87843,
+            "evaluation": -60,
+            "mate": null,
+            "winRate": 0.425557,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.628316,
+              "evaluation": 105,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 1,
+                "pv": 0,
+                "count": 12,
+                "depth": 10,
+                "score": 105,
+                "winRate": 0.628316
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 2,
+                "pv": 2,
+                "count": 12,
+                "depth": 10,
+                "score": 50,
+                "winRate": 0.562177
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 3,
+                "pv": 3,
+                "count": 12,
+                "depth": 10,
+                "score": 47,
+                "winRate": 0.558481
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 4,
+                "pv": 1,
+                "count": 12,
+                "depth": 10,
+                "score": 22,
+                "winRate": 0.527472
+              },
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 5,
+                "pv": 4,
+                "count": 12,
+                "depth": 10,
+                "score": -15,
+                "winRate": 0.481259
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 6,
+                "pv": 5,
+                "count": 12,
+                "depth": 10,
+                "score": -51,
+                "winRate": 0.436593
+              },
+              {
+                "index": 82,
+                "x": 7,
+                "y": 5,
+                "rank": 7,
+                "pv": 7,
+                "count": 12,
+                "depth": 10,
+                "score": -72,
+                "winRate": 0.41096
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 8,
+                "pv": 6,
+                "count": 12,
+                "depth": 10,
+                "score": -99,
+                "winRate": 0.378716
+              },
+              {
+                "index": 67,
+                "x": 7,
+                "y": 4,
+                "rank": 9,
+                "pv": 11,
+                "count": 12,
+                "depth": 10,
+                "score": -208,
+                "winRate": 0.26115
+              },
+              {
+                "index": 125,
+                "x": 5,
+                "y": 8,
+                "rank": 10,
+                "pv": 9,
+                "count": 12,
+                "depth": 10,
+                "score": -211,
+                "winRate": 0.258266
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 11,
+                "pv": 8,
+                "count": 12,
+                "depth": 10,
+                "score": -237,
+                "winRate": 0.234154
+              },
+              {
+                "index": 65,
+                "x": 5,
+                "y": 4,
+                "rank": 12,
+                "pv": 10,
+                "count": 12,
+                "depth": 10,
+                "score": -281,
+                "winRate": 0.197024
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 21,
+            "nodes": 7006,
+            "elapsed": 122,
+            "nps": 57426,
+            "evaluation": -73,
+            "mate": null,
+            "winRate": 0.40975,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.40975,
+              "evaluation": -73,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 14,
+            "nodes": 3135,
+            "elapsed": 43,
+            "nps": 72906,
+            "evaluation": 5,
+            "mate": null,
+            "winRate": 0.50625,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.50625,
+              "evaluation": 5,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "254985d1a2f0c8b5dae4d6ea920c58c94fa5f9d750606e3fe10cc576f1958d85",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 10,
+            "nodes": 4115,
+            "elapsed": 74,
+            "nps": 55608,
+            "evaluation": 73,
+            "mate": null,
+            "winRate": 0.59025,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.59025,
+              "evaluation": 73,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 22,
+            "nodes": 4926,
+            "elapsed": 77,
+            "nps": 64815,
+            "evaluation": -23,
+            "mate": null,
+            "winRate": 0.471282,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.471282,
+              "evaluation": -23,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "5f193074000ee8c6ede21ad6fc0738d3a8809c4c4c9f118c32f90555537ab069",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 17,
+            "nodes": 4651,
+            "elapsed": 83,
+            "nps": 56036,
+            "evaluation": -3,
+            "mate": null,
+            "winRate": 0.49625,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.49625,
+              "evaluation": -3,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 16,
+            "nodes": 8722,
+            "elapsed": 121,
+            "nps": 72082,
+            "evaluation": 30,
+            "mate": null,
+            "winRate": 0.53743,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.53743,
+              "evaluation": 30,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "33365b5665d0cc55699dd8b10e686ba5bc3259c1b6d6763d664cae57725cdd72",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 9,
+            "nodes": 1364,
+            "elapsed": 9,
+            "nps": 151555,
+            "evaluation": 127,
+            "mate": null,
+            "winRate": 0.653622,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.653622,
+              "evaluation": 127,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 13,
+            "nodes": 7549,
+            "elapsed": 106,
+            "nps": 71216,
+            "evaluation": 20,
+            "mate": null,
+            "winRate": 0.524979,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.524979,
+              "evaluation": 20,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "138e6e06ac54ab9012d45dd438c62610ed406a7d19cc454363f50b74b275f9f7",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 17,
+            "nodes": 6865,
+            "elapsed": 96,
+            "nps": 71510,
+            "evaluation": 303,
+            "mate": null,
+            "winRate": 0.819801,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.819801,
+              "evaluation": 303,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "79fa88de0991b428dac4479c3085987c3b95eee39486d3ca3d58a3b763bc2b83",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 12,
+            "nodes": 2605,
+            "elapsed": 33,
+            "nps": 78939,
+            "evaluation": 211,
+            "mate": null,
+            "winRate": 0.741734,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.741734,
+              "evaluation": 211,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "b67f18877bb2f508df9c55d778c12b2671fbd14c5b63014ec5a792171b717064",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 17,
+            "nodes": 3683,
+            "elapsed": 45,
+            "nps": 81844,
+            "evaluation": 237,
+            "mate": null,
+            "winRate": 0.765846,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.765846,
+              "evaluation": 237,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 162,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "88edb5bd9e79eb5d0b96e550825ad784e18541a4b65c34585c7aebe3dca48dfa",
+          "result": {
+            "depth": 10,
+            "selectiveDepth": 11,
+            "nodes": 1144,
+            "elapsed": 7,
+            "nps": 163428,
+            "evaluation": 281,
+            "mate": null,
+            "winRate": 0.802976,
+            "assessment": {
+              "depth": 10,
+              "winRate": 0.802976,
+              "evaluation": 281,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 750,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 19,
+            "selectiveDepth": 29,
+            "nodes": 31376,
+            "elapsed": 446,
+            "nps": 70349,
+            "evaluation": 4,
+            "mate": null,
+            "winRate": 0.505,
+            "assessment": {
+              "depth": 19,
+              "winRate": 0.505,
+              "evaluation": 4,
+              "mate": null,
+              "bestIndex": 95
+            },
+            "index": 95,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 1930,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 28,
+            "nodes": 63651,
+            "elapsed": 1112,
+            "nps": 57240,
+            "evaluation": 17,
+            "mate": null,
+            "winRate": 0.521237,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.521237,
+              "evaluation": 17,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "choice": "keep",
+        "result": {
+          "depth": 15,
+          "selectiveDepth": 14,
+          "nodes": 11889,
+          "elapsed": 5916.476023999996,
+          "nps": 81431,
+          "evaluation": 3,
+          "mate": null,
+          "winRate": 0.50375,
+          "assessment": {
+            "depth": 15,
+            "winRate": 0.50375,
+            "evaluation": 3,
+            "mate": null,
+            "bestIndex": 110
+          },
+          "index": 110,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 5916.476023999996,
+            "status": "路线已复核",
+            "searches": 17,
+            "candidateChecks": 12,
+            "blackFloor": 0.23415399999999997,
+            "normalFloor": 0.47876300000000005,
+            "provisional": true
+          }
+        },
+        "note": "已比较平衡第五手与十个非等价提案；十打按白方最有利的选点评估。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5916.476023999996,
+          "status": "路线已复核",
+          "searches": 17,
+          "candidateChecks": 12,
+          "blackFloor": 0.23415399999999997,
+          "normalFloor": 0.47876300000000005,
+          "provisional": true
+        }
+      },
+      "wallMs": 5917
+    },
+    {
+      "name": "negative-offer10",
+      "kind": "opening",
+      "rule": "taraguchi10",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 1
+          },
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "ten"
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 1,
+          "timeMs": 1000,
+          "multiPV": 10,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 19,
+            "nodes": 61723,
+            "elapsed": 937,
+            "nps": 65872,
+            "evaluation": -35,
+            "mate": null,
+            "winRate": 0.456361,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.564636,
+              "evaluation": 52,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 1,
+                "pv": 0,
+                "count": 10,
+                "depth": 10,
+                "score": 55,
+                "winRate": 0.56832
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 2,
+                "pv": 1,
+                "count": 10,
+                "depth": 10,
+                "score": 52,
+                "winRate": 0.564636
+              },
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 3,
+                "pv": 2,
+                "count": 10,
+                "depth": 10,
+                "score": 45,
+                "winRate": 0.556014
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 4,
+                "pv": 4,
+                "count": 10,
+                "depth": 10,
+                "score": 15,
+                "winRate": 0.518741
+              },
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 5,
+                "pv": 3,
+                "count": 10,
+                "depth": 10,
+                "score": 3,
+                "winRate": 0.50375
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 6,
+                "pv": 5,
+                "count": 10,
+                "depth": 10,
+                "score": -31,
+                "winRate": 0.461327
+              },
+              {
+                "index": 82,
+                "x": 7,
+                "y": 5,
+                "rank": 7,
+                "pv": 7,
+                "count": 10,
+                "depth": 10,
+                "score": -67,
+                "winRate": 0.417025
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 8,
+                "pv": 6,
+                "count": 10,
+                "depth": 10,
+                "score": -114,
+                "winRate": 0.361237
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 9,
+                "pv": 8,
+                "count": 10,
+                "depth": 10,
+                "score": -175,
+                "winRate": 0.294215
+              },
+              {
+                "index": 126,
+                "x": 6,
+                "y": 8,
+                "rank": 10,
+                "pv": 9,
+                "count": 10,
+                "depth": 10,
+                "score": -273,
+                "winRate": 0.203429
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 1,
+          "timeMs": 1100,
+          "multiPV": 12,
+          "root": false,
+          "boardSha256": "ae347e2d190f2433197d5b68336d13d77549a92d66bf710690b9c704999de70d",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 23,
+            "nodes": 79058,
+            "elapsed": 975,
+            "nps": 81085,
+            "evaluation": 37,
+            "mate": null,
+            "winRate": 0.546119,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.641067,
+              "evaluation": 116,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4",
+            "recommendations": [
+              {
+                "index": 66,
+                "x": 6,
+                "y": 4,
+                "rank": 1,
+                "pv": 2,
+                "count": 12,
+                "depth": 11,
+                "score": 116,
+                "winRate": 0.641067
+              },
+              {
+                "index": 111,
+                "x": 6,
+                "y": 7,
+                "rank": 2,
+                "pv": 0,
+                "count": 12,
+                "depth": 11,
+                "score": 81,
+                "winRate": 0.599888
+              },
+              {
+                "index": 98,
+                "x": 8,
+                "y": 6,
+                "rank": 3,
+                "pv": 1,
+                "count": 12,
+                "depth": 11,
+                "score": 52,
+                "winRate": 0.564636
+              },
+              {
+                "index": 95,
+                "x": 5,
+                "y": 6,
+                "rank": 4,
+                "pv": 3,
+                "count": 12,
+                "depth": 11,
+                "score": 19,
+                "winRate": 0.523732
+              },
+              {
+                "index": 110,
+                "x": 5,
+                "y": 7,
+                "rank": 5,
+                "pv": 4,
+                "count": 12,
+                "depth": 11,
+                "score": 5,
+                "winRate": 0.50625
+              },
+              {
+                "index": 81,
+                "x": 6,
+                "y": 5,
+                "rank": 6,
+                "pv": 5,
+                "count": 12,
+                "depth": 11,
+                "score": -2,
+                "winRate": 0.4975
+              },
+              {
+                "index": 94,
+                "x": 4,
+                "y": 6,
+                "rank": 7,
+                "pv": 6,
+                "count": 12,
+                "depth": 11,
+                "score": -17,
+                "winRate": 0.478763
+              },
+              {
+                "index": 99,
+                "x": 9,
+                "y": 6,
+                "rank": 8,
+                "pv": 7,
+                "count": 12,
+                "depth": 11,
+                "score": -112,
+                "winRate": 0.363547
+              },
+              {
+                "index": 125,
+                "x": 5,
+                "y": 8,
+                "rank": 9,
+                "pv": 8,
+                "count": 12,
+                "depth": 11,
+                "score": -190,
+                "winRate": 0.278885
+              },
+              {
+                "index": 82,
+                "x": 7,
+                "y": 5,
+                "rank": 10,
+                "pv": 9,
+                "count": 12,
+                "depth": 11,
+                "score": -195,
+                "winRate": 0.273885
+              },
+              {
+                "index": 65,
+                "x": 5,
+                "y": 4,
+                "rank": 11,
+                "pv": 11,
+                "count": 12,
+                "depth": 11,
+                "score": -200,
+                "winRate": 0.268941
+              },
+              {
+                "index": 83,
+                "x": 8,
+                "y": 5,
+                "rank": 12,
+                "pv": 10,
+                "count": 12,
+                "depth": 11,
+                "score": -270,
+                "winRate": 0.20587
+              }
+            ]
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 20,
+            "nodes": 7843,
+            "elapsed": 107,
+            "nps": 73990,
+            "evaluation": -118,
+            "mate": null,
+            "winRate": 0.356635,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.356635,
+              "evaluation": -118,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "254985d1a2f0c8b5dae4d6ea920c58c94fa5f9d750606e3fe10cc576f1958d85",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 17,
+            "nodes": 2898,
+            "elapsed": 34,
+            "nps": 85235,
+            "evaluation": 45,
+            "mate": null,
+            "winRate": 0.556014,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.556014,
+              "evaluation": 45,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 16,
+            "nodes": 2851,
+            "elapsed": 36,
+            "nps": 81457,
+            "evaluation": -85,
+            "mate": null,
+            "winRate": 0.395321,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.395321,
+              "evaluation": -85,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 13,
+            "nodes": 4638,
+            "elapsed": 67,
+            "nps": 69223,
+            "evaluation": -37,
+            "mate": null,
+            "winRate": 0.453881,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.453881,
+              "evaluation": -37,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "5f193074000ee8c6ede21ad6fc0738d3a8809c4c4c9f118c32f90555537ab069",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 17,
+            "nodes": 5610,
+            "elapsed": 68,
+            "nps": 83731,
+            "evaluation": 27,
+            "mate": null,
+            "winRate": 0.533699,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.533699,
+              "evaluation": 27,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 19,
+            "nodes": 11032,
+            "elapsed": 185,
+            "nps": 59632,
+            "evaluation": -37,
+            "mate": null,
+            "winRate": 0.453881,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.453881,
+              "evaluation": -37,
+              "mate": null,
+              "bestIndex": 79
+            },
+            "index": 79,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 19,
+            "nodes": 14576,
+            "elapsed": 259,
+            "nps": 56277,
+            "evaluation": 34,
+            "mate": null,
+            "winRate": 0.542398,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.542398,
+              "evaluation": 34,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "07448311ed2e45f4eb3d711e3520a614a6b37636b0789b15b4bab1b944b9a70b",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 19,
+            "nodes": 3549,
+            "elapsed": 89,
+            "nps": 39876,
+            "evaluation": 174,
+            "mate": null,
+            "winRate": 0.704746,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.704746,
+              "evaluation": 174,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "79fa88de0991b428dac4479c3085987c3b95eee39486d3ca3d58a3b763bc2b83",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 16,
+            "nodes": 4199,
+            "elapsed": 47,
+            "nps": 89340,
+            "evaluation": 241,
+            "mate": null,
+            "winRate": 0.769413,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.769413,
+              "evaluation": 241,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "33365b5665d0cc55699dd8b10e686ba5bc3259c1b6d6763d664cae57725cdd72",
+          "result": {
+            "depth": 18,
+            "selectiveDepth": 17,
+            "nodes": 11663,
+            "elapsed": 168,
+            "nps": 69422,
+            "evaluation": 195,
+            "mate": null,
+            "winRate": 0.726115,
+            "assessment": {
+              "depth": 18,
+              "winRate": 0.726115,
+              "evaluation": 195,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "88edb5bd9e79eb5d0b96e550825ad784e18541a4b65c34585c7aebe3dca48dfa",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 24,
+            "nodes": 12612,
+            "elapsed": 152,
+            "nps": 82973,
+            "evaluation": 397,
+            "mate": null,
+            "winRate": 0.879213,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.879213,
+              "evaluation": 397,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 284,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "b67f18877bb2f508df9c55d778c12b2671fbd14c5b63014ec5a792171b717064",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 10,
+            "nodes": 1360,
+            "elapsed": 10,
+            "nps": 136000,
+            "evaluation": 270,
+            "mate": null,
+            "winRate": 0.79413,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.79413,
+              "evaluation": 270,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "points": [
+          66,
+          98,
+          81,
+          95,
+          110,
+          94,
+          111,
+          99,
+          82,
+          125
+        ],
+        "result": {
+          "depth": 12,
+          "selectiveDepth": 23,
+          "nodes": 79058,
+          "elapsed": 5271.080712999996,
+          "nps": 81085,
+          "evaluation": 37,
+          "mate": null,
+          "winRate": 0.546119,
+          "assessment": {
+            "depth": 12,
+            "winRate": 0.641067,
+            "evaluation": 116,
+            "mate": null,
+            "bestIndex": 66
+          },
+          "index": 66,
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "recommendations": [
+            {
+              "index": 66,
+              "x": 6,
+              "y": 4,
+              "rank": 1,
+              "pv": 2,
+              "count": 12,
+              "depth": 11,
+              "score": 116,
+              "winRate": 0.641067
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 2,
+              "pv": 0,
+              "count": 12,
+              "depth": 11,
+              "score": 81,
+              "winRate": 0.599888
+            },
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 3,
+              "pv": 1,
+              "count": 12,
+              "depth": 11,
+              "score": 52,
+              "winRate": 0.564636
+            },
+            {
+              "index": 95,
+              "x": 5,
+              "y": 6,
+              "rank": 4,
+              "pv": 3,
+              "count": 12,
+              "depth": 11,
+              "score": 19,
+              "winRate": 0.523732
+            },
+            {
+              "index": 110,
+              "x": 5,
+              "y": 7,
+              "rank": 5,
+              "pv": 4,
+              "count": 12,
+              "depth": 11,
+              "score": 5,
+              "winRate": 0.50625
+            },
+            {
+              "index": 81,
+              "x": 6,
+              "y": 5,
+              "rank": 6,
+              "pv": 5,
+              "count": 12,
+              "depth": 11,
+              "score": -2,
+              "winRate": 0.4975
+            },
+            {
+              "index": 94,
+              "x": 4,
+              "y": 6,
+              "rank": 7,
+              "pv": 6,
+              "count": 12,
+              "depth": 11,
+              "score": -17,
+              "winRate": 0.478763
+            },
+            {
+              "index": 99,
+              "x": 9,
+              "y": 6,
+              "rank": 8,
+              "pv": 7,
+              "count": 12,
+              "depth": 11,
+              "score": -112,
+              "winRate": 0.363547
+            },
+            {
+              "index": 125,
+              "x": 5,
+              "y": 8,
+              "rank": 9,
+              "pv": 8,
+              "count": 12,
+              "depth": 11,
+              "score": -190,
+              "winRate": 0.278885
+            },
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 10,
+              "pv": 9,
+              "count": 12,
+              "depth": 11,
+              "score": -195,
+              "winRate": 0.273885
+            },
+            {
+              "index": 65,
+              "x": 5,
+              "y": 4,
+              "rank": 11,
+              "pv": 11,
+              "count": 12,
+              "depth": 11,
+              "score": -200,
+              "winRate": 0.268941
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 12,
+              "pv": 10,
+              "count": 12,
+              "depth": 11,
+              "score": -270,
+              "winRate": 0.20587
+            }
+          ],
+          "adaptive": {
+            "budgetMs": 6000,
+            "elapsedMs": 5271.080712999996,
+            "status": "候选仍接近",
+            "searches": 14,
+            "candidateChecks": 12,
+            "blackFloor": 0.230587
+          }
+        },
+        "rate": 0.230587,
+        "checks": 12,
+        "gap": 0.02471699999999999,
+        "status": "候选仍接近",
+        "note": "扩大非等价候选，按白方应手复核整组最弱第五手。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5271.080712999996,
+          "status": "候选仍接近",
+          "searches": 14,
+          "candidateChecks": 12,
+          "blackFloor": 0.230587
+        }
+      },
+      "wallMs": 5271
+    },
+    {
+      "name": "negative-choose",
+      "kind": "opening",
+      "rule": "taraguchi10",
+      "record": {
+        "format": "gomoku-opening",
+        "version": 1,
+        "rule": "taraguchi10",
+        "workflow": "copilot",
+        "initialBlackSeat": null,
+        "seed": null,
+        "events": [
+          {
+            "type": "start",
+            "initialBlackSeat": 1
+          },
+          {
+            "type": "stone",
+            "index": 112
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 97,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 80
+          },
+          {
+            "type": "decision",
+            "choice": "keep"
+          },
+          {
+            "type": "stone",
+            "index": 96,
+            "automatic": true
+          },
+          {
+            "type": "decision",
+            "choice": "ten"
+          },
+          {
+            "type": "offer",
+            "index": 98
+          },
+          {
+            "type": "offer",
+            "index": 81
+          },
+          {
+            "type": "offer",
+            "index": 95
+          },
+          {
+            "type": "offer",
+            "index": 110
+          },
+          {
+            "type": "offer",
+            "index": 66
+          },
+          {
+            "type": "offer",
+            "index": 83
+          },
+          {
+            "type": "offer",
+            "index": 94
+          },
+          {
+            "type": "offer",
+            "index": 82
+          },
+          {
+            "type": "offer",
+            "index": 111
+          },
+          {
+            "type": "offer",
+            "index": 126
+          }
+        ]
+      },
+      "searches": [
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 11,
+            "nodes": 1978,
+            "elapsed": 25,
+            "nps": 79120,
+            "evaluation": -113,
+            "mate": null,
+            "winRate": 0.362391,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.362391,
+              "evaluation": -113,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 11,
+            "selectiveDepth": 17,
+            "nodes": 7807,
+            "elapsed": 137,
+            "nps": 56985,
+            "evaluation": -7,
+            "mate": null,
+            "winRate": 0.491251,
+            "assessment": {
+              "depth": 11,
+              "winRate": 0.491251,
+              "evaluation": -7,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 13,
+            "nodes": 8286,
+            "elapsed": 145,
+            "nps": 57144,
+            "evaluation": -58,
+            "mate": null,
+            "winRate": 0.428004,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.428004,
+              "evaluation": -58,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "5f193074000ee8c6ede21ad6fc0738d3a8809c4c4c9f118c32f90555537ab069",
+          "result": {
+            "depth": 13,
+            "selectiveDepth": 12,
+            "nodes": 2988,
+            "elapsed": 33,
+            "nps": 90545,
+            "evaluation": -50,
+            "mate": null,
+            "winRate": 0.437824,
+            "assessment": {
+              "depth": 13,
+              "winRate": 0.437824,
+              "evaluation": -50,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 95,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 20,
+            "nodes": 4036,
+            "elapsed": 91,
+            "nps": 44351,
+            "evaluation": -70,
+            "mate": null,
+            "winRate": 0.413382,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.413382,
+              "evaluation": -70,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "b67f18877bb2f508df9c55d778c12b2671fbd14c5b63014ec5a792171b717064",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 15,
+            "nodes": 4141,
+            "elapsed": 55,
+            "nps": 75290,
+            "evaluation": 212,
+            "mate": null,
+            "winRate": 0.742691,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.742691,
+              "evaluation": 212,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 14,
+            "nodes": 7786,
+            "elapsed": 121,
+            "nps": 64883,
+            "evaluation": 24,
+            "mate": null,
+            "winRate": 0.529964,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.529964,
+              "evaluation": 24,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "33365b5665d0cc55699dd8b10e686ba5bc3259c1b6d6763d664cae57725cdd72",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 13,
+            "nodes": 7018,
+            "elapsed": 107,
+            "nps": 65588,
+            "evaluation": 81,
+            "mate": null,
+            "winRate": 0.599888,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.599888,
+              "evaluation": 81,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "254985d1a2f0c8b5dae4d6ea920c58c94fa5f9d750606e3fe10cc576f1958d85",
+          "result": {
+            "depth": 14,
+            "selectiveDepth": 11,
+            "nodes": 5114,
+            "elapsed": 121,
+            "nps": 42264,
+            "evaluation": 28,
+            "mate": null,
+            "winRate": 0.534943,
+            "assessment": {
+              "depth": 14,
+              "winRate": 0.534943,
+              "evaluation": 28,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 180,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "0e85523120a87bd353c7db48a7578b7eb8bc62ed160c08acb89d9da91612c7a5",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 25,
+            "nodes": 5733,
+            "elapsed": 111,
+            "nps": 51648,
+            "evaluation": 301,
+            "mate": null,
+            "winRate": 0.818319,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.818319,
+              "evaluation": 301,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "ac903ed4248635c7aee855d9eb58fe09939796516ed26cf6038c064476e09318",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 29,
+            "nodes": 15772,
+            "elapsed": 271,
+            "nps": 58199,
+            "evaluation": -40,
+            "mate": null,
+            "winRate": 0.450166,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.450166,
+              "evaluation": -40,
+              "mate": null,
+              "bestIndex": 126
+            },
+            "index": 126,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "00dc7af51c1afbae2860639495c24935c8bdf71b5405668f875f3538e2a6cff3",
+          "result": {
+            "depth": 12,
+            "selectiveDepth": 21,
+            "nodes": 13543,
+            "elapsed": 228,
+            "nps": 59399,
+            "evaluation": 1,
+            "mate": null,
+            "winRate": 0.50125,
+            "assessment": {
+              "depth": 12,
+              "winRate": 0.50125,
+              "evaluation": 1,
+              "mate": null,
+              "bestIndex": 82
+            },
+            "index": 82,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "a676cfc3b9e75d0f6f285f34ece4ebbcf54b33cbc24c4f8818dbb52ea2d32de1",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 14,
+            "nodes": 7780,
+            "elapsed": 139,
+            "nps": 55971,
+            "evaluation": -44,
+            "mate": null,
+            "winRate": 0.445221,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.445221,
+              "evaluation": -44,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "5f193074000ee8c6ede21ad6fc0738d3a8809c4c4c9f118c32f90555537ab069",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 21,
+            "nodes": 16070,
+            "elapsed": 261,
+            "nps": 61570,
+            "evaluation": 53,
+            "mate": null,
+            "winRate": 0.565865,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.565865,
+              "evaluation": 53,
+              "mate": null,
+              "bestIndex": 111
+            },
+            "index": 111,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "1a7146d64407a1012bc86c1d79ff03ba94dfb23ad39ed724ed5729d7287e30cb",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 30,
+            "nodes": 19051,
+            "elapsed": 304,
+            "nps": 62874,
+            "evaluation": 54,
+            "mate": null,
+            "winRate": 0.567093,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.567093,
+              "evaluation": 54,
+              "mate": null,
+              "bestIndex": 94
+            },
+            "index": 94,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "b67f18877bb2f508df9c55d778c12b2671fbd14c5b63014ec5a792171b717064",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 18,
+            "nodes": 18798,
+            "elapsed": 269,
+            "nps": 69881,
+            "evaluation": 70,
+            "mate": null,
+            "winRate": 0.586618,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.586618,
+              "evaluation": 70,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 81,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "df848014a230df66b65bb7319909bcdad33a8c29bbd7f8dfc0b00c8e5c2cd314",
+          "result": {
+            "depth": 16,
+            "selectiveDepth": 15,
+            "nodes": 6024,
+            "elapsed": 70,
+            "nps": 86057,
+            "evaluation": 24,
+            "mate": null,
+            "winRate": 0.529964,
+            "assessment": {
+              "depth": 16,
+              "winRate": 0.529964,
+              "evaluation": 24,
+              "mate": null,
+              "bestIndex": 66
+            },
+            "index": 66,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "33365b5665d0cc55699dd8b10e686ba5bc3259c1b6d6763d664cae57725cdd72",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 17,
+            "nodes": 9817,
+            "elapsed": 135,
+            "nps": 72718,
+            "evaluation": 73,
+            "mate": null,
+            "winRate": 0.59025,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.59025,
+              "evaluation": 73,
+              "mate": null,
+              "bestIndex": 81
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "254985d1a2f0c8b5dae4d6ea920c58c94fa5f9d750606e3fe10cc576f1958d85",
+          "result": {
+            "depth": 15,
+            "selectiveDepth": 11,
+            "nodes": 2432,
+            "elapsed": 22,
+            "nps": 110545,
+            "evaluation": 28,
+            "mate": null,
+            "winRate": 0.534943,
+            "assessment": {
+              "depth": 15,
+              "winRate": 0.534943,
+              "evaluation": 28,
+              "mate": null,
+              "bestIndex": 110
+            },
+            "index": 110,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        },
+        {
+          "sideToMove": 2,
+          "timeMs": 449,
+          "multiPV": 1,
+          "root": false,
+          "boardSha256": "0e85523120a87bd353c7db48a7578b7eb8bc62ed160c08acb89d9da91612c7a5",
+          "result": {
+            "depth": 17,
+            "selectiveDepth": 29,
+            "nodes": 27360,
+            "elapsed": 367,
+            "nps": 74550,
+            "evaluation": 368,
+            "mate": null,
+            "winRate": 0.862949,
+            "assessment": {
+              "depth": 17,
+              "winRate": 0.862949,
+              "evaluation": 368,
+              "mate": null,
+              "bestIndex": 98
+            },
+            "index": 98,
+            "weight": "mix9svqrenju_bs15_white.bin.lz4"
+          }
+        }
+      ],
+      "result": {
+        "points": [
+          126,
+          82
+        ],
+        "note": "从白方角度逐一复核实际候选。",
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 5659.964627000001,
+          "status": "选点稳定",
+          "searches": 20,
+          "candidateChecks": 10
+        }
+      },
+      "wallMs": 5660
+    },
+    {
+      "name": "zero-1",
+      "kind": "shortcut",
+      "board": [
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "color": 1,
+      "result": {
+        "index": 4,
+        "elapsed": 9.779496000002837,
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 9.779496000002837,
+          "status": "必须防守",
+          "searches": 0,
+          "reason": "unique-immediate-block"
+        }
+      }
+    },
+    {
+      "name": "zero-2",
+      "kind": "shortcut",
+      "board": [
+        2,
+        2,
+        2,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "color": 2,
+      "result": {
+        "index": 4,
+        "elapsed": 2.950703999995312,
+        "adaptive": {
+          "budgetMs": 6000,
+          "elapsedMs": 2.950703999995312,
+          "status": "已确认成五",
+          "searches": 0,
+          "reason": "immediate-win"
+        }
+      }
+    }
+  ],
+  "finished": "2026-10-11T04:22:07.277Z"
+}
