@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./styles.css?v=22" />
     <link rel="stylesheet" href="./game-modes.css?v=5" />
     <link rel="stylesheet" href="./enhancements.css?v=38" />
+    <link rel="stylesheet" href="./candidate-panel.css" />
   </head>
   <body>
     <div class="app-shell">
@@ -45,6 +46,8 @@
           <div class="board-wrap"><div class="board-frame">
             <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
           </div></div>
+          <div class="analysis-dock">
+          <section class="candidate-panel" id="moveCandidates" aria-label="下一手候选与录入落子复核"></section>
           <aside class="game-sidebar" aria-label="对局操作与分析">
             <div class="board-bottom">
               <div class="game-actions">
@@ -86,6 +89,7 @@
               </div>
             </div>
           </aside>
+          </div>
         </section>
       </main>
       <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待评估</div>

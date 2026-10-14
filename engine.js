@@ -26,7 +26,7 @@ export class GomokuEngine {
     this.onState = onState;
     this.onStats = onStats;
     this.onPonderSlice = onPonderSlice;
-    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js?v=22", import.meta.url)));
+    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js?v=40", import.meta.url)));
     this.capabilities = capabilities ?? detectCapabilities();
     this.variant = variant ?? selectVariant(this.capabilities);
     this.threads = this.variant.includes("multi") ? Math.max(1, Math.min(4, threads ?? this.capabilities.threads)) : 1;
@@ -131,8 +131,11 @@ export class GomokuEngine {
     });
   }
 
-  async ponder({ board, sideToMove, requestId, allowSetup = false }) {
+  async ponder({ board, sideToMove, requestId, allowSetup = false, multiPV = 1, sliceMs, allowedMoves, balance = false }) {
     validatePosition(board, sideToMove, { allowSetup });
+    if (!Number.isInteger(multiPV) || multiPV < 1 || multiPV > 32) throw new Error("推荐数量无效");
+    if (sliceMs !== undefined && (!Number.isInteger(sliceMs) || sliceMs < 100 || sliceMs > 1000)) throw new Error("后台分析时间无效");
+    if (allowedMoves && (!allowedMoves.length || allowedMoves.some(i => !validIndex(i) || board[i]))) throw new Error("搜索范围无效");
     if (!Number.isSafeInteger(requestId) || requestId < 0) throw new Error("请求编号无效");
     this.stopPonder();
     const serial = this.ponderSerial;
@@ -144,7 +147,7 @@ export class GomokuEngine {
     if (this.pending) throw new Error("已有搜索正在进行");
     this.pondering = { requestId, sideToMove, stats: {} };
     try {
-      this.worker.postMessage({ type: "ponder", board: copy, sideToMove, requestId, allowSetup });
+      this.worker.postMessage({ type: "ponder", board: copy, sideToMove, requestId, allowSetup, multiPV, sliceMs, allowedMoves, balance, rule: this.rule });
       this.onState({ state: "ready", pondering: true, variant: this.variant, threads: this.threads });
     } catch (error) { this.fail(error); throw error; }
   }

@@ -111,3 +111,17 @@ test("MultiPV jobs collect two root alternatives and normal searches reset the m
   jobs.output(move(114));
   assert.equal(messages.at(-1).result.recommendations, undefined);
 });
+
+test("five-PV background analysis emits only a completed comparable list and yields to a real move", () => {
+  const { jobs, commands, messages, flush } = setup();
+  const board = empty(); board[112] = 1;
+  jobs.ponder({ board, sideToMove: 2, requestId: 8, multiPV: 5, sliceMs: 600, rule: "freestyle" }); flush();
+  assert.equal(commands.at(-1), "YXNBEST 5"); assert.ok(commands.includes("INFO timeout_turn 600"));
+  for (let pv = 0; pv < 5; pv++) for (const line of [`INFO PV ${pv}`, "INFO NUMPV 5", "INFO DEPTH 8", `INFO EVAL ${100 - pv * 10}`, `INFO WINRATE ${.6 - pv * .01}`, `INFO BESTLINE ${8 + pv},7`, "INFO PV DONE"]) jobs.output(parseOutput(line), line);
+  assert.equal(messages.some(m => m.stats?.recommendations), false);
+  jobs.output(move(113));
+  const event = messages.at(-1); assert.equal(event.phase, "ponder"); assert.equal(event.sliceComplete, true); assert.equal(event.stats.recommendations.length, 5);
+  assert.equal(event.stats.assessment.bestIndex, 113); assert.equal(messages.some(m => m.type === "move"), false);
+  jobs.stopPonder(); assert.equal(jobs.background, null);
+  jobs.search({ board, sideToMove: 2, requestId: 9, timeMs: 1000 }); flush(); assert.equal(jobs.active.phase, "search");
+});

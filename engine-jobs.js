@@ -26,7 +26,7 @@ export class EngineJobs {
   }
 
   ponder(job) {
-    this.searchCommands(job.board, job.sideToMove, this.sliceMs, 1, job.allowSetup);
+    this.searchCommands(job.board, job.sideToMove, job.sliceMs ?? this.sliceMs, job.multiPV ?? 1, job.allowSetup, job);
     if (this.queuedSearch || this.active?.phase === "search") throw new Error("不能在落子搜索时启动后台思考");
     this.background = job;
     this.cancelNext();
@@ -62,13 +62,13 @@ export class EngineJobs {
       const phase = this.queuedSearch ? "search" : "ponder";
       this.queuedSearch = null;
       this.active = { ...job, phase, started: this.now(), stats: {}, assessment: new AssessmentCollector(),
-        recommendations: phase === "search" && job.multiPV > 1 ? new RecommendationCollector(job.multiPV, job.rule) : null };
-      const timeMs = phase === "ponder" ? this.sliceMs : job.timeMs;
+        recommendations: job.multiPV > 1 ? new RecommendationCollector(job.multiPV, job.rule) : null };
+      const timeMs = phase === "ponder" ? job.sliceMs ?? this.sliceMs : job.timeMs;
       if (this.restricted) this.send("YXBLOCKRESET");
       this.restricted = Boolean(job.allowedMoves);
       // Native automatic pondering must remain disabled: single-thread builds
       // run it synchronously and cannot receive STOP while it is running.
-      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, phase === "search" ? job.multiPV : 1, job.allowSetup, job)) this.send(command);
+      for (const command of this.searchCommands(job.board, job.sideToMove, timeMs, job.multiPV ?? 1, job.allowSetup, job)) this.send(command);
     }, this.queuedSearch ? 0 : this.pauseMs);
   }
 
@@ -98,7 +98,8 @@ export class EngineJobs {
       // Pondering results are hypothetical player moves. They never become
       // application moves; resynchronize the full board before every slice.
       else if (current) this.emit({ type: "stats", phase: "ponder", requestId: job.requestId, sliceComplete: true,
-        sideToMove: job.sideToMove, stats: { ...job.stats, elapsed: result.elapsed } });
+        sideToMove: job.sideToMove, stats: { ...job.stats, elapsed: result.elapsed,
+          ...(result.recommendations ? { recommendations: result.recommendations } : {}) } });
       // Yield after stdout before starting the next search, allowing Rapfi's
       // move callback to finish updating its protocol and board state.
       this.scheduleNext();
