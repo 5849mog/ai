@@ -9,10 +9,11 @@ import { createOpeningBook } from '../opening-book.js';
 import { RIF_OPENINGS } from '../rif-opening-pool.js';
 import { createGameArchive, ARCHIVE_KEY } from '../game-archive.js';
 import { RECORD_KEY, createRecord } from '../game-record.js';
+import { MOVE_REVIEW_MS } from '../move-candidates.js';
 
 const flush = () => new Promise(done => setImmediate(done));
 let fixtureId = 0;
-async function environment(page, { saved = null, failSearch = false, blockSave = false, completeAssessment = false, holdSearch = false, timeMs = null } = {}) {
+async function environment(page, { saved = null, failSearch = false, blockSave = false, completeAssessment = false, holdSearch = false, holdInit = false, timeMs = null } = {}) {
   const html = await readFile(new URL('../' + page, import.meta.url), 'utf8');
   const dom = new JSDOM(html, { url: `https://example.com/ai/${page}?view=simple`, pretendToBeVisual: true });
   dom.window.HTMLCanvasElement.prototype.getContext = () => ({});
@@ -31,12 +32,13 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
     terminate() { this.dead = true; }
     postMessage(data) {
       this.last = data;if(data.type==='init')this.initMessage=data;
-      if (data.type === 'init') queueMicrotask(() => this.emit({ type: 'ready' }));
+      if (data.type === 'init' && !holdInit) queueMicrotask(() => this.emit({ type: 'ready' }));
       if (data.type === 'ponder') this.ponderJob = data;
       if (data.type === 'search') queueMicrotask(() => {
         (this.searches ??= []).push(data);
         if (holdSearch) return;
-        if (failSearch && !failed) { failed = true; this.emit({ type: 'error', requestId: data.requestId, message: 'fixture search failure' }); return; }
+        // This option fails the actual AI reply, after any isolated move review.
+        if (failSearch && !failed && data.timeMs !== MOVE_REVIEW_MS) { failed = true; this.emit({ type: 'error', requestId: data.requestId, message: 'fixture search failure' }); return; }
         const allowed = data.allowedMoves ?? data.board.flatMap((value,index)=>value ? [] : [index]);
         const index = allowed.includes(113) ? 113 : allowed[0];
         const alternatives = [index,...allowed.filter(i=>i!==index)].slice(0,data.multiPV);
@@ -84,6 +86,98 @@ test('freestyle simple-mode retry preserves the existing stone and continues the
 const settled = async () => { for (let n = 0; n < 24; n++) await flush(); };
 function savedSession(f) { return replaySession(JSON.parse(localStorage.getItem(f.storageKey)).record); }
 function clickPoint(f, index) { document.querySelector(`#boardSvg [data-index="${index}"]`).dispatchEvent(new f.dom.window.MouseEvent('click', { bubbles: true })); }
+function publishCandidates(worker, indices = [110, 111, 113, 127, 128]) {
+ const q=worker.ponderJob;assert.equal(q.multiPV,5);
+ worker.emit({type:'stats',phase:'ponder',requestId:q.requestId,sliceComplete:true,sideToMove:q.sideToMove,
+  stats:{recommendations:indices.map((index,rank)=>({index,depth:12,score:80-rank*20,winRate:.7-rank*.05}))}});
+}
+
+test('candidate panel automatically analyzes the actual mover and pins a ranked input across the automatic reply',async()=>{
+ const board=new Uint8Array(225);board[112]=1;board[97]=2;
+ const s=new OpeningSession({rule:'taraguchi10',workflow:'copilot',initialBlackSeat:0,seed:{board,sideToMove:2}});
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:1},completeAssessment:true});
+ try{
+  await f.load();const w=f.workers.at(-1);publishCandidates(w);await settled();
+  assert.equal(document.querySelector('#moveCandidates').dataset.color,'2');assert.equal(document.querySelectorAll('.candidate-row').length,5);
+  clickPoint(f,113);await settled();
+  assert.equal(savedSession(f).moves.length,2);assert.equal(w.searches.length,1,'a ranked input needs only the actual AI reply');
+  const panel=document.querySelector('#moveCandidates');assert.equal(panel.dataset.mode,'review');assert.equal(panel.dataset.color,'2');
+  assert.equal(panel.querySelector('[aria-current="true"]').dataset.index,'113');assert.equal(panel.querySelector('[aria-current="true"] .candidate-score').textContent,'+40');
+  publishCandidates(w,[114,115,116,117,118]);await settled();assert.equal(panel.querySelector('[aria-current="true"]').dataset.index,'113');
+  document.querySelector('#candidateSwitch').click();assert.equal(panel.dataset.mode,'live');assert.equal(panel.dataset.color,'2');
+  assert.equal(panel.querySelector('.candidate-row').dataset.index,'114');
+  document.querySelector('#candidateSwitch').click();assert.equal(panel.dataset.selected,'113');
+ }finally{f.close();}
+});
+
+test('outside-list review searches the opponent on a cloned child board and restores the original white score without leaking stats',async()=>{
+ const board=new Uint8Array(225);board[112]=1;board[97]=2;
+ const s=new OpeningSession({rule:'rif',workflow:'copilot',initialBlackSeat:0,seed:{board,sideToMove:2}});
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:1},holdSearch:true});
+ try{
+  await f.load();const w=f.workers.at(-1);publishCandidates(w);clickPoint(f,120);await settled();
+  const q=w.searches.at(-1),panel=document.querySelector('#moveCandidates');assert.equal(q.sideToMove,1);assert.equal(q.board[120],2);assert.equal(q.timeMs,700);
+  assert.equal(savedSession(f).board[120],2);assert.equal(panel.querySelectorAll('.candidate-row').length,6);assert.equal(panel.dataset.color,'2');
+  const rate=document.querySelector('#simpleWinRate').textContent;
+  w.emit({type:'stats',requestId:q.requestId,sideToMove:1,stats:{assessment:{bestIndex:114,depth:18,evaluation:200,winRate:.8}}});f.advance(500);await settled();
+  assert.equal(document.querySelector('#simpleWinRate').textContent,rate);
+  w.emit({type:'move',requestId:q.requestId,result:{index:114,assessment:{bestIndex:114,depth:18,evaluation:200,winRate:.8}}});await settled();
+  assert.equal(panel.querySelector('[aria-current="true"] .candidate-score').textContent,'-200');assert.equal(panel.querySelector('[aria-current="true"] .candidate-rate').textContent,'20.0%');
+  assert.match(panel.querySelector('#candidateNote').textContent,/未进前五/);
+  const actual=w.searches.at(-1);assert.equal(actual.sideToMove,1);assert.equal(actual.board[120],2);assert.notEqual(actual.requestId,q.requestId);
+  document.querySelector('#undoButton').click();await settled();w.onmessage({data:{type:'move',requestId:actual.requestId,result:{index:114}}});await settled();
+  assert.equal(savedSession(f).board[120],0);assert.equal(savedSession(f).board[114],0);assert.equal(panel.dataset.mode,'live');assert.equal(panel.dataset.color,'2');
+ }finally{f.close();}
+});
+
+test('manual follow can record successive black and white moves and drops the late score from the previous board',async()=>{
+ const board=new Uint8Array(225);board[112]=1;board[97]=2;
+ const s=new OpeningSession({rule:'renju',workflow:'follow',seed:{board,sideToMove:1}});
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:2},holdSearch:true});
+ try{
+  await f.load();const old=f.workers.at(-1);publishCandidates(old);clickPoint(f,120);await settled();const first=old.searches.at(-1);
+  assert.equal(document.querySelector('#moveCandidates').dataset.color,'1');
+  clickPoint(f,121);await settled();const worker=f.workers.at(-1),second=worker.searches.at(-1);assert.equal(second.sideToMove,1);assert.equal(second.board[121],2);
+  old.onmessage({data:{type:'move',requestId:first.requestId,result:{index:120,assessment:{bestIndex:120,depth:22,evaluation:500,winRate:.99}}}});await settled();
+  assert.equal(document.querySelector('#moveCandidates').dataset.selected,'121');assert.equal(document.querySelector('#moveCandidates').dataset.color,'2');
+  worker.emit({type:'move',requestId:second.requestId,result:{index:114,assessment:{bestIndex:114,depth:12,evaluation:0,winRate:.5}}});await settled();
+  assert.equal(document.querySelector('[aria-current="true"] .candidate-score').textContent,'0');
+  const color=document.querySelector('#colorSelect');color.value='1';color.dispatchEvent(new f.dom.window.Event('change'));await settled();
+  assert.equal(document.querySelector('#moveCandidates').dataset.color,'2');assert.equal(document.querySelector('[aria-current="true"] .candidate-score').textContent,'0');
+  assert.deepEqual(savedSession(f).colors,[1,2]);assert.equal(savedSession(f).color,1);
+ }finally{f.close();}
+});
+
+test('Taraguchi swaps change ownership without recoloring the pinned fourth or the live fifth candidates',async()=>{
+ const s=new OpeningSession({rule:'taraguchi10',workflow:'copilot',initialBlackSeat:0});
+ for(const index of [112,97,96]){s.apply({type:'stone',index});if(s.decision)s.apply({type:'decision',choice:'keep'});}
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:1},completeAssessment:true});
+ try{
+  await f.load();publishCandidates(f.workers.at(-1),[128,111,113,127,129]);clickPoint(f,128);await settled();
+  const panel=document.querySelector('#moveCandidates');assert.equal(panel.dataset.color,'2');assert.equal(panel.dataset.selected,'128');
+  document.querySelector('#simpleOpeningFlow [data-choice="swap"]').click();await settled();
+  assert.equal(savedSession(f).blackSeat,1);assert.deepEqual(savedSession(f).colors,[1,2,1,2]);assert.equal(savedSession(f).stage,'b5');
+  assert.equal(panel.dataset.color,'2');assert.equal(panel.dataset.selected,'128');
+  document.querySelector('#candidateSwitch').click();assert.equal(panel.dataset.color,'1');
+  publishCandidates(f.workers.at(-1),[113,127,129,143,142]);clickPoint(f,113);await settled();
+  assert.equal(panel.dataset.color,'1');assert.equal(panel.dataset.selected,'113');assert.equal(savedSession(f).colors.at(-1),1);
+ }finally{f.close();}
+});
+
+test('recording two moves while the engine loads starts only the newest score job on the correct child board',async()=>{
+ const board=new Uint8Array(225);board[112]=1;board[97]=2;
+ const s=new OpeningSession({rule:'renju',workflow:'follow',seed:{board,sideToMove:1}});
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:1},holdInit:true,holdSearch:true});
+ try{
+  await f.load();const w=f.workers.at(-1);clickPoint(f,120);await settled();clickPoint(f,121);await settled();
+  assert.equal(w.searches,undefined);assert.equal(f.workers.length,1,'recording must preserve the in-flight model load');
+  w.emit({type:'ready'});await settled();assert.equal(w.searches.length,1);
+  const q=w.searches[0];assert.equal(q.sideToMove,1);assert.equal(q.board[120],1);assert.equal(q.board[121],2);
+  assert.equal(document.querySelector('#moveCandidates').dataset.selected,'121');assert.equal(document.querySelector('#moveCandidates').dataset.color,'2');
+  w.emit({type:'move',requestId:q.requestId,result:{index:114,assessment:{bestIndex:114,depth:12,evaluation:20,winRate:.6}}});await settled();
+  assert.equal(document.querySelector('[aria-current="true"] .candidate-score').textContent,'-20');
+ }finally{f.close();}
+});
 function verifyFormalDom(f, s) {
   assert.equal(document.querySelector('#boardSvg').dataset.stage, s.stage);
   assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length, s.moves.length);
@@ -306,7 +400,8 @@ test('RIF opponent opening input is preserved and does not activate the automati
     assert.equal(saved.openingPlan, null); assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length, 2);
     assert.equal(document.querySelector('#simpleOpeningFlow').dataset.stage, 'b3');
     assert.match(document.querySelector('#simpleOpeningFlow').textContent, /录入对方前三子/);
-    assert.equal(f.workers.at(-1).last.type, 'init');
+    assert.equal(f.workers.at(-1).ponderJob.multiPV, 5);
+    assert.equal(f.workers.at(-1).searches, undefined);
   } finally { f.close(); }
 });
 

@@ -48,7 +48,7 @@ self.onmessage = async ({ data }) => {
     if (data.type === "init") {
       renju = data.rule !== undefined && data.rule !== "freestyle";
       protocol = await import("./engine-protocol.js?v=22");
-      const { EngineJobs } = await import("./engine-jobs.js?v=22");
+      const { EngineJobs } = await import("./engine-jobs.js?v=40");
       const script = new URL(`${data.variant}.js`, data.baseURL).href;
       self.importScripts(script);
       instance = await self.Rapfi({
