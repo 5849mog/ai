@@ -76,9 +76,38 @@ test("view names the mover, preserves the selected line and exposes explicit liv
   try {
     const view = createCandidateView(root, m); view.render(); m.record(111); view.render();
     assert.equal(root.dataset.color, "2"); assert.equal(root.dataset.mode, "review"); assert.equal(root.querySelector('[aria-current="true"]').dataset.index, "111");
-    assert.match(root.querySelector('#candidateNote').textContent, /第 2/);
+    assert.match(root.querySelector('#candidateNote').textContent, /候选 2/);
     const next = board(); next[111] = 2; m.setPosition({ board: next, color: 1, ply: 3 }); view.render(); assert.equal(root.dataset.color, "2");
     root.querySelector('#candidateSwitch').click(); assert.equal(root.dataset.color, "1"); assert.equal(root.dataset.mode, "live");
     root.querySelector('#candidateSwitch').click(); assert.equal(root.dataset.color, "2");
+  } finally { dom.window.close(); }
+});
+
+test("inspecting a live candidate freezes the list and position changes invalidate its confirmation", () => {
+  const m = fixture(2); assert.ok(m.select(111)); assert.equal(m.applicable.index, 111);
+  assert.equal(m.accept({ requestId: 1, sideToMove: 2, stats: { recommendations: batch([120, 121, 122, 123, 124], 18) } }), false);
+  assert.equal(m.current.rows[1].index, 111);
+  const old = m.applicable, b = board(); b[120] = 2; m.setPosition({ board: b, color: 1 });
+  assert.equal(m.preview, null); assert.equal(m.applicable, null); assert.notEqual(m.current, old.position);
+});
+test("history candidates can be inspected but never confirmed, even before the board advances", () => {
+  const m = fixture(); m.record(111); assert.ok(m.select(113)); assert.equal(m.preview.index, 113); assert.equal(m.applicable, null);
+  assert.ok(m.select(113)); assert.equal(m.preview, null); assert.equal(m.select(224), false);
+});
+test("candidate buttons preview once, confirm explicitly and clear when switching to history", () => {
+  const dom = new JSDOM('<section></section>'), root = dom.window.document.querySelector('section'), m = fixture(2);
+  let previews = 0, applied = null;
+  try {
+    const view = createCandidateView(root, m, { onPreview: () => previews++, onApply: s => applied = s }); view.render({ canApply: true });
+    const choose = () => root.querySelector('button.candidate-row[data-index="111"]').click();
+    root.querySelector('button.candidate-row[data-index="111"]').focus();
+    choose(); assert.equal(previews, 1); assert.equal(applied, null); assert.equal(root.querySelector('#candidateApply').hidden, false);
+    assert.equal(dom.window.document.activeElement.dataset.index, '111');
+    assert.equal(root.querySelector('[aria-pressed="true"]').dataset.index, '111');
+    root.querySelector('#candidateApply').click(); assert.equal(applied, m.applicable);
+    choose(); assert.equal(m.preview, null); assert.equal(root.querySelector('#candidateApply').hidden, true);
+    m.record(113); view.render(); choose(); assert.equal(root.querySelector('#candidateApply').hidden, true);
+    assert.match(root.querySelector('#candidateNote').textContent, /历史候选/);
+    root.querySelector('#candidateSwitch').click(); assert.equal(m.preview, null);
   } finally { dom.window.close(); }
 });

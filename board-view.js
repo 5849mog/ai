@@ -36,7 +36,7 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state, idPrefix) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [] } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [], candidatePreview } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   const lines = editable ? [] : winningLines(board, lastMove);
   let svg = "";
@@ -115,6 +115,12 @@ function renderBoard(boardSvg, state, idPrefix) {
   if (answer && !editable) {
     const p = point(answerIndex); svg += `<circle class="answer-ring" cx="${p.x}" cy="${p.y}" r="18" data-answer="${answerIndex}"/>`;
   }
+  if (!editable && candidatePreview && Number.isInteger(candidatePreview.index) && candidatePreview.index >= 0 && candidatePreview.index < board.length && [1, 2].includes(candidatePreview.color)) {
+    const { index, color, rank } = candidatePreview, p = point(index), label = Number.isInteger(rank) && rank >= 1 && rank <= 5 ? rank : "外";
+    svg += `<g class="candidate-preview" data-candidate-preview="${index}" data-color="${color}" aria-label="候选预览 ${coordinate(index)} ${color === 1 ? "黑" : "白"}棋">`;
+    if (!board[index]) svg += `<circle class="candidate-preview-stone" cx="${p.x}" cy="${p.y}" r="13" fill="url(#${color === 1 ? "blackStone" : "whiteStone"})"/>`;
+    svg += `<circle class="candidate-preview-ring" cx="${p.x}" cy="${p.y}" r="20"/><circle class="candidate-preview-badge" cx="${p.x + 17}" cy="${p.y - 17}" r="9"/><text class="candidate-preview-number" x="${p.x + 17}" y="${p.y - 17}">${label}</text></g>`;
+  }
   // A dialog preview shares the page with the live board. Its SVG paint servers
   // need separate IDs so a hidden preview cannot shadow the live gradients.
   if (idPrefix) {
@@ -139,7 +145,8 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
       // append those overlays only when render returns true.
       const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
         Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
-        (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey]);
+        (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
+        state.candidatePreview && [state.candidatePreview.index, state.candidatePreview.color, state.candidatePreview.rank]]);
       if (key === previousKey) return false;
       renderBoard(boardSvg, state, idPrefix);
       previousKey = key; return true;

@@ -12,14 +12,19 @@ const browser = await chromium.launch({ headless: true,
   ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}),
   ...(process.env.CHROME_ARGS ? { args: JSON.parse(process.env.CHROME_ARGS) } : {}) });
 const report = { version: APP_VERSION, startedAt: new Date().toISOString(), browser: browser.version(),
-  method: "Real single-thread Rapfi WASM; no engine doubles. Live five-PV scores, pinned reviews, cloned child-board best-reply scores, both pages and responsive layouts.", checks: [], layouts: [], native: [], sources: {} };
-for (const path of ["app.js", "opening-app.js", "move-candidates.js", "candidate-panel.css", "engine.js", "engine-jobs.js", "engine.worker.js", "scripts/candidate-panel-qa.js"]) report.sources[path] = createHash("sha256").update(await readFile(new URL("../" + path, import.meta.url))).digest("hex");
+  method: "Real single-thread Rapfi WASM; no engine doubles. Clickable candidates, explicit adoption, held AI replies, history safety, five-PV scores, cloned child-board scores and responsive layouts.", checks: [], layouts: [], native: [], sources: {} };
+for (const path of ["app.js", "opening-app.js", "board-view.js", "move-candidates.js", "candidate-panel.css", "engine.js", "engine-jobs.js", "engine.worker.js", "scripts/candidate-panel-qa.js"]) report.sources[path] = createHash("sha256").update(await readFile(new URL("../" + path, import.meta.url))).digest("hex");
 let activePage;
 const pass = name => { report.checks.push(name); console.log("PASS", name); };
 const rows = page => page.locator(".candidate-row").evaluateAll(nodes => nodes.map(node => ({ index: Number(node.dataset.index),
   score: node.querySelector(".candidate-score").textContent, rate: node.querySelector(".candidate-rate")?.textContent, selected: node.getAttribute("aria-current") === "true" })));
 const waitFive = page => page.waitForFunction(() => document.querySelectorAll(".candidate-row").length === 5 &&
   [...document.querySelectorAll(".candidate-score")].every(node => node.textContent !== "待评估"), undefined, { timeout: 30000 });
+// Tactical shortcuts can legitimately contain fewer than five candidates.
+const waitCandidates = page => page.waitForFunction(() => {
+  const rows = document.querySelectorAll('.candidate-row');
+  return rows.length > 0 && rows.length <= 5 && [...document.querySelectorAll('.candidate-score')].every(node => node.textContent !== '待评估');
+}, undefined, { timeout: 30000 });
 const tapPoint = async (page, index) => { await page.locator(`#boardSvg [data-index="${index}"]`).tap(); await page.locator(`#boardSvg [data-index="${index}"]`).tap(); };
 const sizes = [[390, 844], [360, 640], [320, 568], [844, 390], [780, 360], [820, 1180], [768, 1024], [1024, 768], [1440, 900]];
 async function layout(page, name, mode) {
@@ -39,6 +44,8 @@ async function layout(page, name, mode) {
         `${name}/${mode} ${width}x${height}: ${key} clipped ${JSON.stringify(b)}`);
     }
     for (const row of result.rows) assert.ok(row.bottom <= result.panel.bottom + 1 && row.right <= result.panel.right + 1, "candidate row clipped");
+    const clipped = await page.locator('.candidate-row').evaluateAll(nodes => nodes.some(node => node.scrollWidth > node.clientWidth + 1));
+    assert.equal(clipped, false, `${name}/${mode}: candidate contents overflow`);
   }
   pass(`${name}: ${mode} mode stays within one screen at ${sizes.length} phone, tablet and desktop sizes`);
 }
@@ -67,6 +74,15 @@ try {
     assert.equal(actualPonder.multiPV, 5); assert.equal(actualPonder.sideToMove, 1);
     pass(`${name}: real WASM completes five scored candidates automatically for the actual black turn`);
     await layout(page, name, "full");
+    await page.locator(`.candidate-row[data-index="${first[2].index}"]`).tap();
+    assert.equal(await page.locator('[data-candidate-preview]').getAttribute('data-color'), '1');
+    assert.equal(await page.locator('[data-candidate-preview]').getAttribute('data-candidate-preview'), String(first[2].index));
+    assert.equal(await page.locator('#boardSvg [data-stone]').count(), 2);
+    assert.equal(await page.locator('#candidateApply').isVisible(), true);
+    await layout(page, name, 'full selected candidate');
+    await page.locator(`.candidate-row[data-index="${first[2].index}"]`).tap();
+    assert.equal(await page.locator('[data-candidate-preview]').count(), 0);
+    pass(`${name}: one tap previews the correct candidate without playing; tapping again clears it`);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.locator("#recordMenu summary").click(); await page.locator("#enterSimpleMode").click();
     await layout(page, name, "simple"); await page.setViewportSize({ width: 390, height: 844 });
@@ -79,8 +95,11 @@ try {
     assert.equal(frozen.find(row => row.selected).score, before[1].score);
     assert.equal(await page.locator("#moveCandidates").getAttribute("data-color"), "1");
     pass(`${name}: ranked input is highlighted with its original black score and survives automatic/background changes`);
+    await page.locator('.candidate-row').first().tap();
+    assert.equal(await page.locator('[data-candidate-preview]').count(), 1);assert.equal(await page.locator('#candidateApply').isVisible(), false);
+    pass(`${name}: historical candidates preview on the board but cannot be applied to the current position`);
     await page.screenshot({ path: `.cache/candidate-panel/${name.replace(".html", "")}-390.png` });
-    await page.locator("#candidateSwitch").click(); await waitFive(page);
+    await page.locator("#candidateSwitch").click(); await waitCandidates(page);
     if (name === "renju.html") assert.equal(await page.locator("#moveCandidates").getAttribute("data-color"), "2");
     const live = await rows(page), occupied = await page.locator("#boardSvg [data-stone]").evaluateAll(nodes => nodes.map(node => Number(node.dataset.stone)));
     const outside = Array.from({ length: 225 }, (_, i) => i).find(i => !occupied.includes(i) && !live.some(row => row.index === i));
@@ -88,7 +107,7 @@ try {
     await page.waitForFunction(() => { const row = document.querySelector('.candidate-row[aria-current="true"]'); return row && row.querySelector(".candidate-score").textContent !== "待评估"; });
     const reviewed = (await rows(page)).find(row => row.selected); const color = name === "index.html" ? 1 : 2;
     assert.equal(await page.locator("#moveCandidates").getAttribute("data-color"), String(color)); assert.equal(reviewed.index, outside);
-    assert.match(await page.locator("#candidateNote").innerText(), /未进前五/);
+    assert.match(await page.locator("#candidateNote").innerText(), /榜外评分/);
     const proof = await page.evaluate(({ index, color, budget }) => {
       const job = candidateMessages.findLast(message => message.type === "search" && message.timeMs === budget && message.board[index] === color && message.sideToMove === 3 - color);
       const result = candidateResults.find(event => event.requestId === job?.requestId)?.result; return { job, result };
@@ -102,10 +121,56 @@ try {
     await page.waitForFunction(() => document.querySelector("#moveCandidates").dataset.mode === "live");
     assert.equal(await page.locator(".candidate-row.selected").count(), 0);
     pass(`${name}: undo removes the pinned review and restarts analysis of the restored position`);
+    await waitCandidates(page);
+    if(name === 'index.html') {
+      await page.locator('#candidateReplyMode').tap();
+      assert.equal(await page.locator('#candidateReplyMode').innerText(),'自选应手');
+      const input=(await rows(page))[1].index;await tapPoint(page,input);
+      await page.waitForFunction(()=>document.querySelector('#stateText').textContent.includes('选择候选'));
+      await page.locator('#candidateSwitch').tap();await waitCandidates(page);
+      const replyRows=await rows(page),reply=(replyRows[1]??replyRows[0]).index, count=await page.locator('#boardSvg [data-stone]').count();
+      await page.locator(`.candidate-row[data-index="${reply}"]`).tap();
+      assert.equal(await page.locator('[data-candidate-preview]').getAttribute('data-color'),'2');
+      await layout(page,name,'simple selected AI reply');await page.setViewportSize({width:390,height:844});
+      await page.screenshot({path:'.cache/candidate-panel/white-reply-preview.png'});
+      await page.locator('#candidateApply').tap();await page.waitForFunction(index=>Boolean(document.querySelector(`[data-answer="${index}"]`)),reply);
+      await page.waitForTimeout(850);assert.equal(await page.locator('#boardSvg [data-stone]').count(),count+1);
+      assert.equal(await page.locator(`[data-stone="${reply}"]`).getAttribute('data-color'),'2');
+      assert.equal(await page.locator('[data-candidate-preview]').count(),0);
+      pass('index.html: self-selected white reply stays on hold until explicit adoption and adds exactly one AI stone');
+    } else {
+      const replyRows=await rows(page),reply=(replyRows[1]??replyRows[0]).index,count=await page.locator('#boardSvg [data-stone]').count();
+      await page.locator(`.candidate-row[data-index="${reply}"]`).tap();await page.locator('#candidateApply').tap();await page.waitForTimeout(850);
+      assert.equal(await page.locator('#boardSvg [data-stone]').count(),count+1);assert.equal(await page.locator(`[data-stone="${reply}"]`).getAttribute('data-color'),'2');
+      pass('renju.html: follow mode adopts the selected white move once without inserting another response');
+    }
     assert.deepEqual(errors, []); await context.close();
   }
+  {
+    const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+    const board=Array(225).fill(0);board[112]=1;board[97]=2;
+    const record=new OpeningSession({rule:'taraguchi10',workflow:'copilot',initialBlackSeat:0,seed:{board,sideToMove:2}}).record();
+    await context.addInitScript(record=>{localStorage.setItem('gomoku-candidate-reply-mode','manual');localStorage.setItem('gomoku-thinking-ms','1000');localStorage.setItem('gomoku-opening:/plain/:v1',JSON.stringify({record,perspective:2}));},record);
+    const page=await context.newPage();activePage=page;const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(origin+'renju.html?view=simple');await waitFive(page);
+    assert.equal(await page.locator('#candidateReplyMode').innerText(),'自选应手');
+    const input=(await rows(page))[1].index;await tapPoint(page,input);await page.waitForFunction(()=>document.querySelector('#stateText').textContent.includes('选择候选'));
+    assert.equal(await page.locator('#boardSvg [data-stone]').count(),3);
+    assert.equal(await page.locator('#simpleOpeningFlow h2').innerText(),'选择黑棋应手');
+    await page.locator('#candidateSwitch').tap();await waitCandidates(page);const replyRows=await rows(page),reply=(replyRows[1]??replyRows[0]).index;
+    await page.locator(`.candidate-row[data-index="${reply}"]`).tap();assert.equal(await page.locator('[data-candidate-preview]').getAttribute('data-color'),'1');
+    await layout(page,'renju.html','simple selected copilot reply');await page.setViewportSize({width:390,height:844});
+    await page.screenshot({path:'.cache/candidate-panel/black-reply-preview.png'});
+    await page.locator('#candidateApply').tap();await page.waitForTimeout(850);
+    assert.equal(await page.locator('#boardSvg [data-stone]').count(),4);assert.equal(await page.locator(`[data-stone="${reply}"]`).getAttribute('data-color'),'1');
+    const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('gomoku-opening:/plain/:v1')).record);
+    assert.equal(saved.events.at(-1).automatic,true);assert.equal(saved.events.at(-1).index,reply);
+    await page.screenshot({path:'.cache/candidate-panel/copilot-adopted.png'});assert.deepEqual(errors,[]);
+    pass('renju.html: copilot holds the real black response, adopts an alternative exactly once and saves it as an automatic move');
+    await context.close();
+  }
   report.finishedAt = new Date().toISOString(); report.passed = true;
-  await writeFile("reports/candidate-panel-v40.json", JSON.stringify(report, null, 2) + "\n");
+  await writeFile("reports/candidate-panel-v41.json", JSON.stringify(report, null, 2) + "\n");
 } catch (error) {
   if (activePage && !activePage.isClosed()) {
     const diagnostic = await activePage.evaluate(() => ({ panel: document.querySelector("#moveCandidates").outerHTML, state: document.querySelector("#stateText").textContent,

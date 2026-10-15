@@ -64,8 +64,13 @@ let displayModes;
 let enhancements;
 let paused=false, adaptiveRun=null, deepPhase="";
 let checkingMove = null;
+let manualReply = false;
 const candidates = new MoveCandidates();
-const candidateView = createCandidateView(document.querySelector("#moveCandidates"), candidates, () => { void syncPonder(); });
+const candidateView = createCandidateView(document.querySelector("#moveCandidates"), candidates, {
+  onCurrent: () => { render(); void syncPonder(); },
+  onPreview: () => { engine.stopPonder(); render(); if (!candidates.preview) void syncPonder(); },
+  onApply: applyCandidate, onReplyMode: toggleReplyMode
+});
 const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"freestyle"});
 const positionAnalysis = new PositionAnalysis();
 const analysisView = createAnalysisView(document.querySelector("#positionAnalysis"));
@@ -102,6 +107,7 @@ function getRecord() { return createRecord(moves, playerColor, setupPosition); }
 function positionKey() { return setupPosition ? `${setupPosition.sideToMove}:${setupPosition.board.join("")}` : "standard"; }
 
 try {
+  manualReply = localStorage.getItem("gomoku-candidate-reply-mode") === "manual";
   const storedTime = localStorage.getItem("gomoku-thinking-ms"), savedTime=storedTime==="30000"?ADAPTIVE_MODE:storedTime;
   if ([...timeSelect.options].some(option => option.value === savedTime)) timeSelect.value = savedTime;
   const savedColor = localStorage.getItem("gomoku-player-color");
@@ -147,12 +153,31 @@ const engine = new GomokuEngine({ onState: event => {
 } });
 
 function canInteract() { return !paused && state === "ready" && !thinking && !checkingMove && !recommending && !modalOpen && !winner && currentColor === playerColor; }
+function holdingReply() { return manualReply && currentColor !== playerColor; }
+function canPickReply() { return holdingReply() && !paused && state === "ready" && !thinking && !checkingMove && !recommending && !modalOpen && !winner; }
+function toggleReplyMode() {
+  manualReply = !manualReply; candidates.selection = null;
+  try { localStorage.setItem("gomoku-candidate-reply-mode", manualReply ? "manual" : "auto"); } catch { /* optional preference */ }
+  if (thinking) invalidateSearch();
+  if (holdingReply()) candidates.pinned = false;
+  render(); void prepareEngine();
+}
+function applyCandidate(selection) {
+  if (selection !== candidates.applicable) return;
+  if (canInteract()) { void place(selection.index); return; }
+  if (!canPickReply()) return;
+  const index = selection.index;
+  engine.stopPonder(); requestId++; candidates.cancel(); positionAnalysis.cancel();
+  applyAiMove({ index, elapsed: 0, selected: true });
+  render(); void syncPonder();
+}
 
 function render() {
   candidates.setPosition({ board, color: currentColor, ply: moves.length, continuation: Boolean(setupPosition), enabled: !winner, note: winner ? "对局已结束" : "" });
-  candidateView.render();
+  candidateView.render({ manualReply, canApply: canInteract() || canPickReply(), applyLabel: canPickReply() ? "采用应手" : `录入${currentColor === BLACK ? "黑" : "白"}棋`, modeDisabled: Boolean(winner || modalOpen || checkingMove || paused) });
   const interactive = canInteract();
   view.render({ board, lastMove, pendingIndex, hoverIndex, canInteract: interactive, playerColor, recommendations,
+    candidatePreview: candidates.preview,
     answerIndex: lastMove >= 0 && board[lastMove] === 3 - playerColor ? lastMove : -1 });
   let text = "轮到你落子";
   if (winner) text = winner === playerColor ? "你赢了" : winner === 3 ? "平局" : "AI 获胜";
@@ -163,6 +188,7 @@ function render() {
   else if (recommending) text = "正在寻找推荐落点…";
   else if (checkingMove) text = "正在复核录入的落子…";
   else if (thinking) text = "AI 思考中";
+  else if (canPickReply()) text = "选择候选 · 确认 AI 应手";
   else if (pendingIndex >= 0) text = "再点一次确认落子";
   if(thinking && deepPhase)text=deepPhase;
   else if(lastResult?.adaptive && lastMove===lastResult.index && !winner && !paused && !recommending)text+=` · ${lastResult.adaptive.status}`;
@@ -195,7 +221,7 @@ function render() {
 function updateClock() {
   searchClock.textContent = thinking
     ? `${((performance.now() - searchStarted) / 1000).toFixed(1)} 秒`
-    : lastResult ? `上一步 ${(lastResult.elapsed / 1000).toFixed(1)} 秒`
+    : lastResult?.selected ? "已采用候选应手" : lastResult ? `上一步 ${(lastResult.elapsed / 1000).toFixed(1)} 秒`
     : setupPosition ? `你执${playerColor === BLACK ? "黑" : "白"} · 自定义局面 · 无禁手`
     : `你执${playerColor === BLACK ? "黑 · 先手" : "白 · AI 先手"} · 无禁手`;
 }
@@ -218,10 +244,10 @@ function updateSearchInfo() {
 }
 
 async function syncPonder() {
-  if (!canInteract() || document.hidden || recommendations.length || !ponderToggle.checked && candidates.current.rows.length) { engine.stopPonder(); return; }
+  if (!(canInteract() || canPickReply()) || candidates.preview || document.hidden || recommendations.length || !ponderToggle.checked && candidates.current.rows.length) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   const id = ++requestId;
-  positionAnalysis.begin(id, playerColor);
+  positionAnalysis.begin(id, currentColor);
   candidates.begin(id);
   try { await engine.ponder({ board, sideToMove: currentColor, requestId: id, allowSetup: Boolean(setupPosition), multiPV: CANDIDATE_COUNT, sliceMs: CANDIDATE_SLICE_MS }); }
   catch (error) { if (error.name !== "AbortError") render(); }
@@ -232,7 +258,7 @@ async function prepareEngine() {
   try {
     await engine.init();
     if (modalOpen) return;
-    if (!winner && currentColor !== playerColor && !thinking) await startSearch();
+    if (!winner && currentColor !== playerColor && !thinking && !holdingReply()) await startSearch();
     else if (!thinking) await syncPonder();
   } catch (error) { if (error.name !== "AbortError") render(); }
 }
@@ -278,7 +304,7 @@ function hideRecommendations() {
 }
 
 async function startSearch() {
-  if (thinking || checkingMove || winner || modalOpen || paused || currentColor === playerColor) return;
+  if (thinking || checkingMove || winner || modalOpen || paused || holdingReply() || currentColor === playerColor) return;
   engine.stopPonder();
   const id = ++requestId, adaptive=timeSelect.value===ADAPTIVE_MODE, job={root:true};
   adaptiveRun=adaptive?job:null;deepPhase="";
@@ -307,22 +333,21 @@ async function startSearch() {
     if (!validIndex(result.index) || board[result.index]) throw new Error("无效落点");
     positionAnalysis.begin(requestId,3-playerColor);
     positionAnalysis.accept({ requestId, sideToMove: 3 - playerColor, stats: result });
-    board[result.index] = 3 - playerColor;
-    moves.push(result.index);
-    positionAnalysis.advanceAi(moves, result.index, result.assessment);
-    lastMove = result.index;
-    lastResult = result;
-    liveStats = result;
-    winner = outcome(board, lastMove);
-    positionAnalysis.finish(winner);
-    currentColor = playerColor;moved=true;
-    persistGame();
+    applyAiMove(result); moved=true;
   } catch (error) {
     if (!active() || error.name === "AbortError") return;
     state = "error";
   } finally {
     if (active()) { thinking=false;adaptiveRun=null;deepPhase="";stopClock();render();if(moved && !engine.ready)void prepareEngine();else void syncPonder(); }
   }
+}
+
+function applyAiMove(result) {
+  board[result.index] = 3 - playerColor; moves.push(result.index);
+  positionAnalysis.advanceAi(moves, result.index, result.assessment);
+  lastMove = result.index; lastResult = result; liveStats = result.selected ? null : result;
+  winner = outcome(board, lastMove); positionAnalysis.finish(winner); currentColor = playerColor;
+  pendingIndex = hoverIndex = -1; persistGame();
 }
 
 async function place(index) {
@@ -353,7 +378,7 @@ async function place(index) {
       if (checkingMove !== job || error.name === "AbortError") return;
       candidates.failReview(review);
     } finally { if (checkingMove === job) { checkingMove = null; render(); void prepareEngine(); } }
-  } else { render(); void startSearch(); }
+  } else { render(); void prepareEngine(); }
 }
 
 function selectedIndex(event) {

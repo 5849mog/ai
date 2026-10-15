@@ -30,9 +30,14 @@ let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, wa
 let rulesOpen = false, forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true;
 let checkingMove = null;
+let manualReply = false;
 let candidatePositionStamp = "";
 const candidates = new MoveCandidates();
-const candidateView = createCandidateView($("#moveCandidates"), candidates, () => { void syncPonder(); });
+const candidateView = createCandidateView($("#moveCandidates"), candidates, {
+  onCurrent: () => { render(); void syncPonder(); },
+  onPreview: () => { engine.stopPonder(); render(); if (!candidates.preview) void syncPonder(); },
+  onApply: applyCandidate, onReplyMode: toggleReplyMode
+});
 const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"opening"});
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
 const statsUpdates = createScheduledTask(renderAnalysis, 100);
@@ -42,6 +47,7 @@ function notify(message, error = false) {
   $("#simpleLive").textContent = message; warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
 }
 try {
+  manualReply = localStorage.getItem("gomoku-candidate-reply-mode") === "manual";
   const saved = JSON.parse(localStorage.getItem(STORAGE));
   if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
   const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (["1000", "5000", "10000", ADAPTIVE_MODE].includes(time)) $("#timeSelect").value = time;
@@ -92,6 +98,22 @@ function cancel() {
 function configureRule() { if ((engine.rule === "freestyle") !== (session.rule === "freestyle")) { engine.reset(); state = "idle"; } engine.rule = session.rule; }
 const manualTurn = () => !paused && !rulesOpen && !forbiddenInput && canManualTurn(session, { modal, busy });
 const interactive = () => manualTurn() && !session.decision;
+const holdingReply = () => manualReply && isAutomaticTurn(session) && !session.decision && !session.offerCount && session.stage !== "choose";
+const canPickReply = () => holdingReply() && !paused && !busy && !checkingMove && !modal && !rulesOpen && !forbiddenInput && state === "ready";
+function toggleReplyMode() {
+  manualReply = !manualReply; candidates.selection = null; advice = null;
+  try { localStorage.setItem("gomoku-candidate-reply-mode", manualReply ? "manual" : "auto"); } catch { /* optional preference */ }
+  if (busy) cancel();
+  if (holdingReply()) candidates.pinned = false;
+  render(); void prepare();
+}
+function applyCandidate(selection) {
+  if (selection !== candidates.applicable || busy || checkingMove || state !== "ready") return;
+  if (canPickReply() || session.workflow === "follow" && interactive()) {
+    if (!session.canPoint(selection.index) || moveVerdict(session.board, selection.index, session.color, session.rule).forbidden) return;
+    const index = selection.index; cancel(); commit({ type: "stone", index }, true); void prepare();
+  } else if (interactive()) void place(selection.index);
+}
 const workflowLabel = { copilot: "附身", follow: "记录", duel: "对弈" };
 function renderAnalysis() {
   statsUpdates.cancel();
@@ -133,6 +155,10 @@ function decorate() {
 }
 function renderFlow() {
   const flow = openingFlow(session, { busy, state, advice, rulesOpen, forbidden: forbiddenInput });
+  if (holdingReply() && !paused && !rulesOpen && !forbiddenInput && state !== "error") {
+    flow.title = checkingMove ? "正在复核上一手…" : state !== "ready" ? "正在准备候选…" : `选择${colorName(session.color)}棋应手`;
+    flow.note = candidates.pinned ? "点“当前”查看本手候选，再点选并确认。" : "点候选预览位置，再按“采用应手”。";
+  }
   for (const [root, hidden] of [[$("#openingFlow"), false], [$("#simpleOpeningFlow"), !display?.simple]]) {
     root.hidden = hidden;
     const key = JSON.stringify({ flow, busy, manual: manualTurn() });
@@ -157,14 +183,16 @@ function render() {
     allowedMoves: session.allowedMoves({ safe: true }), enabled: !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose",
     note: session.winner ? "对局已结束" : session.stage === "setup" ? "先选择开局角色" : session.decision ? "当前需要确认换色或路线" : session.offerCount || session.stage === "choose" ? "当前为提案与选案阶段" : !["play", "w6"].includes(session.stage) ? "开局未定色，仅棋色评分" : "" });
   }
-  candidateView.render();
+  candidateView.render({ manualReply, hideReplyMode: session.workflow === "follow", canApply: state === "ready" && !busy && !checkingMove && (interactive() || canPickReply()),
+    applyLabel: canPickReply() ? "采用应手" : session.workflow === "follow" ? "采用此步" : "录入落子", modeDisabled: Boolean(session.winner || modal || rulesOpen || forbiddenInput || checkingMove || paused) });
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
+    candidatePreview: candidates.preview,
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
   if (boardChanged) decorate();
-  const text = paused ? "思考已暂停 · 可继续或悔棋" : checkingMove ? "正在复核录入的落子…" : busy ? deepPhase || (isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…") : pending >= 0 ? "再点一次确认" : session.description();
+  const text = paused ? "思考已暂停 · 可继续或悔棋" : checkingMove ? "正在复核录入的落子…" : busy ? deepPhase || (isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…") : canPickReply() ? "选择候选 · 确认 AI 应手" : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${RULES[session.rule]} · ${workflowLabel[session.workflow]}`;
   $("#searchClock").title = `${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"} · ${RULES[session.rule]}`;
@@ -195,7 +223,7 @@ function render() {
   enhancements?.render();
 }
 async function syncPonder() {
-  if (busy || checkingMove || modal || rulesOpen || forbiddenInput || session.winner || !candidates.current?.enabled || !$("#ponderToggle").checked && candidates.current.rows.length || paused || document.hidden || advice || isAutomaticTurn(session)) { engine.stopPonder(); return; }
+  if (busy || checkingMove || candidates.preview || modal || rulesOpen || forbiddenInput || session.winner || !candidates.current?.enabled || !$("#ponderToggle").checked && candidates.current.rows.length || paused || document.hidden || advice || isAutomaticTurn(session) && !holdingReply()) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   const id = ++requestId; analysis.begin(id, session.color);
   candidates.begin(id);
@@ -205,9 +233,9 @@ async function syncPonder() {
 async function prepare() {
   const token = serial; if (checkingMove || paused || modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
   try {
-    if (isAutomaticTurn(session) && openingBook.plan(session)) { await autoPlay(); return; }
+    if (isAutomaticTurn(session) && !holdingReply() && openingBook.plan(session)) { await autoPlay(); return; }
     await engine.init(); if (token !== serial || modal) return;
-    if (isAutomaticTurn(session)) await autoPlay();
+    if (isAutomaticTurn(session) && !holdingReply()) await autoPlay();
     else if (session.workflow === "copilot" && session.decision && session.actor === 0 && !advice) await recommend({automatic:true});
     else await syncPonder();
   } catch (error) { if (error.name !== "AbortError") { render(); notify(error.message, true); } }
@@ -245,10 +273,10 @@ async function reviewRecorded(review) {
   } finally { if (checkingMove === job) { checkingMove = null; render(); } }
 }
 async function autoPlay() {
-  if (busy || modal || session.winner) return;
+  if (busy || modal || session.winner || holdingReply()) return;
   const token = serial; busy = true;deepPhase="";adaptiveThinking=$("#timeSelect").value===ADAPTIVE_MODE; engine.stopPonder(); render();
   const settings={isCancelled:()=>token!==serial || modal || paused,cancelSearch:()=>engine.cancel(),onProgress:phase=>{deepPhase=phase;render();}};
-  try { while (token === serial && !modal && isAutomaticTurn(session)) {
+  try { while (token === serial && !modal && isAutomaticTurn(session) && !holdingReply()) {
     const time = Number($("#timeSelect").value), openingBatch = session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage);
     const planned = openingBatch ? openingBook.plan(session) : null;
     const suggestion = planned ? { points: [planned.points[session.moves.length]] }
