@@ -108,3 +108,15 @@ test("AI answer halo requires a known occupied latest answer and editable boards
   view.render({ board, lastMove: 112, answerIndex: 112, canInteract: true, editable: true, uncertain: [112] }); assert.doesNotMatch(svg.innerHTML, /answer-ring|coordinate-pill/); assert.match(svg.innerHTML, /data-uncertain="112"/);
   assert.equal((svg.innerHTML.match(/class="hit-target"/g) || []).length, 225);
 });
+
+test("candidate previews use the candidate color, include occupied history points and never add real stones", () => {
+  const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225); board[112] = 1;
+  const state = { board, lastMove: 112, playerColor: 1, canInteract: false };
+  view.render({ ...state, candidatePreview: { index: 113, color: 2, rank: 3 } });
+  assert.match(svg.innerHTML, /data-candidate-preview="113" data-color="2"/);
+  assert.match(svg.innerHTML, /class="candidate-preview-stone"[^>]*fill="url\(#whiteStone\)"/);
+  assert.equal((svg.innerHTML.match(/data-stone=/g) || []).length, 1);
+  view.render({ ...state, candidatePreview: { index: 112, color: 2, rank: 2 } });
+  assert.match(svg.innerHTML, /data-candidate-preview="112"/); assert.doesNotMatch(svg.innerHTML, /candidate-preview-stone/);
+  view.render(state); assert.doesNotMatch(svg.innerHTML, /data-candidate-preview/);
+});
