@@ -1,0 +1,340 @@
+{
+  "version": "2026.10.15.2",
+  "startedAt": "2026-10-15T14:22:40.869Z",
+  "browser": "153.0.8010.0",
+  "method": "Real single-thread Rapfi WASM, no engine doubles; frame-by-frame current-color checks and one-screen layouts.",
+  "checks": [
+    "freestyle: current legal colored points appear with no panel or mode control",
+    "freestyle: outside-list input causes one normal automatic response, with no review search or manual hold",
+    "freestyle: every recorded frame uses the current mover and empty points, including the AI turn",
+    "index.html: simple layout passes all nine phone, tablet and desktop sizes",
+    "index.html: full layout passes all nine phone, tablet and desktop sizes",
+    "follow: current legal colored points appear with no panel or mode control",
+    "follow: outside-list inputs switch black/white immediately, perspective does not change the mover, undo restores white",
+    "follow: tapping a colored point uses the ordinary touch confirmation and places exactly that white stone",
+    "follow: every recorded frame uses the current mover and empty points, including the AI turn",
+    "renju.html: simple layout passes all nine phone, tablet and desktop sizes",
+    "renju.html: full layout passes all nine phone, tablet and desktop sizes",
+    "copilot: current legal colored points appear with no panel or mode control",
+    "copilot: outside-list input causes one normal automatic response, with no review search or manual hold",
+    "copilot: every recorded frame uses the current mover and empty points, including the AI turn"
+  ],
+  "layouts": [
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 320,
+      "height": 568,
+      "boardSide": 312,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 360,
+      "height": 640,
+      "boardSide": 352,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 390,
+      "height": 844,
+      "boardSide": 382,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 780,
+      "height": 360,
+      "boardSide": 248,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 844,
+      "height": 390,
+      "boardSide": 278,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 768,
+      "height": 1024,
+      "boardSide": 760,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 820,
+      "height": 1180,
+      "boardSide": 812,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 1024,
+      "height": 768,
+      "boardSide": 656,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "simple",
+      "width": 1440,
+      "height": 900,
+      "boardSide": 788,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 320,
+      "height": 568,
+      "boardSide": 183,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 360,
+      "height": 640,
+      "boardSide": 255,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 390,
+      "height": 844,
+      "boardSide": 378,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 780,
+      "height": 360,
+      "boardSide": 258,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 844,
+      "height": 390,
+      "boardSide": 288,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 768,
+      "height": 1024,
+      "boardSide": 729,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 820,
+      "height": 1180,
+      "boardSide": 779,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 1024,
+      "height": 768,
+      "boardSide": 636,
+      "passed": true
+    },
+    {
+      "page": "index.html",
+      "mode": "full",
+      "width": 1440,
+      "height": 900,
+      "boardSide": 768,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 320,
+      "height": 568,
+      "boardSide": 312,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 360,
+      "height": 640,
+      "boardSide": 352,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 390,
+      "height": 844,
+      "boardSide": 382,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 780,
+      "height": 360,
+      "boardSide": 346,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 844,
+      "height": 390,
+      "boardSide": 376,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 768,
+      "height": 1024,
+      "boardSide": 760,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 820,
+      "height": 1180,
+      "boardSide": 812,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 1024,
+      "height": 768,
+      "boardSide": 608,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "simple",
+      "width": 1440,
+      "height": 900,
+      "boardSide": 740,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 320,
+      "height": 568,
+      "boardSide": 135,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 360,
+      "height": 640,
+      "boardSide": 207,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 390,
+      "height": 844,
+      "boardSide": 378,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 780,
+      "height": 360,
+      "boardSide": 258,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 844,
+      "height": 390,
+      "boardSide": 288,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 768,
+      "height": 1024,
+      "boardSide": 695,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 820,
+      "height": 1180,
+      "boardSide": 779,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 1024,
+      "height": 768,
+      "boardSide": 636,
+      "passed": true
+    },
+    {
+      "page": "renju.html",
+      "mode": "full",
+      "width": 1440,
+      "height": 900,
+      "boardSide": 768,
+      "passed": true
+    }
+  ],
+  "frames": [
+    {
+      "workflow": "freestyle",
+      "verifiedFrames": 6,
+      "aiTurnFrames": 3
+    },
+    {
+      "workflow": "follow",
+      "verifiedFrames": 11,
+      "aiTurnFrames": 0
+    },
+    {
+      "workflow": "copilot",
+      "verifiedFrames": 7,
+      "aiTurnFrames": 3
+    }
+  ],
+  "sources": {
+    "app.js": "383bbf5cf6f3e07f4965d1904fc80a94808669908990a5fac65f5ae2222921c2",
+    "opening-app.js": "9f8656fb7912320c76a810d7ff451273258a84b85bcc072f0c12c2713527843e",
+    "board-view.js": "a4b2b47e0b7cb387e8b0f6841c027c1383d2beec8b0a29e37969a49816dff67e",
+    "turn-hints.js": "9b91966fb50cfff8fa08cc757d120153072b5af24ec29a3259d90c1835f66341",
+    "engine-jobs.js": "0a4791b1065703b7155871d02f6340169ccd2f0be8d1cca8022f2ad5d5d73487",
+    "styles.css": "f47a1646134097d3f5a037e0fef489ff0d712a4fa9c3126d4024fc63149ea7d1",
+    "scripts/board-hints-qa.js": "66c325961ad0f8cd6fd317f6ebea3347ac61b1524d822f3b290b807e9e404d32"
+  },
+  "passed": true,
+  "finishedAt": "2026-10-15T14:22:55.071Z"
+}

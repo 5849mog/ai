@@ -6,7 +6,7 @@ import { createOpeningBook } from "./opening-book.js";
 import { RIF_OPENINGS } from "./rif-opening-pool.js";
 import { createOpeningDialogs } from "./opening-guide.js";
 import { createBoardView } from "./board-view.js";
-import { GomokuEngine } from "./engine.js?v=40";
+import { GomokuEngine } from "./engine.js?v=42";
 import { PositionAnalysis } from "./position-analysis.js";
 import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { describeSearch } from "./search-info.js";
@@ -19,7 +19,7 @@ import { createGameArchive, queueArchiveRestore, takeArchiveRestore } from "./ga
 import { thinkingSettings, ADAPTIVE_MODE } from "./adaptive-search.js";
 import { adviseAdaptiveOpening } from "./adaptive-opening.js";
 import { APP_VERSION } from "./app-release.js";
-import { MoveCandidates, createCandidateView, CANDIDATE_COUNT, CANDIDATE_SLICE_MS, moveReviewOptions } from "./move-candidates.js";
+import { TurnHints, HINT_COUNT, HINT_SLICE_MS } from "./turn-hints.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORAGE}:variety`,
@@ -29,15 +29,8 @@ let busy = false, modal = false, advice = null, stats = null, statsColor = 1, po
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let rulesOpen = false, forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true;
-let checkingMove = null;
-let manualReply = false;
-let candidatePositionStamp = "";
-const candidates = new MoveCandidates();
-const candidateView = createCandidateView($("#moveCandidates"), candidates, {
-  onCurrent: () => { render(); void syncPonder(); },
-  onPreview: () => { engine.stopPonder(); render(); if (!candidates.preview) void syncPonder(); },
-  onApply: applyCandidate, onReplyMode: toggleReplyMode
-});
+const hints = new TurnHints(); let hintsStamp = "";
+const hintUpdates = createScheduledTask(() => render(), 100);
 const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"opening"});
 const analysis = new PositionAnalysis(), analysisView = createAnalysisView($("#positionAnalysis"));
 const statsUpdates = createScheduledTask(renderAnalysis, 100);
@@ -47,7 +40,6 @@ function notify(message, error = false) {
   $("#simpleLive").textContent = message; warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
 }
 try {
-  manualReply = localStorage.getItem("gomoku-candidate-reply-mode") === "manual";
   const saved = JSON.parse(localStorage.getItem(STORAGE));
   if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
   const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (["1000", "5000", "10000", ADAPTIVE_MODE].includes(time)) $("#timeSelect").value = time;
@@ -77,8 +69,7 @@ archive.resume(session.record());archiveReady=true;archiveCurrent();
 const engine = new GomokuEngine({ rule: session.rule,
   onState: event => { state = event.state; pondering = Boolean(event.pondering); render(); },
   onStats: event => {
-    if (checkingMove) return;
-    if (candidates.accept(event)) candidateView.render();
+    if (hints.accept(event)) hintUpdates.schedule();
     if (event.phase === "ponder" && event.sliceComplete && !$("#ponderToggle").checked) engine.stopPonder();
     if (modal || event.requestId !== requestId || adaptiveThinking && !deepRoot) return;
     stats = event.stats; statsColor = event.sideToMove;
@@ -86,8 +77,8 @@ const engine = new GomokuEngine({ rule: session.rule,
     statsUpdates.schedule();
   }
 });
-function cancel() {
-  checkingMove = null; candidates.cancel();
+function cancel({ keepHints = false } = {}) {
+  hints.cancel({ keepPoints: keepHints }); hintUpdates.cancel();
   statsUpdates.cancel();
   serial++; requestId++; busy = false;adaptiveThinking=false;deepPhase=""; advice = null; forbiddenInput = null; pending = hover = -1; analysis.cancel(); engine.stopPonder();
   // Recording several external opening stones must not restart model loading.
@@ -98,22 +89,6 @@ function cancel() {
 function configureRule() { if ((engine.rule === "freestyle") !== (session.rule === "freestyle")) { engine.reset(); state = "idle"; } engine.rule = session.rule; }
 const manualTurn = () => !paused && !rulesOpen && !forbiddenInput && canManualTurn(session, { modal, busy });
 const interactive = () => manualTurn() && !session.decision;
-const holdingReply = () => manualReply && isAutomaticTurn(session) && !session.decision && !session.offerCount && session.stage !== "choose";
-const canPickReply = () => holdingReply() && !paused && !busy && !checkingMove && !modal && !rulesOpen && !forbiddenInput && state === "ready";
-function toggleReplyMode() {
-  manualReply = !manualReply; candidates.selection = null; advice = null;
-  try { localStorage.setItem("gomoku-candidate-reply-mode", manualReply ? "manual" : "auto"); } catch { /* optional preference */ }
-  if (busy) cancel();
-  if (holdingReply()) candidates.pinned = false;
-  render(); void prepare();
-}
-function applyCandidate(selection) {
-  if (selection !== candidates.applicable || busy || checkingMove || state !== "ready") return;
-  if (canPickReply() || session.workflow === "follow" && interactive()) {
-    if (!session.canPoint(selection.index) || moveVerdict(session.board, selection.index, session.color, session.rule).forbidden) return;
-    const index = selection.index; cancel(); commit({ type: "stone", index }, true); void prepare();
-  } else if (interactive()) void place(selection.index);
-}
 const workflowLabel = { copilot: "附身", follow: "记录", duel: "对弈" };
 function renderAnalysis() {
   statsUpdates.cancel();
@@ -155,10 +130,6 @@ function decorate() {
 }
 function renderFlow() {
   const flow = openingFlow(session, { busy, state, advice, rulesOpen, forbidden: forbiddenInput });
-  if (holdingReply() && !paused && !rulesOpen && !forbiddenInput && state !== "error") {
-    flow.title = checkingMove ? "正在复核上一手…" : state !== "ready" ? "正在准备候选…" : `选择${colorName(session.color)}棋应手`;
-    flow.note = candidates.pinned ? "点“当前”查看本手候选，再点选并确认。" : "点候选预览位置，再按“采用应手”。";
-  }
   for (const [root, hidden] of [[$("#openingFlow"), false], [$("#simpleOpeningFlow"), !display?.simple]]) {
     root.hidden = hidden;
     const key = JSON.stringify({ flow, busy, manual: manualTurn() });
@@ -177,28 +148,25 @@ function renderFlow() {
 }
 function render() {
   const stamp = JSON.stringify([Array.from(session.board), session.color, session.rule, session.stage, session.winner]);
-  if (!candidates.current || stamp !== candidatePositionStamp) {
-    candidatePositionStamp = stamp;
-  candidates.setPosition({ board: session.board, color: session.color, rule: session.rule, ply: session.moves.length, stage: session.stage, continuation: Boolean(session.options.seed),
-    allowedMoves: session.allowedMoves({ safe: true }), enabled: !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose",
-    note: session.winner ? "对局已结束" : session.stage === "setup" ? "先选择开局角色" : session.decision ? "当前需要确认换色或路线" : session.offerCount || session.stage === "choose" ? "当前为提案与选案阶段" : !["play", "w6"].includes(session.stage) ? "开局未定色，仅棋色评分" : "" });
+  if (stamp !== hintsStamp) {
+    hintsStamp = stamp;
+    hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage,
+      allowedMoves: session.allowedMoves({ safe: true }), enabled: !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose" });
   }
-  candidateView.render({ manualReply, hideReplyMode: session.workflow === "follow", canApply: state === "ready" && !busy && !checkingMove && (interactive() || canPickReply()),
-    applyLabel: canPickReply() ? "采用应手" : session.workflow === "follow" ? "采用此步" : "录入落子", modeDisabled: Boolean(session.winner || modal || rulesOpen || forbiddenInput || checkingMove || paused) });
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
-    candidatePreview: candidates.preview,
+    moveHints: hints.points,
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
   if (boardChanged) decorate();
-  const text = paused ? "思考已暂停 · 可继续或悔棋" : checkingMove ? "正在复核录入的落子…" : busy ? deepPhase || (isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…") : canPickReply() ? "选择候选 · 确认 AI 应手" : pending >= 0 ? "再点一次确认" : session.description();
+  const text = paused ? "思考已暂停 · 可继续或悔棋" : busy ? deepPhase || (isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…") : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${RULES[session.rule]} · ${workflowLabel[session.workflow]}`;
   $("#searchClock").title = `${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"} · ${RULES[session.rule]}`;
   $("#undoButton").disabled = !session.events.length && pending < 0; $("#retryButton").hidden = state !== "error";
   $("#simpleUndoButton").disabled = $("#undoButton").disabled;
-  $("#recommendButton").disabled = Boolean(checkingMove) || isAutomaticTurn(session) || session.stage === "setup" || rulesOpen || Boolean(forbiddenInput) || session.workflow === "copilot" && session.decision || (!advice && !busy && (modal || session.winner || state !== "ready"));
+  $("#recommendButton").disabled = isAutomaticTurn(session) || session.stage === "setup" || rulesOpen || Boolean(forbiddenInput) || session.workflow === "copilot" && session.decision || (!advice && !busy && (modal || session.winner || state !== "ready"));
   $("#recommendButton").setAttribute("aria-pressed", String(Boolean(advice) || busy));
   $("#simpleRecommendButton").disabled = $("#recommendButton").disabled;
   $("#simpleRecommendButton").setAttribute("aria-pressed", $("#recommendButton").getAttribute("aria-pressed"));
@@ -223,19 +191,19 @@ function render() {
   enhancements?.render();
 }
 async function syncPonder() {
-  if (busy || checkingMove || candidates.preview || modal || rulesOpen || forbiddenInput || session.winner || !candidates.current?.enabled || !$("#ponderToggle").checked && candidates.current.rows.length || paused || document.hidden || advice || isAutomaticTurn(session) && !holdingReply()) { engine.stopPonder(); return; }
+  if (busy || modal || rulesOpen || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked && hints.points.length || paused || document.hidden || advice || isAutomaticTurn(session)) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   const id = ++requestId; analysis.begin(id, session.color);
-  candidates.begin(id);
+  hints.begin(id);
   try { await engine.ponder({ board: session.board, sideToMove: session.color, requestId: id, allowSetup: true,
-    multiPV: CANDIDATE_COUNT, sliceMs: CANDIDATE_SLICE_MS, allowedMoves: candidates.current.allowedMoves }); } catch (error) { if (error.name !== "AbortError") render(); }
+    multiPV: HINT_COUNT, sliceMs: HINT_SLICE_MS, allowedMoves: hints.position.allowedMoves }); } catch (error) { if (error.name !== "AbortError") render(); }
 }
 async function prepare() {
-  const token = serial; if (checkingMove || paused || modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
+  const token = serial; if (paused || modal || rulesOpen || forbiddenInput || session.winner || session.stage === "setup") return;
   try {
-    if (isAutomaticTurn(session) && !holdingReply() && openingBook.plan(session)) { await autoPlay(); return; }
+    if (isAutomaticTurn(session) && openingBook.plan(session)) { await autoPlay(); return; }
     await engine.init(); if (token !== serial || modal) return;
-    if (isAutomaticTurn(session) && !holdingReply()) await autoPlay();
+    if (isAutomaticTurn(session)) await autoPlay();
     else if (session.workflow === "copilot" && session.decision && session.actor === 0 && !advice) await recommend({automatic:true});
     else await syncPonder();
   } catch (error) { if (error.name !== "AbortError") { render(); notify(error.message, true); } }
@@ -243,40 +211,27 @@ async function prepare() {
 function searchFor(token) { return async (options,context={}) => {
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError");
   const id = ++requestId;deepRoot=Boolean(context.root) || options.board===session.board;
+  const root = hints.position?.enabled && options.sideToMove === session.color && Array.from(options.board).every((value,index) => value === session.board[index]);
+  if (root) hints.begin(id); else hints.job=null;
   // Hypothetical fifths and swap evaluations never enter the actual trend.
   if (["play", "w6"].includes(session.stage) && deepRoot) analysis.begin(id, options.sideToMove);
   if(adaptiveThinking && !deepRoot)analysis.cancel();
-  const result = await engine.search({ ...options, requestId: id });
+  const multiPV = root && isAutomaticTurn(session) && !options.balance && (!adaptiveThinking || options.multiPV > 1) ? Math.max(HINT_COUNT, options.multiPV ?? 1) : options.multiPV;
+  const result = await engine.search({ ...options, ...(multiPV ? { multiPV } : {}), requestId: id });
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError"); return result;
 }; }
 function commit(event, automatic = false, result = null) {
-  const review = !automatic && event.type === "stone" ? candidates.record(event.index) : null;
   const continuation = automatic && event.type === "stone" && ["play", "w6"].includes(session.stage) ? result : null;
   if(continuation?.adaptive)analysis.begin(requestId,session.color);
   if (continuation) analysis.accept({ requestId, sideToMove: session.color, stats: continuation });
   session.apply(event, { automatic }); if (automatic && event.type === "stone") openingBook.remember(session);
   positionChanged(false, continuation); render();
-  return review;
-}
-async function reviewRecorded(review) {
-  if (!review?.needsScore) return;
-  const token = serial, job = {}; checkingMove = job; const id = ++requestId; analysis.cancel(); render();
-  try {
-    await engine.init();
-    if (serial !== token || checkingMove !== job || id !== requestId) return;
-    const result = await engine.search({ ...moveReviewOptions(review), requestId: id });
-    if (serial !== token || checkingMove !== job || id !== requestId) return;
-    candidates.finishReview(review, result);
-  } catch (error) {
-    if (serial !== token || checkingMove !== job || error.name === "AbortError") return;
-    candidates.failReview(review);
-  } finally { if (checkingMove === job) { checkingMove = null; render(); } }
 }
 async function autoPlay() {
-  if (busy || modal || session.winner || holdingReply()) return;
+  if (busy || modal || session.winner) return;
   const token = serial; busy = true;deepPhase="";adaptiveThinking=$("#timeSelect").value===ADAPTIVE_MODE; engine.stopPonder(); render();
   const settings={isCancelled:()=>token!==serial || modal || paused,cancelSearch:()=>engine.cancel(),onProgress:phase=>{deepPhase=phase;render();}};
-  try { while (token === serial && !modal && isAutomaticTurn(session) && !holdingReply()) {
+  try { while (token === serial && !modal && isAutomaticTurn(session)) {
     const time = Number($("#timeSelect").value), openingBatch = session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage);
     const planned = openingBatch ? openingBook.plan(session) : null;
     const suggestion = planned ? { points: [planned.points[session.moves.length]] }
@@ -323,14 +278,13 @@ async function place(index) {
   if (!session.offerCount && session.stage !== "choose" && verdict.forbidden) {
     cancel(); forbiddenInput = { index, reason: verdict.forbidden }; render(); return;
   }
-  cancel(); const token = serial, review = commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index });
-  await reviewRecorded(review); if (token === serial) void prepare();
+  cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
-function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); candidates.reset(); rulesOpen = false; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
+function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); rulesOpen = false; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); void prepare(); }
 function restoreArchived(entry) {
   if(entry.record.format!=="gomoku-opening"){archiveCurrent();location.assign(queueArchiveRestore(localStorage,entry));return false;}
-  const next=replaySession(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();candidates.reset();rulesOpen=false;session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);render();if(!modal)void prepare();return true;
+  const next=replaySession(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();rulesOpen=false;session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);render();if(!modal)void prepare();return true;
 }
 function newSimpleGame(rule = session.rule) {
   // Existing releases saved manual-follow records. Preserve the current game,
@@ -371,10 +325,10 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
 });
 $("#recommendButton").onclick = recommend;
 $("#simpleRecommendButton").onclick = recommend;
-$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); candidates.reset(); const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
+$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
-$("#colorSelect").onchange = () => { cancel(); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
+$("#colorSelect").onchange = () => { cancel({ keepHints: true }); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
 $("#timeSelect").onchange = () => { try { localStorage.setItem("gomoku-thinking-ms", $("#timeSelect").value); } catch {} };
 $("#ponderToggle").onchange = () => { try { localStorage.setItem("gomoku-pondering", String($("#ponderToggle").checked)); } catch {} void syncPonder(); };
 setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow }), notify, onModalChange: onModal,
@@ -397,17 +351,17 @@ $("#recordFile").onchange = async () => {
   const file = $("#recordFile").files[0]; $("#recordFile").value = ""; if (!file) return;
   try { if (file.size > 100000) throw new Error("记录文件过大"); const imported = replaySession(JSON.parse(await file.text()));
     const yes = await confirmation("导入开局记录", `${RULES[imported.rule]} · ${imported.moves.length} 手 · ${imported.events.length} 个操作。导入将替换本页当前对局。`, "导入继续");
-    if (yes) {archiveCurrent();archive.begin();paused=false; cancel(); candidates.reset(); session = imported; configureRule(); perspective = session.playerColor; positionChanged(true); notify("完整开局记录已恢复"); }
+    if (yes) {archiveCurrent();archive.begin();paused=false; cancel(); session = imported; configureRule(); perspective = session.playerColor; positionChanged(true); notify("完整开局记录已恢复"); }
     render(); void prepare();
   } catch (error) { notify(`导入失败：${error.message}；当前对局保持不变。`, true); }
 };
 document.addEventListener("visibilitychange", () => { if (document.hidden) persist(); void syncPonder(); }); window.addEventListener("pagehide", persist);
 document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
 enhancements = setupGameEnhancements({
-  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, state,busy:Boolean(checkingMove)||busy&&(isAutomaticTurn(session)||adaptiveThinking),paused,ruleLabel: RULES[session.rule] }),
+  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, state,busy:busy&&(isAutomaticTurn(session)||adaptiveThinking),paused,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
   archive,resumeRecord:restoreArchived,
-  pauseSearch:()=>{if(!busy && !checkingMove)return;cancel();paused=true;persist();render();},
+  pauseSearch:()=>{if(!busy)return;cancel();paused=true;persist();render();},
   resumeSearch:()=>{paused=false;render();void prepare();},
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); },
   onWorkspace: onModal, newGame: () => display?.simple ? newSimpleGame() : newGame(),

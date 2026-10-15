@@ -15,7 +15,7 @@
     "test:records": "node scripts/record-qa.js",
     "test:mobile": "node scripts/mobile-qa.js",
     "test:analysis": "node scripts/analysis-qa.js",
-    "test:candidate-panel": "node scripts/candidate-panel-qa.js",
+    "test:board-hints": "node scripts/board-hints-qa.js",
     "test:upgrade": "node scripts/upgrade-qa.js",
     "test:modes": "node scripts/game-modes-qa.js",
     "test:renju": "node scripts/renju-qa.js",
