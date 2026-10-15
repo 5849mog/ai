@@ -1,7 +1,7 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.10.15.1";
-const VERSION = PREFIX + "261015-v41";
+const RELEASE = "2026.10.15.2";
+const VERSION = PREFIX + "261015-v42";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -9,7 +9,7 @@ const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.c
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "favicon.svg", "about.html", "about.css", "about.css?v=2", "about.js", "about.js?v=1", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 CORE.push("board-layout.js", "styles.css?v=22", "game-modes.css?v=5", "opening.css?v=4", "enhancements.css?v=38", "app-update.js?v=38", "adaptive-search.js", "adaptive-opening.js", "enhancements.css?v=37", "app-update.js?v=37", "game-archive.js", "archive-ui.js", "opening-review.js", "enhancements.css?v=36", "app-update.js?v=36", "ui-scheduler.js", "app-release.js", "app-update.js", "app-update.js?v=32", "app-update.js?v=33", "app-update.js?v=34", "app-update.js?v=35", "update.html", "enhancements.css?v=32", "enhancements.css?v=33", "enhancements.css", "enhancements.css?v=1", "game-enhancements.js", "image-import-ui.js", "image-board.js", "game-review.js", "review-ui.js", "opening-book.js", "rif-opening-pool.js");
-CORE.push("move-candidates.js", "candidate-panel.css", "engine.js?v=40", "engine.worker.js?v=40", "engine-jobs.js?v=40");
+CORE.push("turn-hints.js", "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42");
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
 CORE.push("game-modes.css?v=2", "game-modes.css?v=3", "game-modes.css?v=4", "renju.html", "opening.css", "opening.css?v=1", "opening.css?v=2", "opening.css?v=3", "opening-session.js", "opening-flow.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",

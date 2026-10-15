@@ -112,16 +112,28 @@ test("MultiPV jobs collect two root alternatives and normal searches reset the m
   assert.equal(messages.at(-1).result.recommendations, undefined);
 });
 
-test("five-PV background analysis emits only a completed comparable list and yields to a real move", () => {
+test("MultiPV background analysis streams a completed comparable list and yields to a real move", () => {
   const { jobs, commands, messages, flush } = setup();
   const board = empty(); board[112] = 1;
   jobs.ponder({ board, sideToMove: 2, requestId: 8, multiPV: 5, sliceMs: 600, rule: "freestyle" }); flush();
   assert.equal(commands.at(-1), "YXNBEST 5"); assert.ok(commands.includes("INFO timeout_turn 600"));
   for (let pv = 0; pv < 5; pv++) for (const line of [`INFO PV ${pv}`, "INFO NUMPV 5", "INFO DEPTH 8", `INFO EVAL ${100 - pv * 10}`, `INFO WINRATE ${.6 - pv * .01}`, `INFO BESTLINE ${8 + pv},7`, "INFO PV DONE"]) jobs.output(parseOutput(line), line);
-  assert.equal(messages.some(m => m.stats?.recommendations), false);
+  assert.equal(messages.filter(m => m.stats?.recommendations).length, 1);
   jobs.output(move(113));
   const event = messages.at(-1); assert.equal(event.phase, "ponder"); assert.equal(event.sliceComplete, true); assert.equal(event.stats.recommendations.length, 5);
   assert.equal(event.stats.assessment.bestIndex, 113); assert.equal(messages.some(m => m.type === "move"), false);
   jobs.stopPonder(); assert.equal(jobs.background, null);
   jobs.search({ board, sideToMove: 2, requestId: 9, timeMs: 1000 }); flush(); assert.equal(jobs.active.phase, "search");
+});
+
+test("three current-turn choices arrive during an automatic search without finishing or replacing that search", () => {
+  const { jobs, messages, flush } = setup(), board=empty();board[112]=1;
+  jobs.search({board,sideToMove:2,timeMs:1000,multiPV:3,requestId:11});flush();
+  for(let pv=0;pv<3;pv++){
+    for(const line of [`INFO PV ${pv}`,'INFO NUMPV 3','INFO DEPTH 9',`INFO EVAL ${80-pv*10}`,`INFO BESTLINE ${8+pv},7`,'INFO PV DONE'])jobs.output(parseOutput(line),line);
+    assert.equal(messages.filter(m=>m.stats?.recommendations).length,pv===2?1:0);
+  }
+  assert.equal(jobs.active.requestId,11);assert.equal(messages.some(m=>m.type==='move'),false);
+  assert.deepEqual(messages.at(-1).stats.recommendations.map(x=>x.index),[113,114,115]);
+  jobs.output(move(113));assert.equal(messages.at(-1).type,'move');assert.equal(messages.at(-1).result.index,113);
 });

@@ -109,14 +109,11 @@ test("AI answer halo requires a known occupied latest answer and editable boards
   assert.equal((svg.innerHTML.match(/class="hit-target"/g) || []).length, 225);
 });
 
-test("candidate previews use the candidate color, include occupied history points and never add real stones", () => {
-  const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225); board[112] = 1;
-  const state = { board, lastMove: 112, playerColor: 1, canInteract: false };
-  view.render({ ...state, candidatePreview: { index: 113, color: 2, rank: 3 } });
-  assert.match(svg.innerHTML, /data-candidate-preview="113" data-color="2"/);
-  assert.match(svg.innerHTML, /class="candidate-preview-stone"[^>]*fill="url\(#whiteStone\)"/);
-  assert.equal((svg.innerHTML.match(/data-stone=/g) || []).length, 1);
-  view.render({ ...state, candidatePreview: { index: 112, color: 2, rank: 2 } });
-  assert.match(svg.innerHTML, /data-candidate-preview="112"/); assert.doesNotMatch(svg.innerHTML, /candidate-preview-stone/);
-  view.render(state); assert.doesNotMatch(svg.innerHTML, /data-candidate-preview/);
+test('three next-move hints are colored SVG points with no panel, numbers, stones or hit targets of their own',()=>{
+ const svg=makeSvg(),view=createBoardView(svg),board=new Uint8Array(225);board[112]=1;
+ const state={board,lastMove:112,canInteract:true,moveHints:[110,111,113].map((index,i)=>({index,color:2,rank:i+1}))};
+ view.render(state);assert.equal((svg.innerHTML.match(/data-hint=/g)||[]).length,3);assert.equal((svg.innerHTML.match(/data-stone=/g)||[]).length,1);
+ assert.equal((svg.innerHTML.match(/class="hit-target"/g)||[]).length,224);assert.doesNotMatch(svg.innerHTML,/<text/);
+ assert.match(svg.innerHTML,/class="turn-hint hint-3"[^>]*data-color="2"/);
+ board[113]=2;view.render({...state,moveHints:[]});assert.doesNotMatch(svg.innerHTML,/data-hint=/);
 });

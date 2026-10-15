@@ -44,6 +44,11 @@ button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible
 .game-layout { min-width: 0; min-height: 0; display: flex; align-items: stretch; justify-content: center; padding: 2px 0 4px; }
 .board-card { width: 100%; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; }
 .game-sidebar { grid-row: 3; min-width: 0; display: flex; flex-direction: column; }
+.turn-hint { pointer-events: none; }
+.turn-hint circle { stroke: #fff9e9; stroke-width: 1.5; }
+.turn-hint.hint-1 { fill: #247a59; }
+.turn-hint.hint-2 { fill: #b67812; }
+.turn-hint.hint-3 { fill: #4269aa; }
 .board-toolbar { grid-row: 1; min-height: 30px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding: 0 4px 4px; }
 .board-toolbar .search-clock { margin-left: auto; }
 .game-state { display: inline-flex; align-items: center; gap: 10px; }

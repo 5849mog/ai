@@ -75,8 +75,15 @@ export class EngineJobs {
   output(parsed, line) {
     const job = this.active;
     if (!job) return;
+    const previousBatch = job.recommendations?.completed;
     if (line && job.recommendations) job.recommendations.read(line);
     const current = job.phase === "search" || this.background?.requestId === job.requestId;
+    if (current && job.recommendations?.completed.length && job.recommendations.completed !== previousBatch) {
+      const recommendations = [...job.recommendations.completed].sort((a,b) => b.score-a.score || a.pv-b.pv)
+        .map(({ index, depth, score, winRate }) => ({ index, depth, score, winRate }));
+      job.stats.recommendations = recommendations;
+      this.emit({ type: "stats", phase: job.phase, requestId: job.requestId, sideToMove: job.sideToMove, stats: { recommendations } });
+    }
     const assessment = line ? job.assessment.read(line) : null;
     if (assessment && job.board[assessment.bestIndex] === 0) {
       job.stats.assessment = assessment;

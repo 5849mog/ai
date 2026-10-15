@@ -36,7 +36,7 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state, idPrefix) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [], candidatePreview } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [], moveHints = [] } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   const lines = editable ? [] : winningLines(board, lastMove);
   let svg = "";
@@ -99,6 +99,11 @@ function renderBoard(boardSvg, state, idPrefix) {
       svg += '<circle class="recommendation-ring" cx="' + p.x + '" cy="' + p.y + '" r="14"/>';
       svg += '<text class="recommendation-number" x="' + p.x + '" y="' + p.y + '">' + (rank + 1) + '</text></g>';
     }
+    const hint = moveHints.slice(0, 3).find(move => move.index === index);
+    if (hint && !editable && !board[index] && !recommendations.length) {
+      const rank = moveHints.indexOf(hint) + 1;
+      svg += `<g class="turn-hint hint-${rank}" data-hint="${index}" data-rank="${rank}" data-color="${hint.color}" role="img" aria-label="${hint.color === 1 ? "黑" : "白"}棋下一手候选 ${rank} ${coordinate(index)}"><title>${hint.color === 1 ? "黑" : "白"}棋下一手 · 候选 ${rank}</title><circle cx="${p.x}" cy="${p.y}" r="${9 - rank}"/></g>`;
+    }
     if (canInteract) {
       svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
         '" role="button" aria-label="' + (editable ? '编辑 ' + coordinate(index) : '选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子')) + '" tabindex="-1"/>';
@@ -114,12 +119,6 @@ function renderBoard(boardSvg, state, idPrefix) {
   const answer = Number.isInteger(answerIndex) && answerIndex === lastMove && Boolean(board[answerIndex]);
   if (answer && !editable) {
     const p = point(answerIndex); svg += `<circle class="answer-ring" cx="${p.x}" cy="${p.y}" r="18" data-answer="${answerIndex}"/>`;
-  }
-  if (!editable && candidatePreview && Number.isInteger(candidatePreview.index) && candidatePreview.index >= 0 && candidatePreview.index < board.length && [1, 2].includes(candidatePreview.color)) {
-    const { index, color, rank } = candidatePreview, p = point(index), label = Number.isInteger(rank) && rank >= 1 && rank <= 5 ? rank : "外";
-    svg += `<g class="candidate-preview" data-candidate-preview="${index}" data-color="${color}" aria-label="候选预览 ${coordinate(index)} ${color === 1 ? "黑" : "白"}棋">`;
-    if (!board[index]) svg += `<circle class="candidate-preview-stone" cx="${p.x}" cy="${p.y}" r="13" fill="url(#${color === 1 ? "blackStone" : "whiteStone"})"/>`;
-    svg += `<circle class="candidate-preview-ring" cx="${p.x}" cy="${p.y}" r="20"/><circle class="candidate-preview-badge" cx="${p.x + 17}" cy="${p.y - 17}" r="9"/><text class="candidate-preview-number" x="${p.x + 17}" y="${p.y - 17}">${label}</text></g>`;
   }
   // A dialog preview shares the page with the live board. Its SVG paint servers
   // need separate IDs so a hidden preview cannot shadow the live gradients.
@@ -146,7 +145,7 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
       const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
         Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
-        state.candidatePreview && [state.candidatePreview.index, state.candidatePreview.color, state.candidatePreview.rank]]);
+        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color])]);
       if (key === previousKey) return false;
       renderBoard(boardSvg, state, idPrefix);
       previousKey = key; return true;
