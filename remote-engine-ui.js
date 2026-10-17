@@ -1,5 +1,24 @@
 import { readRemoteSettings, saveRemoteSettings, probeRemote } from "./remote-engine.js";
 
+async function awaitUpdatedShell(doc) {
+  let registration;
+  try { registration = await doc.defaultView.navigator.serviceWorker?.getRegistration(); } catch { return; }
+  if (!registration) return;
+  try { await registration.update(); } catch { return; /* an already cached current page can pair offline */ }
+  const worker = registration.installing ?? registration.waiting;
+  if (!worker || worker.state === "activated") return;
+  await new Promise((resolve, reject) => {
+    const finish = error => { clearTimeout(timer); worker.removeEventListener("statechange", changed); error ? reject(error) : resolve(); };
+    const changed = () => {
+      if (worker.state === "activated") finish();
+      else if (worker.state === "redundant") finish(Error("页面更新未完成，请联网重试"));
+      else if (worker.state === "installed") worker.postMessage({ type: "activate-update" });
+    };
+    const timer = setTimeout(() => finish(Error("页面更新尚未完成，请稍后重试连接")), 20000);
+    worker.addEventListener("statechange", changed); changed();
+  });
+}
+
 export function setupRemoteUi({ doc = document, storage = sessionStorage, reload = () => location.reload(), probe = probeRemote } = {}) {
   const entry = doc.querySelector("#openRemoteEngine"); if (!entry) return;
   const dialog = doc.createElement("dialog"); dialog.className = "record-dialog remote-dialog";
@@ -17,7 +36,8 @@ export function setupRemoteUi({ doc = document, storage = sessionStorage, reload
   const fragment = doc.defaultView.location.hash;
   if (fragment.startsWith("#computer=")) {
     try { linkSettings = JSON.parse(decodeURIComponent(fragment.slice(10))); } catch { /* invalid link can be filled manually */ }
-    doc.defaultView.history.replaceState(null, "", doc.defaultView.location.pathname + doc.defaultView.location.search);
+    const clean = new URL(doc.defaultView.location.href); clean.hash = ""; clean.searchParams.delete("computer-launch");
+    doc.defaultView.history.replaceState(null, "", clean.pathname + clean.search);
   }
   const initial = readRemoteSettings(storage);
   entry.textContent = initial ? "电脑引擎 · 已选择" : "电脑引擎";
@@ -45,6 +65,9 @@ export function setupRemoteUi({ doc = document, storage = sessionStorage, reload
       const info = await probe(value);
       if (current !== serial || !dialog.open) return;
       if (!info.rules?.includes("freestyle") || !info.rules?.includes("rif") || !info.rules?.includes("taraguchi10")) throw Error("电脑服务不支持本页的完整规则，请更新电脑服务");
+      message.textContent = "电脑已连通，正在切换计算服务…";
+      await awaitUpdatedShell(doc);
+      if (current !== serial || !dialog.open) return;
       saveRemoteSettings(value, storage); reload();
     } catch (error) { if (current === serial) { message.textContent = error.message; connect.disabled = false; } }
   });

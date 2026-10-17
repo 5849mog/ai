@@ -15,8 +15,9 @@ function fixture(options = {}) {
 }
 const tick = () => new Promise(done => setImmediate(done));
 test("a launcher link only prefills pairing, removes the key from history, and waits for the user's connection", async () => {
-  const f = fixture({ url: "https://example.com/ai/#computer=" + encodeURIComponent(JSON.stringify({ url: "https://engine.example", token })) });
+  const f = fixture({ url: "https://example.com/ai/?computer-launch=20261017&view=simple#computer=" + encodeURIComponent(JSON.stringify({ url: "https://engine.example", token })) });
   assert.equal(f.ui.dialog.open, true); assert.equal(f.dom.window.location.hash, ""); assert.equal(readRemoteSettings(f.dom.window.sessionStorage), null);
+  assert.equal(f.dom.window.location.search, "?view=simple");
   f.doc.querySelector("#remoteConnect").click(); await tick(); assert.equal(f.reloads(), 1);
   assert.equal(readRemoteSettings(f.dom.window.sessionStorage).url, "wss://engine.example/gomoku"); f.dom.window.close();
 });
@@ -28,4 +29,16 @@ test("cancelling an unfinished connection does not save it; failed probes keep t
 });
 test("simple-mode entry opens the same pairing controls without restarting a game", () => {
   const f = fixture(); f.doc.querySelector("[data-remote-menu]").click(); assert.equal(f.ui.dialog.open, true); assert.equal(f.reloads(), 0); f.dom.window.close();
+});
+
+test("pairing waits for an installing shell before saving and reloading the old page", async () => {
+  const f = fixture(), worker = new f.dom.window.EventTarget(); worker.state = "installing"; let activation = false;
+  worker.postMessage = message => { activation = message.type === "activate-update"; };
+  Object.defineProperty(f.dom.window.navigator, "serviceWorker", { value: { getRegistration: async () => ({ update: async () => {}, installing: worker }) } });
+  f.ui.open(); f.doc.querySelector("#remoteUrl").value = "https://engine.example"; f.doc.querySelector("#remoteToken").value = token;
+  f.doc.querySelector("#remoteConnect").click(); await tick();
+  assert.equal(f.reloads(), 0); assert.equal(readRemoteSettings(f.dom.window.sessionStorage), null);
+  worker.state = "installed"; worker.dispatchEvent(new f.dom.window.Event("statechange")); assert.equal(activation, true);
+  worker.state = "activated"; worker.dispatchEvent(new f.dom.window.Event("statechange")); await tick();
+  assert.equal(f.reloads(), 1); assert.equal(readRemoteSettings(f.dom.window.sessionStorage).token, token); f.dom.window.close();
 });

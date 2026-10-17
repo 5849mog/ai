@@ -7,12 +7,13 @@ import { availableParallelism, cpus } from "node:os";
 
 await mkdir(".cache/remote-qa", { recursive: true });
 const server = await createDevServer({ port: 0, isolated: false }), origin = `http://127.0.0.1:${server.address().port}`;
-const token = "a".repeat(64), checks = [], threads = Math.max(1, availableParallelism() - 1);
+const token = "a".repeat(64), checks = [], browsers = [], threads = Math.max(1, availableParallelism() - 1);
 const mark = (channel, name, result) => { checks.push({ channel, name, ...(result ? { result } : {}) }); console.log("PASS", channel, name); };
 const ready = page => page.waitForFunction(() => document.querySelector("#stateText").textContent === "轮到你落子", null, { timeout: 30000 });
 try {
   for (const channel of ["chrome", "msedge"]) {
     const browser = await chromium.launch({ channel, headless: true });
+    browsers.push({ channel, version: browser.version() });
     let bridge = await startRemote({ port: 0, token, origins: [origin], threads }), closed = false;
     const address = `ws://127.0.0.1:${bridge.port}`;
     try {
@@ -89,6 +90,6 @@ try {
       await ui.close();
     } finally { if (!closed) await bridge.close(); await browser.close(); }
   }
-  await writeFile("reports/remote-native-qa.json", JSON.stringify({ completedAt: new Date().toISOString(), cpu: cpus()[0].model, threads, memoryMiB: 256,
+  await writeFile("reports/remote-native-qa.json", JSON.stringify({ completedAt: new Date().toISOString(), cpu: cpus()[0].model, browsers, threads, memoryMiB: 256,
     transport: "WebSocket loopback; real native executable, no test engine double; Internet tunnel not yet configured", checks, passed: true }, null, 2) + "\n");
 } finally { await new Promise(done => server.close(done)); }

@@ -1,5 +1,5 @@
 {
-  "completedAt": "2026-10-17T01:19:43.104Z",
+  "completedAt": "2026-10-17T01:32:59.064Z",
   "cpu": "13th Gen Intel(R) Core(TM) i5-13400F",
   "threads": 15,
   "memoryMiB": 256,
@@ -10,18 +10,18 @@
       "name": "actual native threads, three candidates, restricted and balanced opening searches, TT reuse, cancellation, Renju and forbidden points",
       "result": {
         "white": {
-          "depth": 15,
-          "selectiveDepth": 34,
-          "nodes": 1191609,
-          "elapsed": 590,
-          "nps": 2557100,
-          "evaluation": -476,
+          "depth": 16,
+          "selectiveDepth": 22,
+          "nodes": 938905,
+          "elapsed": 595,
+          "nps": 2523938,
+          "evaluation": -469,
           "mate": null,
-          "winRate": 0.0847106,
+          "winRate": 0.087464,
           "assessment": {
-            "depth": 15,
-            "winRate": 0.0744679,
-            "evaluation": -504,
+            "depth": 16,
+            "winRate": 0.107647,
+            "evaluation": -423,
             "mate": null,
             "bestIndex": 96
           },
@@ -31,11 +31,11 @@
               "x": 6,
               "y": 6,
               "rank": 1,
-              "pv": 2,
+              "pv": 0,
               "count": 3,
-              "depth": 14,
-              "score": -404,
-              "winRate": 0.117119
+              "depth": 15,
+              "score": -423,
+              "winRate": 0.107647
             },
             {
               "index": 82,
@@ -44,24 +44,24 @@
               "rank": 2,
               "pv": 1,
               "count": 3,
-              "depth": 14,
-              "score": -440,
-              "winRate": 0.0997505
+              "depth": 15,
+              "score": -441,
+              "winRate": 0.0993024
             },
             {
               "index": 97,
               "x": 7,
               "y": 6,
               "rank": 3,
-              "pv": 0,
+              "pv": 2,
               "count": 3,
-              "depth": 14,
-              "score": -502,
-              "winRate": 0.0751601
+              "depth": 15,
+              "score": -469,
+              "winRate": 0.087464
             }
           ],
-          "index": 97,
-          "x": 7,
+          "index": 96,
+          "x": 6,
           "y": 6,
           "backend": "remote-native-avx2",
           "threads": 15,
@@ -72,18 +72,18 @@
         },
         "restricted": {
           "depth": 19,
-          "selectiveDepth": 36,
-          "nodes": 1045247,
-          "elapsed": 469,
-          "nps": 2787325,
-          "evaluation": 156,
+          "selectiveDepth": 34,
+          "nodes": 1084365,
+          "elapsed": 459,
+          "nps": 2962745,
+          "evaluation": 101,
           "mate": null,
-          "winRate": 0.68568,
+          "winRate": 0.623634,
           "assessment": {
             "depth": 19,
             "winRate": 1,
             "evaluation": null,
-            "mate": "+M37",
+            "mate": "+M41",
             "bestIndex": 98
           },
           "recommendations": [
@@ -95,7 +95,7 @@
               "pv": 0,
               "count": 3,
               "depth": 19,
-              "score": 29963,
+              "score": 29959,
               "winRate": 1
             },
             {
@@ -106,8 +106,8 @@
               "pv": 1,
               "count": 3,
               "depth": 19,
-              "score": 564,
-              "winRate": 0.943747
+              "score": 520,
+              "winRate": 0.930862
             },
             {
               "index": 96,
@@ -117,8 +117,8 @@
               "pv": 2,
               "count": 3,
               "depth": 19,
-              "score": 156,
-              "winRate": 0.68568
+              "score": 101,
+              "winRate": 0.623634
             }
           ],
           "index": 98,
@@ -132,18 +132,18 @@
           "requestId": 2
         },
         "balanced": {
-          "depth": 26,
-          "selectiveDepth": 61,
-          "nodes": 971318,
-          "elapsed": 559,
-          "nps": 2158484,
-          "evaluation": 122,
+          "depth": 22,
+          "selectiveDepth": 32,
+          "nodes": 104146,
+          "elapsed": 566,
+          "nps": 2603650,
+          "evaluation": 101,
           "mate": null,
-          "winRate": 0.647941,
+          "winRate": 0.623634,
           "assessment": {
-            "depth": 26,
-            "winRate": 0.647941,
-            "evaluation": 122,
+            "depth": 22,
+            "winRate": 0.623634,
+            "evaluation": 101,
             "mate": null,
             "bestIndex": 96
           },
@@ -160,11 +160,11 @@
         "foreground": {
           "depth": 26,
           "selectiveDepth": 21,
-          "nodes": 1130261,
-          "elapsed": 400,
-          "nps": 3210968,
-          "evaluation": null,
+          "nodes": 833656,
+          "elapsed": 294,
+          "nps": 3334624,
           "mate": "+M25",
+          "evaluation": null,
           "winRate": 1,
           "assessment": {
             "depth": 26,
@@ -185,19 +185,19 @@
         },
         "cancellation": "AbortError",
         "after": {
-          "depth": 16,
-          "selectiveDepth": 37,
-          "nodes": 983999,
-          "elapsed": 586,
-          "nps": 3393100,
-          "evaluation": 684,
+          "depth": 15,
+          "selectiveDepth": 23,
+          "nodes": 1411155,
+          "elapsed": 564,
+          "nps": 3156946,
+          "evaluation": 512,
           "mate": null,
-          "winRate": 0.968324,
+          "winRate": 0.928242,
           "assessment": {
-            "depth": 16,
+            "depth": 15,
             "winRate": 1,
             "evaluation": null,
-            "mate": "+M37",
+            "mate": "+M41",
             "bestIndex": 98
           },
           "recommendations": [
@@ -209,7 +209,7 @@
               "pv": 0,
               "count": 3,
               "depth": 15,
-              "score": 29963,
+              "score": 29959,
               "winRate": 1
             },
             {
@@ -220,8 +220,8 @@
               "pv": 1,
               "count": 3,
               "depth": 15,
-              "score": 586,
-              "winRate": 0.94931
+              "score": 602,
+              "winRate": 0.953024
             },
             {
               "index": 143,
@@ -231,8 +231,8 @@
               "pv": 2,
               "count": 3,
               "depth": 15,
-              "score": 471,
-              "winRate": 0.913331
+              "score": 512,
+              "winRate": 0.928242
             }
           ],
           "index": 98,
@@ -247,16 +247,16 @@
         },
         "reused": true,
         "renjuResult": {
-          "depth": 18,
-          "selectiveDepth": 24,
-          "nodes": 1244051,
-          "elapsed": 638,
-          "nps": 2899885,
-          "evaluation": -489,
+          "depth": 17,
+          "selectiveDepth": 30,
+          "nodes": 978984,
+          "elapsed": 693,
+          "nps": 2151613,
+          "evaluation": -395,
           "mate": null,
-          "winRate": 0.079805,
+          "winRate": 0.121853,
           "assessment": {
-            "depth": 18,
+            "depth": 17,
             "winRate": 1,
             "evaluation": null,
             "mate": "+M43",
@@ -270,31 +270,31 @@
               "rank": 1,
               "pv": 0,
               "count": 3,
-              "depth": 17,
-              "score": 909,
-              "winRate": 0.989491
-            },
-            {
-              "index": 111,
-              "x": 6,
-              "y": 7,
-              "rank": 2,
-              "pv": 2,
-              "count": 3,
-              "depth": 17,
-              "score": -447,
-              "winRate": 0.0966512
+              "depth": 16,
+              "score": 899,
+              "winRate": 0.988959
             },
             {
               "index": 96,
               "x": 6,
               "y": 6,
+              "rank": 2,
+              "pv": 2,
+              "count": 3,
+              "depth": 16,
+              "score": -239,
+              "winRate": 0.232366
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
               "rank": 3,
               "pv": 1,
               "count": 3,
-              "depth": 17,
-              "score": -495,
-              "winRate": 0.0776295
+              "depth": 16,
+              "score": -288,
+              "winRate": 0.191545
             }
           ],
           "index": 98,
@@ -308,24 +308,24 @@
           "requestId": 8
         },
         "arbitrary": {
-          "depth": 12,
-          "selectiveDepth": 21,
-          "nodes": 645797,
-          "elapsed": 417,
-          "nps": 1824285,
-          "evaluation": -489,
+          "depth": 13,
+          "selectiveDepth": 25,
+          "nodes": 744708,
+          "elapsed": 496,
+          "nps": 1711972,
+          "evaluation": -393,
           "mate": null,
-          "winRate": 0.079805,
+          "winRate": 0.122927,
           "assessment": {
-            "depth": 12,
-            "winRate": 0.079805,
-            "evaluation": -489,
+            "depth": 13,
+            "winRate": 0.122927,
+            "evaluation": -393,
             "mate": null,
-            "bestIndex": 108
+            "bestIndex": 82
           },
-          "index": 108,
-          "x": 3,
-          "y": 7,
+          "index": 82,
+          "x": 7,
+          "y": 5,
           "backend": "remote-native-avx2",
           "threads": 15,
           "memoryMiB": 256,
@@ -351,59 +351,59 @@
       "name": "actual native threads, three candidates, restricted and balanced opening searches, TT reuse, cancellation, Renju and forbidden points",
       "result": {
         "white": {
-          "depth": 13,
+          "depth": 14,
           "selectiveDepth": 24,
-          "nodes": 1173213,
-          "elapsed": 507,
-          "nps": 3055242,
-          "evaluation": -522,
+          "nodes": 1134789,
+          "elapsed": 574,
+          "nps": 2494041,
+          "evaluation": -526,
           "mate": null,
-          "winRate": 0.0684976,
+          "winRate": 0.0672324,
           "assessment": {
-            "depth": 13,
-            "winRate": 0.0748133,
-            "evaluation": -503,
+            "depth": 14,
+            "winRate": 0.0962155,
+            "evaluation": -448,
             "mate": null,
-            "bestIndex": 96
+            "bestIndex": 82
           },
           "recommendations": [
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 14,
+              "score": -448,
+              "winRate": 0.0962155
+            },
             {
               "index": 97,
               "x": 7,
               "y": 6,
-              "rank": 1,
+              "rank": 2,
               "pv": 1,
               "count": 3,
-              "depth": 13,
-              "score": -471,
-              "winRate": 0.0866692
+              "depth": 14,
+              "score": -465,
+              "winRate": 0.0890735
             },
             {
-              "index": 96,
+              "index": 66,
               "x": 6,
-              "y": 6,
-              "rank": 2,
-              "pv": 0,
-              "count": 3,
-              "depth": 13,
-              "score": -503,
-              "winRate": 0.0748133
-            },
-            {
-              "index": 67,
-              "x": 7,
               "y": 4,
               "rank": 3,
               "pv": 2,
               "count": 3,
-              "depth": 13,
-              "score": -522,
-              "winRate": 0.0684976
+              "depth": 14,
+              "score": -526,
+              "winRate": 0.0672324
             }
           ],
-          "index": 97,
+          "index": 82,
           "x": 7,
-          "y": 6,
+          "y": 5,
           "backend": "remote-native-avx2",
           "threads": 15,
           "memoryMiB": 256,
@@ -413,13 +413,13 @@
         },
         "restricted": {
           "depth": 20,
-          "selectiveDepth": 27,
-          "nodes": 1234764,
-          "elapsed": 474,
-          "nps": 3240850,
-          "evaluation": 145,
+          "selectiveDepth": 38,
+          "nodes": 1330697,
+          "elapsed": 578,
+          "nps": 2918195,
+          "evaluation": 656,
           "mate": null,
-          "winRate": 0.673707,
+          "winRate": 0.963736,
           "assessment": {
             "depth": 20,
             "winRate": 1,
@@ -435,7 +435,7 @@
               "rank": 1,
               "pv": 0,
               "count": 3,
-              "depth": 20,
+              "depth": 19,
               "score": 29963,
               "winRate": 1
             },
@@ -446,9 +446,9 @@
               "rank": 2,
               "pv": 1,
               "count": 3,
-              "depth": 20,
-              "score": 635,
-              "winRate": 0.959883
+              "depth": 19,
+              "score": 688,
+              "winRate": 0.968931
             },
             {
               "index": 96,
@@ -457,9 +457,9 @@
               "rank": 3,
               "pv": 2,
               "count": 3,
-              "depth": 20,
-              "score": 145,
-              "winRate": 0.673707
+              "depth": 19,
+              "score": 110,
+              "winRate": 0.634136
             }
           ],
           "index": 98,
@@ -473,18 +473,18 @@
           "requestId": 2
         },
         "balanced": {
-          "depth": 24,
-          "selectiveDepth": 46,
-          "nodes": 327996,
-          "elapsed": 584,
-          "nps": 2484818,
-          "evaluation": 184,
+          "depth": 22,
+          "selectiveDepth": 55,
+          "nodes": 571676,
+          "elapsed": 466,
+          "nps": 1605831,
+          "evaluation": 176,
           "mate": null,
-          "winRate": 0.715042,
+          "winRate": 0.706822,
           "assessment": {
-            "depth": 24,
-            "winRate": 0.715042,
-            "evaluation": 184,
+            "depth": 22,
+            "winRate": 0.706822,
+            "evaluation": 176,
             "mate": null,
             "bestIndex": 96
           },
@@ -499,16 +499,16 @@
           "requestId": 3
         },
         "foreground": {
-          "depth": 26,
-          "selectiveDepth": 21,
-          "nodes": 1043174,
-          "elapsed": 348,
-          "nps": 3442818,
+          "depth": 24,
+          "selectiveDepth": 29,
+          "nodes": 1250276,
+          "elapsed": 424,
+          "nps": 3307608,
           "mate": "+M25",
           "evaluation": null,
           "winRate": 1,
           "assessment": {
-            "depth": 26,
+            "depth": 24,
             "winRate": 1,
             "evaluation": null,
             "mate": "+M25",
@@ -526,19 +526,19 @@
         },
         "cancellation": "AbortError",
         "after": {
-          "depth": 16,
-          "selectiveDepth": 35,
-          "nodes": 1385363,
-          "elapsed": 612,
-          "nps": 3543127,
-          "evaluation": 539,
+          "depth": 14,
+          "selectiveDepth": 24,
+          "nodes": 1108395,
+          "elapsed": 487,
+          "nps": 2955720,
+          "evaluation": 542,
           "mate": null,
-          "winRate": 0.936731,
+          "winRate": 0.937614,
           "assessment": {
-            "depth": 16,
+            "depth": 14,
             "winRate": 1,
             "evaluation": null,
-            "mate": "+M41",
+            "mate": "+M37",
             "bestIndex": 98
           },
           "recommendations": [
@@ -549,31 +549,31 @@
               "rank": 1,
               "pv": 0,
               "count": 3,
-              "depth": 15,
-              "score": 1856,
-              "winRate": 0.999907
+              "depth": 14,
+              "score": 29963,
+              "winRate": 1
+            },
+            {
+              "index": 127,
+              "x": 7,
+              "y": 8,
+              "rank": 2,
+              "pv": 2,
+              "count": 3,
+              "depth": 14,
+              "score": 542,
+              "winRate": 0.937614
             },
             {
               "index": 83,
               "x": 8,
               "y": 5,
-              "rank": 2,
-              "pv": 2,
-              "count": 3,
-              "depth": 15,
-              "score": 589,
-              "winRate": 0.950027
-            },
-            {
-              "index": 99,
-              "x": 9,
-              "y": 6,
               "rank": 3,
               "pv": 1,
               "count": 3,
-              "depth": 15,
-              "score": 562,
-              "winRate": 0.943214
+              "depth": 14,
+              "score": 447,
+              "winRate": 0.903349
             }
           ],
           "index": 98,
@@ -588,19 +588,19 @@
         },
         "reused": true,
         "renjuResult": {
-          "depth": 19,
-          "selectiveDepth": 35,
-          "nodes": 1487457,
-          "elapsed": 636,
-          "nps": 3212650,
-          "evaluation": -599,
+          "depth": 18,
+          "selectiveDepth": 28,
+          "nodes": 865104,
+          "elapsed": 643,
+          "nps": 2729034,
+          "evaluation": -296,
           "mate": null,
-          "winRate": 0.0476523,
+          "winRate": 0.185427,
           "assessment": {
-            "depth": 19,
-            "winRate": 1,
-            "evaluation": null,
-            "mate": "+M49",
+            "depth": 18,
+            "winRate": 0.987383,
+            "evaluation": 872,
+            "mate": null,
             "bestIndex": 98
           },
           "recommendations": [
@@ -611,9 +611,9 @@
               "rank": 1,
               "pv": 0,
               "count": 3,
-              "depth": 18,
-              "score": 29949,
-              "winRate": 1
+              "depth": 17,
+              "score": 1276,
+              "winRate": 0.998308
             },
             {
               "index": 96,
@@ -622,9 +622,9 @@
               "rank": 2,
               "pv": 1,
               "count": 3,
-              "depth": 18,
-              "score": -308,
-              "winRate": 0.176535
+              "depth": 17,
+              "score": -286,
+              "winRate": 0.193099
             },
             {
               "index": 111,
@@ -633,9 +633,9 @@
               "rank": 3,
               "pv": 2,
               "count": 3,
-              "depth": 18,
-              "score": -510,
-              "winRate": 0.0724265
+              "depth": 17,
+              "score": -518,
+              "winRate": 0.0697848
             }
           ],
           "index": 98,
@@ -649,24 +649,24 @@
           "requestId": 8
         },
         "arbitrary": {
-          "depth": 13,
-          "selectiveDepth": 30,
-          "nodes": 800453,
-          "elapsed": 476,
-          "nps": 1938142,
-          "evaluation": -446,
+          "depth": 12,
+          "selectiveDepth": 22,
+          "nodes": 64472,
+          "elapsed": 536,
+          "nps": 1742486,
+          "evaluation": -457,
           "mate": null,
-          "winRate": 0.0970886,
+          "winRate": 0.0923729,
           "assessment": {
-            "depth": 13,
-            "winRate": 0.0970886,
-            "evaluation": -446,
+            "depth": 12,
+            "winRate": 0.0923729,
+            "evaluation": -457,
             "mate": null,
-            "bestIndex": 142
+            "bestIndex": 94
           },
-          "index": 142,
-          "x": 7,
-          "y": 9,
+          "index": 108,
+          "x": 3,
+          "y": 7,
           "backend": "remote-native-avx2",
           "threads": 15,
           "memoryMiB": 256,
@@ -688,5 +688,15 @@
       "name": "disconnect retains game, does not silently fall back, and explicit browser switch resumes the saved turn"
     }
   ],
-  "passed": true
+  "passed": true,
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.80"
+    },
+    {
+      "channel": "msedge",
+      "version": "135.0.3179.98"
+    }
+  ]
 }

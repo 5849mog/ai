@@ -48,6 +48,6 @@ for ($attempt = 0; $attempt -lt 50; $attempt++) {
 if (-not $connected) { throw "Engine service failed to start. See $dataRoot\service-error.log" }
 $key = (Get-Content -LiteralPath (Join-Path $dataRoot 'pairing-key.txt') -Raw).Trim()
 $pair = @{url="http://127.0.0.1:$port"; token=$key} | ConvertTo-Json -Compress
-$gameUrl = 'https://5849mog.github.io/ai/#computer=' + [Uri]::EscapeDataString($pair)
+$gameUrl = 'https://5849mog.github.io/ai/?computer-launch=20261017#computer=' + [Uri]::EscapeDataString($pair)
 if (-not $NoOpen) { Start-Process -FilePath $gameUrl }
 Write-Host 'Gomoku remote engine is ready. The browser pairing button preserves your current game.'
