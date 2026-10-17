@@ -7,6 +7,7 @@ import { resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer } from "ws";
 import { NativeRuntime, RULES } from "./native-runtime.js";
+import { startGateway } from "./gateway.js";
 const nativeFactory = options => new NativeRuntime(options);
 
 export async function verifyRuntime(directory) {
@@ -103,23 +104,36 @@ export async function startRemote({ port = 4188, token = randomBytes(32).toStrin
     socket.on("close", () => { clearTimeout(authTimer); clearInterval(heartbeat); release(); });
   });
   await new Promise((accept, reject) => { server.once("error", reject); server.listen(port, "127.0.0.1", accept); });
+  const closed = new Promise(done => server.once("close", done));
   let closing;
   closeService = () => closing ??= (async () => { for (const client of wss.clients) client.terminate(); await new Promise(done => wss.close(done)); await new Promise(done => server.close(done)); })();
-  return { port: server.address().port, threads, memoryMiB, token, get active() { return Boolean(owner); }, close: closeService };
+  return { port: server.address().port, threads, memoryMiB, token, closed, get active() { return Boolean(owner); }, close: closeService };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const data = join(process.env.LOCALAPPDATA ?? process.cwd(), "GomokuRemote"); await mkdir(data, { recursive: true });
   const keyFile = join(data, "pairing-key.txt"); let token;
   try { token = (await readFile(keyFile, "utf8")).trim(); } catch { token = randomBytes(32).toString("hex"); await writeFile(keyFile, token + "\n", { mode: 0o600 }); }
+  const tls = process.env.GOMOKU_REMOTE_TLS_CERT && process.env.GOMOKU_REMOTE_TLS_KEY
+    ? { cert: await readFile(process.env.GOMOKU_REMOTE_TLS_CERT), key: await readFile(process.env.GOMOKU_REMOTE_TLS_KEY) } : undefined;
   const app = await startRemote({ token, port: Number(process.env.GOMOKU_REMOTE_PORT ?? 4188),
     threads: process.env.GOMOKU_REMOTE_THREADS ? Number(process.env.GOMOKU_REMOTE_THREADS) : undefined,
     memoryMiB: Number(process.env.GOMOKU_REMOTE_MEMORY_MIB ?? 256),
     origins: process.env.GOMOKU_REMOTE_ORIGINS?.split(",").map(value => value.trim()),
-    tls: process.env.GOMOKU_REMOTE_TLS_CERT && process.env.GOMOKU_REMOTE_TLS_KEY
-      ? { cert: await readFile(process.env.GOMOKU_REMOTE_TLS_CERT), key: await readFile(process.env.GOMOKU_REMOTE_TLS_KEY) } : undefined });
+    tls });
+  let gateway;
+  try {
+    if (!tls) gateway = await startGateway({ token, upstreamPort: app.port,
+      port: Number(process.env.GOMOKU_REMOTE_GATEWAY_PORT ?? 4189) });
+  } catch (error) { await app.close(); throw error; }
   console.log(`五目电脑计算服务：127.0.0.1:${app.port} · ${app.threads} 线程 · ${app.memoryMiB} MiB`);
+  if (gateway) console.log(`受控对弈入口：127.0.0.1:${gateway.port}（仅 /health 与认证后的 /gomoku）`);
   console.log(`配对密钥文件：${keyFile}`);
-  console.log("将现有 HTTPS/WSS 穿透服务转发到此端口；网页菜单 → 电脑引擎，填写地址与密钥。");
-  const close = () => void app.close(); process.once("SIGINT", close); process.once("SIGTERM", close);
+  console.log(gateway ? "HTTPS/WSS 通道仅应转发到受控对弈入口，不应直接转发计算服务端口。" : "自定义 TLS 服务已启动；受控入口需由现有 TLS 代理配置。");
+  let closing;
+  const close = () => closing ??= (async () => { await gateway?.close(); await app.close(); })();
+  // Local launcher uses /shutdown; closing the native listener must also close
+  // the gateway, otherwise the launcher would leave an orphan listener behind.
+  void app.closed.then(() => gateway?.close());
+  process.once("SIGINT", () => void close()); process.once("SIGTERM", () => void close());
 }

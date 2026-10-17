@@ -8,6 +8,7 @@
     "remote:prepare": "node scripts/prepare-remote.js",
     "remote:serve": "node remote/server.js",
     "test:remote": "node scripts/remote-qa.js",
+    "test:remote-gateway": "node scripts/remote-gateway-qa.js",
     "dev": "node scripts/dev-server.js",
     "test": "node --test *.test.js tests/*.test.js",
     "check": "node scripts/check.js",

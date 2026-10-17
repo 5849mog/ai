@@ -16,7 +16,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File remote/start.ps1 -Stop
 
 ## 手机通过互联网连接
 
-手机的 `127.0.0.1` 指手机自己，不能使用上述电脑本机地址。需要一条可用的 HTTPS/WSS 通道，将你的远程地址反向代理到电脑 `127.0.0.1:4188`，并支持 WebSocket 升级与长连接。
+手机的 `127.0.0.1` 指手机自己，不能使用上述电脑本机地址。需要一条可用的 HTTPS/WSS 通道，将你的远程地址反向代理到电脑受控对弈入口 `127.0.0.1:4189`，并支持 WebSocket 升级与长连接。不要把通道直接指向计算服务的 `4188` 端口。
+
+默认受控入口与计算服务由同一启动器管理，均只监听本机。入口只提供 `/health` 与 `/gomoku`，拒绝文件、管理、额外路径与查询参数；只允许本项目网页来源，客户端先通过随机密钥认证，才建立到计算服务的连接。停止本地服务也会关闭该入口。`GOMOKU_REMOTE_GATEWAY_PORT` 可调整入口端口，电脑本机配对仍使用原来的 `4188`。若显式配置服务自身的 TLS 证书，则保留原 TLS 服务、不启动这个明文上游入口，访问限制由自有 TLS 代理负责。
+
+零费用候选是 [Cloudflare Quick Tunnels](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/)：不要求账号或域名，临时 HTTPS 地址每次重启都会变化，也没有可用性保证。不需要购买方案。本机已经下载并验证官方 cloudflared `2026.10.1`（Windows amd64 SHA-256 `4d2490e74082c5d48dbfedaf92576fa5bd1702379ab88eb7faa0cfbe8dc891b6`）。当前自动审批拒绝启动外网通道，受控入口方案也未获放行，因此**尚无可用的手机外网连接地址**，不能把入口测试通过当作外网已连通。完整记录见 [免费通道验证记录](../reports/remote-free-channel.md)。
 
 - 现有组网/穿透可以沿用，不绑定某一个网络供应商；服务支持 Tailscale Serve 等私网 HTTPS 反向代理，也可接已有受控公网 TLS 代理。
 - 网页填 `https://你的远程域名`，协议连接到 `/gomoku`，连接检测使用 `/health`。两条路径均应转发到本机服务。配对密钥取自 `%LOCALAPPDATA%\GomokuRemote\pairing-key.txt`，不要使用报告里的测试密钥。
@@ -26,7 +30,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File remote/start.ps1 -Stop
 
 截至此次交付，未在本机常见服务、进程和已安装程序中发现可复用的组网工具，未配置跨互联网通道，也未在真实手机外网测量延迟。不能把本机协议联调当作外网已经连通。
 
-参考：[Tailscale Serve 官方说明](https://tailscale.com/docs/features/tailscale-serve)。如果已有该网络，示例是 `tailscale serve --bg http://127.0.0.1:4188`；首次启用涉及账号及 HTTPS 设置，应按自己的网络配置完成。此次没有安装组网软件或修改路由器、防火墙、开机启动。
+参考：[Tailscale Serve 官方说明](https://tailscale.com/docs/features/tailscale-serve)。如果已有该网络，目标应为受控入口 `http://127.0.0.1:4189`；首次启用涉及账号及 HTTPS 设置。此次没有修改路由器、防火墙、开机启动。
 
 ## 准备原生资源
 
@@ -66,6 +70,7 @@ npm run remote:serve
 npm test
 npm run check
 npm run test:remote
+npm run test:remote-gateway
 ```
 
 真实原生联调覆盖 Chrome、Edge、15 线程 / 256 MiB、三候选、限定候选、平衡搜索、自定义摆局、连珠权重、禁手查询、后台抢占、Worker 复用、取消、刷新、触屏确认、思考中悔棋、断线和显式切回网页计算。测试报告 [remote-native-qa.json](../reports/remote-native-qa.json) 明确记录使用的是本机 WebSocket 链路，不代表外网可用性。另有单元验证配对、来源、会话隔离、跨页占用、取消代际与健康检查的权限边界。
