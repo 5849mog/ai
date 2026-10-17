@@ -1,28 +1,33 @@
 import http from "node:http";
 import { timingSafeEqual } from "node:crypto";
 import { WebSocket, WebSocketServer } from "ws";
+import { createHttpSessions, HTTP_HEADERS } from "./http-sessions.js";
 
 // The tunnel never targets the native service itself: no files or administration
 // endpoints pass this boundary, and a key is required before contacting upstream.
 export async function startGateway({ port = 4189, upstreamPort = 4188, token,
   origin = "https://5849mog.github.io" } = {}) {
   if (typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) throw Error("Invalid gateway key");
+  let httpSessions;
   const server = http.createServer((request, response) => {
     response.setHeader("Cache-Control", "no-store");
     response.setHeader("X-Content-Type-Options", "nosniff");
+    if (request.url === "/gomoku") { void httpSessions.handle(request, response); return; }
     if (request.url !== "/health" || request.headers.origin !== origin || !["GET", "OPTIONS"].includes(request.method)) {
       response.writeHead(404); response.end(); return;
     }
     response.setHeader("Access-Control-Allow-Origin", origin);
     response.setHeader("Vary", "Origin");
     response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    response.setHeader("Access-Control-Allow-Headers", HTTP_HEADERS);
     response.setHeader("Content-Type", "application/json");
     response.writeHead(request.method === "OPTIONS" ? 204 : 200);
     response.end(request.method === "OPTIONS" ? undefined : '{"protocol":1}');
   });
   const wss = new WebSocketServer({ noServer: true, maxPayload: 32768, perMessageDeflate: false });
+  httpSessions = createHttpSessions({ token, origin, upstreamPort, otherClients: () => wss.clients.size });
   server.on("upgrade", (request, socket, head) => {
-    if (request.url !== "/gomoku" || request.headers.origin !== origin || wss.clients.size >= 4) {
+    if (request.url !== "/gomoku" || request.headers.origin !== origin || wss.clients.size + httpSessions.size >= 4) {
       socket.end("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n"); return;
     }
     wss.handleUpgrade(request, socket, head, ws => wss.emit("connection", ws));
@@ -64,9 +69,11 @@ export async function startGateway({ port = 4189, upstreamPort = 4188, token,
     client.on("error", () => {});
     client.on("close", () => { clearTimeout(timer); clearInterval(heartbeat); upstream?.terminate(); });
   });
-  await new Promise((accept, reject) => { server.once("error", reject); server.listen(port, "127.0.0.1", accept); });
+  try { await new Promise((accept, reject) => { server.once("error", reject); server.listen(port, "127.0.0.1", accept); }); }
+  catch (error) { httpSessions.close(); wss.close(); throw error; }
   let closing;
   return { port: server.address().port, close: () => closing ??= (async () => {
+    httpSessions.close();
     for (const client of wss.clients) client.terminate();
     await new Promise(done => wss.close(done));
     await new Promise(done => server.close(done));

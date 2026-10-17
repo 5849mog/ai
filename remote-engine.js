@@ -73,9 +73,68 @@ export class RemoteWorker {
   terminate() { if (this.closed) return; this.closed = true; clearTimeout(this.timer); this.queue.length = 0; this.socket.close(); }
 }
 
+export const usesHttpRelay = settings => /\.(?:run\.pinggy-free\.link|free\.pinggy\.net)$/.test(new URL(remoteAddress(settings.url)).hostname);
+
+export class HttpRemoteWorker {
+  constructor(settings, { fetchImpl = globalThis.fetch, id = clientId(), onWelcome = () => {} } = {}) {
+    this.closed = false; this.welcomed = false; this.queue = []; this.controller = new AbortController();
+    this.session = crypto.randomUUID(); this.sequence = Promise.resolve(); this.settings = settings;
+    const address = new URL(remoteAddress(settings.url)); address.protocol = address.protocol === "wss:" ? "https:" : "http:";
+    this.url = address.href; this.fetch = (...args) => fetchImpl(...args);
+    this.headers = { "Authorization": `Bearer ${settings.token}`, "X-Gomoku-Client": id, "X-Gomoku-Session": this.session,
+      ...(usesHttpRelay(settings) ? { "X-Pinggy-No-Screen": "1" } : {}) };
+    this.timer = setTimeout(() => this.fail("无法连接电脑，请检查免费通道是否仍在运行"), 20000);
+    this.connect(onWelcome).catch(error => { if (!this.closed) this.fail(error.message); });
+  }
+  async request(method, data, closing = false) {
+    const response = await this.fetch(this.url, { method, headers: this.headers, credentials: "omit", cache: "no-store",
+      ...(data === undefined ? {} : { body: JSON.stringify(data) }),
+      signal: closing ? AbortSignal.timeout(5000) : AbortSignal.any([this.controller.signal, AbortSignal.timeout(15000)]), keepalive: closing });
+    if (!response.ok) throw Error(response.status === 401 ? "电脑配对失败，请检查密钥" : response.status === 429 ? "电脑连接数已满，请关闭其他连接后重试" : "电脑连接已中断，棋盘已保留，请重试或更新免费连接地址");
+    return method === "GET" ? response.json() : undefined;
+  }
+  async connect(onWelcome) {
+    await this.request("POST", { type: "auth" });
+    while (!this.closed) {
+      const messages = await this.request("GET");
+      if (!Array.isArray(messages) || messages.length > 128) throw Error("电脑服务返回格式无效");
+      for (const data of messages) {
+        if (this.closed) return;
+        if (data.type === "welcome") {
+          if (this.welcomed || data.protocol !== 1 || !Number.isInteger(data.threads) || data.threads < 1 || !Number.isInteger(data.memoryMiB)) throw Error("电脑服务版本不兼容");
+          this.welcomed = true; this.metadata = data; clearTimeout(this.timer);
+          changed({ state: "connected", ...data }); onWelcome(data);
+          if (this.closed) return;
+          for (const job of this.queue.splice(0)) this.postMessage(job);
+        } else {
+          if (!this.welcomed) throw Error("电脑服务尚未认证");
+          if (data.type === "ready") changed({ state: "ready", ...data });
+          this.onmessage?.({ data });
+        }
+      }
+    }
+  }
+  postMessage(data) {
+    if (this.closed) throw Error("电脑连接已关闭");
+    if (!this.welcomed) { if (this.queue.length >= 8) throw Error("连接尚未准备好"); this.queue.push(data); return; }
+    this.sequence = this.sequence.then(() => this.closed ? undefined : this.request("POST", data))
+      .catch(error => { if (!this.closed) this.fail(error.message); });
+  }
+  fail(message) {
+    if (this.closed) return; changed({ state: "error", message });
+    this.onmessage?.({ data: { type: "error", message } }); this.terminate();
+  }
+  terminate() {
+    if (this.closed) return; this.closed = true; clearTimeout(this.timer); this.queue.length = 0;
+    this.controller.abort(); void this.request("DELETE", undefined, true).catch(() => {});
+  }
+}
+
+const remoteWorker = (settings, options) => usesHttpRelay(settings) ? new HttpRemoteWorker(settings, options) : new RemoteWorker(settings, options);
+
 export function createEngineWorker(url) {
   const settings = readRemoteSettings();
-  return settings ? new RemoteWorker(settings) : new Worker(url);
+  return settings ? remoteWorker(settings) : new Worker(url);
 }
 export async function probeRemote(settings) {
   const health = new URL(remoteAddress(settings.url)); health.protocol = health.protocol === "wss:" ? "https:" : "http:"; health.pathname = "/health";
@@ -84,11 +143,12 @@ export async function probeRemote(settings) {
   let response;
   try {
     response = await fetch(health, { cache: "no-store", credentials: "omit", signal: AbortSignal.timeout(10000),
+      ...(usesHttpRelay(settings) ? { headers: { "X-Pinggy-No-Screen": "1" } } : {}),
       ...(["localhost", "127.0.0.1", "[::1]"].includes(health.hostname) ? { targetAddressSpace: "loopback" } : {}) });
   } catch { /* Older browsers may reject HTTP fetch yet allow trusted loopback WebSockets. */ }
   if (response?.ok && (await response.json()).protocol !== 1) throw Error("电脑服务地址或版本不正确");
   return new Promise((accept, reject) => {
-    const worker = new RemoteWorker(settings, { onWelcome: info => { worker.terminate(); accept(info); } });
+    const worker = remoteWorker(settings, { onWelcome: info => { worker.terminate(); accept(info); } });
     worker.onmessage = ({ data }) => { if (data.type === "error") { worker.terminate(); reject(Error(data.message)); } };
   });
 }

@@ -38,3 +38,5 @@ Emscripten 3.1.64 编译四个浏览器版本。engine/rapfi-250615/manifest.jso
 - 许可证：SIL Open Font License 1.1，完整声明见 [OFL-NotoSerif.txt](./assets/OFL-NotoSerif.txt)。字体随站点缓存，页面不请求外部字体服务。
 
 Rapfi 链接的 cpptoml、cxxopts、LZ4、xxHash、LZ4 stream 和 SIMDe，以及 Emscripten 运行时的上游许可声明，完整保存在 [NOTICE-Dependencies.txt](./engine/rapfi-250615/NOTICE-Dependencies.txt)。这些组件保留各自的 MIT、BSD、CC0 或 LLVM 等许可声明。
+
+手机连接窗口使用 qrcode 1.5.4（MIT，来源：https://github.com/soldair/node-qrcode/tree/v1.5.4），完整许可证见 [qrcode-LICENSE.txt](./remote/licenses/qrcode-LICENSE.txt)。二维码在本机生成，配对信息不发送给在线二维码服务。

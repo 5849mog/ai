@@ -1,4 +1,5 @@
 import test from "node:test";
+import { existsSync } from "node:fs";
 import assert from "node:assert/strict";
 import { WebSocket } from "ws";
 import { startRemote } from "../remote/server.js";
@@ -42,7 +43,7 @@ test("Internet gateway blocks admin/files and unauthorized clients while forward
   } finally { for (const socket of sockets) socket.terminate(); await gateway.close(); await engine.close(); }
 });
 
-test("launcher shutdown closes both native and restricted gateway listeners", { timeout: 20000 }, async () => {
+test("launcher shutdown closes both native and restricted gateway listeners", { timeout: 20000, skip: !existsSync(new URL("../remote/engine/manifest.json", import.meta.url)) }, async () => {
   const data = await mkdtemp(join(tmpdir(), "gomoku-gateway-test-"));
   const child = spawn(process.execPath, ["remote/server.js"], {
     env: { ...process.env, LOCALAPPDATA: data, GOMOKU_REMOTE_PORT: "0", GOMOKU_REMOTE_GATEWAY_PORT: "0" },

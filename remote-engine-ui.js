@@ -1,4 +1,4 @@
-import { readRemoteSettings, saveRemoteSettings, probeRemote } from "./remote-engine.js";
+import { readRemoteSettings, saveRemoteSettings, probeRemote } from "./remote-engine.js?v=45";
 
 async function awaitUpdatedShell(doc) {
   let registration;
