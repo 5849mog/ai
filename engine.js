@@ -1,4 +1,5 @@
 import { validatePosition, validIndex } from "./game-rules.js";
+import { createEngineWorker } from "./remote-engine.js";
 
 export const ENGINE_BASE = new URL("./engine/rapfi-250615/", import.meta.url);
 export const MEMORY_BYTES = 256 * 1024 * 1024;
@@ -26,7 +27,7 @@ export class GomokuEngine {
     this.onState = onState;
     this.onStats = onStats;
     this.onPonderSlice = onPonderSlice;
-    this.workerFactory = workerFactory ?? (() => new Worker(new URL("./engine.worker.js?v=42", import.meta.url)));
+    this.workerFactory = workerFactory ?? (() => createEngineWorker(new URL("./engine.worker.js?v=42", import.meta.url)));
     this.capabilities = capabilities ?? detectCapabilities();
     this.variant = variant ?? selectVariant(this.capabilities);
     this.threads = this.variant.includes("multi") ? Math.max(1, Math.min(4, threads ?? this.capabilities.threads)) : 1;
@@ -56,6 +57,7 @@ export class GomokuEngine {
       worker.onmessage = ({ data }) => {
         if (generation !== this.generation || worker !== this.worker) return;
         if (data.type === "ready") {
+          if (data.backend === "remote-native-avx2") { this.variant = data.backend; this.threads = data.threads; }
           clearTimeout(this.initTimer);
           this.ready = true;
           this.initReject = null;

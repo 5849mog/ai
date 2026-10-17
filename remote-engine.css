@@ -1,0 +1,7 @@
+.remote-dialog { width: min(440px, calc(100% - 24px)); }
+.remote-description { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 10px 0 18px; }
+.remote-field { display: grid; gap: 7px; font-size: 12px; margin: 14px 0; }
+.remote-field input { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; background: var(--paper); color: var(--ink); font: inherit; }
+.remote-message { font-size: 12px; line-height: 1.8; min-height: 22px; overflow-wrap: anywhere; }
+.remote-dialog .dialog-actions { flex-wrap: wrap; }
+.record-options { max-height: calc(100dvh - 90px); overflow-y: auto; }

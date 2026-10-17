@@ -26,6 +26,8 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
   panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button><button type="button" data-collapse>收起</button></div><p>影响后续自动应手；深思自动分配 0～6 秒，先比较候选再复核应手，推荐仍为 1 秒。关后台可省电。</p>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
+  const remoteEntry = document.createElement("button"); remoteEntry.type = "button"; remoteEntry.dataset.remoteMenu = ""; remoteEntry.textContent = "电脑引擎";
+  panel.querySelector(".quick-tools-actions").append(remoteEntry);
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
   let active = null, recordKey = null, opening = false, currentReview=true;

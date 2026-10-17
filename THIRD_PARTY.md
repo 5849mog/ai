@@ -23,6 +23,10 @@
 
 ## 构建与校验
 
+原生远程计算采用相同 Rapfi / Networks 固定提交，源码构建脚本为 `scripts/build-remote-native.py`；公开的 AVX2 非对齐读取修复在 `scripts/native-patches/rapfi-avx2-policy-load.patch`，不改搜索算法。构建使用锁定的 LLVM-MinGW 20260616，记录编译器、补丁及可执行文件 SHA-256。`scripts/prepare-remote.js` 验证并组装独立的 freestyle / renju 资源与许可证。生成目录不进入网页离线缓存。
+
+电脑端 WebSocket 服务使用 ws 8.22.0（MIT，来源：https://github.com/websockets/ws/tree/8.22.0 ），完整许可证见 [ws-LICENSE.txt](./remote/licenses/ws-LICENSE.txt)。浏览器使用内置 WebSocket，不加载 npm ws 或第三方在线脚本。
+
 Emscripten 3.1.64 编译四个浏览器版本。engine/rapfi-250615/manifest.json 记录源代码提交、补丁校验值及全部发布文件的 SHA-256。
 
 棋盘、底纹、棋子及按钮的 SVG 材质由本项目提供，遵循本项目许可证。

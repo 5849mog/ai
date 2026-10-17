@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 
-for (const dir of [".", "scripts", "tests"]) {
+for (const dir of [".", "scripts", "tests", "remote"]) {
   for (const name of await readdir(dir)) {
     if (name.endsWith(".js")) execFileSync(process.execPath, ["--check", `${dir}/${name}`], { stdio: "inherit" });
   }

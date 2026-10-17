@@ -1,0 +1,692 @@
+{
+  "completedAt": "2026-10-17T01:19:43.104Z",
+  "cpu": "13th Gen Intel(R) Core(TM) i5-13400F",
+  "threads": 15,
+  "memoryMiB": 256,
+  "transport": "WebSocket loopback; real native executable, no test engine double; Internet tunnel not yet configured",
+  "checks": [
+    {
+      "channel": "chrome",
+      "name": "actual native threads, three candidates, restricted and balanced opening searches, TT reuse, cancellation, Renju and forbidden points",
+      "result": {
+        "white": {
+          "depth": 15,
+          "selectiveDepth": 34,
+          "nodes": 1191609,
+          "elapsed": 590,
+          "nps": 2557100,
+          "evaluation": -476,
+          "mate": null,
+          "winRate": 0.0847106,
+          "assessment": {
+            "depth": 15,
+            "winRate": 0.0744679,
+            "evaluation": -504,
+            "mate": null,
+            "bestIndex": 96
+          },
+          "recommendations": [
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 1,
+              "pv": 2,
+              "count": 3,
+              "depth": 14,
+              "score": -404,
+              "winRate": 0.117119
+            },
+            {
+              "index": 82,
+              "x": 7,
+              "y": 5,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 14,
+              "score": -440,
+              "winRate": 0.0997505
+            },
+            {
+              "index": 97,
+              "x": 7,
+              "y": 6,
+              "rank": 3,
+              "pv": 0,
+              "count": 3,
+              "depth": 14,
+              "score": -502,
+              "winRate": 0.0751601
+            }
+          ],
+          "index": 97,
+          "x": 7,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 1
+        },
+        "restricted": {
+          "depth": 19,
+          "selectiveDepth": 36,
+          "nodes": 1045247,
+          "elapsed": 469,
+          "nps": 2787325,
+          "evaluation": 156,
+          "mate": null,
+          "winRate": 0.68568,
+          "assessment": {
+            "depth": 19,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M37",
+            "bestIndex": 98
+          },
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 19,
+              "score": 29963,
+              "winRate": 1
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 19,
+              "score": 564,
+              "winRate": 0.943747
+            },
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 19,
+              "score": 156,
+              "winRate": 0.68568
+            }
+          ],
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 2
+        },
+        "balanced": {
+          "depth": 26,
+          "selectiveDepth": 61,
+          "nodes": 971318,
+          "elapsed": 559,
+          "nps": 2158484,
+          "evaluation": 122,
+          "mate": null,
+          "winRate": 0.647941,
+          "assessment": {
+            "depth": 26,
+            "winRate": 0.647941,
+            "evaluation": 122,
+            "mate": null,
+            "bestIndex": 96
+          },
+          "index": 96,
+          "x": 6,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 3
+        },
+        "foreground": {
+          "depth": 26,
+          "selectiveDepth": 21,
+          "nodes": 1130261,
+          "elapsed": 400,
+          "nps": 3210968,
+          "evaluation": null,
+          "mate": "+M25",
+          "winRate": 1,
+          "assessment": {
+            "depth": 26,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M25",
+            "bestIndex": 98
+          },
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 5
+        },
+        "cancellation": "AbortError",
+        "after": {
+          "depth": 16,
+          "selectiveDepth": 37,
+          "nodes": 983999,
+          "elapsed": 586,
+          "nps": 3393100,
+          "evaluation": 684,
+          "mate": null,
+          "winRate": 0.968324,
+          "assessment": {
+            "depth": 16,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M37",
+            "bestIndex": 98
+          },
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 15,
+              "score": 29963,
+              "winRate": 1
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 15,
+              "score": 586,
+              "winRate": 0.94931
+            },
+            {
+              "index": 143,
+              "x": 8,
+              "y": 9,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 15,
+              "score": 471,
+              "winRate": 0.913331
+            }
+          ],
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 7
+        },
+        "reused": true,
+        "renjuResult": {
+          "depth": 18,
+          "selectiveDepth": 24,
+          "nodes": 1244051,
+          "elapsed": 638,
+          "nps": 2899885,
+          "evaluation": -489,
+          "mate": null,
+          "winRate": 0.079805,
+          "assessment": {
+            "depth": 18,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M43",
+            "bestIndex": 98
+          },
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 17,
+              "score": 909,
+              "winRate": 0.989491
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 2,
+              "pv": 2,
+              "count": 3,
+              "depth": 17,
+              "score": -447,
+              "winRate": 0.0966512
+            },
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 3,
+              "pv": 1,
+              "count": 3,
+              "depth": 17,
+              "score": -495,
+              "winRate": 0.0776295
+            }
+          ],
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "requestId": 8
+        },
+        "arbitrary": {
+          "depth": 12,
+          "selectiveDepth": 21,
+          "nodes": 645797,
+          "elapsed": 417,
+          "nps": 1824285,
+          "evaluation": -489,
+          "mate": null,
+          "winRate": 0.079805,
+          "assessment": {
+            "depth": 12,
+            "winRate": 0.079805,
+            "evaluation": -489,
+            "mate": null,
+            "bestIndex": 108
+          },
+          "index": 108,
+          "x": 3,
+          "y": 7,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "requestId": 9
+        },
+        "forbid": [
+          112
+        ]
+      }
+    },
+    {
+      "channel": "chrome",
+      "name": "phone UI pairing, real native reply, reload continuation and undo while searching"
+    },
+    {
+      "channel": "chrome",
+      "name": "disconnect retains game, does not silently fall back, and explicit browser switch resumes the saved turn"
+    },
+    {
+      "channel": "msedge",
+      "name": "actual native threads, three candidates, restricted and balanced opening searches, TT reuse, cancellation, Renju and forbidden points",
+      "result": {
+        "white": {
+          "depth": 13,
+          "selectiveDepth": 24,
+          "nodes": 1173213,
+          "elapsed": 507,
+          "nps": 3055242,
+          "evaluation": -522,
+          "mate": null,
+          "winRate": 0.0684976,
+          "assessment": {
+            "depth": 13,
+            "winRate": 0.0748133,
+            "evaluation": -503,
+            "mate": null,
+            "bestIndex": 96
+          },
+          "recommendations": [
+            {
+              "index": 97,
+              "x": 7,
+              "y": 6,
+              "rank": 1,
+              "pv": 1,
+              "count": 3,
+              "depth": 13,
+              "score": -471,
+              "winRate": 0.0866692
+            },
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 2,
+              "pv": 0,
+              "count": 3,
+              "depth": 13,
+              "score": -503,
+              "winRate": 0.0748133
+            },
+            {
+              "index": 67,
+              "x": 7,
+              "y": 4,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 13,
+              "score": -522,
+              "winRate": 0.0684976
+            }
+          ],
+          "index": 97,
+          "x": 7,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 1
+        },
+        "restricted": {
+          "depth": 20,
+          "selectiveDepth": 27,
+          "nodes": 1234764,
+          "elapsed": 474,
+          "nps": 3240850,
+          "evaluation": 145,
+          "mate": null,
+          "winRate": 0.673707,
+          "assessment": {
+            "depth": 20,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M37",
+            "bestIndex": 98
+          },
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 20,
+              "score": 29963,
+              "winRate": 1
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 20,
+              "score": 635,
+              "winRate": 0.959883
+            },
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 20,
+              "score": 145,
+              "winRate": 0.673707
+            }
+          ],
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 2
+        },
+        "balanced": {
+          "depth": 24,
+          "selectiveDepth": 46,
+          "nodes": 327996,
+          "elapsed": 584,
+          "nps": 2484818,
+          "evaluation": 184,
+          "mate": null,
+          "winRate": 0.715042,
+          "assessment": {
+            "depth": 24,
+            "winRate": 0.715042,
+            "evaluation": 184,
+            "mate": null,
+            "bestIndex": 96
+          },
+          "index": 96,
+          "x": 6,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 3
+        },
+        "foreground": {
+          "depth": 26,
+          "selectiveDepth": 21,
+          "nodes": 1043174,
+          "elapsed": 348,
+          "nps": 3442818,
+          "mate": "+M25",
+          "evaluation": null,
+          "winRate": 1,
+          "assessment": {
+            "depth": 26,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M25",
+            "bestIndex": 98
+          },
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 5
+        },
+        "cancellation": "AbortError",
+        "after": {
+          "depth": 16,
+          "selectiveDepth": 35,
+          "nodes": 1385363,
+          "elapsed": 612,
+          "nps": 3543127,
+          "evaluation": 539,
+          "mate": null,
+          "winRate": 0.936731,
+          "assessment": {
+            "depth": 16,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M41",
+            "bestIndex": 98
+          },
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 15,
+              "score": 1856,
+              "winRate": 0.999907
+            },
+            {
+              "index": 83,
+              "x": 8,
+              "y": 5,
+              "rank": 2,
+              "pv": 2,
+              "count": 3,
+              "depth": 15,
+              "score": 589,
+              "winRate": 0.950027
+            },
+            {
+              "index": 99,
+              "x": 9,
+              "y": 6,
+              "rank": 3,
+              "pv": 1,
+              "count": 3,
+              "depth": 15,
+              "score": 562,
+              "winRate": 0.943214
+            }
+          ],
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqfreestyle_bsmix.bin.lz4",
+          "requestId": 7
+        },
+        "reused": true,
+        "renjuResult": {
+          "depth": 19,
+          "selectiveDepth": 35,
+          "nodes": 1487457,
+          "elapsed": 636,
+          "nps": 3212650,
+          "evaluation": -599,
+          "mate": null,
+          "winRate": 0.0476523,
+          "assessment": {
+            "depth": 19,
+            "winRate": 1,
+            "evaluation": null,
+            "mate": "+M49",
+            "bestIndex": 98
+          },
+          "recommendations": [
+            {
+              "index": 98,
+              "x": 8,
+              "y": 6,
+              "rank": 1,
+              "pv": 0,
+              "count": 3,
+              "depth": 18,
+              "score": 29949,
+              "winRate": 1
+            },
+            {
+              "index": 96,
+              "x": 6,
+              "y": 6,
+              "rank": 2,
+              "pv": 1,
+              "count": 3,
+              "depth": 18,
+              "score": -308,
+              "winRate": 0.176535
+            },
+            {
+              "index": 111,
+              "x": 6,
+              "y": 7,
+              "rank": 3,
+              "pv": 2,
+              "count": 3,
+              "depth": 18,
+              "score": -510,
+              "winRate": 0.0724265
+            }
+          ],
+          "index": 98,
+          "x": 8,
+          "y": 6,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "requestId": 8
+        },
+        "arbitrary": {
+          "depth": 13,
+          "selectiveDepth": 30,
+          "nodes": 800453,
+          "elapsed": 476,
+          "nps": 1938142,
+          "evaluation": -446,
+          "mate": null,
+          "winRate": 0.0970886,
+          "assessment": {
+            "depth": 13,
+            "winRate": 0.0970886,
+            "evaluation": -446,
+            "mate": null,
+            "bestIndex": 142
+          },
+          "index": 142,
+          "x": 7,
+          "y": 9,
+          "backend": "remote-native-avx2",
+          "threads": 15,
+          "memoryMiB": 256,
+          "evaluator": "mix9svq",
+          "weight": "mix9svqrenju_bs15_white.bin.lz4",
+          "requestId": 9
+        },
+        "forbid": [
+          112
+        ]
+      }
+    },
+    {
+      "channel": "msedge",
+      "name": "phone UI pairing, real native reply, reload continuation and undo while searching"
+    },
+    {
+      "channel": "msedge",
+      "name": "disconnect retains game, does not silently fall back, and explicit browser switch resumes the saved turn"
+    }
+  ],
+  "passed": true
+}
