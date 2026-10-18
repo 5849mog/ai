@@ -1,9 +1,9 @@
 // The URL retains the display mode on refresh. Entering adds one history
 // entry, so the system/browser Back action naturally returns to the full UI.
-export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
+export function setupDisplayModes({ onChange, onNewGame, onOpenSettings }) {
   const controls = document.querySelector("#simpleControls"), newGame = document.querySelector("#simpleRestart");
   const color = document.querySelector("#simpleColor"), label = document.querySelector("#simpleRestartLabel");
-  let simple = false, holdTimer, held = false, pressStart, pointerId = null;
+  let simple = false, cancelled = false, pressStart, pointerId = null;
   const fromUrl = () => new URL(location.href).searchParams.get("view") === "simple";
   function apply(value) {
     if (value === simple && controls.hidden === !value) return;
@@ -34,23 +34,22 @@ export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
   newGame.addEventListener("contextmenu", event => event.preventDefault());
   newGame.addEventListener("pointerdown", event => {
     if (event.button !== 0 || event.isPrimary === false || pointerId !== null) return;
-    clearTimeout(holdTimer); held = false; pointerId = event.pointerId;
+    cancelled = false; pointerId = event.pointerId;
     pressStart = [event.clientX, event.clientY];
     newGame.setPointerCapture?.(event.pointerId);
-    holdTimer = setTimeout(() => { held = true; leave(); }, 700);
   });
   newGame.addEventListener("pointermove", event => {
     if (event.pointerId === pointerId && pressStart && Math.hypot(event.clientX - pressStart[0], event.clientY - pressStart[1]) > 12) {
-      clearTimeout(holdTimer); held = true;
+      cancelled = true;
     }
   });
   function release(event) {
     if (event && event.pointerId !== pointerId) return;
-    clearTimeout(holdTimer); pressStart = null; pointerId = null;
+    pressStart = null; pointerId = null;
   }
   function cancel(event) {
     if (pointerId === null || event && event.pointerId !== pointerId) return;
-    held = true; release(event);
+    cancelled = true; release(event);
   }
   newGame.addEventListener("pointerup", release);
   newGame.addEventListener("pointercancel", cancel);
@@ -58,13 +57,13 @@ export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
   window.addEventListener("blur", () => cancel());
   document.addEventListener("visibilitychange", () => { if (document.hidden) cancel(); });
   newGame.addEventListener("click", event => {
-    // Keep suppression until the actual pointer click or the next pointerdown;
+    // Keep cancelled-touch suppression until the click or next pointerdown;
     // mobile synthetic clicks can arrive much later than 50 ms. Keyboard and
     // assistive clicks (detail 0) still work after a cancelled touch.
-    if (held && event.detail !== 0) { event.preventDefault(); held = false; return; }
+    if (cancelled && event.detail !== 0) { event.preventDefault(); cancelled = false; return; }
     onNewGame();
   });
-  color.addEventListener("click", onToggleColor);
+  color.addEventListener("click", onOpenSettings);
   // A direct simple-mode link also gets a full-mode history entry. Refreshes
   // already carry this marker and do not add duplicate entries.
   if (fromUrl() && !history.state?.wumuSimpleEntry) {
@@ -74,14 +73,10 @@ export function setupDisplayModes({ onChange, onNewGame, onToggleColor }) {
   }
   apply(fromUrl());
   return {
+    leave,
     get simple() { return simple; },
     render({ playerColor, winner, state, text, busy }) {
-      const playerBlack = playerColor === 1;
-      document.querySelector("#simpleColorLabel").textContent = playerBlack ? "你执黑" : "AI 执黑";
-      color.setAttribute("aria-pressed", String(playerBlack));
-      color.setAttribute("aria-label", `当前${playerBlack ? "你执黑" : "AI 执黑"}，点击切换并开始新局`);
-      label.textContent = winner ? `${winner === 3 ? "平局" : winner === playerColor ? "你赢了" : "AI 赢了"} · 新局`
-        : "新局";
+      label.textContent = "新局";
       if (simple) document.querySelector("#simpleLive").textContent = text;
       document.querySelector("#boardSvg").setAttribute("aria-busy", String(busy));
     }

@@ -51,6 +51,7 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
   for (const [key, value] of Object.entries(values)) { original.set(key, Object.getOwnPropertyDescriptor(globalThis, key)); Object.defineProperty(globalThis, key, { value, configurable: true, writable: true }); }
   const storageKey = `gomoku-opening:${new URL('../', import.meta.url).pathname}:v1`;
   if (saved) localStorage.setItem(storageKey, JSON.stringify(saved));
+  else if (page === 'index.html') localStorage.setItem(storageKey, JSON.stringify({record:new OpeningSession({rule:'freestyle',workflow:'duel',initialBlackSeat:0}).record(),perspective:1}));
   if(timeMs)localStorage.setItem('gomoku-thinking-ms',String(timeMs));
   if (blockSave) dom.window.Storage.prototype.setItem = () => { throw new Error('quota exceeded'); };
   const advance = ms => {
@@ -63,7 +64,7 @@ async function environment(page, { saved = null, failSearch = false, blockSave =
     workers.forEach(worker => worker.terminate()); timers.clear(); dom.window.close();
     for (const [key, descriptor] of original) descriptor ? Object.defineProperty(globalThis, key, descriptor) : delete globalThis[key];
   };
-  return { dom, workers, storageKey, advance, close, resizeObservers, async load() { await import(`../${page === 'index.html' ? 'app.js' : 'opening-app.js'}?dom-case=${++fixtureId}`); await flush(); await flush(); } };
+  return { dom, workers, storageKey, advance, close, resizeObservers, async load() { await import(`../opening-app.js?dom-case=${++fixtureId}`); await flush(); await flush(); } };
 }
 
 test('freestyle simple-mode retry preserves the existing stone and continues the failed AI turn', async () => {
@@ -360,8 +361,8 @@ test('freestyle deep mode uses adaptive budget, pauses without placing a move, a
       w.emit({type:'move',requestId:q.requestId,result:{index,x:index%15,y:Math.floor(index/15),assessment:{depth:15,bestIndex:index,winRate:.55,mate:null},recommendations:allowed.slice(0,q.multiPV).map(index=>({index,depth:15,winRate:.55}))}});await settled();
     }
     assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,2);assert.equal(byText('继续思考').hidden,true);
-    document.querySelector('#simpleRestart').click();await settled();const entries=JSON.parse(localStorage.getItem(ARCHIVE_KEY)).entries;assert.equal(entries.length,1);assert.deepEqual(entries[0].record.moves,[112,113]);
-    assert.equal(entries[0].meta.timeMs,6000);assert.equal(entries[0].meta.mode,'adaptive');assert.equal(JSON.parse(localStorage.getItem(RECORD_KEY)).moves.length,0);
+    document.querySelector('#simpleRestart').click();await settled();const entries=JSON.parse(localStorage.getItem(ARCHIVE_KEY)).entries;assert.equal(entries.length,1);assert.deepEqual(replaySession(entries[0].record).moves,[112,113]);
+    assert.equal(entries[0].meta.timeMs,6000);assert.equal(entries[0].meta.mode,'adaptive');assert.equal(savedSession(f).moves.length,0);
   }finally{f.close();}
 });
 for(const rule of ['freestyle','renju','rif','taraguchi10']) test(`${rule}: deep copilot pause preserves seed, continuation uses adaptive budget and New drops late answers`,async()=>{
@@ -404,12 +405,12 @@ for(const page of ['index.html','renju.html']) test(`${page}: reviewing archived
       while(!old.winner)old.apply({type:'stone',index:old.allowedMoves({safe:true})[0]});record=old.record();
     }
     const archive=createGameArchive({storage:localStorage,page:page==='renju.html'?'opening':'freestyle'});archive.begin();archive.capture(record);const id=archive.list()[0].id;
-    await f.load();await settled();const before=page==='renju.html'?savedSession(f).record():JSON.parse(localStorage.getItem(RECORD_KEY));
+    await f.load();await settled();const before=savedSession(f).record();
     document.querySelector('[data-archive]').click();document.querySelector(`[data-archive-id="${id}"] button`).click();await settled();
     const search=f.workers.at(-1).searches.at(-1);assert.equal(search.rule,page==='renju.html'?'freestyle':'rif');
     assert.equal(document.querySelector('.app-shell').hidden,true);byText('返回结果').click();await settled();
     assert.equal(f.workers.at(-1).initMessage.rule,page==='renju.html'?'rif':'freestyle');
-    assert.deepEqual(page==='renju.html'?savedSession(f).record():JSON.parse(localStorage.getItem(RECORD_KEY)),before);
+    assert.deepEqual(savedSession(f).record(),before);
     assert.equal(document.querySelector('.app-shell').hidden,false);
   }finally{f.close();}
 });

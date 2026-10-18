@@ -34,7 +34,6 @@ await context.addInitScript(() => {
   if (fixture) { localStorage.setItem("gomoku-opening:/ai/:v1", fixture); sessionStorage.removeItem("qaOpeningFixture"); }
   if (sessionStorage.getItem("qaFailNextSearch")) { window.failNextSearch = true; sessionStorage.removeItem("qaFailNextSearch"); }
   localStorage.setItem("gomoku-thinking-ms", "1000"); localStorage.setItem("gomoku-pondering", "false");
-  HTMLDialogElement.prototype.showModal = function () { throw new Error("Opening flow must not open a dialog"); };
 });
 if (mocked) await page.route(/\/engine\.js(?:\?.*)?$/, route => route.fulfill({ contentType: "text/javascript", body: fixture }));
 const record = () => page.evaluate(() => JSON.parse(localStorage.getItem("gomoku-opening:/ai/:v1")).record);
@@ -44,7 +43,7 @@ const action = (name, value) => page.locator(`${flow} [data-flow-action="${name}
 const stage = value => page.waitForFunction(value => document.querySelector("#boardSvg").dataset.stage === value, value, { timeout: 60000 });
 const manual = () => page.waitForFunction(() => document.querySelector("#boardSvg").getAttribute("aria-disabled") === "false" && document.querySelector("#boardSvg").getAttribute("aria-busy") === "false", null, { timeout: 60000 });
 async function play(index) { await manual(); const point = page.locator(`#boardSvg [data-index="${index}"]`); await point.tap(); await point.tap(); }
-async function selectRule(rule) { await page.locator("#simpleColor").tap(); await action("rule", rule).tap(); await stage("setup"); }
+async function selectRule(rule, workflow = "copilot") { await page.locator("#simpleColor").tap(); await page.locator("#ruleMode").selectOption(rule); await page.locator("#workflowMode").selectOption(workflow); await page.locator("#startMode").tap(); await stage("setup"); }
 async function decide(choice) { await page.waitForFunction(({flow, choice}) => { const button = document.querySelector(flow + ' [data-choice="' + choice + '"]'); return button && !button.disabled; }, {flow, choice}, {timeout:60000}); await action("decision", choice).tap(); }
 function pass(message) { console.log("PASS", message); }
 try {
@@ -128,8 +127,8 @@ try {
     const seed = Array(225).fill(0); seed[112] = 1; seed[97] = 2;
     const reply = new OpeningSession({ rule:"renju", workflow:"copilot", initialBlackSeat:0, seed:{ board:seed, sideToMove:1 } });
     await page.evaluate(record => { sessionStorage.setItem("qaOpeningFixture", JSON.stringify({record, perspective:1})); sessionStorage.setItem("qaFailNextSearch", "1"); }, reply.record());
-    await page.reload(); await action("retry").waitFor(); assert.equal((await game()).board.filter(Boolean).length, 2);
-    await action("retry").tap(); await manual(); assert.equal((await game()).board.filter(Boolean).length, 3);
+    await page.reload(); const retry = page.getByRole("button", { name: "重试 AI", exact: true }); await retry.waitFor(); assert.equal((await game()).board.filter(Boolean).length, 2);
+    await retry.tap(); await manual(); assert.equal((await game()).board.filter(Boolean).length, 3);
     pass("Failed automatic reply retries from the saved position without duplicate stones");
   }
 
@@ -142,12 +141,12 @@ try {
       await page.evaluate(record => sessionStorage.setItem("qaOpeningFixture", JSON.stringify({ record, perspective: 1 })), legacy.record());
       await page.reload(); await stage("b3");
       assert.deepEqual(await record(), legacy.record());
-      if (restart === "new") await page.locator("#simpleRestart").tap(); else await selectRule("rif");
-      await stage("setup"); assert.equal((await game()).workflow, "copilot"); assert.equal(await action("start").count(), 2);
-      await action("start", 0).tap(); await stage("swap3");
+      if (restart === "new") await page.locator("#simpleRestart").tap(); else await selectRule("rif", "follow");
+      await stage("setup"); assert.equal((await game()).workflow, "follow"); assert.equal(await action("start").count(), 2);
+      await action("start", 0).tap(); for (const index of [112,97,96]) await play(index); await stage("swap3");
       assert.deepEqual((await game()).colors, [1, 2, 1]);
     }
-    pass("Existing manual records remain intact; simple-mode New and rule selection start the inline copilot flow");
+    pass("Existing manual records and manual workflow remain intact after New and explicit settings");
     await page.locator("#simpleRestart").tap(); await stage("setup");
   }
   if (!recordsOnly) {
@@ -166,7 +165,7 @@ try {
       assert.ok(layout.board.x >= -1 && layout.board.y >= -1 && layout.board.x + layout.board.w <= width + 1 && layout.board.y + layout.board.h <= height + 1, JSON.stringify(layout));
       assert.equal(layout.width, width); assert.equal(layout.height, height);
       assert.ok(layout.controlsBottom <= height + 1 && layout.flowBottom <= height + 1, JSON.stringify(layout));
-      if (rulesOpen) await action("rules", "close").tap();
+      if (rulesOpen) await page.locator("#modeDialog [data-close]").tap();
     }
     if (width === 320 && height === 240) await page.screenshot({path:`${output}/small-window.png`});
   }

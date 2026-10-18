@@ -146,7 +146,8 @@ test("image calibration/correction remains a draft until confirmation and contin
     assert.equal(result().applied, null); root.querySelector("[data-side]").value = String(side); root.querySelector("[data-actor]").value = actor;
     root.querySelector("[data-confirm]").click();
     const { applied, closes } = result(); assert.ok(applied); assert.equal(closes, 1); assert.equal(applied.setup.board[112], 1); assert.equal(applied.setup.board[97], 2); assert.equal(applied.setup.sideToMove, side);
-    assert.equal(applied.playerColor, actor === "player" ? workflow === "copilot" ? 3 - side : side : workflow === "copilot" ? side : 3 - side);
+    assert.equal(root.querySelector("[data-actor]").parentElement.hidden, workflow === "follow");
+    assert.equal(applied.playerColor, workflow === "follow" ? side : actor === "player" ? workflow === "copilot" ? 3 - side : side : workflow === "copilot" ? side : 3 - side);
   }
 });
 test("completed board cannot replace the current game through image import", async () => {

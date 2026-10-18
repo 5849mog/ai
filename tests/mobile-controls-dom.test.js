@@ -15,7 +15,7 @@ function fixture() {
     const next = [...timers.entries()].sort((a, b) => a[1].at - b[1].at)[0];
     if (!next || next[1].at > end) break; timers.delete(next[0]); time = next[1].at; next[1].run();
   } time = end; };
-  const ui = setupDisplayModes({ onChange() {}, onNewGame: () => starts++, onToggleColor() {} });
+  const ui = setupDisplayModes({ onChange() {}, onNewGame: () => starts++, onOpenSettings() {} });
   const button = document.querySelector('#simpleRestart'); button.setPointerCapture = () => {};
   const pointer = (type, values = {}) => { const event = new dom.window.Event(type); Object.assign(event, { pointerId: 1, button: 0, clientX: 20, clientY: 20, isPrimary: true, ...values }); button.dispatchEvent(event); };
   const click = detail => button.dispatchEvent(new dom.window.MouseEvent('click', { detail, cancelable: true }));
@@ -38,13 +38,13 @@ test('cancelled/moved touches and focus loss cannot start a new game through a d
     } finally { f.close(); }
   }
 });
-test('a secondary finger cannot cancel the primary long press; exiting does not restart', () => {
+test('holding New has no hidden display-mode action and a secondary finger cannot cancel its click', () => {
   const f = fixture();
   try {
     f.pointer('pointerdown'); f.pointer('pointerdown', { pointerId: 2, isPrimary: false });
     f.pointer('pointermove', { pointerId: 2, clientX: 200 }); f.pointer('pointercancel', { pointerId: 2 });
-    f.advance(800); assert.equal(f.ui.simple, false);
-    f.pointer('pointerup'); f.advance(1000); f.click(1); assert.equal(f.starts(), 0);
+    f.advance(800); assert.equal(f.ui.simple, true);
+    f.pointer('pointerup'); f.advance(1000); f.click(1); assert.equal(f.starts(), 1);
   } finally { f.close(); }
 });
 test('keyboard clicks remain usable after a cancelled touch and error labels do not imply retrying New', () => {

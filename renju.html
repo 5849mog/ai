@@ -4,18 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f5f2ea" />
-    <meta name="description" content="五目五子棋 · 连珠开局与 AI 附身外部棋局。" />
-    <title>五目 · 连珠与 AI 附身</title>
+    <meta name="description" content="五目五子棋 · 五子棋与连珠，支持 AI 对弈、外部对局辅助和手动记录。" />
+    <title>五目 · 五子棋与连珠</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=22" />
     <link rel="stylesheet" href="./game-modes.css?v=5" />
-    <link rel="stylesheet" href="./opening.css?v=5" />
-    <link rel="stylesheet" href="./enhancements.css?v=38" />
+    <link rel="stylesheet" href="./opening.css?v=6" />
+    <link rel="stylesheet" href="./enhancements.css?v=48" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="./" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
+        <span class="brand" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></span>
         <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
           <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
           <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
@@ -25,10 +25,10 @@
           <details class="record-menu" id="recordMenu">
             <summary aria-label="棋谱与模式菜单"><span>菜单</span><span aria-hidden="true">⌄</span><span class="board-size">15 × 15</span></summary>
             <div class="record-options">
-              <button type="button" id="openModes">规则与对局方式</button>
-              <button type="button" id="openGuide">规则与跟随说明</button>
+              <button type="button" id="openModes">对局设置</button>
+              <button type="button" id="openGuide">规则说明</button>
               <button type="button" id="openSetup">自定义摆局</button>
-              <button type="button" id="enterSimpleMode">简洁模式</button>
+              <button type="button" id="enterSimpleMode">简洁界面</button>
               <button type="button" id="openRemoteEngine">电脑引擎</button>
               <hr />
               <button type="button" id="importRecord">导入棋谱</button>
@@ -94,14 +94,23 @@
       </main>
       <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待开局</div>
       <div class="simple-controls" id="simpleControls" hidden>
-        <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局；长按返回完整界面"><span id="simpleRestartLabel">新局</span><small>长按返回</small></button>
-        <button class="icon-button" id="simpleColor" type="button" title="在棋盘旁选择本局规则"><span id="simpleColorLabel">规则</span><small>五手两打</small></button>
+        <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局"><span id="simpleRestartLabel">新局</span><small>重新开局</small></button>
+        <button class="icon-button" id="simpleColor" type="button" title="设置规则与对局方式"><span id="simpleColorLabel">对局</span><small>五手两打</small></button>
         <button class="icon-button" id="simpleUndoButton" type="button" disabled><span>悔棋</span><small>撤回上次操作</small></button>
         <button class="icon-button" id="simpleRecommendButton" type="button" aria-label="推荐落点" title="分析当前开局动作或落点" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span id="simpleRecommendLabel">推荐</span><small id="simpleRecommendNote">AI 落点建议</small></button>
       </div>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
     </div>
     <input type="file" id="recordFile" accept=".json,.sgf,application/json,application/x-go-sgf" hidden />
+    <dialog class="record-dialog" id="recordDialog" aria-labelledby="importTitle">
+      <h2 id="importTitle">导入棋谱</h2>
+      <div class="record-preview-frame"><svg id="recordPreview" viewBox="0 0 620 620" class="board-svg" aria-label="待导入的棋盘预览"></svg></div>
+      <p id="importSummary" class="import-summary"></p>
+      <p id="importNotices" class="import-notices"></p>
+      <label class="import-color" for="importColor">继续执色 <select id="importColor"><option value="1">执黑</option><option value="2">执白</option></select></label>
+      <p class="import-warning">导入将替换当前对局。思考时间与后台设置保持不变。</p>
+      <div class="dialog-actions"><button type="button" id="cancelImport">取消</button><button type="button" id="confirmImport" class="confirm-import">导入继续</button></div>
+    </dialog>
     <div class="game-notice" id="gameNotice" role="status" hidden></div>
     <span class="visually-hidden" id="simpleLive" role="status" aria-live="polite" aria-atomic="true"></span>
     <dialog class="setup-dialog" id="setupDialog" aria-labelledby="setupTitle">

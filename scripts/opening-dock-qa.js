@@ -26,6 +26,8 @@ while (two.offerCount) two.apply({ type: "offer", index: two.allowedMoves({ safe
 const ten = until("taraguchi10", "route4"); ten.apply({ type: "decision", choice: "ten" });
 while (ten.offerCount) ten.apply({ type: "offer", index: ten.allowedMoves({ safe: true })[0] });
 const overline = Array(225).fill(0); for (const i of [109, 110, 111, 113, 114]) overline[i] = 1;
+const finished = new OpeningSession({rule:"freestyle",workflow:"follow",initialBlackSeat:0});
+for (const index of [0,15,1,16,2,17,3,18,4]) finished.apply({type:"stone",index});
 const scenarios = [
   ["role", new OpeningSession({ rule: "rif", initialBlackSeat: null })],
   ["swap", until("rif", "swap3")],
@@ -35,7 +37,7 @@ const scenarios = [
   ["handoff", new OpeningSession({ rule: "renju", workflow: "copilot", initialBlackSeat: 1 })],
   ["play", new OpeningSession({ rule: "renju", workflow: "follow", initialBlackSeat: 0 })],
   ["forbidden", new OpeningSession({ rule: "renju", workflow: "copilot", initialBlackSeat: 1, seed: { board: overline, sideToMove: 1 } })],
-  ["rules", new OpeningSession({ rule: "rif", initialBlackSeat: null })],
+  ["finished", finished],
 ];
 const sizes = [[260, 420], [320, 480], [360, 640], [390, 844], [240, 320], [320, 240], [480, 320], [560, 320], [844, 390], [768, 1024], [820, 1180], [1440, 900]];
 const server = await createDevServer({ port: 0, isolated: false });
@@ -64,7 +66,6 @@ try {
     await page.setViewportSize({ width, height });
     for (const [name, session] of scenarios) {
       await load(session);
-      if (name === "rules") await page.locator("#simpleColor").tap();
       if (name === "forbidden") {
         await page.locator('#boardSvg [data-index="112"]').tap(); await page.locator('#boardSvg [data-index="112"]').tap();
         await action("forbidden", "cancel").waitFor();
@@ -83,7 +84,7 @@ try {
       assert.ok(layout.dock.bottom <= layout.board.y - 5 || layout.dock.x >= layout.board.right + 5, `${name}: dock covers board`);
       assert.equal(layout.points, 225); assert.ok(layout.reachable, `${name}: obscured board intersection`);
       assert.ok(layout.scroll[0] <= width + 1 && layout.scroll[1] <= height + 1, `${name}: page scroll`);
-      if (name !== "rules") assert.equal(layout.dockOverflow, false, `${name} ${width}x${height}: ordinary choices require scrolling`);
+      assert.equal(layout.dockOverflow, false, `${name} ${width}x${height}: ordinary choices require scrolling`);
       report.layouts.push({ name, width, height, ...layout });
       if ((width === 390 || width === 320 && height === 240) && ["swap", "route", "choose-two"].includes(name)) await page.screenshot({ path: `.cache/opening-dock/${name}-${width}x${height}.png` });
     }
@@ -117,7 +118,7 @@ try {
   assert.ok(frames.every(f => f.every((v, i) => Math.abs(v - frames[0][i]) < .5)), "layout keeps moving after orientation change");
   report.checks.push("Full/simple switching and repeated orientation changes settle without moving the board");
   assert.deepEqual(errors, []); report.passed = true; report.completedAt = new Date().toISOString();
-  await writeFile("reports/simple-opening-dock-v47.json", JSON.stringify(report, null, 2) + "\n");
+  await writeFile(".cache/opening-dock/result.json", JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify({ passed: true, layouts: report.layouts.length, checks: report.checks }));
 } catch (error) {
   await page.screenshot({ path: ".cache/opening-dock/failure.png" }); throw error;

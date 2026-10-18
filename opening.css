@@ -1,4 +1,5 @@
 html.opening-simple, body.opening-page.simple-mode { min-width: 0; }
+.opening-page .game-settings[data-controls="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .opening-page .board-toolbar { flex-wrap: nowrap; }
 .opening-page .game-state { min-width: 0; }
 .opening-page #stateText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }

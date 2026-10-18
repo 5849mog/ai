@@ -1,86 +1,60 @@
-import assert from 'node:assert/strict';
-import { chromium } from 'playwright';
-import http from 'node:http';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { readFile, stat, mkdir, writeFile } from 'node:fs/promises';
-import { createReadStream } from 'node:fs';
-const root=fileURLToPath(new URL('../',import.meta.url));
-const source=await readFile(path.join(root,'sw.js'),'utf8');
-const version=/250615-(v\d+)/.exec(source)[1];
-let stage='old',oldVersion='v11',largeDownloads=0,forcedEngineReloads=0;
-const oldIndex='<!doctype html><meta name="viewport" content="width=device-width"><p>Previous release fixture</p><script type="module" src="./app.js"></script>';
-const oldApp='navigator.serviceWorker.register("./sw.js",{scope:"./"});';
+import assert from "node:assert/strict";
+import http from "node:http";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { readFile, mkdir, writeFile } from "node:fs/promises";
+import { chromium } from "playwright";
+import { APP_VERSION } from "../app-release.js";
+const root=fileURLToPath(new URL('../',import.meta.url)), oldCommit='7186428a8a7050f44d23e7e46dd356ffcb8c7d2a';
+const oldFiles=new Map();
+const prior=name=>{if(!oldFiles.has(name))oldFiles.set(name,execFileSync('git',['show',`${oldCommit}:${name}`],{cwd:root,maxBuffer:8*1024*1024}));return oldFiles.get(name);};
+const oldSource=prior('sw.js').toString(),currentSource=await readFile(path.join(root,'sw.js'),'utf8');
+const cacheName=source=>'gomoku-rapfi:/plain/:'+ /const VERSION = PREFIX \+ "([^"]+)"/.exec(source)[1];
+const oldCache=cacheName(oldSource),newCache=cacheName(currentSource);
+let stage='old',newModelRequests=0;
 const server=http.createServer(async(req,res)=>{
  try{
-  const relative=new URL(req.url,'http://local').pathname.replace(/^\/plain\//,'')||'index.html';
-  if(relative.split('/').includes('..')){res.writeHead(403);res.end();return;}
-  const file=path.join(root,relative);
-  res.setHeader('Cache-Control',relative==='sw.js'?'no-cache':'public, max-age=3600');
-  const mime={'.js':'text/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.wasm':'application/wasm','.svg':'image/svg+xml'}[path.extname(file)]||'application/octet-stream';
-  res.setHeader('Content-Type',mime);
-  if(stage==='old'&&relative==='index.html'){res.end(oldIndex);return;}
-  if(stage==='old'&&relative==='app.js'){res.end(oldApp);return;}
-  if(stage==='old'&&relative==='sw.js'){
-   const old=source.replaceAll(version,oldVersion).replaceAll(version.replace('v','v='),oldVersion.replace('v','v='))
-    .replace('...CORE.map(path => new Request(url(path), { cache: "reload" }))','...CORE.map(url)');
-   res.end(old);return;
-  }
-  if(stage==='new'&&/\.(?:data|wasm)$/.test(relative)){largeDownloads++;if(/no-cache|max-age=0/.test(req.headers['cache-control']||''))forcedEngineReloads++;}
-  const info=await stat(file);res.setHeader('Content-Length',info.size);createReadStream(file).pipe(res);
+  const name=new URL(req.url,'http://localhost').pathname.replace(/^\/plain\//,'')||'index.html';
+  if(name.split('/').some(x=>x.startsWith('.'))){res.writeHead(403);res.end();return;}
+  const model=name.startsWith('engine/');
+  if(stage==='new'&&model&&/\.(?:wasm|data|part)$/.test(name))newModelRequests++;
+  const bytes=stage==='old'&&!model?prior(name):await readFile(path.join(root,name));
+  res.setHeader('Content-Type',({'.js':'text/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.wasm':'application/wasm','.svg':'image/svg+xml','.ttf':'font/ttf'})[path.extname(name)]||'application/octet-stream');
+  res.setHeader('Cache-Control',name==='sw.js'?'no-cache':'public, max-age=3600');res.end(bytes);
  }catch{res.writeHead(404);res.end();}
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const origin=`http://127.0.0.1:${server.address().port}`;
-const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{}),...(process.env.CHROME_ARGS?{args:JSON.parse(process.env.CHROME_ARGS)}:{})});
-const report={startedAt:new Date().toISOString(),version,checks:[]};
-const pass=name=>{report.checks.push(name);console.log('PASS',name);};
-async function waitCache(page,desired,removed){
- for(let i=0;i<150;i++){
-  const ok=await page.evaluate(async({desired,removed})=>{
-   const names=await caches.keys();if(!names.includes(`gomoku-rapfi:/plain/:250615-${desired}`)||removed&&names.includes(`gomoku-rapfi:/plain/:250615-${removed}`))return false;
-   const c=await caches.open(`gomoku-rapfi:/plain/:250615-${desired}`);
-   return !!await c.match(new URL('app.js',location.href).href)&&!!navigator.serviceWorker.controller;
-  },{desired,removed});
-  if(ok)return;if(i===149)throw Error('cache activation timeout');await page.waitForTimeout(200);
- }
-}
+const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{}),args:JSON.parse(process.env.CHROME_ARGS||'[]')});
+const ctx=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});
+await ctx.addInitScript(()=>{
+ if(!localStorage.getItem('gomoku-game:/plain/:v1'))localStorage.setItem('gomoku-game:/plain/:v1',JSON.stringify({format:'gomoku-studio',version:1,size:15,rule:'freestyle',playerColor:1,moves:[112,113]}));
+ localStorage.setItem('gomoku-pondering','false');localStorage.setItem('gomoku-thinking-ms','1000');
+});
+const page=await ctx.newPage(),errors=[],report={version:APP_VERSION,fromCommit:oldCommit,method:'Real cached previous release upgraded to current source, then real Rapfi offline play',checks:[]};
+page.on('pageerror',e=>errors.push(e.message));const pass=s=>{report.checks.push(s);console.log('PASS',s);};
+const ready=count=>page.waitForFunction(n=>document.querySelector('#boardSvg')?.getAttribute('aria-disabled')==='false'&&document.querySelectorAll('#boardSvg [data-stone]').length===n,count,{timeout:60000});
 try{
- for(oldVersion of ['v11','v12']){
-  stage='old';largeDownloads=0;forcedEngineReloads=0;
-  const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
-  await ctx.addInitScript(()=>{
-   localStorage.setItem('gomoku-thinking-ms','1000');localStorage.setItem('gomoku-pondering','false');
-   if(!localStorage.getItem(`gomoku-game:${location.pathname}:v1`))localStorage.setItem(`gomoku-game:${location.pathname}:v1`,JSON.stringify({format:'gomoku-studio',version:1,size:15,rule:'freestyle',playerColor:1,moves:[112,113]}));
-  });
-  const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(`${origin}/plain/`);await waitCache(page,oldVersion);
-  const old=await page.evaluate(async oldVersion=>{const c=await caches.open(`gomoku-rapfi:/plain/:250615-${oldVersion}`);return(await c.match(new URL('app.js',location.href).href)).text();},oldVersion);
-  assert.equal(old,oldApp);
-  stage='new';await page.evaluate(async()=>{await(await navigator.serviceWorker.getRegistration()).update();});
-  await waitCache(page,version,oldVersion);
-  const cached=await page.evaluate(async version=>{
-   const c=await caches.open(`gomoku-rapfi:/plain/:250615-${version}`);
-   return Promise.all(['index.html','app.js','engine-jobs.js','position-analysis.js','analysis-view.js',`styles.css?${version.replace('v','v=')}`].map(async name=>({name,text:await(await c.match(new URL(name,location.href).href)).text()})));
-  },version);
-  for(const item of cached)assert.equal(item.text,await readFile(path.join(root,item.name.split('?')[0]),'utf8'),item.name);
-  assert.equal(forcedEngineReloads,0,'Pinned engine WASM/data must retain their normal HTTP cache policy');
-  report.engineRequests??=[];report.engineRequests.push({from:oldVersion,networkMisses:largeDownloads,forcedReloads:forcedEngineReloads});
-  pass(`${oldVersion} → ${version}: fresh app files bypass one-hour HTTP cache, legacy offline cache removed, pinned WASM/data retain normal cache policy`);
-  await page.reload();await page.waitForFunction(()=>document.querySelector('#stateText').textContent==='轮到你落子');
-  assert.equal(await page.locator('#boardSvg [data-stone]').count(),2);
-  assert.equal(await page.locator('#positionAnalysis').getAttribute('data-ply'),'2');
-  assert.equal(await page.locator('#boardSvg').evaluate(el=>el.getBoundingClientRect().width),378);
-  await ctx.setOffline(true);await page.reload();await page.waitForFunction(()=>document.querySelector('#stateText').textContent==='轮到你落子');
-  await page.locator('[data-index="97"]').tap();await page.locator('[data-index="97"]').tap();await page.waitForFunction(()=>document.querySelector('#stateText').textContent==='轮到你落子');
-  assert.equal(await page.locator('#boardSvg [data-stone]').count(),4);
-  await page.locator('#ponderToggle').check();await page.waitForFunction(()=>document.querySelector('#playerWinRate').textContent!=='—');await page.locator('#ponderToggle').uncheck();
-  await page.locator('#undoButton').tap();await page.waitForFunction(()=>document.querySelector('#stateText').textContent==='轮到你落子');
-  assert.equal(await page.locator('#boardSvg [data-stone]').count(),2);
-  assert.equal(await page.locator('#positionAnalysis').getAttribute('data-ply'),'2');
-  pass(`${oldVersion} → ${version}: current game preserved; new UI, native win rate, foreground move and undo work after offline reload`);
-  assert.deepEqual(errors,[]);await ctx.close();
- }
- report.passed=true;report.completedAt=new Date().toISOString();await mkdir(path.join(root,'.cache/position-analysis'),{recursive:true});
- await writeFile(path.join(root,'.cache/position-analysis/upgrade.json'),JSON.stringify(report,null,2));
-}finally{await browser.close();await new Promise(r=>server.close(r));}
+ await page.goto(`http://127.0.0.1:${server.address().port}/plain/?view=simple`);await ready(2);
+ await page.waitForFunction(async name=>{const names=await caches.keys();return names.includes(name)&&Boolean(navigator.serviceWorker.controller)&&Boolean(await(await caches.open('gomoku-rapfi:/plain/:engine-250615')).match(new URL('__engine_offline_ready__',location.href).href));},oldCache,{timeout:60000});
+ pass('Previous v47 page and fixed engine models are actually cached');
+ stage='new';await page.evaluate(async()=>{await(await navigator.serviceWorker.getRegistration()).update();});
+ await page.waitForFunction(async name=>{const c=await caches.open(name);return Boolean(await c.match(new URL('session-records.js',location.href).href))&&document.querySelector('[data-app-version]')?.textContent.includes('缓存 2026.10.18.3');},newCache,{timeout:60000});
+ await page.locator('[aria-controls="simpleQuickTools"]').tap();
+ await page.waitForFunction(()=>document.querySelector('#simpleQuickTools [data-app-update]')?.textContent==='刷新使用新版');
+ await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('#simpleQuickTools [data-app-update]').click()]);await ready(2);
+ assert.equal(await page.locator('#simpleUndoButton').count(),1);assert.equal(await page.locator('#simpleColorLabel').textContent(),'对局');
+ const cached=await page.evaluate(async name=>{const c=await caches.open(name);return Promise.all(['index.html','renju.html','opening-app.js','session-records.js','display-modes.js'].map(async path=>({path,text:await(await c.match(new URL(path,location.href).href)).text()})));},newCache);
+ for(const f of cached)assert.equal(f.text,await readFile(path.join(root,f.path),'utf8'));
+ assert.equal(await page.evaluate(async name=>Boolean(await(await caches.open(name)).match(new URL('app.js',location.href).href)),newCache),false);
+ pass('User update control loads one complete interface with the old two stones preserved');
+ assert.equal(newModelRequests,0);pass('Pinned engine models are reused without downloading again');
+ await ctx.setOffline(true);await page.reload();await ready(2);
+ await page.locator('[data-index="97"]').tap();await page.locator('[data-index="97"]').tap();await ready(4);
+ await page.locator('#simpleUndoButton').tap();await ready(2);
+ const current=await page.evaluate(()=>JSON.parse(localStorage.getItem('gomoku-opening:/plain/:v1')));assert.equal(current.unified,true);assert.equal(current.record.workflow,'duel');assert.deepEqual(current.record.events.map(e=>e.index),[112,113]);
+ assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('gomoku-game:/plain/:v1')).moves),[112,113]);
+ pass('Offline reload, real AI reply, undo and legacy-data preservation pass after migration');
+ assert.deepEqual(errors,[]);report.passed=true;report.browser=browser.version();await mkdir('.cache/upgrade',{recursive:true});await writeFile('.cache/upgrade/result.json',JSON.stringify(report,null,2)+'\n');
+}catch(error){await mkdir('.cache/upgrade',{recursive:true});await page.screenshot({path:'.cache/upgrade/failure.png'});throw error;}
+finally{await browser.close();await new Promise(r=>server.close(r));}
