@@ -1,0 +1,1668 @@
+{
+  "version": "2026.10.18.3",
+  "baseCommit": "7186428a8a7050f44d23e7e46dd356ffcb8c7d2a",
+  "node": {
+    "total": 347,
+    "passed": 346,
+    "failed": 0,
+    "skipped": 1,
+    "note": "Existing native/gateway process shutdown test skipped by environment"
+  },
+  "check": {
+    "passed": true,
+    "coverage": [
+      "JavaScript syntax",
+      "Pinned WASM, model parts and reconstructed Renju models",
+      "Engine source patch hashes"
+    ]
+  },
+  "navigation": {
+    "version": "2026.10.18.3",
+    "method": "Actual pages and touch input; deterministic engine for navigation and storage checks",
+    "checks": [
+      "Home enters the complete simple view directly; settings are an isolated draft",
+      "Home and old Renju URL resume the same current game",
+      "New preserves rule and workflow; there is no long-press display switch",
+      "All workflows are available from Home; external-game handoff automatically answers with the correct color",
+      "Formal JSON import previews before confirmation and preserves partial proposals",
+      "Manual recording offers no misleading AI actor in custom setup or image import",
+      "More overlays temporarily without resizing the board; Escape closes one level at a time",
+      "Explicit full/simple controls preserve the exact game",
+      "Old freestyle JSON and SGF remain importable in the same interface",
+      "JSON and SGF downloads contain the current actual position",
+      "First upgrade chooses the most recent old game, retains original data, and New remains selected across both URLs"
+    ],
+    "layouts": [
+      {
+        "width": 260,
+        "height": 420,
+        "boardSide": 256,
+        "morePreservesBoard": true
+      },
+      {
+        "width": 320,
+        "height": 240,
+        "boardSide": 148,
+        "morePreservesBoard": true
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "boardSide": 386,
+        "morePreservesBoard": true
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "boardSide": 298,
+        "morePreservesBoard": true
+      },
+      {
+        "width": 820,
+        "height": 1180,
+        "boardSide": 816,
+        "morePreservesBoard": true
+      },
+      {
+        "width": 1440,
+        "height": 900,
+        "boardSide": 792,
+        "morePreservesBoard": true
+      }
+    ],
+    "passed": true,
+    "completedAt": "2026-10-18T06:00:11.124Z"
+  },
+  "openingDock": {
+    "version": "2026.10.18.3",
+    "method": "Actual page and touch input, deterministic engine fixture for layout only",
+    "checks": [
+      "Touch and keyboard swap decisions, correct persisted events, undo and reload, no accidental board placement",
+      "Candidate button selects the exact fifth stone",
+      "Ten-proposal route keeps the correct rule state",
+      "Both opposite corner intersections remain usable with touch confirmation",
+      "Full/simple switching and repeated orientation changes settle without moving the board"
+    ],
+    "passed": true,
+    "completedAt": "2026-10-18T05:50:42.379Z",
+    "layoutColumns": [
+      "state",
+      "width",
+      "height",
+      "placement",
+      "boardSide",
+      "points",
+      "reachable",
+      "dockOverflow"
+    ],
+    "layouts": [
+      [
+        "role",
+        260,
+        420,
+        "top",
+        242,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        260,
+        420,
+        "top",
+        243,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        260,
+        420,
+        "top",
+        195,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        260,
+        420,
+        "top",
+        256,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        260,
+        420,
+        "top",
+        243,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        260,
+        420,
+        "top",
+        256,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        260,
+        420,
+        "top",
+        243,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        260,
+        420,
+        "top",
+        256,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        260,
+        420,
+        "top",
+        242,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        260,
+        420,
+        "top",
+        256,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        320,
+        480,
+        "top",
+        287,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        320,
+        480,
+        "top",
+        287,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        320,
+        480,
+        "top",
+        239,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        320,
+        480,
+        "top",
+        316,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        320,
+        480,
+        "top",
+        287,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        320,
+        480,
+        "top",
+        316,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        320,
+        480,
+        "top",
+        287,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        320,
+        480,
+        "top",
+        316,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        320,
+        480,
+        "top",
+        287,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        320,
+        480,
+        "top",
+        316,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        360,
+        640,
+        "top",
+        356,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        390,
+        844,
+        "top",
+        386,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        240,
+        320,
+        "top",
+        142,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        240,
+        320,
+        "top",
+        143,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        240,
+        320,
+        "top",
+        95,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        240,
+        320,
+        "top",
+        197,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        240,
+        320,
+        "top",
+        143,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        240,
+        320,
+        "top",
+        197,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        240,
+        320,
+        "top",
+        143,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        240,
+        320,
+        "top",
+        197,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        240,
+        320,
+        "top",
+        142,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        240,
+        320,
+        "top",
+        197,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        320,
+        240,
+        "side",
+        148,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        480,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        560,
+        320,
+        "side",
+        228,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        844,
+        390,
+        "side",
+        298,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        768,
+        1024,
+        "top",
+        764,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        820,
+        1180,
+        "top",
+        816,
+        225,
+        true,
+        false
+      ],
+      [
+        "role",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "swap",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "route",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "offer",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-two",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "choose-ten",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "handoff",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "play",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "forbidden",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ],
+      [
+        "finished",
+        1440,
+        900,
+        "side",
+        792,
+        225,
+        true,
+        false
+      ]
+    ]
+  },
+  "boardHints": {
+    "version": "2026.10.18.3",
+    "startedAt": "2026-10-18T06:03:49.292Z",
+    "browser": "153.0.8010.0",
+    "method": "Real single-thread Rapfi WASM, no engine doubles; frame-by-frame current-color checks and one-screen layouts.",
+    "checks": [
+      "freestyle: current legal colored points appear with no panel or mode control",
+      "freestyle: outside-list input causes one normal automatic response, with no review search or manual hold",
+      "freestyle: every recorded frame uses the current mover and empty points, including the AI turn",
+      "index.html: simple layout passes all nine phone, tablet and desktop sizes",
+      "index.html: full layout passes all nine phone, tablet and desktop sizes",
+      "follow: current legal colored points appear with no panel or mode control",
+      "follow: outside-list inputs switch black/white immediately, perspective does not change the mover, undo restores white",
+      "follow: tapping a colored point uses the ordinary touch confirmation and places exactly that white stone",
+      "follow: every recorded frame uses the current mover and empty points, including the AI turn",
+      "renju.html: simple layout passes all nine phone, tablet and desktop sizes",
+      "renju.html: full layout passes all nine phone, tablet and desktop sizes",
+      "copilot: current legal colored points appear with no panel or mode control",
+      "copilot: outside-list input causes one normal automatic response, with no review search or manual hold",
+      "copilot: every recorded frame uses the current mover and empty points, including the AI turn"
+    ],
+    "layouts": [
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 320,
+        "height": 568,
+        "boardSide": 312,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 360,
+        "height": 640,
+        "boardSide": 352,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 390,
+        "height": 844,
+        "boardSide": 382,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 780,
+        "height": 360,
+        "boardSide": 264,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 844,
+        "height": 390,
+        "boardSide": 294,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 768,
+        "height": 1024,
+        "boardSide": 760,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 820,
+        "height": 1180,
+        "boardSide": 812,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 1024,
+        "height": 768,
+        "boardSide": 656,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "simple",
+        "width": 1440,
+        "height": 900,
+        "boardSide": 788,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 320,
+        "height": 568,
+        "boardSide": 135,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 360,
+        "height": 640,
+        "boardSide": 207,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 390,
+        "height": 844,
+        "boardSide": 378,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 780,
+        "height": 360,
+        "boardSide": 258,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 844,
+        "height": 390,
+        "boardSide": 288,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 768,
+        "height": 1024,
+        "boardSide": 695,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 820,
+        "height": 1180,
+        "boardSide": 779,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 1024,
+        "height": 768,
+        "boardSide": 636,
+        "passed": true
+      },
+      {
+        "page": "index.html",
+        "mode": "full",
+        "width": 1440,
+        "height": 900,
+        "boardSide": 768,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 320,
+        "height": 568,
+        "boardSide": 312,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 360,
+        "height": 640,
+        "boardSide": 352,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 390,
+        "height": 844,
+        "boardSide": 382,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 780,
+        "height": 360,
+        "boardSide": 264,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 844,
+        "height": 390,
+        "boardSide": 294,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 768,
+        "height": 1024,
+        "boardSide": 760,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 820,
+        "height": 1180,
+        "boardSide": 812,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 1024,
+        "height": 768,
+        "boardSide": 656,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "simple",
+        "width": 1440,
+        "height": 900,
+        "boardSide": 788,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 320,
+        "height": 568,
+        "boardSide": 135,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 360,
+        "height": 640,
+        "boardSide": 207,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 390,
+        "height": 844,
+        "boardSide": 378,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 780,
+        "height": 360,
+        "boardSide": 258,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 844,
+        "height": 390,
+        "boardSide": 288,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 768,
+        "height": 1024,
+        "boardSide": 695,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 820,
+        "height": 1180,
+        "boardSide": 779,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 1024,
+        "height": 768,
+        "boardSide": 636,
+        "passed": true
+      },
+      {
+        "page": "renju.html",
+        "mode": "full",
+        "width": 1440,
+        "height": 900,
+        "boardSide": 768,
+        "passed": true
+      }
+    ],
+    "frames": [
+      {
+        "workflow": "freestyle",
+        "verifiedFrames": 5,
+        "aiTurnFrames": 3
+      },
+      {
+        "workflow": "follow",
+        "verifiedFrames": 8,
+        "aiTurnFrames": 0
+      },
+      {
+        "workflow": "copilot",
+        "verifiedFrames": 7,
+        "aiTurnFrames": 3
+      }
+    ],
+    "sources": {
+      "opening-app.js": "3505efae036f55c7322982e7d364ca250ce1b58238e8d76f3fb6f95b67efc8e2",
+      "board-view.js": "a4b2b47e0b7cb387e8b0f6841c027c1383d2beec8b0a29e37969a49816dff67e",
+      "turn-hints.js": "9b91966fb50cfff8fa08cc757d120153072b5af24ec29a3259d90c1835f66341",
+      "engine-jobs.js": "0a4791b1065703b7155871d02f6340169ccd2f0be8d1cca8022f2ad5d5d73487",
+      "styles.css": "f47a1646134097d3f5a037e0fef489ff0d712a4fa9c3126d4024fc63149ea7d1",
+      "scripts/board-hints-qa.js": "18ae33fbec013fafb5d2cea18794413b67359b74037edd2095e827b8ec8d5b43"
+    },
+    "passed": true,
+    "finishedAt": "2026-10-18T06:04:02.749Z"
+  },
+  "upgrade": {
+    "version": "2026.10.18.3",
+    "fromCommit": "7186428a8a7050f44d23e7e46dd356ffcb8c7d2a",
+    "method": "Real cached previous release upgraded to current source, then real Rapfi offline play",
+    "checks": [
+      "Previous v47 page and fixed engine models are actually cached",
+      "User update control loads one complete interface with the old two stones preserved",
+      "Pinned engine models are reused without downloading again",
+      "Offline reload, real AI reply, undo and legacy-data preservation pass after migration"
+    ],
+    "passed": true,
+    "browser": "153.0.8010.0"
+  },
+  "openingFlow": {
+    "passed": true,
+    "method": "Real Rapfi WASM; mock flow also passed separately",
+    "coverage": [
+      "Four RIF opener/swap combinations",
+      "Four Taraguchi opener/normal-or-ten combinations",
+      "Automatic own opening moves, proposals, selection and ordinary reply",
+      "Inline swap decisions, undo, reload and saved actual colors",
+      "Free-opening handoff and undo",
+      "Forbidden actual move confirmation, cancel and undo",
+      "Manual workflow retained after New and explicit settings",
+      "Nine small-window/phone/tablet/desktop/landscape sizes"
+    ],
+    "boundary": "Engine failure and retry use the deterministic failure fixture; strength and human-device touch are not measured"
+  }
+}

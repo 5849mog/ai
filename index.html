@@ -4,17 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#f5f2ea" />
-    <meta name="description" content="五目五子棋 · 在本机与强 AI 认真对弈。" />
-    <title>五目 · Gomoku</title>
+    <meta name="description" content="五目五子棋 · 五子棋与连珠，支持 AI 对弈、外部对局辅助和手动记录。" />
+    <title>五目 · 五子棋与连珠</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=22" />
     <link rel="stylesheet" href="./game-modes.css?v=5" />
-    <link rel="stylesheet" href="./enhancements.css?v=38" />
+    <link rel="stylesheet" href="./opening.css?v=6" />
+    <link rel="stylesheet" href="./enhancements.css?v=48" />
   </head>
-  <body>
+  <body class="opening-page" data-default-rule="freestyle" data-default-workflow="duel">
     <div class="app-shell">
       <header class="topbar">
-        <a class="brand" href="./" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
+        <span class="brand" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></span>
         <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
           <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
           <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
@@ -24,9 +25,10 @@
           <details class="record-menu" id="recordMenu">
             <summary aria-label="棋谱与模式菜单"><span>菜单</span><span aria-hidden="true">⌄</span><span class="board-size">15 × 15</span></summary>
             <div class="record-options">
-              <a class="mode-link" href="./renju.html">连珠规则 · 跟随棋局</a>
+              <button type="button" id="openModes">对局设置</button>
+              <button type="button" id="openGuide">规则说明</button>
               <button type="button" id="openSetup">自定义摆局</button>
-              <button type="button" id="enterSimpleMode">简洁模式</button>
+              <button type="button" id="enterSimpleMode">简洁界面</button>
               <button type="button" id="openRemoteEngine">电脑引擎</button>
               <hr />
               <button type="button" id="importRecord">导入棋谱</button>
@@ -45,26 +47,27 @@
           </div>
           <div class="board-wrap"><div class="board-frame">
             <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
-          </div></div>
+          </div><section class="opening-flow" id="simpleOpeningFlow" data-board-dock aria-label="本局操作" hidden></section></div>
           <aside class="game-sidebar" aria-label="对局操作与分析">
             <div class="board-bottom">
               <div class="game-actions">
-                <button class="icon-button" id="recommendButton" type="button" aria-label="推荐" title="标出首选和次选落点（最多 1 秒）" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>推荐</span></button>
-                <button class="icon-button" id="undoButton" type="button" aria-label="悔棋" title="恢复到你上次落子前" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6-5 5 5 5M4 11h10a5 5 0 0 1 0 10h-2"/></svg><span>悔棋</span></button>
+                <button class="icon-button" id="recommendButton" type="button" aria-label="推荐" title="分析当前开局动作或落点（1 秒搜索预算）" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>推荐</span></button>
+                <button class="icon-button" id="undoButton" type="button" aria-label="悔棋" title="撤回上次操作，包含换色与候选" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6-5 5 5 5M4 11h10a5 5 0 0 1 0 10h-2"/></svg><span>悔棋</span></button>
                 <button class="icon-button icon-button-primary" id="restartButton" type="button" aria-label="新局" title="重新开局"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0 .1 2M20 4v7h-7"/></svg><span>新局</span></button>
               </div>
             </div>
             <div class="game-settings">
-              <label class="color-control" for="colorSelect" title="更换执色会开始新局"><span>你的执色</span><select id="colorSelect"><option value="1">执黑先手</option><option value="2">执白后手</option></select></label>
+              <section class="opening-flow" id="openingFlow" aria-label="本局操作"></section>
+              <label class="color-control" for="colorSelect" title="只记录棋局可切换分析视角，不改变双方实际执色"><span id="perspectiveLabel">分析视角</span><select id="colorSelect"><option value="1">看黑棋</option><option value="2">看白棋</option></select></label>
               <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option><option value="adaptive">深思 · 自适应 0～6 秒</option></select></label>
               <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
             </div>
-            <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于 AI">
+            <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于当前视角">
               <div class="position-analysis" id="positionAnalysis" aria-label="局势判断与胜率走势" data-state="waiting">
                 <div class="position-heading"><p id="positionJudgement" role="status">等待引擎评估当前局势</p><span id="positionContext">第 0 手</span></div>
-                <div class="win-rate-labels"><span class="win-rate-player">你 <strong id="playerWinRate">—</strong></span><span class="win-rate-caption" id="winRateCaption">等待评估</span><span class="win-rate-ai"><strong id="aiWinRate">—</strong> AI</span></div>
+                <div class="win-rate-labels"><span class="win-rate-player"><span id="perspectiveName">黑棋</span> <strong id="playerWinRate">—</strong></span><span class="win-rate-caption" id="winRateCaption">等待评估</span><span class="win-rate-ai"><strong id="aiWinRate">—</strong> <span id="otherName">白棋</span></span></div>
                 <div class="win-rate-bar" id="winRateBar" role="meter" aria-label="当前局势等待评估" aria-valuemin="0" aria-valuemax="100"><span id="winRateFill"></span><i aria-hidden="true"></i></div>
-                <div class="trend-heading"><span>胜率走势</span><span>上方利于你 · 下方利于 AI</span></div>
+                <div class="trend-heading"><span>胜率走势</span><span><span id="trendLegend">上方利于黑 · 下方利于白</span></span></div>
                 <div class="trend-chart">
                   <div class="trend-y-axis" aria-hidden="true"><span>100</span><span>50</span><span>0</span></div>
                   <div class="trend-plot">
@@ -78,7 +81,7 @@
                   </div>
                 </div>
                 <div class="engine-metrics">
-                  <div class="analysis-heading"><span id="analysisState">AI 搜索信息</span><span>评分正数利于 AI</span></div>
+                  <div class="analysis-heading"><span id="analysisState">AI 搜索信息</span><span>评分正数利于当前视角</span></div>
                   <dl class="analysis-values">
                     <div><dt>深度</dt><dd id="searchDepth">—</dd></div><div><dt>评分</dt><dd id="searchScore">—</dd></div>
                     <div><dt>节点</dt><dd id="searchNodes">—</dd></div><div><dt>速度</dt><dd id="searchSpeed">—</dd></div>
@@ -89,11 +92,12 @@
           </aside>
         </section>
       </main>
-      <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待评估</div>
+      <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待开局</div>
       <div class="simple-controls" id="simpleControls" hidden>
-        <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局；长按返回完整界面"><span id="simpleRestartLabel">新局</span><small>长按返回</small></button>
-        <button class="icon-button" id="simpleColor" type="button" aria-pressed="true" title="切换执色会开始新局"><i class="simple-black" aria-hidden="true"></i><span id="simpleColorLabel">你执黑</span><small>点击换边</small></button>
-        <button class="icon-button" id="simpleRecommendButton" type="button" aria-label="推荐落点" title="标出 AI 推荐落点" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span>推荐</span><small>AI 落点建议</small></button>
+        <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局"><span id="simpleRestartLabel">新局</span><small>重新开局</small></button>
+        <button class="icon-button" id="simpleColor" type="button" title="设置规则与对局方式"><span id="simpleColorLabel">对局</span><small>五手两打</small></button>
+        <button class="icon-button" id="simpleUndoButton" type="button" disabled><span>悔棋</span><small>撤回上次操作</small></button>
+        <button class="icon-button" id="simpleRecommendButton" type="button" aria-label="推荐落点" title="分析当前开局动作或落点" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span id="simpleRecommendLabel">推荐</span><small id="simpleRecommendNote">AI 落点建议</small></button>
       </div>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>
     </div>
@@ -124,6 +128,6 @@
     </dialog>
     <link rel="stylesheet" href="./remote-engine.css" />
     <script type="module" src="./remote-engine-ui.js?v=46"></script>
-    <script type="module" src="./app.js"></script>
+    <script type="module" src="./opening-app.js"></script>
   </body>
 </html>

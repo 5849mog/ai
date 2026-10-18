@@ -9,12 +9,12 @@
 .simple-mode .simple-status-row { display: flex; flex: 0 0 28px; align-items: center; width: min(100%, 480px); gap: 6px; min-width: 0; }
 .simple-mode .simple-status-row .simple-win-rate { flex: 1 1 auto; width: auto; min-width: 0; font-size: clamp(10px, 3vw, 13px); }
 .simple-status-row button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; font-size: 11px; height: 28px; background: #fbf9f1; color: var(--ink); cursor: pointer; }
-.simple-mode .simple-quick-tools { display: block; width: min(100%, 480px); flex: 0 0 auto; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); }
+.simple-mode .simple-quick-tools { display: block; position: absolute; z-index: 8; left: 50%; bottom: calc(104px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(calc(100% - 12px), 480px); max-height: min(58dvh, 320px); overflow-y: auto; overscroll-behavior: contain; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); box-shadow: 0 6px 24px #292b2426; }
 .simple-quick-tools[hidden], .enhancement-workspace[hidden], .enhancement-workspace [hidden], .app-shell[hidden], .game-actions button[hidden], .record-options button[hidden], .simple-status-row button[hidden] { display: none !important; }
 .tool-buttons, .quick-tools-actions { display: flex; gap: 5px; flex-wrap: wrap; }
 .tool-buttons > button { flex: 1; min-width: 0; }
 .quick-tools-actions { margin-top: 5px; justify-content: space-between; }
-.simple-quick-tools p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+.simple-quick-tools p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
 .simple-quick-tools button, .enhancement-workspace button { appearance: none; border: 1px solid var(--line); border-radius: 5px; background: #fbf9f1; color: var(--ink); cursor: pointer; min-height: 34px; padding: 5px 9px; font-size: 12px; }
 .simple-quick-tools button[aria-pressed="true"], .enhancement-workspace button[aria-pressed="true"] { background: #e6edde; border-color: #78936d; color: var(--green); }
 .simple-quick-tools button:disabled, .enhancement-workspace button:disabled { opacity: .45; cursor: default; }
@@ -62,15 +62,8 @@
   .tool-workspace { flex-direction: row; }
   .tool-panel { width: 280px; max-height: 100%; }
 }
-@media (orientation: landscape) and (max-height: 460px) {
-  .opening-page.simple-mode .app-shell { grid-template-rows: minmax(0, 1fr) auto auto auto; }
-  .opening-page.simple-mode #simpleOpeningFlow { max-height: 100%; overflow-y: auto; }
-  .opening-page.simple-mode .simple-status-row { grid-column: 2; grid-row: 2; width: 100%; }
-  .opening-page.simple-mode .simple-status-row #simpleWinRate { position: static; align-self: center; height: auto; }
-  .opening-page.simple-mode .simple-quick-tools { grid-column: 2; grid-row: 3; }
-  .opening-page.simple-mode #simpleControls { grid-row: 4; }
-  .opening-page.simple-mode .game-layout { grid-row: 1 / -1; }
-  .simple-mode .simple-quick-tools { padding: 4px; }
+@media (max-height: 460px) {
+  .simple-mode .simple-quick-tools { bottom: calc(88px + env(safe-area-inset-bottom)); padding: 4px; }
   .simple-quick-tools p { display: none; }
-  .simple-quick-tools button { min-height: 28px; padding: 3px 1px; font-size: 10px; white-space: nowrap; }
+  .simple-quick-tools button { min-height: 34px; padding: 3px 5px; font-size: 12px; }
 }

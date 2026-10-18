@@ -195,7 +195,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     if (!correcting || loading) return;
     try {
       validateSeed(board); const side = Number($("[data-side]").value), actor = $("[data-actor]").value, copilot = getPosition().workflow === "copilot";
-      const playerColor = actor === "player" ? copilot ? 3 - side : side : copilot ? side : 3 - side;
+      const playerColor = getPosition().workflow === "follow" ? getPosition().playerColor || side : actor === "player" ? copilot ? 3 - side : side : copilot ? side : 3 - side;
       // Validate/apply atomically before closing; rejected imports preserve the game.
       applyRecord(createRecord([], playerColor, { board, sideToMove: side })); close();
     } catch (error) { message(`不能开始：${error.message}。请校正棋盘；当前对局保持不变。`); }
@@ -204,12 +204,13 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   return {
     open() {
       active = true; const position = getPosition(), copilot = position.workflow === "copilot";
+      $("[data-actor]").parentElement.hidden = position.workflow === "follow";
       board = new Uint8Array(225); uncertain = new Set(); history = []; tool = 1;
       for (const button of root.querySelectorAll("[data-color]")) button.setAttribute("aria-pressed", String(button.dataset.color === "1"));
       $("[data-side]").value = String(position.currentColor || 1);
       $("[data-actor]").replaceChildren(...["player", "ai"].map((value, i) => { const option = document.createElement("option"); option.value = value; option.textContent = copilot ? ["录入对手棋", "AI 替我落子"][i] : ["我来走", "AI 来走"][i]; return option; }));
       $("[data-actor]").value = position.playerColor && position.currentColor === position.playerColor ? copilot ? "ai" : "player" : copilot ? "player" : "ai";
-      $(".image-rule").textContent = `续局规则：${position.ruleLabel ?? "无禁手"}。下一手棋色和行棋方由你确定。`;
+      $(".image-rule").textContent = `续局规则：${position.ruleLabel ?? "无禁手"}。${position.workflow === "follow" ? "双方继续由你手动录入。" : "下一手棋色和行棋方由你确定。"}`;
       correcting = loading = false; svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = null; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
       message("选择截图或粘贴图片。图片只在本机处理，请使用正视的 15 × 15 棋盘。");
     },

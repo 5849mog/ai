@@ -9,7 +9,7 @@ const server=await createDevServer({port:0}),origin=`http://127.0.0.1:${server.a
 const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH?{executablePath:process.env.CHROME_PATH}:{}),args:JSON.parse(process.env.CHROME_ARGS||'[]')});
 const report={version:APP_VERSION,startedAt:new Date().toISOString(),browser:browser.version(),method:'Real single-thread Rapfi WASM, no engine doubles; frame-by-frame current-color checks and one-screen layouts.',checks:[],layouts:[],frames:[],sources:{}};
 const pass=name=>{console.log('PASS',name);report.checks.push(name);};
-for(const name of ['app.js','opening-app.js','board-view.js','turn-hints.js','engine-jobs.js','styles.css','scripts/board-hints-qa.js'])report.sources[name]=createHash('sha256').update(await readFile(new URL('../'+name,import.meta.url))).digest('hex');
+for(const name of ['opening-app.js','board-view.js','turn-hints.js','engine-jobs.js','styles.css','scripts/board-hints-qa.js'])report.sources[name]=createHash('sha256').update(await readFile(new URL('../'+name,import.meta.url))).digest('hex');
 const hintRows=page=>page.locator('[data-hint]').evaluateAll(nodes=>nodes.map(n=>({index:+n.dataset.hint,color:+n.dataset.color,rank:+n.dataset.rank})));
 const waitHints=page=>page.waitForFunction(()=>document.querySelectorAll('[data-hint]').length>0,undefined,{timeout:30000});
 const tap=async(page,index)=>{await page.locator(`#boardSvg [data-index="${index}"]`).tap();await page.locator(`#boardSvg [data-index="${index}"]`).tap();};
@@ -78,6 +78,6 @@ try{
   }
   assert.deepEqual(errors,[]);await context.close();
  }
- report.passed=true;report.finishedAt=new Date().toISOString();await writeFile('reports/board-hints-v42.json',JSON.stringify(report,null,2)+'\n');
+ report.passed=true;report.finishedAt=new Date().toISOString();await writeFile('.cache/board-hints/result.json',JSON.stringify(report,null,2)+'\n');
 }catch(error){if(page&&!page.isClosed()){await page.screenshot({path:'.cache/board-hints/failure.png'});await writeFile('.cache/board-hints/failure.json',JSON.stringify({error:String(error),state:await page.locator('#stateText').innerText(),jobs:await page.evaluate(()=>hintJobs.slice(-3)),frames:await page.evaluate(()=>hintFrames.slice(-5))},null,2));}throw error;}
 finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

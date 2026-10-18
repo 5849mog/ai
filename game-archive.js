@@ -68,7 +68,7 @@ export function queueArchiveRestore(storage, entry) {
 }
 export function takeArchiveRestore(storage, format) {
   try {
-    const entry=JSON.parse(storage.getItem(TRANSFER_KEY)); if(!entry || entry.record?.format!==format)return null;
+    const entry=JSON.parse(storage.getItem(TRANSFER_KEY)); if(!entry || format && entry.record?.format!==format)return null;
     archiveSummary(entry.record); storage.removeItem(TRANSFER_KEY); return entry;
   } catch {return null;}
 }
