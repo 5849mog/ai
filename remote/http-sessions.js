@@ -42,6 +42,7 @@ export function createHttpSessions({ token, origin, upstreamPort, otherClients =
     response.setHeader("Access-Control-Allow-Origin", origin); response.setHeader("Vary", "Origin");
     response.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", HTTP_HEADERS);
+    response.setHeader("Access-Control-Max-Age", "600");
     if (request.method === "OPTIONS") { send(204); return; }
     const credential = request.headers.authorization, client = request.headers["x-gomoku-client"], id = request.headers["x-gomoku-session"];
     if (typeof credential !== "string" || !/^Bearer [a-f0-9]{64}$/.test(credential) ||

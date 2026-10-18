@@ -125,7 +125,10 @@ export class GomokuEngine {
     if (generation !== this.generation) throw aborted();
     if (this.pending) throw new Error("已有搜索正在进行");
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => this.fail(new Error("引擎未能按时返回，请重试")), timeMs + 3000);
+      // A remote turn may first send stop-ponder over the network. Keep the
+      // native search budget unchanged while allowing transport to complete.
+      const graceMs = this.variant === "remote-native-avx2" ? 15000 : 3000;
+      const timer = setTimeout(() => this.fail(new Error("引擎未能按时返回，请重试")), timeMs + graceMs);
       this.pending = { requestId, board: copy, sideToMove, multiPV, resolve, reject, timer, stats: {} };
       this.onState({ state: "thinking" });
       try { this.worker.postMessage({ type: "search", board: copy, sideToMove, timeMs, requestId, multiPV, allowSetup, allowedMoves, balance, rule: this.rule }); }

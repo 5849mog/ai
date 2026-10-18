@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile,writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
+import { APP_VERSION } from '../app-release.js';
 const root=fileURLToPath(new URL('../',import.meta.url)), data=join(process.env.LOCALAPPDATA,'GomokuRemote');
 const {chromium}=await import(pathToFileURL(join(root,'node_modules/playwright/index.mjs')).href);
 let url=process.env.GOMOKU_REMOTE_PUBLIC_URL;
@@ -15,16 +16,13 @@ for(const channel of channels){
  const browser=await chromium.launch({channel,headless:true,...(proxy?{proxy:{server:proxy}}:{})});
  try{
   const context=await browser.newContext({serviceWorkers:'block',viewport:{width:390,height:844},hasTouch:true});
-  // This suite verifies remote native computation; do not download an unused
-  // browser model while the initial pairing dialog is awaiting confirmation.
-  await context.route('**/engine/**',route=>route.abort());
   await context.addInitScript(()=>{localStorage.setItem('gomoku-thinking-ms','1000');localStorage.setItem('gomoku-pondering','false');});
   if(process.argv.includes('--candidate'))await context.route('**/remote-engine.js*',async route=>route.fulfill({contentType:'text/javascript',body:await readFile(join(root,'remote-engine.js'),'utf8')}));
   const page=await context.newPage();
   page.on('response',async response=>{if(response.request().method()==='GET'&&new URL(response.url()).pathname==='/gomoku')try{for(const message of await response.json())if(message.type==='error')console.error('Remote engine: '+message.message);}catch{}});
-  await page.goto('https://5849mog.github.io/ai/?computer-launch=2026.10.17.3#computer='+encodeURIComponent(JSON.stringify({url,token})));
+  await page.goto('https://5849mog.github.io/ai/?computer-launch='+APP_VERSION+'#computer='+encodeURIComponent(JSON.stringify({url,token})));
   if(!process.argv.includes('--candidate')){
-   const actual=await page.evaluate(async()=>{const r=await fetch('./remote-engine.js?v=45',{cache:'reload'});return r.text();});
+   const actual=await page.evaluate(async()=>{const r=await fetch('./remote-engine.js?v=46',{cache:'reload'});return r.text();});
    assert.equal(actual.replace(/\r\n/g,'\n'),(await readFile(join(root,'remote-engine.js'),'utf8')).replace(/\r\n/g,'\n'));
   }
   await page.locator('#remoteConnect').click();
@@ -39,7 +37,7 @@ for(const channel of channels){
   await page.goto('https://5849mog.github.io/ai/tests/engine-harness.html');
   const result=await page.evaluate(async()=>{const{GomokuEngine}=await import('../engine.js');const engine=new GomokuEngine({rule:'rif'});const board=Array(225).fill(0);board[112]=1;const before=JSON.stringify(board);try{const result=await engine.search({board,sideToMove:2,timeMs:1000,multiPV:3,requestId:1});if(JSON.stringify(board)!==before)throw Error('Input changed');return result;}finally{engine.dispose();}});
   assert.equal(result.threads,15);assert.equal(result.memoryMiB,256);assert.match(result.weight,/renju/);assert.ok(result.recommendations.length>0);
-  const record={channel,browser:browser.version(),publicTunnel:url,publicTransport:'authenticated HTTP long polling',nativeThreads:15,memoryMiB:256,budgetMs:1000,answerWallMs,touchAndGameAndUndoAndRenjuPassed:true,undoDuringThinkingPassed:true,computerExistingProxyUsed:Boolean(proxy),unusedBrowserModelsBlocked:true,actualPhysicalPhoneTested:false,liveRelease:!process.argv.includes('--candidate')};results.push(record);console.log(JSON.stringify(record));await context.close();
+  const record={channel,browser:browser.version(),publicTunnel:url,publicTransport:'authenticated HTTP long polling',nativeThreads:15,memoryMiB:256,budgetMs:1000,answerWallMs,touchAndGameAndUndoAndRenjuPassed:true,undoDuringThinkingPassed:true,computerExistingProxyUsed:Boolean(proxy),unusedBrowserModelsBlocked:false,actualPhysicalPhoneTested:false,liveRelease:!process.argv.includes('--candidate')};results.push(record);console.log(JSON.stringify(record));await context.close();
  }catch(error){console.error(error.message.replace(/#computer=\S+/g,'#computer=REDACTED'));for(const p of browser.contexts().flatMap(c=>c.pages())) console.error(await p.evaluate(()=>({state:document.querySelector('#stateText')?.textContent,remote:document.querySelector('#remoteMessage')?.textContent,button:document.querySelector('#openRemoteEngine')?.textContent})).catch(()=>({})));process.exitCode=1;break;}finally{await browser.close();}
  // A closed browser cannot guarantee delivery of its final DELETE. Respect
  // the single-user engine and the server's 20s idle lease plus 5s sweep.

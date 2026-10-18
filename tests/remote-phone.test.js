@@ -19,6 +19,7 @@ test("tunnel launch uses only a dedicated key and fixed free hosts without a she
   const args = tunnelArguments("C:/test/gomoku", 4189, "ap.free.pinggy.io");
   assert.ok(args.includes("IdentityAgent=none")); assert.ok(args.includes("StrictHostKeyChecking=accept-new"));
   assert.ok(args.includes("0:127.0.0.1:4189")); assert.ok(args.includes("qr@ap.free.pinggy.io"));
+  assert.equal(args.at(-1), "x:passpreflight");
   assert.throws(() => tunnelArguments("C:/test", 4189, "paid.example"));
 });
 test("local phone panel protects its pairing link and controls from other origins and unauthenticated requests", async () => {

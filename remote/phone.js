@@ -23,7 +23,7 @@ export function tunnelArguments(data, gatewayPort, region) {
     "-o", "IdentityAgent=none", "-o", "IdentitiesOnly=yes", "-o", "BatchMode=yes",
     "-o", "PasswordAuthentication=no", "-o", "KbdInteractiveAuthentication=no", "-o", "StrictHostKeyChecking=accept-new",
     "-o", `UserKnownHostsFile=${join(data, "pinggy-known-hosts")}`, "-o", "ServerAliveInterval=20", "-o", "ServerAliveCountMax=3",
-    "-o", "ExitOnForwardFailure=yes", "-o", "ConnectTimeout=20", "-R", `0:127.0.0.1:${gatewayPort}`, `qr@${region}`];
+    "-o", "ExitOnForwardFailure=yes", "-o", "ConnectTimeout=20", "-R", `0:127.0.0.1:${gatewayPort}`, `qr@${region}`, "x:passpreflight"];
 }
 
 const html = nonce => `<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>五目 · 手机连接</title>

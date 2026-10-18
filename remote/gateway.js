@@ -20,6 +20,7 @@ export async function startGateway({ port = 4189, upstreamPort = 4188, token,
     response.setHeader("Vary", "Origin");
     response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", HTTP_HEADERS);
+    response.setHeader("Access-Control-Max-Age", "600");
     response.setHeader("Content-Type", "application/json");
     response.writeHead(request.method === "OPTIONS" ? 204 : 200);
     response.end(request.method === "OPTIONS" ? undefined : '{"protocol":1}');

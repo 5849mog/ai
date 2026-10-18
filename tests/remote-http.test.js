@@ -43,7 +43,9 @@ test("HTTP relay requires origin and key, bounds sessions, and does not expose a
   try {
     assert.equal((await fetch(base + "/gomoku", { ...auth, headers: { ...headers, Origin: "https://bad.example" } })).status, 403);
     assert.equal((await fetch(base + "/gomoku", { ...auth, headers: { ...headers, Authorization: "Bearer bad" } })).status, 401);
-    assert.equal((await fetch(base + "/gomoku", { method: "OPTIONS", headers: { Origin: origin } })).status, 204);
+    const preflight = await fetch(base + "/gomoku", { method: "OPTIONS", headers: { Origin: origin } });
+    assert.equal(preflight.status, 204);
+    assert.equal(preflight.headers.get("Access-Control-Max-Age"), "600");
     assert.equal((await fetch(base + "/gomoku", auth)).status, 202);
     assert.equal((await fetch(base + "/gomoku", { headers: { ...headers, "X-Gomoku-Client": "different" } })).status, 403);
     assert.equal((await fetch(base + "/gomoku", { ...auth, body: JSON.stringify({ x: "a".repeat(40000) }) })).status, 413);
@@ -53,4 +55,29 @@ test("HTTP relay requires origin and key, bounds sessions, and does not expose a
     assert.equal((await fetch(base + "/gomoku", { method: "DELETE", headers })).status, 204);
     assert.equal((await fetch(base + "/gomoku", { headers })).status, 410); assert.equal(starts, 0);
   } finally { await gateway.close(); await native.close(); }
+});
+
+test("remote search allows a slow stop-ponder round trip without increasing the native budget", async () => {
+  let searchBudget;
+  const native = await startRemote({ port: 0, token, threads: 1, runtimeFactory: options => ({
+    ready: Promise.resolve(), dispose() {}, command(job) {
+      if (job.type === "search") {
+        searchBudget = job.timeMs;
+        options.emit({ type: "move", requestId: job.requestId, result: { index: 0 } });
+      }
+    }
+  }) });
+  const gateway = await startGateway({ port: 0, upstreamPort: native.port, token });
+  const fetchImpl = async function (url, options) {
+    if (options.body && JSON.parse(options.body).type === "stop-ponder") await new Promise(done => setTimeout(done, 4300));
+    return fetch(`http://127.0.0.1:${gateway.port}/gomoku`, { ...options, headers: { ...options.headers, Origin: origin } });
+  };
+  const engine = new GomokuEngine({ workerFactory: () => new HttpRemoteWorker({ url: "https://test.run.pinggy-free.link", token }, { fetchImpl, id: "slow-tab" }) });
+  try {
+    const board = new Uint8Array(225);
+    await engine.ponder({ board, sideToMove: 1, requestId: 1 });
+    const result = await engine.search({ board, sideToMove: 1, timeMs: 1000, requestId: 2 });
+    assert.equal(result.index, 0); assert.equal(searchBudget, 1000);
+    assert.equal(engine.ready, true);
+  } finally { engine.dispose(); await new Promise(done => setTimeout(done, 50)); await gateway.close(); await native.close(); }
 });
