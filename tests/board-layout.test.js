@@ -4,8 +4,8 @@ import { JSDOM } from "jsdom";
 import { readFile } from "node:fs/promises";
 import { fitBoardToSlot } from "../board-layout.js";
 
-function fixture(kind="board-wrap") {
-  const dom=new JSDOM(`<div class="${kind}"><div class="board-frame"><svg><circle data-stone="112"></circle></svg></div></div>`);
+function fixture(kind="board-wrap", docked=false) {
+  const dom=new JSDOM(`<div class="${kind}"><div class="board-frame"><svg><circle data-stone="112"></circle></svg></div>${docked ? '<section data-board-dock hidden></section>' : ''}</div>`);
   const svg=dom.window.document.querySelector("svg"),frame=svg.parentElement,slot=frame.parentElement;
   let callback,observed,writes=0,width="";
   Object.defineProperty(frame.style,"width",{get:()=>width,set:value=>{writes++;width=value;}});
@@ -51,6 +51,27 @@ test("record and import previews retain their own independent sizing",()=>{
 test("a changing long dimension does not rewrite an unchanged square",()=>{
   const f=fixture();
   try{f.resize(300,900);f.resize(1000,300);f.resize(301,300);assert.equal(f.writes,1);}finally{f.dom.window.close();}
+});
+test("an opening dock reserves space, responds to visibility without a resize, and retains subpixel stability",async()=>{
+  const f=fixture("board-wrap",true),dock=f.slot.querySelector("[data-board-dock]");
+  dock.getBoundingClientRect=()=>({height:80});
+  try{
+    f.resize(400.01,700);
+    for(let n=0;n<100;n++)f.resize(n%2?400.01:399.99,700+n);
+    assert.equal(f.frame.style.width,"400px");assert.equal(f.writes,1);
+    dock.hidden=false;await Promise.resolve();
+    assert.equal(dock.dataset.placement,"top");
+    assert.ok(parseFloat(f.frame.style.top)-200>=parseFloat(dock.style.top)+85);
+    f.resize(800,300);
+    assert.equal(dock.dataset.placement,"side");
+    assert.ok(parseFloat(dock.style.left)>=parseFloat(f.frame.style.left)+155);
+    dock.hidden=true;await Promise.resolve();
+    assert.equal(f.frame.style.top,"");assert.equal(f.frame.style.left,"");
+    f.resize(300,800);
+    for(let n=0;n<100;n++)f.resize(n%2?300.01:299.99,800+n);
+    assert.equal(f.frame.style.width,"300px");
+    assert.equal(f.slot.getAttribute("style"),null);
+  }finally{f.dom.window.close();}
 });
 test("the shipping CSS keeps the sized frame outside the slot's intrinsic layout and removes height feedback",async()=>{
   const sources=await Promise.all(["styles.css","game-modes.css","opening.css","enhancements.css"].map(p=>readFile(new URL("../"+p,import.meta.url),"utf8")));

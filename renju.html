@@ -9,7 +9,7 @@
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=22" />
     <link rel="stylesheet" href="./game-modes.css?v=5" />
-    <link rel="stylesheet" href="./opening.css?v=4" />
+    <link rel="stylesheet" href="./opening.css?v=5" />
     <link rel="stylesheet" href="./enhancements.css?v=38" />
   </head>
   <body class="opening-page">
@@ -47,7 +47,7 @@
           </div>
           <div class="board-wrap"><div class="board-frame">
             <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
-          </div></div>
+          </div><section class="opening-flow" id="simpleOpeningFlow" data-board-dock aria-label="本局操作" hidden></section></div>
           <aside class="game-sidebar" aria-label="对局操作与分析">
             <div class="board-bottom">
               <div class="game-actions">
@@ -93,7 +93,6 @@
         </section>
       </main>
       <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待开局</div>
-      <section class="opening-flow" id="simpleOpeningFlow" aria-label="本局操作" hidden></section>
       <div class="simple-controls" id="simpleControls" hidden>
         <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局；长按返回完整界面"><span id="simpleRestartLabel">新局</span><small>长按返回</small></button>
         <button class="icon-button" id="simpleColor" type="button" title="在棋盘旁选择本局规则"><span id="simpleColorLabel">规则</span><small>五手两打</small></button>

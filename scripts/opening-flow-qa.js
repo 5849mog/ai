@@ -24,7 +24,7 @@ const fixture = `export class GomokuEngine {
   async ponder() {}
 }`;
 const server = await createDevServer({ port: 0, isolated: false });
-const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}) });
+const browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: JSON.parse(process.env.CHROME_ARGS || "[]") });
 const output = mocked ? ".cache/opening-flow-qa-mock" : ".cache/opening-flow-qa", base = `http://127.0.0.1:${server.address().port}/ai/`;
 const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: "block" });
 const errors = [], page = await context.newPage();
@@ -32,10 +32,11 @@ page.on("pageerror", error => errors.push(error.message));
 await context.addInitScript(() => {
   const fixture = sessionStorage.getItem("qaOpeningFixture");
   if (fixture) { localStorage.setItem("gomoku-opening:/ai/:v1", fixture); sessionStorage.removeItem("qaOpeningFixture"); }
+  if (sessionStorage.getItem("qaFailNextSearch")) { window.failNextSearch = true; sessionStorage.removeItem("qaFailNextSearch"); }
   localStorage.setItem("gomoku-thinking-ms", "1000"); localStorage.setItem("gomoku-pondering", "false");
   HTMLDialogElement.prototype.showModal = function () { throw new Error("Opening flow must not open a dialog"); };
 });
-if (mocked) await page.route("**/engine.js?v=22", route => route.fulfill({ contentType: "text/javascript", body: fixture }));
+if (mocked) await page.route(/\/engine\.js(?:\?.*)?$/, route => route.fulfill({ contentType: "text/javascript", body: fixture }));
 const record = () => page.evaluate(() => JSON.parse(localStorage.getItem("gomoku-opening:/ai/:v1")).record);
 const game = async () => replaySession(await record());
 const flow = "#simpleOpeningFlow";
@@ -80,7 +81,11 @@ try {
     assert.equal(s.playerColor, userBlack ? 1 : 2); assert.equal(s.actor, 1); assert.equal(s.moves.length, userBlack ? 7 : 6);
     if (!userBlack) { assert.ok((await page.locator(flow).textContent()).includes("AI 选择 A")); assert.equal(s.colors[5], 2); }
     const openingRecord = await record(), before = s.moves.length;
-    await play(s.allowedMoves({ safe: true })[0]); await manual(); s = await game();
+    await play(s.allowedMoves({ safe: true })[0]);
+    // A real engine can win with this reply; a finished board is also settled.
+    await page.waitForFunction(count => document.querySelector("#boardSvg").getAttribute("aria-busy") === "false"
+      && JSON.parse(localStorage.getItem("gomoku-opening:/ai/:v1")).record.events.length >= count, openingRecord.events.length + 2, { timeout:60000 });
+    s = await game();
     assert.equal(s.moves.length, before + 2); assert.equal(s.colors.at(-1), s.playerColor); assert.equal(s.events.at(-1).automatic, true);
     await page.locator("#simpleUndoButton").tap(); await manual(); assert.deepEqual(await record(), openingRecord);
     await page.reload(); await manual(); assert.deepEqual(await record(), openingRecord);
@@ -120,10 +125,12 @@ try {
   pass("External forbidden-move confirmation and cancellation are inline, and undo restores the position");
 
   if (mocked) {
-    await selectRule("rif"); await page.evaluate(() => { window.failNextSearch = true; }); await action("start", 0).tap();
-    await action("retry").waitFor(); assert.equal((await game()).moves.length, 1);
-    await action("retry").tap(); await stage("swap3"); assert.equal((await game()).moves.length, 3);
-    pass("Failed automatic opening retries from the saved partial position without duplicate stones");
+    const seed = Array(225).fill(0); seed[112] = 1; seed[97] = 2;
+    const reply = new OpeningSession({ rule:"renju", workflow:"copilot", initialBlackSeat:0, seed:{ board:seed, sideToMove:1 } });
+    await page.evaluate(record => { sessionStorage.setItem("qaOpeningFixture", JSON.stringify({record, perspective:1})); sessionStorage.setItem("qaFailNextSearch", "1"); }, reply.record());
+    await page.reload(); await action("retry").waitFor(); assert.equal((await game()).board.filter(Boolean).length, 2);
+    await action("retry").tap(); await manual(); assert.equal((await game()).board.filter(Boolean).length, 3);
+    pass("Failed automatic reply retries from the saved position without duplicate stones");
   }
 
   await selectRule("rif");

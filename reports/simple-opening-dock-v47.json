@@ -1,0 +1,3495 @@
+{
+  "version": "2026.10.18.2",
+  "method": "Actual page and touch input, deterministic engine fixture for layout only",
+  "layouts": [
+    {
+      "name": "role",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 9,
+        "y": 89.578125,
+        "right": 251,
+        "bottom": 331.578125,
+        "width": 242,
+        "height": 242
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.40625,
+        "right": 258,
+        "bottom": 83.578125,
+        "width": 256,
+        "height": 79.171875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 8.5,
+        "y": 88.890625,
+        "right": 251.5,
+        "bottom": 331.890625,
+        "width": 243,
+        "height": 243
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 258,
+        "bottom": 82.890625,
+        "width": 256,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 32.5,
+        "y": 136.890625,
+        "right": 227.5,
+        "bottom": 331.890625,
+        "width": 195,
+        "height": 195
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 258,
+        "bottom": 130.890625,
+        "width": 256,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 2,
+        "y": 55.390625,
+        "right": 258,
+        "bottom": 311.390625,
+        "width": 256,
+        "height": 256
+      },
+      "dock": {
+        "x": 2,
+        "y": 24.59375,
+        "right": 258,
+        "bottom": 49.390625,
+        "width": 256,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 8.5,
+        "y": 88.890625,
+        "right": 251.5,
+        "bottom": 331.890625,
+        "width": 243,
+        "height": 243
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 258,
+        "bottom": 82.890625,
+        "width": 256,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 2,
+        "y": 55.390625,
+        "right": 258,
+        "bottom": 311.390625,
+        "width": 256,
+        "height": 256
+      },
+      "dock": {
+        "x": 2,
+        "y": 24.59375,
+        "right": 258,
+        "bottom": 49.390625,
+        "width": 256,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 8.5,
+        "y": 88.890625,
+        "right": 251.5,
+        "bottom": 331.890625,
+        "width": 243,
+        "height": 243
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 258,
+        "bottom": 82.890625,
+        "width": 256,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 2,
+        "y": 55.390625,
+        "right": 258,
+        "bottom": 311.390625,
+        "width": 256,
+        "height": 256
+      },
+      "dock": {
+        "x": 2,
+        "y": 24.59375,
+        "right": 258,
+        "bottom": 49.390625,
+        "width": 256,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 9,
+        "y": 89.578125,
+        "right": 251,
+        "bottom": 331.578125,
+        "width": 242,
+        "height": 242
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.40625,
+        "right": 258,
+        "bottom": 83.578125,
+        "width": 256,
+        "height": 79.171875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 260,
+      "height": 420,
+      "board": {
+        "x": 56.5,
+        "y": 184.890625,
+        "right": 203.5,
+        "bottom": 331.890625,
+        "width": 147,
+        "height": 147
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 258,
+        "bottom": 178.890625,
+        "width": 256,
+        "height": 174.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        260,
+        420
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 16.5,
+        "y": 88.890625,
+        "right": 303.5,
+        "bottom": 375.890625,
+        "width": 287,
+        "height": 287
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 82.890625,
+        "width": 316,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 16.5,
+        "y": 88.890625,
+        "right": 303.5,
+        "bottom": 375.890625,
+        "width": 287,
+        "height": 287
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 82.890625,
+        "width": 316,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 40.5,
+        "y": 136.890625,
+        "right": 279.5,
+        "bottom": 375.890625,
+        "width": 239,
+        "height": 239
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 130.890625,
+        "width": 316,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 2,
+        "y": 47.390625,
+        "right": 318,
+        "bottom": 363.390625,
+        "width": 316,
+        "height": 316
+      },
+      "dock": {
+        "x": 2,
+        "y": 16.59375,
+        "right": 318,
+        "bottom": 41.390625,
+        "width": 316,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 16.5,
+        "y": 88.890625,
+        "right": 303.5,
+        "bottom": 375.890625,
+        "width": 287,
+        "height": 287
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 82.890625,
+        "width": 316,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 2,
+        "y": 47.390625,
+        "right": 318,
+        "bottom": 363.390625,
+        "width": 316,
+        "height": 316
+      },
+      "dock": {
+        "x": 2,
+        "y": 16.59375,
+        "right": 318,
+        "bottom": 41.390625,
+        "width": 316,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 16.5,
+        "y": 88.890625,
+        "right": 303.5,
+        "bottom": 375.890625,
+        "width": 287,
+        "height": 287
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 82.890625,
+        "width": 316,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 2,
+        "y": 47.390625,
+        "right": 318,
+        "bottom": 363.390625,
+        "width": 316,
+        "height": 316
+      },
+      "dock": {
+        "x": 2,
+        "y": 16.59375,
+        "right": 318,
+        "bottom": 41.390625,
+        "width": 316,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 16.5,
+        "y": 88.890625,
+        "right": 303.5,
+        "bottom": 375.890625,
+        "width": 287,
+        "height": 287
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 82.890625,
+        "width": 316,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 320,
+      "height": 480,
+      "board": {
+        "x": 64.5,
+        "y": 184.890625,
+        "right": 255.5,
+        "bottom": 375.890625,
+        "width": 191,
+        "height": 191
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 318,
+        "bottom": 178.890625,
+        "width": 316,
+        "height": 174.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        480
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 134.390625,
+        "right": 358,
+        "bottom": 490.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 49.59375,
+        "right": 358,
+        "bottom": 128.390625,
+        "width": 356,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 134.390625,
+        "right": 358,
+        "bottom": 490.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 49.59375,
+        "right": 358,
+        "bottom": 128.390625,
+        "width": 356,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 158.390625,
+        "right": 358,
+        "bottom": 514.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 25.59375,
+        "right": 358,
+        "bottom": 152.390625,
+        "width": 356,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 107.390625,
+        "right": 358,
+        "bottom": 463.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 76.59375,
+        "right": 358,
+        "bottom": 101.390625,
+        "width": 356,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 134.390625,
+        "right": 358,
+        "bottom": 490.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 49.59375,
+        "right": 358,
+        "bottom": 128.390625,
+        "width": 356,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 107.390625,
+        "right": 358,
+        "bottom": 463.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 76.59375,
+        "right": 358,
+        "bottom": 101.390625,
+        "width": 356,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 134.390625,
+        "right": 358,
+        "bottom": 490.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 49.59375,
+        "right": 358,
+        "bottom": 128.390625,
+        "width": 356,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 107.390625,
+        "right": 358,
+        "bottom": 463.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 76.59375,
+        "right": 358,
+        "bottom": 101.390625,
+        "width": 356,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 2,
+        "y": 134.390625,
+        "right": 358,
+        "bottom": 490.390625,
+        "width": 356,
+        "height": 356
+      },
+      "dock": {
+        "x": 2,
+        "y": 49.59375,
+        "right": 358,
+        "bottom": 128.390625,
+        "width": 356,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 360,
+      "height": 640,
+      "board": {
+        "x": 4.5,
+        "y": 184.890625,
+        "right": 355.5,
+        "bottom": 535.890625,
+        "width": 351,
+        "height": 351
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 358,
+        "bottom": 178.890625,
+        "width": 356,
+        "height": 174.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        360,
+        640
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 221.390625,
+        "right": 388,
+        "bottom": 607.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 136.59375,
+        "right": 388,
+        "bottom": 215.390625,
+        "width": 386,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 221.390625,
+        "right": 388,
+        "bottom": 607.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 136.59375,
+        "right": 388,
+        "bottom": 215.390625,
+        "width": 386,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 245.390625,
+        "right": 388,
+        "bottom": 631.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 112.59375,
+        "right": 388,
+        "bottom": 239.390625,
+        "width": 386,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 194.390625,
+        "right": 388,
+        "bottom": 580.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 163.59375,
+        "right": 388,
+        "bottom": 188.390625,
+        "width": 386,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 221.390625,
+        "right": 388,
+        "bottom": 607.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 136.59375,
+        "right": 388,
+        "bottom": 215.390625,
+        "width": 386,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 194.390625,
+        "right": 388,
+        "bottom": 580.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 163.59375,
+        "right": 388,
+        "bottom": 188.390625,
+        "width": 386,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 221.390625,
+        "right": 388,
+        "bottom": 607.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 136.59375,
+        "right": 388,
+        "bottom": 215.390625,
+        "width": 386,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 194.390625,
+        "right": 388,
+        "bottom": 580.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 163.59375,
+        "right": 388,
+        "bottom": 188.390625,
+        "width": 386,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 221.390625,
+        "right": 388,
+        "bottom": 607.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 136.59375,
+        "right": 388,
+        "bottom": 215.390625,
+        "width": 386,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 390,
+      "height": 844,
+      "board": {
+        "x": 2,
+        "y": 269.390625,
+        "right": 388,
+        "bottom": 655.390625,
+        "width": 386,
+        "height": 386
+      },
+      "dock": {
+        "x": 2,
+        "y": 88.59375,
+        "right": 388,
+        "bottom": 263.390625,
+        "width": 386,
+        "height": 174.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        390,
+        844
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 49,
+        "y": 89.578125,
+        "right": 191,
+        "bottom": 231.578125,
+        "width": 142,
+        "height": 142
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.40625,
+        "right": 238,
+        "bottom": 83.578125,
+        "width": 236,
+        "height": 79.171875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 48.5,
+        "y": 88.890625,
+        "right": 191.5,
+        "bottom": 231.890625,
+        "width": 143,
+        "height": 143
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 82.890625,
+        "width": 236,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 72.5,
+        "y": 136.890625,
+        "right": 167.5,
+        "bottom": 231.890625,
+        "width": 95,
+        "height": 95
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 130.890625,
+        "width": 236,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 21.5,
+        "y": 34.890625,
+        "right": 218.5,
+        "bottom": 231.890625,
+        "width": 197,
+        "height": 197
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 28.890625,
+        "width": 236,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 48.5,
+        "y": 88.890625,
+        "right": 191.5,
+        "bottom": 231.890625,
+        "width": 143,
+        "height": 143
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 82.890625,
+        "width": 236,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 21.5,
+        "y": 34.890625,
+        "right": 218.5,
+        "bottom": 231.890625,
+        "width": 197,
+        "height": 197
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 28.890625,
+        "width": 236,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 48.5,
+        "y": 88.890625,
+        "right": 191.5,
+        "bottom": 231.890625,
+        "width": 143,
+        "height": 143
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 82.890625,
+        "width": 236,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 21.5,
+        "y": 34.890625,
+        "right": 218.5,
+        "bottom": 231.890625,
+        "width": 197,
+        "height": 197
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.09375,
+        "right": 238,
+        "bottom": 28.890625,
+        "width": 236,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 49,
+        "y": 89.578125,
+        "right": 191,
+        "bottom": 231.578125,
+        "width": 142,
+        "height": 142
+      },
+      "dock": {
+        "x": 2,
+        "y": 4.40625,
+        "right": 238,
+        "bottom": 83.578125,
+        "width": 236,
+        "height": 79.171875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 240,
+      "height": 320,
+      "board": {
+        "x": 78,
+        "y": 148,
+        "right": 162,
+        "bottom": 232,
+        "width": 84,
+        "height": 84
+      },
+      "dock": {
+        "x": 2,
+        "y": 4,
+        "right": 238,
+        "bottom": 142,
+        "width": 236,
+        "height": 138
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        240,
+        320
+      ],
+      "dockOverflow": true
+    },
+    {
+      "name": "role",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 22.21875,
+        "right": 305,
+        "bottom": 133.765625,
+        "width": 136,
+        "height": 111.546875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 21.921875,
+        "right": 305,
+        "bottom": 134.078125,
+        "width": 136,
+        "height": 112.15625
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 6.3125,
+        "right": 305,
+        "bottom": 149.671875,
+        "width": 136,
+        "height": 143.359375
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 57.203125,
+        "right": 305,
+        "bottom": 98.796875,
+        "width": 136,
+        "height": 41.59375
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 38.40625,
+        "right": 305,
+        "bottom": 117.578125,
+        "width": 136,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 65.59375,
+        "right": 305,
+        "bottom": 90.390625,
+        "width": 136,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 30.203125,
+        "right": 305,
+        "bottom": 125.796875,
+        "width": 136,
+        "height": 95.59375
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 57.203125,
+        "right": 305,
+        "bottom": 98.796875,
+        "width": 136,
+        "height": 41.59375
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 30.3125,
+        "right": 305,
+        "bottom": 125.671875,
+        "width": 136,
+        "height": 95.359375
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 320,
+      "height": 240,
+      "board": {
+        "x": 15,
+        "y": 4,
+        "right": 163,
+        "bottom": 152,
+        "width": 148,
+        "height": 148
+      },
+      "dock": {
+        "x": 169,
+        "y": 4,
+        "right": 305,
+        "bottom": 152,
+        "width": 136,
+        "height": 148
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        320,
+        240
+      ],
+      "dockOverflow": true
+    },
+    {
+      "name": "role",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 70.3125,
+        "right": 442.3125,
+        "bottom": 165.671875,
+        "width": 171,
+        "height": 95.359375
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 78.40625,
+        "right": 442.3125,
+        "bottom": 157.578125,
+        "width": 171,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 54.40625,
+        "right": 442.3125,
+        "bottom": 181.578125,
+        "width": 171,
+        "height": 127.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 105.59375,
+        "right": 442.3125,
+        "bottom": 130.390625,
+        "width": 171,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 78.59375,
+        "right": 442.3125,
+        "bottom": 157.390625,
+        "width": 171,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 105.59375,
+        "right": 442.3125,
+        "bottom": 130.390625,
+        "width": 171,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 78.59375,
+        "right": 442.3125,
+        "bottom": 157.390625,
+        "width": 171,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 105.59375,
+        "right": 442.3125,
+        "bottom": 130.390625,
+        "width": 171,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 78.40625,
+        "right": 442.3125,
+        "bottom": 157.578125,
+        "width": 171,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 480,
+      "height": 320,
+      "board": {
+        "x": 37.3125,
+        "y": 4,
+        "right": 265.3125,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 271.3125,
+        "y": 30.21875,
+        "right": 442.3125,
+        "bottom": 205.765625,
+        "width": 171,
+        "height": 175.546875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        480,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 78.40625,
+        "right": 496.90625,
+        "bottom": 157.578125,
+        "width": 200,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 78.40625,
+        "right": 496.90625,
+        "bottom": 157.578125,
+        "width": 200,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 54.40625,
+        "right": 496.90625,
+        "bottom": 181.578125,
+        "width": 200,
+        "height": 127.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 105.59375,
+        "right": 496.90625,
+        "bottom": 130.390625,
+        "width": 200,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 78.59375,
+        "right": 496.90625,
+        "bottom": 157.390625,
+        "width": 200,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 105.59375,
+        "right": 496.90625,
+        "bottom": 130.390625,
+        "width": 200,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 78.59375,
+        "right": 496.90625,
+        "bottom": 157.390625,
+        "width": 200,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 105.59375,
+        "right": 496.90625,
+        "bottom": 130.390625,
+        "width": 200,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 78.40625,
+        "right": 496.90625,
+        "bottom": 157.578125,
+        "width": 200,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 560,
+      "height": 320,
+      "board": {
+        "x": 62.90625,
+        "y": 4,
+        "right": 290.90625,
+        "bottom": 232,
+        "width": 228,
+        "height": 228
+      },
+      "dock": {
+        "x": 296.90625,
+        "y": 30.40625,
+        "right": 496.90625,
+        "bottom": 205.578125,
+        "width": 200,
+        "height": 175.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        560,
+        320
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 113.40625,
+        "right": 686,
+        "bottom": 192.578125,
+        "width": 224,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 113.59375,
+        "right": 686,
+        "bottom": 192.390625,
+        "width": 224,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 89.59375,
+        "right": 686,
+        "bottom": 216.390625,
+        "width": 224,
+        "height": 126.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 140.59375,
+        "right": 686,
+        "bottom": 165.390625,
+        "width": 224,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 113.59375,
+        "right": 686,
+        "bottom": 192.390625,
+        "width": 224,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 140.59375,
+        "right": 686,
+        "bottom": 165.390625,
+        "width": 224,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 113.59375,
+        "right": 686,
+        "bottom": 192.390625,
+        "width": 224,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 140.59375,
+        "right": 686,
+        "bottom": 165.390625,
+        "width": 224,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 113.40625,
+        "right": 686,
+        "bottom": 192.578125,
+        "width": 224,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 844,
+      "height": 390,
+      "board": {
+        "x": 158,
+        "y": 4,
+        "right": 456,
+        "bottom": 302,
+        "width": 298,
+        "height": 298
+      },
+      "dock": {
+        "x": 462,
+        "y": 65.59375,
+        "right": 686,
+        "bottom": 240.390625,
+        "width": 224,
+        "height": 174.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        844,
+        390
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 122.390625,
+        "right": 766,
+        "bottom": 886.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 37.59375,
+        "right": 624,
+        "bottom": 116.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 122.390625,
+        "right": 766,
+        "bottom": 886.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 37.59375,
+        "right": 624,
+        "bottom": 116.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 146.390625,
+        "right": 766,
+        "bottom": 910.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 13.59375,
+        "right": 624,
+        "bottom": 140.390625,
+        "width": 480,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 95.390625,
+        "right": 766,
+        "bottom": 859.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 64.59375,
+        "right": 624,
+        "bottom": 89.390625,
+        "width": 480,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 122.390625,
+        "right": 766,
+        "bottom": 886.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 37.59375,
+        "right": 624,
+        "bottom": 116.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 95.390625,
+        "right": 766,
+        "bottom": 859.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 64.59375,
+        "right": 624,
+        "bottom": 89.390625,
+        "width": 480,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 122.390625,
+        "right": 766,
+        "bottom": 886.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 37.59375,
+        "right": 624,
+        "bottom": 116.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 95.390625,
+        "right": 766,
+        "bottom": 859.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 64.59375,
+        "right": 624,
+        "bottom": 89.390625,
+        "width": 480,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 2,
+        "y": 122.390625,
+        "right": 766,
+        "bottom": 886.390625,
+        "width": 764,
+        "height": 764
+      },
+      "dock": {
+        "x": 144,
+        "y": 37.59375,
+        "right": 624,
+        "bottom": 116.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 768,
+      "height": 1024,
+      "board": {
+        "x": 16.5,
+        "y": 184.890625,
+        "right": 751.5,
+        "bottom": 919.890625,
+        "width": 735,
+        "height": 735
+      },
+      "dock": {
+        "x": 144,
+        "y": 4.09375,
+        "right": 624,
+        "bottom": 178.890625,
+        "width": 480,
+        "height": 174.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        768,
+        1024
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 174.390625,
+        "right": 818,
+        "bottom": 990.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 89.59375,
+        "right": 650,
+        "bottom": 168.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 174.390625,
+        "right": 818,
+        "bottom": 990.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 89.59375,
+        "right": 650,
+        "bottom": 168.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 198.390625,
+        "right": 818,
+        "bottom": 1014.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 65.59375,
+        "right": 650,
+        "bottom": 192.390625,
+        "width": 480,
+        "height": 126.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 147.390625,
+        "right": 818,
+        "bottom": 963.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 116.59375,
+        "right": 650,
+        "bottom": 141.390625,
+        "width": 480,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 174.390625,
+        "right": 818,
+        "bottom": 990.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 89.59375,
+        "right": 650,
+        "bottom": 168.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 147.390625,
+        "right": 818,
+        "bottom": 963.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 116.59375,
+        "right": 650,
+        "bottom": 141.390625,
+        "width": 480,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 174.390625,
+        "right": 818,
+        "bottom": 990.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 89.59375,
+        "right": 650,
+        "bottom": 168.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 147.390625,
+        "right": 818,
+        "bottom": 963.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 116.59375,
+        "right": 650,
+        "bottom": 141.390625,
+        "width": 480,
+        "height": 24.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 174.390625,
+        "right": 818,
+        "bottom": 990.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 89.59375,
+        "right": 650,
+        "bottom": 168.390625,
+        "width": 480,
+        "height": 78.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 820,
+      "height": 1180,
+      "board": {
+        "x": 2,
+        "y": 222.390625,
+        "right": 818,
+        "bottom": 1038.390625,
+        "width": 816,
+        "height": 816
+      },
+      "dock": {
+        "x": 170,
+        "y": 41.59375,
+        "right": 650,
+        "bottom": 216.390625,
+        "width": 480,
+        "height": 174.796875
+      },
+      "placement": "top",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        820,
+        1180
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "role",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 360.40625,
+        "right": 1231,
+        "bottom": 439.578125,
+        "width": 224,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "swap",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 360.59375,
+        "right": 1231,
+        "bottom": 439.390625,
+        "width": 224,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "route",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 336.59375,
+        "right": 1231,
+        "bottom": 463.390625,
+        "width": 224,
+        "height": 126.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "offer",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 387.59375,
+        "right": 1231,
+        "bottom": 412.390625,
+        "width": 224,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-two",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 360.59375,
+        "right": 1231,
+        "bottom": 439.390625,
+        "width": 224,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "choose-ten",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 387.59375,
+        "right": 1231,
+        "bottom": 412.390625,
+        "width": 224,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "handoff",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 360.59375,
+        "right": 1231,
+        "bottom": 439.390625,
+        "width": 224,
+        "height": 78.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "play",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 387.59375,
+        "right": 1231,
+        "bottom": 412.390625,
+        "width": 224,
+        "height": 24.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "forbidden",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 360.40625,
+        "right": 1231,
+        "bottom": 439.578125,
+        "width": 224,
+        "height": 79.171875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    },
+    {
+      "name": "rules",
+      "width": 1440,
+      "height": 900,
+      "board": {
+        "x": 209,
+        "y": 4,
+        "right": 1001,
+        "bottom": 796,
+        "width": 792,
+        "height": 792
+      },
+      "dock": {
+        "x": 1007,
+        "y": 312.59375,
+        "right": 1231,
+        "bottom": 487.390625,
+        "width": 224,
+        "height": 174.796875
+      },
+      "placement": "side",
+      "points": 225,
+      "reachable": true,
+      "scroll": [
+        1440,
+        900
+      ],
+      "dockOverflow": false
+    }
+  ],
+  "checks": [
+    "Touch and keyboard swap decisions, correct persisted events, undo and reload, no accidental board placement",
+    "Candidate button selects the exact fifth stone",
+    "Ten-proposal route keeps the correct rule state",
+    "Both opposite corner intersections remain usable with touch confirmation",
+    "Full/simple switching and repeated orientation changes settle without moving the board"
+  ],
+  "passed": true,
+  "completedAt": "2026-10-18T05:22:20.996Z"
+}

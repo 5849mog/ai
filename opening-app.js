@@ -135,6 +135,7 @@ function renderFlow() {
     const key = JSON.stringify({ flow, busy, manual: manualTurn() });
     if (root.dataset.contentKey === key) continue;
     root.dataset.contentKey = key; root.dataset.stage = session.stage;
+    root.dataset.actions = String(flow.actions.length); root.title = flow.note;
     const title = document.createElement("h2"), note = document.createElement("p"), actions = document.createElement("div");
     title.textContent = flow.title; title.setAttribute("role", "status"); note.textContent = flow.note; actions.className = "opening-flow-actions";
     for (const action of flow.actions) {
