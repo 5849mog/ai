@@ -16,7 +16,7 @@ for(const channel of channels){
  const browser=await chromium.launch({channel,headless:true,...(proxy?{proxy:{server:proxy}}:{})});
  try{
   const context=await browser.newContext({serviceWorkers:'block',viewport:{width:390,height:844},hasTouch:true});
-  await context.addInitScript(()=>{localStorage.setItem('gomoku-thinking-ms','1000');localStorage.setItem('gomoku-pondering','false');});
+  await context.addInitScript(()=>{localStorage.setItem('gomoku-thinking-ms','1000');localStorage.setItem('gomoku-pondering','true');});
   if(process.argv.includes('--candidate'))await context.route('**/remote-engine.js*',async route=>route.fulfill({contentType:'text/javascript',body:await readFile(join(root,'remote-engine.js'),'utf8')}));
   const page=await context.newPage();
   page.on('response',async response=>{if(response.request().method()==='GET'&&new URL(response.url()).pathname==='/gomoku')try{for(const message of await response.json())if(message.type==='error')console.error('Remote engine: '+message.message);}catch{}});
@@ -28,6 +28,7 @@ for(const channel of channels){
   await page.locator('#remoteConnect').click();
   const ready=()=>page.waitForFunction(()=>document.querySelector('#stateText').textContent==='轮到你落子',null,{timeout:60000});
   await page.waitForFunction(()=>document.querySelector('#openRemoteEngine')?.textContent.includes('15 线程'),null,{timeout:45000});await ready();
+  await page.waitForTimeout(1200); // Exercise switching from actual background analysis.
   assert.equal(await page.evaluate(()=>location.hash),'');
   await page.locator('[data-index="112"]').tap();assert.equal(await page.locator('#boardSvg [data-stone]').count(),0);
   const started=Date.now();await page.locator('[data-index="112"]').tap();await page.waitForFunction(()=>document.querySelectorAll('#boardSvg [data-stone]').length===2,null,{timeout:30000});await ready();const answerWallMs=Date.now()-started;
