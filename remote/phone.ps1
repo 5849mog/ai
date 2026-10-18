@@ -15,7 +15,7 @@ $running = $null
 if (Test-Path -LiteralPath $sessionFile) {
     $session = Get-Content -LiteralPath $sessionFile -Raw | ConvertFrom-Json
     $candidate = Get-CimInstance Win32_Process -Filter "ProcessId=$($session.processId)" -ErrorAction SilentlyContinue
-    if ($candidate -and $candidate.CommandLine.Contains($script)) { $running = $candidate }
+    if ($candidate -and $candidate.CommandLine -and $candidate.CommandLine.Contains($script)) { $running = $candidate }
 }
 if ($Stop) {
     if ($running) {
@@ -27,7 +27,24 @@ if ($Stop) {
 }
 & (Join-Path $PSScriptRoot 'start.ps1') -NoOpen
 if (-not $?) { throw 'Computer engine could not start.' }
+if ($running) {
+    try {
+        $address = [Uri]$session.controlUrl
+        Invoke-WebRequest -UseBasicParsing -Uri ($address.GetLeftPart([UriPartial]::Authority) + '/api/status') -Headers @{Authorization=('Bearer ' + $address.Fragment.TrimStart('#'))} -TimeoutSec 2 | Out-Null
+    } catch {
+        Stop-Process -Id $running.ProcessId -ErrorAction SilentlyContinue
+        $running = $null
+    }
+}
 if (-not $running) {
+    # Recover only our exact launcher process if its session record was lost.
+    $listener = Get-NetTCPConnection -LocalAddress '127.0.0.1' -LocalPort 4190 -State Listen -ErrorAction SilentlyContinue
+    if ($listener) {
+        $owner = Get-CimInstance Win32_Process -Filter "ProcessId=$($listener.OwningProcess)" -ErrorAction SilentlyContinue
+        if ($owner -and $owner.Name -eq 'node.exe' -and $owner.CommandLine -and $owner.CommandLine.Contains('"' + $script + '"')) {
+            Stop-Process -Id $owner.ProcessId -ErrorAction SilentlyContinue
+        } else { throw 'Phone connection port 4190 is being used by another program.' }
+    }
     $nodePath = 'C:\Program Files\nodejs\node.exe'
     if (-not (Test-Path -LiteralPath $nodePath)) { $nodePath = (Get-Command node -ErrorAction Stop).Source }
     Start-Process -FilePath $nodePath -ArgumentList @('"' + $script + '"') -WorkingDirectory (Split-Path -Parent $PSScriptRoot) -WindowStyle Hidden -RedirectStandardOutput (Join-Path $data 'phone.log') -RedirectStandardError (Join-Path $data 'phone-error.log') | Out-Null

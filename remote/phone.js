@@ -6,6 +6,7 @@ import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 import QRCode from "qrcode";
+import { APP_VERSION } from "../app-release.js";
 
 const run = promisify(execFile);
 export function publicAddress(text) {
@@ -13,7 +14,7 @@ export function publicAddress(text) {
 }
 export function phoneLink(url, token) {
   if (!publicAddress(url) || publicAddress(url) !== url || typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) throw Error("Invalid phone pairing");
-  return "https://5849mog.github.io/ai/?computer-launch=20261017#computer=" + encodeURIComponent(JSON.stringify({ url, token }));
+  return `https://5849mog.github.io/ai/?computer-launch=${APP_VERSION}#computer=` + encodeURIComponent(JSON.stringify({ url, token }));
 }
 export function tunnelArguments(data, gatewayPort, region) {
   if (!Number.isInteger(gatewayPort) || gatewayPort < 1 || gatewayPort > 65535) throw Error("Invalid gateway port");

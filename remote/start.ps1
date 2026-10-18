@@ -15,11 +15,22 @@ if (-not (Test-Path -LiteralPath $nodePath)) { $nodePath = (Get-Command node -Er
 $dataRoot = Join-Path $env:LOCALAPPDATA 'GomokuRemote'
 New-Item -ItemType Directory -Path $dataRoot -Force | Out-Null
 $sessionFile = Join-Path $dataRoot 'session.json'
+$port = if ($env:GOMOKU_REMOTE_PORT) { [int]$env:GOMOKU_REMOTE_PORT } else { 4188 }
 $running = $null
 if (Test-Path -LiteralPath $sessionFile) {
     $session = Get-Content -LiteralPath $sessionFile -Raw | ConvertFrom-Json
     $candidate = Get-CimInstance Win32_Process -Filter "ProcessId=$($session.processId)" -ErrorAction SilentlyContinue
-    if ($candidate -and $candidate.CommandLine.Contains($serviceScript)) { $running = $candidate }
+    if ($candidate -and $candidate.CommandLine -and $candidate.CommandLine.Contains($serviceScript)) { $running = $candidate }
+}
+if (-not $running) {
+    $listener = Get-NetTCPConnection -LocalAddress '127.0.0.1' -LocalPort $port -State Listen -ErrorAction SilentlyContinue
+    if ($listener) {
+        $owner = Get-CimInstance Win32_Process -Filter "ProcessId=$($listener.OwningProcess)" -ErrorAction SilentlyContinue
+        if ($owner -and $owner.Name -eq 'node.exe' -and $owner.CommandLine -and $owner.CommandLine.Contains('"' + $serviceScript + '"')) {
+            $running = $owner
+            @{processId=$owner.ProcessId; script=$serviceScript} | ConvertTo-Json | Set-Content -LiteralPath $sessionFile -Encoding UTF8
+        } else { throw "Computer engine port $port is being used by another program." }
+    }
 }
 if ($Stop) {
     if ($running) {
@@ -37,7 +48,6 @@ if (-not $running) {
     $child = Start-Process -FilePath $nodePath -ArgumentList @('"' + $serviceScript + '"') -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $dataRoot 'service.log') -RedirectStandardError (Join-Path $dataRoot 'service-error.log')
     @{processId=$child.Id; script=$serviceScript} | ConvertTo-Json | Set-Content -LiteralPath $sessionFile -Encoding UTF8
 }
-$port = if ($env:GOMOKU_REMOTE_PORT) { [int]$env:GOMOKU_REMOTE_PORT } else { 4188 }
 $connected = $false
 for ($attempt = 0; $attempt -lt 50; $attempt++) {
     $client = [System.Net.Sockets.TcpClient]::new()

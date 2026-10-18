@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-18",
+  "site": "https://5849mog.github.io/ai/",
+  "appVersion": "2026.10.17.3",
+  "liveRelease": true,
+  "mode": "Independent browser runs through the actual free relay",
+  "hardware": "Windows, Intel i5-13400F, 16 logical cores",
+  "transport": "Authenticated HTTP long polling over HTTPS",
+  "threads": 15,
+  "memoryMiB": 256,
+  "budgetMs": 1000,
+  "existingComputerProxyUsed": true,
+  "actualPhysicalPhoneTested": false,
+  "results": [
+    { "browser": "Chrome 155.0.8059.80", "answerWallMs": 1689, "gameTouchUndoDuringThinkingAndRenjuPassed": true },
+    { "browser": "Edge 135.0.3179.98", "answerWallMs": 1803, "gameTouchUndoDuringThinkingAndRenjuPassed": true }
+  ],
+  "limitations": "No physical phone network test; single response samples do not establish speedup or playing strength. Initial immediate browser handoff failed; Edge passed in an independent run."
+}
