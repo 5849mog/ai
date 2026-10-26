@@ -37,13 +37,13 @@ html.simple-view, body.simple-mode { min-width: 0; }
 .setup-counts strong { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; }
 .setup-counts button { margin-left: auto; min-height: 34px; padding-right: 0; }
 .setup-tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-.setup-tools button { min-width: 0; height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 5px; background: linear-gradient(#fffdf7, #f3efe4); color: var(--ink); font-size: 13px; cursor: pointer; box-shadow: inset 0 1px 0 #ffffffb3; }
+.setup-tools button { min-width: 0; height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 5px; background: #f8f5ec; color: var(--ink); font-size: 13px; cursor: pointer; box-shadow: inset 0 1px 0 #ffffffb3; }
 .setup-tools button[aria-pressed="true"] { color: var(--green); background: #e9eee2; border-color: #819476; box-shadow: inset 0 1px 2px #53684610; }
 .setup-tools button:disabled { opacity: .45; cursor: default; }
 .setup-turn { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
 .setup-turn label { position: relative; min-width: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .setup-turn label::after { content: ""; position: absolute; right: 13px; bottom: 20px; width: 7px; height: 7px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); pointer-events: none; }
-.setup-turn select { display: block; width: 100%; height: 44px; margin-top: 4px; padding: 0 28px 0 10px; border: 1px solid var(--line); border-radius: 5px; background: linear-gradient(#fffdf7, #f3efe4); color: var(--ink); font-size: 14px; }
+.setup-turn select { display: block; width: 100%; height: 44px; margin-top: 4px; padding: 0 28px 0 10px; border: 1px solid var(--line); border-radius: 5px; background: #f8f5ec; color: var(--ink); font-size: 14px; }
 .setup-message { min-height: 36px; margin: 10px 0 8px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .setup-message[data-state="error"] { color: var(--accent); }
 #startSetup { width: 100%; height: 44px; font-size: 14px; }

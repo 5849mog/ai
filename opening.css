@@ -2,7 +2,7 @@ html.opening-simple, body.opening-page.simple-mode { min-width: 0; }
 .opening-page .game-settings[data-controls="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .opening-page .board-toolbar { flex-wrap: nowrap; }
 .opening-page .game-state { min-width: 0; }
-.opening-page #stateText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.opening-page #stateText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
 .opening-page .search-clock { font-size: 12px; white-space: nowrap; }
 .opening-page #simpleColor { touch-action: none; user-select: none; -webkit-touch-callout: none; }
 .opening-region { fill: #586e5708; stroke: #586e5780; stroke-width: 1.4; stroke-dasharray: 4 5; pointer-events: none; }
@@ -14,11 +14,11 @@ html.opening-simple, body.opening-page.simple-mode { min-width: 0; }
 .opening-order { text-anchor: middle; dominant-baseline: central; font: 650 16px system-ui, sans-serif; pointer-events: none; fill: #fffdf2; paint-order: stroke; stroke: #24292380; stroke-width: 1px; }
 .opening-order.white { fill: #29352a; stroke: #fffffaaa; }
 .opening-flow { grid-column: 1 / -1; min-width: 0; width: 100%; color: var(--ink); }
-.opening-flow h2 { margin: 0; font-size: 14px; line-height: 1.4; font-weight: 600; }
+.opening-flow h2 { margin: 0; font-size: 15px; line-height: 1.4; font-weight: 600; }
 .opening-flow p { margin: 3px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); overflow-wrap: anywhere; }
 .opening-flow-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
 .opening-flow-actions:empty { display: none; }
-.opening-flow button { min-width: 0; min-height: 38px; padding: 5px; appearance: none; border: 1px solid var(--line); border-radius: 5px; background: linear-gradient(#fffdf7, #f3efe4); color: var(--ink); font-size: 12px; line-height: 1.35; cursor: pointer; }
+.opening-flow button { min-width: 0; min-height: 38px; padding: 5px; appearance: none; border: 1px solid var(--line); border-radius: 5px; background: #f8f5ec; color: var(--ink); font-size: 12px; line-height: 1.35; cursor: pointer; }
 .opening-flow button:last-child:nth-child(odd) { grid-column: 1 / -1; }
 .opening-flow button[data-suggested="true"] { color: var(--green); background: #e9eee2; border-color: #819476; }
 .opening-flow button:disabled { opacity: .5; cursor: default; }
@@ -26,7 +26,7 @@ html.opening-simple, body.opening-page.simple-mode { min-width: 0; }
 /* The dock is outside the SVG. Board fitting reserves its space before placing
    the square, so even edge intersections remain visible and tappable. */
 #simpleOpeningFlow { position: absolute; z-index: 2; margin: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); overflow: auto; overscroll-behavior: contain; }
-#simpleOpeningFlow h2 { font-size: 12px; line-height: 1.4; }
+#simpleOpeningFlow h2 { font-size: 13px; line-height: 1.4; }
 #simpleOpeningFlow p { display: none; }
 #simpleOpeningFlow .opening-flow-actions { margin-top: 4px; gap: 4px; }
 #simpleOpeningFlow button { min-height: 44px; padding: 5px 6px; touch-action: manipulation; }
