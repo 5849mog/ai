@@ -22,7 +22,9 @@ import { thinkingSettings, ADAPTIVE_MODE } from "./adaptive-search.js";
 import { adviseAdaptiveOpening } from "./adaptive-opening.js";
 import { APP_VERSION } from "./app-release.js";
 import { TurnHints, HINT_COUNT, HINT_SLICE_MS } from "./turn-hints.js";
+import { createSoundFeedback } from "./sound.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
+const sound = createSoundFeedback({ storage: localStorage });
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORAGE}:variety`,
   storage: { getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) } });
@@ -202,6 +204,9 @@ function render() {
     $("#simpleRecommendNote").textContent = busy ? "请稍候" : advice ? "点击关闭标记" : "AI 落点建议";
   }
   renderFlow();
+  if (pending >= 0 && display?.simple) {
+    const title = $("#simpleOpeningFlow h2"); if (title) title.textContent = `再点一次确认 · ${coordinate(pending)}`;
+  }
   renderAnalysis();
   enhancements?.render();
 }
@@ -240,7 +245,7 @@ function commit(event, automatic = false, result = null) {
   if(continuation?.adaptive)analysis.begin(requestId,session.color);
   if (continuation) analysis.accept({ requestId, sideToMove: session.color, stats: continuation });
   session.apply(event, { automatic }); if (automatic && event.type === "stone") openingBook.remember(session);
-  positionChanged(false, continuation); render();
+  positionChanged(false, continuation); render(); if (event.type === "stone") sound.playStone();
 }
 async function autoPlay() {
   if (busy || modal || session.winner) return;
@@ -278,7 +283,10 @@ function handoff() {
 function onModal(open) { if (open) cancel(); modal = open; if(!open)configureRule();render(); if (!open) void prepare(); }
 async function place(index) {
   if (!interactive()) return;
-  if (!session.canPoint(index)) { notify(session.stage === "choose" ? "请点已提出的候选" : session.offerCount ? "候选需合法且不能对称等价；可悔棋修改" : `这一手只能落在中央 ${session.width} × ${session.width} 空点`); return; }
+  if (!session.canPoint(index)) {
+    const occupied = Number.isInteger(index) && index >= 0 && Boolean(session.board[index]);
+    notify(occupied ? "这里已有棋子，请选择空点" : session.stage === "choose" ? "请点已提出的候选" : session.offerCount ? "候选需合法且不能对称等价；可悔棋修改" : `这一手只能落在中央 ${session.width} × ${session.width} 空点`); return;
+  }
   const verdict = moveVerdict(session.board, index, session.color, session.rule);
   if (!session.offerCount && session.stage !== "choose" && verdict.forbidden) {
     cancel(); forbiddenInput = { index, reason: verdict.forbidden }; render(); return;
@@ -338,6 +346,7 @@ setupRecordUi({ getRecord: () => session.record(), notify, onModalChange: onModa
 document.addEventListener("visibilitychange", () => { if (document.hidden) persist(); void syncPonder(); }); window.addEventListener("pagehide", persist);
 document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
 enhancements = setupGameEnhancements({
+  sound,
   getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, state,busy:busy&&(isAutomaticTurn(session)||adaptiveThinking),paused,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
   archive,resumeRecord:restoreArchived,

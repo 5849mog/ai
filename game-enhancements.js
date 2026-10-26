@@ -5,7 +5,7 @@ import { createArchiveUi } from "./archive-ui.js";
 
 // Inline quick controls and full-page workspaces share one lifecycle. Neither
 // workspace uses a popup or modifies the live game while it is being inspected.
-export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple }) {
+export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound }) {
   const $ = selector => document.querySelector(selector), shell = $(".app-shell");
   const status = document.createElement("div"); status.id = "simpleStatusRow"; status.className = "simple-status-row";
   const rate = $("#simpleWinRate"); rate.before(status); status.append(rate);
@@ -19,12 +19,13 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const notice = document.createElement("div"); notice.className = "simple-notice"; notice.hidden = true; notice.setAttribute("role", "status"); status.after(notice);
   const sourceNotice = $("#gameNotice");
   function syncNotice() {
-    notice.hidden = !sourceNotice || sourceNotice.hidden || !sourceNotice.classList.contains("error");
+    notice.hidden = !sourceNotice || sourceNotice.hidden || !sourceNotice.textContent;
     notice.textContent = notice.hidden ? "" : sourceNotice.textContent;
+    notice.classList.toggle("error", Boolean(sourceNotice?.classList.contains("error")));
   }
   if (sourceNotice && typeof MutationObserver === "function") new MutationObserver(syncNotice).observe(sourceNotice,
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
-  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button><button type="button" data-collapse>收起</button></div><p>用于后续自动落子；推荐仍为 1 秒。关闭后台思考可省电。</p>${updateControlMarkup()}`;
+  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button><button type="button" data-sound aria-pressed="false">声效关</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button><button type="button" data-collapse>收起</button></div><p>用于后续自动落子；推荐仍为 1 秒。关闭后台思考可省电。</p>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
   const remoteEntry = document.createElement("button"); remoteEntry.type = "button"; remoteEntry.dataset.remoteMenu = ""; remoteEntry.textContent = "电脑引擎";
   panel.querySelector(".quick-tools-actions").append(remoteEntry);
@@ -63,11 +64,15 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     select.value = button.dataset.time; select.dispatchEvent(new Event("change")); collapse(); render();
   };
   panel.querySelector("[data-ponder]").onclick = () => { const input = $("#ponderToggle"); if (input.disabled) return; input.checked = !input.checked; input.dispatchEvent(new Event("change")); collapse(); render(); };
+  const soundButton = panel.querySelector("[data-sound]");
+  function toggleSound() { if (!sound) return; const enabled = sound.setEnabled(!sound.enabled); if (enabled) sound.playStone(); render(); }
+  soundButton.hidden = !sound; soundButton.onclick = () => { toggleSound(); collapse(); };
   panel.querySelector("[data-image]").onclick = () => open("image"); reviewEntry.onclick = () => open("review");
   panel.querySelector("[data-archive]").onclick=()=>open("archive");
   const fullImage = document.createElement("button"); fullImage.type = "button"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
   const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
+  const fullSound=document.createElement("button");fullSound.type="button";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);
   const fullPause=document.createElement("button");fullPause.type="button";fullPause.className="icon-button";fullPause.hidden=true;fullPause.onclick=()=>getPosition().paused?resumeSearch?.():pauseSearch?.();$(".game-actions").append(fullPause);
@@ -82,6 +87,8 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     toggle.setAttribute("aria-label", time.value==="adaptive"?"自适应深思 0～6 秒，展开快捷设置":`每步最多 ${Number(time.value) / 1000} 秒，展开快捷设置与截图导入`);
     for (const b of panel.querySelectorAll("[data-time]")) { b.disabled = time.disabled; b.setAttribute("aria-pressed", String(b.dataset.time === time.value)); }
     const p = panel.querySelector("[data-ponder]"); p.disabled = ponder.disabled; p.setAttribute("aria-pressed", String(ponder.checked)); p.textContent = `后台${ponder.checked ? "开" : "关"}`;
+    soundButton.setAttribute("aria-pressed", String(Boolean(sound?.enabled))); soundButton.textContent = `声效${sound?.enabled ? "开" : "关"}`;
+    fullSound.setAttribute("aria-pressed", String(Boolean(sound?.enabled))); fullSound.textContent = `声效：${sound?.enabled ? "开" : "关"}`;
     if (!document.body.classList.contains("simple-mode")) collapse();
     // Undo, import and New invalidate a terminal review immediately. Applying a
     // screenshot is allowed to finish its own close without reentrant disposal.
