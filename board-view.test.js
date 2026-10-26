@@ -109,11 +109,27 @@ test("AI answer halo requires a known occupied latest answer and editable boards
   assert.equal((svg.innerHTML.match(/class="hit-target"/g) || []).length, 225);
 });
 
-test('three next-move hints are colored SVG points with no panel, numbers, stones or hit targets of their own',()=>{
+test('three next-move hints use ranked SVG markers without stones or hit targets of their own',()=>{
  const svg=makeSvg(),view=createBoardView(svg),board=new Uint8Array(225);board[112]=1;
  const state={board,lastMove:112,canInteract:true,moveHints:[110,111,113].map((index,i)=>({index,color:2,rank:i+1}))};
  view.render(state);assert.equal((svg.innerHTML.match(/data-hint=/g)||[]).length,3);assert.equal((svg.innerHTML.match(/data-stone=/g)||[]).length,1);
- assert.equal((svg.innerHTML.match(/class="hit-target"/g)||[]).length,224);assert.doesNotMatch(svg.innerHTML,/<text/);
+ assert.equal((svg.innerHTML.match(/class="hit-target"/g)||[]).length,224);assert.equal((svg.innerHTML.match(/class="turn-hint-number"/g)||[]).length,3);
  assert.match(svg.innerHTML,/class="turn-hint hint-3"[^>]*data-color="2"/);
  board[113]=2;view.render({...state,moveHints:[]});assert.doesNotMatch(svg.innerHTML,/data-hint=/);
+});
+
+
+test("only a newly settled stone animates, not hover updates, undo or reduced motion", () => {
+  const svg = { ...makeSvg(), ownerDocument: { defaultView: { matchMedia: () => ({ matches: false }) } } };
+  let animations = 0;
+  const element = { style: {}, animate() { animations += 1; } };
+  svg.querySelectorAll = () => [element];
+  const view = createBoardView(svg), board = new Uint8Array(225);
+  view.render({ board, lastMove: -1, canInteract: true });
+  board[112] = 1; view.render({ board, lastMove: 112, canInteract: true });
+  assert.equal(animations, 1);
+  view.render({ board, lastMove: 112, hoverIndex: 111, canInteract: true });
+  assert.equal(animations, 1);
+  board[112] = 0; view.render({ board, lastMove: -1, canInteract: true });
+  assert.equal(animations, 1);
 });
