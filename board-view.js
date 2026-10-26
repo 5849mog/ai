@@ -80,7 +80,7 @@ function renderBoard(boardSvg, state, idPrefix) {
         '" stroke-width=".75" filter="url(#stoneShadow)"/>';
       const stoneTexture = "./assets/stone-satin.svg";
       const stoneTone = board[index] === 1 ? "black" : "white";
-      svg += '<image class="stone-texture ' + stoneTone + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
+      svg += '<image class="stone-texture ' + stoneTone + '" data-stone-texture="' + index + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
         '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none"/>';
       if (index === lastMove) svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3"/>';
       if (!editable) continue;
@@ -102,7 +102,7 @@ function renderBoard(boardSvg, state, idPrefix) {
     const hint = moveHints.slice(0, 3).find(move => move.index === index);
     if (hint && !editable && !board[index] && !recommendations.length) {
       const rank = moveHints.indexOf(hint) + 1;
-      svg += `<g class="turn-hint hint-${rank}" data-hint="${index}" data-rank="${rank}" data-color="${hint.color}" role="img" aria-label="${hint.color === 1 ? "黑" : "白"}棋下一手候选 ${rank} ${coordinate(index)}"><title>${hint.color === 1 ? "黑" : "白"}棋下一手 · 候选 ${rank}</title><circle cx="${p.x}" cy="${p.y}" r="${9 - rank}"/></g>`;
+      svg += `<g class="turn-hint hint-${rank}" data-hint="${index}" data-rank="${rank}" data-color="${hint.color}" role="img" aria-label="${hint.color === 1 ? "黑" : "白"}棋下一手候选 ${rank} ${coordinate(index)}"><title>${hint.color === 1 ? "黑" : "白"}棋下一手 · 候选 ${rank}</title><circle cx="${p.x}" cy="${p.y}" r="11.5"/><text class="turn-hint-number" x="${p.x}" y="${p.y}">${rank}</text></g>`;
     }
     if (canInteract) {
       svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
@@ -133,7 +133,7 @@ function renderBoard(boardSvg, state, idPrefix) {
 export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
   if (!/^[a-zA-Z0-9_-]*$/.test(idPrefix)) throw new Error("无效的棋盘标识");
   fitBoardToSlot(boardSvg);
-  let previousKey;
+  let previousKey, previousLastMove, previousOccupied;
   return {
     nearestIntersection(clientX, clientY) {
       return nearestIntersection(boardSvg, clientX, clientY);
@@ -147,8 +147,19 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
         (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color])]);
       if (key === previousKey) return false;
+      const occupied = state.board.reduce((count, point) => count + Boolean(point), 0);
+      const settle = previousOccupied !== undefined && occupied > previousOccupied && state.lastMove !== previousLastMove;
       renderBoard(boardSvg, state, idPrefix);
-      previousKey = key; return true;
+      const reduced = boardSvg.ownerDocument?.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+      if (settle && !reduced && typeof boardSvg.querySelectorAll === "function") {
+        const selector = `[data-stone="${state.lastMove}"], [data-stone-texture="${state.lastMove}"]`;
+        for (const element of boardSvg.querySelectorAll(selector)) {
+          if (element.style) { element.style.transformBox = "fill-box"; element.style.transformOrigin = "center"; }
+          element.animate?.([{ opacity: .35, transform: "scale(.94)" }, { opacity: 1, transform: "scale(1)" }],
+            { duration: 150, easing: "cubic-bezier(.2,.75,.25,1)" });
+        }
+      }
+      previousKey = key; previousLastMove = state.lastMove; previousOccupied = occupied; return true;
     }
   };
 }
