@@ -154,3 +154,13 @@ test("completed board cannot replace the current game through image import", asy
   const { root, point, result, ui, recognize } = await imageDraft(); recognize(); for (let i = 0; i < 5; i++) point(i);
   root.querySelector("[data-confirm]").click(); assert.equal(result().applied, null); assert.equal(result().closes, 0); assert.match(root.querySelector(".tool-message").textContent, /当前对局保持不变/); ui.dispose();
 });
+
+
+test("sound controls share one opt-in state and preview only after enabling", () => {
+  const { doc } = environment(); let enabled = false, previews = 0;
+  const sound = { get enabled() { return enabled; }, setEnabled(value) { enabled = value; return enabled; }, playStone() { previews += 1; } };
+  setupGameEnhancements({ sound, getPosition: () => ({ winner: 0 }), getRecord: () => createRecord([], 1), onWorkspace() {}, applyRecord() {}, cancelSearch() {}, newGame() {} });
+  const button = doc.querySelector("[data-sound]"); button.click();
+  assert.equal(enabled, true); assert.equal(previews, 1); assert.equal(button.getAttribute("aria-pressed"), "true");
+  button.click(); assert.equal(enabled, false); assert.equal(previews, 1);
+});
