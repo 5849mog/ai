@@ -73,6 +73,8 @@ for (const [index, node] of sourceNodes.entries()) {
     selectSource(sourceNodes[next].dataset.sourceNode, true);
   });
 }
+const initialSource = location.hash.startsWith("#source-") ? location.hash.slice(8) : "";
+if (sourceLabels[initialSource]) activeSource = initialSource;
 selectSource(activeSource);
 if ("IntersectionObserver" in window && sourceEntries.length) {
   const sourceObserver = new IntersectionObserver(entries => {
@@ -80,6 +82,29 @@ if ("IntersectionObserver" in window && sourceEntries.length) {
     if (visible) selectSource(visible.target.dataset.sourceEntry);
   }, { rootMargin: "-24% 0px -36%", threshold: [0, .2, .5] });
   for (const entry of sourceEntries) sourceObserver.observe(entry);
+}
+
+// A restrained proximity field makes the map feel alive without moving its layout.
+const constellationCanvas = document.querySelector(".constellation-canvas");
+if (constellationCanvas && window.matchMedia("(pointer: fine)").matches) {
+  let proximityFrame = 0;
+  function resetProximity() {
+    for (const node of sourceNodes) node.style.removeProperty("--node-scale");
+  }
+  constellationCanvas.addEventListener("pointermove", event => {
+    if (motionPreference.matches || proximityFrame) return;
+    proximityFrame = requestAnimationFrame(() => {
+      for (const node of sourceNodes) {
+        const bounds = node.getBoundingClientRect();
+        const distance = Math.hypot(event.clientX - bounds.left - bounds.width / 2, event.clientY - bounds.top - bounds.height / 2);
+        const proximity = Math.max(0, 1 - distance / 150);
+        node.style.setProperty("--node-scale", String(1 + proximity * .08));
+      }
+      proximityFrame = 0;
+    });
+  });
+  constellationCanvas.addEventListener("pointerleave", resetProximity);
+  motionPreference.addEventListener("change", resetProximity);
 }
 
 // Content is visible by default. Only below-the-fold items receive entrances.
@@ -107,6 +132,23 @@ if (!motionPreference.matches && "IntersectionObserver" in window) {
   window.addEventListener("beforeprint", showAll);
 }
 
+// Chapter navigation follows the same reading position as the exhibition.
+const chapterLinks = Array.from(document.querySelectorAll("[data-chapter-link]"));
+if ("IntersectionObserver" in window && chapterLinks.length) {
+  const chapterObserver = new IntersectionObserver(entries => {
+    const current = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!current) return;
+    for (const link of chapterLinks) {
+      if (link.dataset.chapterLink === current.target.id) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    }
+  }, { rootMargin: "-18% 0px -62%", threshold: [0, .05, .2] });
+  for (const link of chapterLinks) {
+    const chapter = document.getElementById(link.dataset.chapterLink);
+    if (chapter) chapterObserver.observe(chapter);
+  }
+}
+
 // Restrained pointer depth and a single scroll-progress transform.
 const heroVisual = document.querySelector(".hero-visual");
 if (heroVisual && window.matchMedia("(pointer: fine)").matches) {
@@ -128,16 +170,23 @@ if (heroVisual && window.matchMedia("(pointer: fine)").matches) {
   });
 }
 let scrollFrame = 0;
+const heroSection = document.querySelector(".about-hero");
+const cinematicScroll = window.matchMedia("(min-width: 761px)");
 function updateProgress() {
   const available = document.documentElement.scrollHeight - window.innerHeight;
   const progress = available > 0 ? Math.min(1, Math.max(0, window.scrollY / available)) : 0;
   document.querySelector(".reading-progress")?.style.setProperty("--reading-progress", String(progress));
+  const heroRange = heroSection ? heroSection.offsetHeight * .8 : 1;
+  const heroProgress = cinematicScroll.matches && !motionPreference.matches ? Math.min(1, Math.max(0, window.scrollY / heroRange)) : 0;
+  heroVisual?.style.setProperty("--hero-scroll", String(heroProgress));
   scrollFrame = 0;
 }
 window.addEventListener("scroll", () => {
   if (!scrollFrame) scrollFrame = requestAnimationFrame(updateProgress);
 }, { passive: true });
 window.addEventListener("resize", updateProgress, { passive: true });
+cinematicScroll.addEventListener("change", updateProgress);
+motionPreference.addEventListener("change", updateProgress);
 updateProgress();
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});

@@ -1,12 +1,12 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.10.27.1";
-const VERSION = PREFIX + "261027-v50";
+const RELEASE = "2026.10.30.1";
+const VERSION = PREFIX + "261030-v51";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
 const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.css", "game-modes.css?v=1", "setup-ui.js", "display-modes.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
-  "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "session-records.js", "favicon.svg", "about.html", "about.css", "about.css?v=3", "about.js", "about.js?v=2", "THIRD_PARTY.md", "LICENSE",
+  "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "session-records.js", "favicon.svg", "about.html", "about.css", "about.css?v=4", "about.js", "about.js?v=3", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
 CORE.push("board-layout.js", "styles.css?v=22", "game-modes.css?v=5", "opening.css?v=4", "enhancements.css?v=38", "app-update.js?v=38", "adaptive-search.js", "adaptive-opening.js", "enhancements.css?v=37", "app-update.js?v=37", "game-archive.js", "archive-ui.js", "opening-review.js", "enhancements.css?v=36", "app-update.js?v=36", "ui-scheduler.js", "app-release.js", "app-update.js", "app-update.js?v=32", "app-update.js?v=33", "app-update.js?v=34", "app-update.js?v=35", "update.html", "enhancements.css?v=32", "enhancements.css?v=33", "enhancements.css", "enhancements.css?v=1", "game-enhancements.js", "image-import-ui.js", "image-board.js", "game-review.js", "review-ui.js", "opening-book.js", "rif-opening-pool.js");
 CORE.push("turn-hints.js", "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42");
