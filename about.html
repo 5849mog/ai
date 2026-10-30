@@ -8,14 +8,14 @@
     <title>关于五目 · 每一层，都有来处</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=23" />
-    <link rel="stylesheet" href="./about.css?v=3" />
-    <script src="./about.js?v=2" defer></script>
+    <link rel="stylesheet" href="./about.css?v=4" />
+    <script src="./about.js?v=3" defer></script>
   </head>
   <body class="about-page">
     <a class="about-skip" href="#aboutMain">跳到正文</a>
     <header class="about-header">
       <a class="about-brand" href="./" aria-label="五目，回到棋盘"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
-      <nav class="about-nav" aria-label="关于页章节"><a href="#engine">推演</a><a href="#sources">来源星图</a><a href="#license">许可</a></nav>
+      <nav class="about-nav" aria-label="关于页章节"><a href="#engine" data-chapter-link="engine"><span>01</span>推演</a><a href="#recommendation" data-chapter-link="recommendation"><span>02</span>推荐</a><a href="#sources" data-chapter-link="sources"><span>03</span>来源星图</a><a href="#license" data-chapter-link="license"><span>04</span>许可</a></nav>
       <a class="back-link" href="./"><span>回到棋盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a>
       <span class="reading-progress" aria-hidden="true"><i></i></span>
     </header>
@@ -84,6 +84,12 @@
               <svg viewBox="0 0 600 460" class="cutaway-svg">
                 <defs><linearGradient id="layerFill" x2="0" y2="1"><stop stop-color="#9ab08e" stop-opacity=".28"/><stop offset="1" stop-color="#364f42" stop-opacity=".06"/></linearGradient></defs>
                 <path class="layer-spine" d="M100 120V368M500 120V368"/>
+                <g class="engine-signals">
+                  <path data-signal="board" d="M140 119 300 39 460 119 300 199Z"/>
+                  <path data-signal="evaluate" d="M236 182 284 134 332 182 284 230Z"/>
+                  <path data-signal="search" d="M300 190 236 222 196 247M300 190 364 222 404 247"/>
+                  <path data-signal="move" d="m260 336 28 16 65-33"/>
+                </g>
                 <g class="engine-layer" data-layer="move"><path class="layer-plate" d="M100 320 300 220 500 320 300 420Z"/><path class="output-path" d="m260 336 28 16 65-33"/><circle class="layer-node" cx="300" cy="370" r="5"/></g>
                 <g class="engine-layer" data-layer="search"><path class="layer-plate" d="M100 253 300 153 500 253 300 353Z"/><path class="tree-lines" d="m300 190-64 32m64-32 64 32m-128 0-40 25m40-25 32 25m96-25-32 25m32-25 40 25"/><g class="layer-dots"><circle cx="300" cy="190" r="5"/><circle cx="236" cy="222" r="4"/><circle cx="364" cy="222" r="4"/><circle cx="196" cy="247" r="3"/><circle cx="268" cy="247" r="3"/><circle cx="332" cy="247" r="3"/><circle cx="404" cy="247" r="3"/></g></g>
                 <g class="engine-layer" data-layer="evaluate"><path class="layer-plate" d="M100 186 300 86 500 186 300 286Z"/><path class="network-lines" d="m236 182 48-48 48 48-48 48Zm0 0h96m-48-48v96m-64-24 112-72m-96 0 112 72"/><g class="layer-dots"><circle cx="236" cy="182" r="4"/><circle cx="284" cy="134" r="4"/><circle cx="332" cy="182" r="4"/><circle cx="284" cy="230" r="4"/><circle cx="220" cy="206" r="3"/><circle cx="236" cy="134" r="3"/><circle cx="332" cy="134" r="3"/><circle cx="348" cy="206" r="3"/></g></g>
@@ -132,6 +138,7 @@
                 <g class="map-grid"><path d="M80 80H520V560H80ZM80 180H520M80 280H520M80 380H520M80 480H520M180 80V560M280 80V560M380 80V560M480 80V560"/></g>
                 <g class="map-orbits"><ellipse cx="300" cy="320" rx="220" ry="126" transform="rotate(-25 300 320)"/><ellipse cx="300" cy="320" rx="154" ry="246" transform="rotate(35 300 320)"/></g>
                 <g class="map-links"><path data-link="wumu" d="M300 320 160 160M300 320 468 178M300 320 452 464M300 320 132 442"/><path data-link="rapfi" d="M160 160 300 320"/><path data-link="networks" d="M468 178 300 320"/><path data-link="build" d="M452 464 300 320"/><path data-link="font" d="M132 442 300 320"/></g>
+                <g class="map-signals"><path data-signal="wumu" d="M300 320 160 160M300 320 468 178M300 320 452 464M300 320 132 442"/><path data-signal="rapfi" d="M160 160 300 320"/><path data-signal="networks" d="M468 178 300 320"/><path data-signal="build" d="M452 464 300 320"/><path data-signal="font" d="M132 442 300 320"/></g>
                 <circle class="map-core-halo" cx="300" cy="320" r="74"/>
                 <circle class="map-core" cx="300" cy="320" r="38"/>
                 <circle class="map-core-inner" cx="300" cy="320" r="8"/>
