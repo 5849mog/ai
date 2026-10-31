@@ -136,6 +136,8 @@ npm run benchmark:strength -- --resume
 
 可用 `--position-budgets=100,500,1000`、`--match-budgets=100,500`、`--openings=4` 和 `--output=...` 调整规模。默认结果见 [固定局面与配对棋力基线](reports/strength-baseline-v1.md)。
 
+关于页的「查看测试报告」打开 `report.html`。页面在打开、手动刷新、重新可见及前台每 60 秒读取同源 `reports/strength-baseline-v1-summary.json`，以 `no-store` 请求最新发布数据；Service Worker 不缓存报告 JSON。加载失败会显示错误，已有数据时保留上一次成功结果。界面数据校验、缓存策略和真实触屏／刷新流程可用 `npm run test:report` 与 `npm test` 验证。
+
 后台思考对照及自适应配对赛仍由 `package.json` 中的其它 benchmark / report 命令运行，长测试支持 `--resume`。它们检验有限样本下相对表现，不能推导真人胜率或通用 Elo。原始记录与源码 / 权重哈希保存在 `reports/`；参考 [后台思考报告](reports/ponder-benchmark.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [旧版完整验收](reports/validation.md)。界面调整不需要重跑全部棋力对战。
 
 ## 开源许可

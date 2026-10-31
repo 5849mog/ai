@@ -82,6 +82,16 @@ test('simple navigation shares the shell; the recovery page bypasses its cached 
   assert.equal(await (await f.request('update.html')).text(), 'fresh:' + base + 'update.html');
   assert.equal(f.network.at(-1).options.cache, 'no-store');
 });
+test('published report data always bypasses shell caches and uses no-store network requests', async () => {
+  const f = fixture(); await f.dispatch('install');
+  const path = 'reports/strength-baseline-v1-summary.json';
+  const shell = await f.caches.open(f.VERSION); await shell.put(base + path, new Response('stale report'));
+  const requestPath = path + '?_=12345';
+  assert.equal(await (await f.request(requestPath)).text(), 'fresh:' + base + requestPath);
+  assert.equal(f.network.at(-1).options.cache, 'no-store');
+  assert.equal(f.CORE.some(item => item.startsWith('reports/')), false);
+});
+
 test('storage quota failures do not discard a successfully downloaded online engine response', async () => {
   const f = fixture({ enginePutError: true });
   assert.equal(await (await f.request(f.ENGINE + 'engine.wasm')).text(), 'fresh:' + base + f.ENGINE + 'engine.wasm');
