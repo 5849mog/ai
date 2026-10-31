@@ -91,6 +91,7 @@ test('published report data always bypasses shell caches and uses no-store netwo
   assert.equal(f.network.at(-1).options.cache, 'no-store');
   assert.equal(f.CORE.some(item => item.startsWith('reports/')), false);
 });
+
 test('storage quota failures do not discard a successfully downloaded online engine response', async () => {
   const f = fixture({ enginePutError: true });
   assert.equal(await (await f.request(f.ENGINE + 'engine.wasm')).text(), 'fresh:' + base + f.ENGINE + 'engine.wasm');
