@@ -125,7 +125,18 @@ npm run build:engine
 
 ## 棋力与历史验证
 
-棋力基准、后台思考对照及自适应配对赛仍由 `package.json` 中的 benchmark / report 命令运行，长测试支持 `--resume`。它们检验有限样本下相对表现，不能推导真人胜率或通用 Elo。原始记录与源码 / 权重哈希保存在 `reports/`；参考 [后台思考报告](reports/ponder-benchmark.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [旧版完整验收](reports/validation.md)。界面调整不需要重跑全部棋力对战。
+统一棋力基线使用真实单线程 SIMD WASM，先运行独立穷举校验的固定战术题，再对固定三手开局交换执色进行不同时间预算的自动配对赛。输出包括解题／杀棋成功率、胜负和、得分率、深度、节点数及墙钟耗时；源码、引擎和局面均记录 SHA-256，报告生成时逐题、逐手复核。
+
+```sh
+npm run benchmark:strength
+npm run report:strength
+# 中断后沿用同一输出文件续跑；配置或源码身份不同会拒绝续跑
+npm run benchmark:strength -- --resume
+```
+
+可用 `--position-budgets=100,500,1000`、`--match-budgets=100,500`、`--openings=4` 和 `--output=...` 调整规模。默认结果见 [固定局面与配对棋力基线](reports/strength-baseline-v1.md)。
+
+后台思考对照及自适应配对赛仍由 `package.json` 中的其它 benchmark / report 命令运行，长测试支持 `--resume`。它们检验有限样本下相对表现，不能推导真人胜率或通用 Elo。原始记录与源码 / 权重哈希保存在 `reports/`；参考 [后台思考报告](reports/ponder-benchmark.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [旧版完整验收](reports/validation.md)。界面调整不需要重跑全部棋力对战。
 
 ## 开源许可
 

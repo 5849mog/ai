@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "appVersion": "2026.10.30.1",
+  "sourceCommit": "7fb453988d0ca107f2aeb969a08719b5963e1a1b",
+  "startedAt": "2026-10-30T13:35:06.919Z",
+  "finishedAt": "2026-10-30T13:38:30.988Z",
+  "complete": true,
+  "positionRuns": [
+    { "fixtureId": "vcf-two-attacks-r0-normal", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r0-normal", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r0-normal", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r1-normal", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r1-normal", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r1-normal", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r2-normal", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r2-normal", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r2-normal", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r3-normal", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r3-normal", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r3-normal", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r0-mirror", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r0-mirror", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r0-mirror", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r1-mirror", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r1-mirror", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r1-mirror", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r2-mirror", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r2-mirror", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r2-mirror", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r3-mirror", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r3-mirror", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "vcf-two-attacks-r3-mirror", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "open-four-fork", "budgetMs": 1000, "index": 109, "correct": true },
+    { "fixtureId": "open-four-fork", "budgetMs": 100, "index": 109, "correct": true },
+    { "fixtureId": "open-four-fork", "budgetMs": 500, "index": 109, "correct": true },
+    { "fixtureId": "two-closed-fours", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "two-closed-fours", "budgetMs": 500, "index": 112, "correct": true },
+    { "fixtureId": "two-closed-fours", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "defend-before-attack", "budgetMs": 500, "index": 38, "correct": true },
+    { "fixtureId": "defend-before-attack", "budgetMs": 1000, "index": 38, "correct": true },
+    { "fixtureId": "defend-before-attack", "budgetMs": 100, "index": 38, "correct": true },
+    { "fixtureId": "take-win-before-block", "budgetMs": 1000, "index": 112, "correct": true },
+    { "fixtureId": "take-win-before-block", "budgetMs": 100, "index": 112, "correct": true },
+    { "fixtureId": "take-win-before-block", "budgetMs": 500, "index": 112, "correct": true }
+  ],
+  "games": [
+    { "id": "opening-01-long-black", "openingId": "opening-01", "longColor": 1, "winner": 1, "plies": 24 },
+    { "id": "opening-01-long-white", "openingId": "opening-01", "longColor": 2, "winner": 1, "plies": 32 },
+    { "id": "opening-02-long-black", "openingId": "opening-02", "longColor": 1, "winner": 1, "plies": 22 },
+    { "id": "opening-02-long-white", "openingId": "opening-02", "longColor": 2, "winner": 1, "plies": 56 },
+    { "id": "opening-03-long-black", "openingId": "opening-03", "longColor": 1, "winner": 1, "plies": 34 },
+    { "id": "opening-03-long-white", "openingId": "opening-03", "longColor": 2, "winner": 2, "plies": 73 },
+    { "id": "opening-04-long-black", "openingId": "opening-04", "longColor": 1, "winner": 1, "plies": 28 },
+    { "id": "opening-04-long-white", "openingId": "opening-04", "longColor": 2, "winner": 3, "plies": 222 }
+  ],
+  "summary": {
+    "positions": {
+      "100": { "cases": 12, "solved": 12, "successRate": 1, "mateCases": 11, "mateSolved": 11, "byKind": { "block": { "cases": 1, "solved": 1, "successRate": 1 }, "vcf": { "cases": 10, "solved": 10, "successRate": 1 }, "win": { "cases": 1, "solved": 1, "successRate": 1 } }, "search": { "searches": 12, "meanWallMs": 42.74819733333347, "medianWallMs": 54.222945000000436, "p90WallMs": 57.738481999999976, "maxWallMs": 70.75110099999984, "meanEngineMs": 39.72727272727273, "totalNodes": null, "meanNodes": 8353.727272727272, "meanDepth": 22.727272727272727, "completeNodeStats": false } },
+      "500": { "cases": 12, "solved": 12, "successRate": 1, "mateCases": 11, "mateSolved": 11, "byKind": { "block": { "cases": 1, "solved": 1, "successRate": 1 }, "vcf": { "cases": 10, "solved": 10, "successRate": 1 }, "win": { "cases": 1, "solved": 1, "successRate": 1 } }, "search": { "searches": 12, "meanWallMs": 69.37272949999993, "medianWallMs": 57.93245899999965, "p90WallMs": 63.815158999999994, "maxWallMs": 352.79163100000005, "meanEngineMs": 75, "totalNodes": null, "meanNodes": 16011.90909090909, "meanDepth": 25.363636363636363, "completeNodeStats": false } },
+      "1000": { "cases": 12, "solved": 12, "successRate": 1, "mateCases": 11, "mateSolved": 11, "byKind": { "block": { "cases": 1, "solved": 1, "successRate": 1 }, "vcf": { "cases": 10, "solved": 10, "successRate": 1 }, "win": { "cases": 1, "solved": 1, "successRate": 1 } }, "search": { "searches": 12, "meanWallMs": 102.24166041666666, "medianWallMs": 59.24904800000013, "p90WallMs": 60.458709, "maxWallMs": 751.0981339999998, "meanEngineMs": 111.0909090909091, "totalNodes": null, "meanNodes": 22684.272727272728, "meanDepth": 25.727272727272727, "completeNodeStats": false } }
+    },
+    "matches": { "games": 8, "wins": 5, "draws": 1, "losses": 2, "points": 5.5, "winRate": 0.625, "scoreRate": 0.6875 },
+    "search": {
+      "short": { "searches": 245, "meanWallMs": 60.71792633877575, "medianWallMs": 67.22123600001214, "p90WallMs": 79.75088399999368, "maxWallMs": 91.90938599999936, "meanEngineMs": 40.267489711934154, "totalNodes": null, "meanNodes": 4706.115226337449, "meanDepth": 14.765432098765432, "completeNodeStats": false },
+      "long": { "searches": 246, "meanWallMs": 370.67864276422716, "medianWallMs": 418.06342900000163, "p90WallMs": 477.90675700000065, "maxWallMs": 494.1416179999942, "meanEngineMs": 272.8381742738589, "totalNodes": null, "meanNodes": 30292.89211618257, "meanDepth": 19.53112033195021, "completeNodeStats": false }
+    }
+  }
+}
