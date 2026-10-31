@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="五目引擎测试报告：从云端读取最新棋力基准，查看固定局面、时间预算、节点、耗时与自动对战结果。" />
+    <meta name="theme-color" content="#101612" />
+    <title>引擎测试报告 · 五目</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=23" />
+    <link rel="stylesheet" href="./report.css?v=1" />
+    <script type="module" src="./report.js?v=1"></script>
+  </head>
+  <body class="report-page">
+    <a class="report-skip" href="#reportMain">跳到报告正文</a>
+    <header class="report-header">
+      <a class="report-brand" href="./" aria-label="五目，回到棋盘"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>五目</span></a>
+      <nav aria-label="报告章节"><a href="#positions">固定局面</a><a href="#matches">自动对战</a><a href="#method">测试方法</a></nav>
+      <a class="report-back" href="./about.html">返回关于<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a>
+    </header>
+
+    <main id="reportMain">
+      <section class="report-hero" aria-labelledby="reportTitle">
+        <div class="report-grid-field" aria-hidden="true"></div>
+        <div class="report-hero-copy">
+          <p class="report-eyebrow">WUMU / ENGINE FIELD NOTES <span>NO. <b id="reportNumber">—</b></span></p>
+          <h1 id="reportTitle">棋力，<br /><em>交给证据。</em></h1>
+          <p class="report-intro">不是一句“更强”，而是一组可重放的局面、一条条真实搜索记录，以及交换执色后的完整对局。</p>
+          <div class="report-actions">
+            <button class="refresh-button" id="refreshReport" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M6.1 9A7 7 0 0 1 18 6.2L20 11M4 13l2 4.8A7 7 0 0 0 17.9 15" /></svg><span>刷新云端数据</span></button>
+            <a class="raw-link" href="./reports/strength-baseline-v1-summary.json" target="_blank" rel="noopener">原始 JSON<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a>
+          </div>
+          <div class="cloud-status" id="cloudStatus" data-state="loading" role="status" aria-live="polite"><i aria-hidden="true"></i><span id="cloudStatusText">正在连接云端报告…</span></div>
+        </div>
+
+        <div class="proof-instrument" aria-label="固定局面运行结果">
+          <span class="instrument-corner corner-a" aria-hidden="true"></span><span class="instrument-corner corner-b" aria-hidden="true"></span>
+          <p>PROOF INSTRUMENT <span>LIVE / CLOUD</span></p>
+          <div class="proof-dial">
+            <svg viewBox="0 0 280 280" aria-hidden="true">
+              <path class="dial-cross" d="M140 8V42M140 238V272M8 140H42M238 140H272" />
+              <circle class="dial-track" cx="140" cy="140" r="102" />
+              <circle class="dial-progress" id="dialProgress" cx="140" cy="140" r="102" pathLength="100" />
+              <circle class="dial-inner" cx="140" cy="140" r="78" />
+            </svg>
+            <div><strong id="heroSolved">—</strong><span>正确局面运行</span><small id="heroRuns">等待云端数据</small></div>
+          </div>
+          <footer><span id="heroComplete">校验中</span><span id="heroFinished">—</span></footer>
+        </div>
+      </section>
+
+      <section class="report-ledger" aria-label="报告核心指标">
+        <div><span>固定局面</span><strong id="ledgerCases">—</strong><small id="ledgerFixtures">—</small></div>
+        <div><span>配对赛得分率</span><strong id="ledgerScore">—</strong><small>长预算方 · 和棋计半分</small></div>
+        <div><span>完整对局</span><strong id="ledgerGames">—</strong><small>固定开局 · 交换执色</small></div>
+        <div><span>报告版本</span><strong class="ledger-version" id="ledgerVersion">—</strong><small id="ledgerCommit">源码提交 —</small></div>
+      </section>
+
+      <div class="report-loading" id="reportLoading" role="status"><i aria-hidden="true"></i><p>正在获取并校验最新报告</p><span>数据不会在页面中预置</span></div>
+      <div class="report-error" id="reportError" role="alert" hidden><div><strong>这次没有连上云端。</strong><p id="reportErrorText">请检查网络后重试。</p></div><button type="button" id="retryReport">重新获取</button></div>
+
+      <div id="reportContent" hidden>
+        <section class="report-section positions-section" id="positions" aria-labelledby="positionsTitle">
+          <header class="section-heading"><p>01 / FIXED POSITIONS</p><div><h2 id="positionsTitle">同一局面，<br />不同思考预算。</h2><p>固定题目由独立校验器证明答案，再交给真实 Rapfi WASM 搜索。下表直接来自本次云端报告。</p></div></header>
+          <div class="budget-grid" id="budgetGrid"></div>
+          <div class="table-block">
+            <div class="table-caption"><div><span>POSITION LEDGER</span><h3>逐题运行记录</h3></div><p>坐标采用 15 路棋盘记法；正确答案由题目证明器确认。</p></div>
+            <div class="table-scroll" tabindex="0" aria-label="逐题运行记录，可横向滚动"><table><thead><tr><th>局面</th><th>预算</th><th>引擎落点</th><th>结果</th></tr></thead><tbody id="positionRows"></tbody></table></div>
+          </div>
+        </section>
+
+        <section class="report-section matches-section" id="matches" aria-labelledby="matchesTitle">
+          <header class="section-heading"><p>02 / PAIRED MATCHES</p><div><h2 id="matchesTitle">交换黑白，<br />再谈胜负。</h2><p>每个固定三手开局进行两盘对局，长短预算交换执色。比分描述这组样本，不被包装成通用 Elo。</p></div></header>
+          <div class="match-overview">
+            <div class="match-score"><span>LONG BUDGET / SCORE RATE</span><strong id="matchScore">—</strong><p id="matchRecord">—</p></div>
+            <div class="match-composition"><div class="result-ribbon" id="resultRibbon" aria-label="胜、和、负占比"></div><dl><div><dt>胜</dt><dd id="matchWins">—</dd></div><div><dt>和</dt><dd id="matchDraws">—</dd></div><div><dt>负</dt><dd id="matchLosses">—</dd></div></dl></div>
+          </div>
+          <div class="match-search" id="matchSearch"></div>
+          <div class="table-block dark-table">
+            <div class="table-caption"><div><span>GAME LEDGER</span><h3>逐盘对局</h3></div><p id="matchBudgetLabel">长短预算以报告元数据为准。</p></div>
+            <div class="table-scroll" tabindex="0" aria-label="逐盘对局记录，可横向滚动"><table><thead><tr><th>开局</th><th>长预算执色</th><th>终局</th><th>手数</th><th>样本结果</th></tr></thead><tbody id="gameRows"></tbody></table></div>
+          </div>
+        </section>
+
+        <section class="report-section method-section" id="method" aria-labelledby="methodTitle">
+          <header class="section-heading"><p>03 / METHOD &amp; LIMITS</p><div><h2 id="methodTitle">数字有出处，<br />结论有边界。</h2><p>基准直接复用发布引擎、协议和权重。报告生成器会复核源码与资产摘要，并逐题、逐手重放记录。</p></div></header>
+          <div class="method-grid">
+            <dl class="identity-ledger">
+              <div><dt>引擎与权重</dt><dd id="methodEngine">—</dd></div>
+              <div><dt>运行配置</dt><dd id="methodRuntime">—</dd></div>
+              <div><dt>规则</dt><dd id="methodRule">—</dd></div>
+              <div><dt>测试起止</dt><dd id="methodTime">—</dd></div>
+              <div><dt>源码提交</dt><dd><a id="methodCommit" href="https://github.com/5849mog/ai" target="_blank" rel="noopener">—</a></dd></div>
+            </dl>
+            <aside class="limits-note"><span>READ BEFORE CITING</span><h3>这份报告能说明什么？</h3><p>它说明引擎在这组固定题目和有限配对赛中的实际表现。它不能推导真人胜率、通用 Elo、统计显著提升或完备求解能力。</p><p>时间预算搜索存在非确定性，设备性能也会影响节点数与耗时。重复运行时，结果可能变化。</p></aside>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="report-footer"><a href="./about.html">关于五目</a><p>真实引擎 · 真实记录 · 描述性结果</p><a href="./">回到棋盘<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></footer>
+    <noscript><div class="report-noscript">报告需要 JavaScript 从云端获取并渲染数据。你也可以直接查看 <a href="./reports/strength-baseline-v1-summary.json">原始 JSON</a>。</div></noscript>
+  </body>
+</html>
