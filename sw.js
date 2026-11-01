@@ -1,7 +1,7 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.10.31.1";
-const VERSION = PREFIX + "261031-v52";
+const RELEASE = "2026.11.01.1";
+const VERSION = PREFIX + "261101-v53";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -13,6 +13,7 @@ CORE.push("turn-hints.js", "engine.js?v=42", "engine.worker.js?v=42", "engine-jo
 CORE.push("remote-engine.js", "remote-engine.js?v=45", "remote-engine.js?v=46", "remote-engine-ui.js", "remote-engine-ui.js?v=45", "remote-engine-ui.js?v=46", "remote-engine.css");
 CORE.push("opening.css?v=6", "enhancements.css?v=48");
 CORE.push("opening.css?v=7", "enhancements.css?v=49", "styles.css?v=23", "game-modes.css?v=6", "sound.js");
+CORE.push("enhancements.css?v=50", "game-motion.js");
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
 CORE.push("game-modes.css?v=2", "game-modes.css?v=3", "game-modes.css?v=4", "renju.html", "opening.css", "opening.css?v=1", "opening.css?v=2", "opening.css?v=3", "opening-session.js", "opening-flow.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",

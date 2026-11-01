@@ -68,3 +68,75 @@
   .simple-quick-tools p { display: none; }
   .simple-quick-tools button { min-height: 34px; padding: 3px 5px; font-size: 12px; }
 }
+
+/* State-driven game motion. Only transforms and opacity run continuously;
+   transient stone effects are recreated from board diffs, never accumulated. */
+.board-svg .last-ring { transform-box: fill-box; transform-origin: center; animation: lastMoveBreathe 2.8s ease-in-out infinite; }
+.board-svg .hover-stone { transform-box: fill-box; transform-origin: center; animation: previewArrive 150ms ease-out; }
+.board-svg .pending-stone { transform-box: fill-box; transform-origin: center; animation: pendingSettle 260ms cubic-bezier(.2,.75,.25,1); }
+.board-svg .pending-ring { stroke-dasharray: 3 2; transform-box: fill-box; transform-origin: center; animation: pendingOrbit 5s linear infinite; }
+.aim-guides line { stroke-dasharray: 5 4; animation: guideArrive 260ms ease-out; }
+.recommendation-marker, .turn-hint, .opening-proposal { transform-box: fill-box; transform-origin: center; animation: candidateArrive 360ms cubic-bezier(.16,.78,.28,1) backwards; }
+.recommendation-marker[data-rank="2"], .turn-hint[data-rank="2"] { animation-delay: 65ms; }
+.turn-hint[data-rank="3"] { animation-delay: 130ms; }
+.answer-ring { transform-box: fill-box; transform-origin: center; animation: answerReveal 900ms cubic-bezier(.2,.7,.25,1); }
+.winning-connector { stroke-dasharray: 1; stroke-dashoffset: 1; animation: victoryDraw 720ms cubic-bezier(.3,.7,.25,1) 100ms forwards; }
+.winning-ring { transform-box: fill-box; transform-origin: center; animation: victoryStone 580ms cubic-bezier(.16,.8,.3,1) backwards; animation-delay: calc(260ms + var(--win-order, 0) * 70ms); }
+.impact-ring, .impact-flash { pointer-events: none; }
+.impact-ring { fill: none; stroke: #f9efd5; stroke-width: 1.8; vector-effect: non-scaling-stroke; }
+.impact-ring.white { stroke: #8f7050; }
+.impact-flash { fill: #fff7dc; mix-blend-mode: screen; }
+.removed-stone { pointer-events: none; }
+#stateText { display: inline-block; transform-origin: left center; }
+.state-indicator { position: relative; }
+.state-indicator::before, .state-indicator::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; }
+.state-indicator.thinking::before { inset: -6px; border: 1px solid #c4874638; animation: thinkingHalo 1.8s ease-in-out infinite; }
+.state-indicator.thinking::after { inset: -4px; border: 1px solid transparent; border-top-color: #b16e32; border-right-color: #b16e3266; animation: thinkingOrbit 1.4s linear infinite; }
+.board-toolbar { position: relative; }
+.board-toolbar::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 0; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent, #b8793c, transparent); opacity: 0; transform: scaleX(.18); transform-origin: left; }
+html[data-game-phase="thinking"] .board-toolbar::after { animation: searchSweep 2.2s cubic-bezier(.45,0,.55,1) infinite; }
+.board-frame::after { content: ""; position: absolute; z-index: 2; inset: -5px; border: 1px solid transparent; border-radius: 11px; opacity: 0; pointer-events: none; }
+.board-frame[data-motion-phase="thinking"]::after { border-color: #b27a4266; animation: boardThinking 2.2s ease-in-out infinite; }
+.board-frame[data-motion-phase="finished"]::after { border-color: #a840327d; animation: victoryFrame 1.4s ease-out; }
+html[data-game-phase="paused"] .state-indicator { background: #8b826f; box-shadow: 0 0 0 4px #8b826f1a; }
+html[data-game-phase="error"] .state-indicator { background: var(--accent); }
+.recommendation-legend:not([hidden]) { animation: legendArrive 260ms ease-out; }
+.win-rate-bar > span { transition: width 620ms cubic-bezier(.22,.72,.24,1); }
+.win-rate-labels strong { display: inline-block; transition: color 240ms, transform 240ms; }
+.position-analysis[data-state="rated"] .win-rate-labels strong { animation: rateSettle 360ms ease-out; }
+.trend-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: trendDraw 560ms ease-out forwards; }
+.trend-area { animation: trendWashIn 480ms ease-out; }
+.trend-current { transform-box: fill-box; transform-origin: center; animation: trendPointIn 360ms cubic-bezier(.2,.8,.3,1); }
+.trend-halo { transform-box: fill-box; transform-origin: center; animation: trendHalo 2.8s ease-in-out infinite; }
+.game-notice:not([hidden]), .simple-notice:not([hidden]) { animation: noticeArrive 240ms ease-out; }
+.icon-button svg { transition: transform 220ms cubic-bezier(.2,.7,.25,1); }
+.icon-button:hover:not(:disabled) svg { transform: translateY(-1px); }
+.icon-button:active:not(:disabled) svg { transform: translateY(1px) scale(.96); }
+@keyframes lastMoveBreathe { 0%, 100% { opacity: .78; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.16); } }
+@keyframes previewArrive { from { opacity: 0; transform: scale(.72); } to { opacity: .3; transform: scale(1); } }
+@keyframes pendingSettle { from { opacity: .15; transform: translateY(-5px) scale(1.08); } to { opacity: .62; transform: translateY(0) scale(1); } }
+@keyframes pendingOrbit { to { transform: rotate(360deg); } }
+@keyframes guideArrive { from { opacity: 0; stroke-dashoffset: 12; } to { opacity: .8; stroke-dashoffset: 0; } }
+@keyframes candidateArrive { from { opacity: 0; transform: translateY(-5px) scale(.72); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes answerReveal { 0% { opacity: 0; transform: scale(.65); } 45% { opacity: 1; transform: scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes victoryDraw { to { stroke-dashoffset: 0; } }
+@keyframes victoryStone { from { opacity: 0; transform: scale(.45); } 65% { opacity: 1; transform: scale(1.16); } to { opacity: .85; transform: scale(1); } }
+@keyframes thinkingOrbit { to { transform: rotate(360deg); } }
+@keyframes thinkingHalo { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes searchSweep { 0% { opacity: 0; transform: translateX(0) scaleX(.18); } 25% { opacity: .75; } 75% { opacity: .75; } 100% { opacity: 0; transform: translateX(82%) scaleX(.18); } }
+@keyframes boardThinking { 0%, 100% { opacity: .12; transform: scale(.997); } 50% { opacity: .65; transform: scale(1.003); } }
+@keyframes victoryFrame { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: .35; } }
+@keyframes legendArrive { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes rateSettle { from { opacity: .45; transform: translateY(2px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes trendDraw { to { stroke-dashoffset: 0; } }
+@keyframes trendWashIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes trendPointIn { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: scale(1); } }
+@keyframes trendHalo { 0%, 100% { opacity: .45; transform: scale(.75); } 50% { opacity: 1; transform: scale(1.2); } }
+@keyframes noticeArrive { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 600px) {
+  .board-frame::after { inset: -3px; border-radius: 8px; }
+  .board-svg .last-ring { animation-duration: 3.6s; }
+}
+@media (forced-colors: active) {
+  .impact-ring, .impact-flash, .removed-stone, .board-frame::after, .board-toolbar::after { display: none; }
+}

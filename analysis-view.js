@@ -53,7 +53,7 @@ export function createAnalysisView(root) {
         if (group.length > 1) {
           const path = curve(group);
           layer.append(svgNode("path", { d: `${path} L${group.at(-1).x},37 L${group[0].x},37 Z`, class: "trend-area" }),
-            svgNode("path", { d: path, class: "trend-line" }));
+            svgNode("path", { d: path, pathLength: 1, class: "trend-line" }));
         }
         if (group.length === 1) layer.append(svgNode("circle", { cx: group[0].x, cy: group[0].y, r: 2, class: "trend-point" }));
       }

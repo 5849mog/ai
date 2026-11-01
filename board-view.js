@@ -12,6 +12,79 @@ function point(index) {
   };
 }
 
+// Compare snapshots rather than object identity: the live game mutates its
+// Uint8Array in place. Bulk restores and color swaps deliberately do not look
+// like a placement, even when the total stone count happens to increase.
+export function boardTransition(before, after, lastMove = -1) {
+  if (!before) return { type: "initial", added: [], removed: [] };
+  const added = [], removed = [];
+  let changed = 0;
+  for (let index = 0; index < after.length; index += 1) {
+    if (before[index] === after[index]) continue;
+    changed += 1;
+    if (!before[index] && after[index]) added.push(index);
+    else if (before[index] && !after[index]) removed.push(index);
+  }
+  if (changed === 1 && added.length === 1 && added[0] === lastMove) return { type: "place", added, removed };
+  if (!added.length && removed.length) return { type: "undo", added, removed };
+  return { type: changed ? "replace" : "none", added, removed };
+}
+
+function motionNode(boardSvg, name, attributes) {
+  const element = boardSvg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", name);
+  for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, String(value));
+  return element;
+}
+
+function animateStonePlacement(boardSvg, index, color) {
+  for (const element of boardSvg.querySelectorAll(`[data-stone="${index}"], [data-stone-texture="${index}"]`)) {
+    element.style.transformBox = "fill-box";
+    element.style.transformOrigin = "center";
+    element.animate?.([
+      { opacity: 0, transform: "translateY(-18px) scale(1.16)", offset: 0 },
+      { opacity: 1, transform: "translateY(1px) scale(1.06,.92)", offset: .52 },
+      { opacity: 1, transform: "translateY(-2px) scale(.985,1.015)", offset: .76 },
+      { opacity: 1, transform: "translateY(0) scale(1)", offset: 1 }
+    ], { duration: 390, easing: "cubic-bezier(.2,.72,.25,1)" });
+  }
+  if (typeof boardSvg.ownerDocument?.createElementNS !== "function") return;
+  const p = point(index);
+  const layer = motionNode(boardSvg, "g", { class: "stone-impact", "data-impact": index, "aria-hidden": "true" });
+  const ring = motionNode(boardSvg, "circle", { cx: p.x, cy: p.y, r: 13, class: `impact-ring ${color === 1 ? "black" : "white"}` });
+  const flash = motionNode(boardSvg, "circle", { cx: p.x, cy: p.y, r: 9, class: "impact-flash" });
+  for (const element of [ring, flash]) { element.style.transformBox = "fill-box"; element.style.transformOrigin = "center"; }
+  if (typeof ring.animate !== "function") return;
+  layer.append(ring, flash); boardSvg.append(layer);
+  const impact = ring.animate([{ opacity: .85, transform: "scale(.55)" }, { opacity: 0, transform: "scale(2.15)" }],
+    { duration: 520, delay: 105, easing: "cubic-bezier(.16,.7,.3,1)", fill: "backwards" });
+  flash.animate?.([{ opacity: .34, transform: "scale(.65)" }, { opacity: 0, transform: "scale(1.8)" }],
+    { duration: 330, delay: 90, easing: "ease-out", fill: "backwards" });
+  impact.finished?.then(() => layer.remove()).catch(() => {});
+}
+
+function animateStoneRemoval(boardSvg, removed, before) {
+  if (typeof boardSvg.ownerDocument?.createElementNS !== "function") return;
+  for (const index of removed.slice(0, 4)) {
+    const p = point(index), color = before[index];
+    const ghost = motionNode(boardSvg, "circle", { cx: p.x + .5, cy: p.y + 1.2, r: 14.3,
+      fill: color === 1 ? "url(#blackStone)" : "url(#whiteStone)", class: "removed-stone", "data-removed-stone": index, "aria-hidden": "true" });
+    ghost.style.transformBox = "fill-box"; ghost.style.transformOrigin = "center";
+    if (typeof ghost.animate !== "function") continue;
+    boardSvg.append(ghost);
+    const animation = ghost.animate([{ opacity: .62, transform: "translateY(0) scale(1)" }, { opacity: 0, transform: "translateY(-9px) scale(.68)" }],
+      { duration: 300, easing: "cubic-bezier(.4,0,.7,.3)", fill: "backwards" });
+    animation.finished?.then(() => ghost.remove()).catch(() => {});
+  }
+}
+
+function animateBoardTransition(boardSvg, transition, state, before) {
+  const reduced = boardSvg.ownerDocument?.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  if (boardSvg.dataset) boardSvg.dataset.boardAction = reduced ? "reduced" : state.motion === "reset" ? "reset" : transition.type;
+  if (reduced || state.motion === "reset" || state.motion === "none") return;
+  if (transition.type === "place") animateStonePlacement(boardSvg, state.lastMove, state.board[state.lastMove]);
+  else if (transition.type === "undo") animateStoneRemoval(boardSvg, transition.removed, before);
+}
+
 export function coordinate(index) {
   const x = index % SIZE;
   const y = Math.floor(index / SIZE);
@@ -64,7 +137,7 @@ function renderBoard(boardSvg, state, idPrefix) {
 
   for (const line of lines) {
     const start = point(line[0]), end = point(line.at(-1));
-    svg += `<line class="winning-connector" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"/>`;
+    svg += `<line class="winning-connector" pathLength="1" x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}"/>`;
   }
   const aiming = Number.isInteger(pendingIndex) && pendingIndex >= 0 && pendingIndex < board.length && !board[pendingIndex] && canInteract && !editable;
   if (aiming) {
@@ -109,9 +182,9 @@ function renderBoard(boardSvg, state, idPrefix) {
         '" role="button" aria-label="' + (editable ? '编辑 ' + coordinate(index) : '选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子')) + '" tabindex="-1"/>';
     }
   }
-  for (const index of new Set(lines.flat())) {
+  for (const [order, index] of [...new Set(lines.flat())].entries()) {
     const p = point(index);
-    svg += `<circle class="winning-ring" data-winning-stone="${index}" cx="${p.x}" cy="${p.y}" r="17"/>`;
+    svg += `<circle class="winning-ring" data-winning-stone="${index}" cx="${p.x}" cy="${p.y}" r="17" style="--win-order:${order}"/>`;
   }
   for (const index of uncertain) if (Number.isInteger(index) && index >= 0 && index < board.length) {
     const p = point(index); svg += `<rect class="uncertain-point" x="${p.x - 18}" y="${p.y - 18}" width="36" height="36" rx="4" data-uncertain="${index}"/>`;
@@ -133,7 +206,7 @@ function renderBoard(boardSvg, state, idPrefix) {
 export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
   if (!/^[a-zA-Z0-9_-]*$/.test(idPrefix)) throw new Error("无效的棋盘标识");
   fitBoardToSlot(boardSvg);
-  let previousKey, previousLastMove, previousOccupied;
+  let previousKey, previousBoard;
   return {
     nearestIntersection(clientX, clientY) {
       return nearestIntersection(boardSvg, clientX, clientY);
@@ -147,19 +220,10 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
         (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color])]);
       if (key === previousKey) return false;
-      const occupied = state.board.reduce((count, point) => count + Boolean(point), 0);
-      const settle = previousOccupied !== undefined && occupied > previousOccupied && state.lastMove !== previousLastMove;
+      const transition = boardTransition(previousBoard, state.board, state.lastMove);
       renderBoard(boardSvg, state, idPrefix);
-      const reduced = boardSvg.ownerDocument?.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-      if (settle && !reduced && typeof boardSvg.querySelectorAll === "function") {
-        const selector = `[data-stone="${state.lastMove}"], [data-stone-texture="${state.lastMove}"]`;
-        for (const element of boardSvg.querySelectorAll(selector)) {
-          if (element.style) { element.style.transformBox = "fill-box"; element.style.transformOrigin = "center"; }
-          element.animate?.([{ opacity: .35, transform: "scale(.94)" }, { opacity: 1, transform: "scale(1)" }],
-            { duration: 150, easing: "cubic-bezier(.2,.75,.25,1)" });
-        }
-      }
-      previousKey = key; previousLastMove = state.lastMove; previousOccupied = occupied; return true;
+      if (typeof boardSvg.querySelectorAll === "function") animateBoardTransition(boardSvg, transition, state, previousBoard);
+      previousKey = key; previousBoard = Array.from(state.board); return true;
     }
   };
 }

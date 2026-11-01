@@ -19,6 +19,7 @@
     "test:records": "node scripts/record-qa.js",
     "test:mobile": "node scripts/mobile-qa.js",
     "test:report": "node scripts/report-qa.js",
+    "test:motion": "node scripts/motion-qa.js",
     "test:analysis": "node scripts/analysis-qa.js",
     "test:board-hints": "node scripts/board-hints-qa.js",
     "test:upgrade": "node scripts/upgrade-qa.js",

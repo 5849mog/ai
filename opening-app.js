@@ -23,7 +23,9 @@ import { adviseAdaptiveOpening } from "./adaptive-opening.js";
 import { APP_VERSION } from "./app-release.js";
 import { TurnHints, HINT_COUNT, HINT_SLICE_MS } from "./turn-hints.js";
 import { createSoundFeedback } from "./sound.js";
+import { createGameMotion } from "./game-motion.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
+const motion = createGameMotion({ root: document.documentElement, board: svg, status: $("#stateText"), frame: svg.closest(".board-frame"), notice: $("#gameNotice") });
 const sound = createSoundFeedback({ storage: localStorage });
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
 const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORAGE}:variety`,
@@ -32,7 +34,7 @@ let session = new OpeningSession({ rule: document.body.dataset.defaultRule || "r
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false, migratedFrom = null;
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let forbiddenInput = null, enhancements;
-let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true;
+let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto";
 const hints = new TurnHints(); let hintsStamp = "";
 const hintUpdates = createScheduledTask(() => render(), 100);
 const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"opening"});
@@ -41,7 +43,7 @@ const statsUpdates = createScheduledTask(renderAnalysis, 100);
 const analysisUpdates = createScheduledTask(persist, 500);
 function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
-  $("#simpleLive").textContent = message; warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
+  $("#simpleLive").textContent = message; motion.announce(); warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
 }
 try {
   const loaded = loadSessionRecord(localStorage, STORAGE), saved = loaded.saved;
@@ -169,7 +171,8 @@ function render() {
       allowedMoves: session.allowedMoves({ safe: true }), enabled: !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose" });
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
-  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden),
+  const requestedBoardMotion = boardMotion; boardMotion = "auto";
+  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: requestedBoardMotion,
     moveHints: hints.points,
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
@@ -209,6 +212,7 @@ function render() {
   }
   renderAnalysis();
   enhancements?.render();
+  motion.render({ text, busy, paused, winner: session.winner, currentColor: session.color, state });
 }
 async function syncPonder() {
   if (busy || modal || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked && hints.points.length || paused || document.hidden || advice || isAutomaticTurn(session)) { engine.stopPonder(); return; }
@@ -241,6 +245,7 @@ function searchFor(token) { return async (options,context={}) => {
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError"); return result;
 }; }
 function commit(event, automatic = false, result = null) {
+  boardMotion = event.type === "stone" ? "move" : "auto";
   const continuation = automatic && event.type === "stone" && ["play", "w6"].includes(session.stage) ? result : null;
   if(continuation?.adaptive)analysis.begin(requestId,session.color);
   if (continuation) analysis.accept({ requestId, sideToMove: session.color, stats: continuation });
@@ -294,9 +299,9 @@ async function place(index) {
   cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
-function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); if(!modal)void prepare(); }
+function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); boardMotion="reset"; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); if(!modal)void prepare(); }
 function restoreArchived(entry) {
-  const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);render();if(!modal)void prepare();return true;
+  const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();boardMotion="reset";session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);render();if(!modal)void prepare();return true;
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
@@ -329,7 +334,7 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
 });
 $("#recommendButton").onclick = recommend;
 $("#simpleRecommendButton").onclick = recommend;
-$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
+$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); boardMotion="undo"; const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
 $("#colorSelect").onchange = () => { cancel({ keepHints: true }); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
