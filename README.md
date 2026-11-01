@@ -19,6 +19,8 @@
 
 声效默认关闭，可在完整界面菜单或简洁界面「更多」中开启；偏好保存在本机浏览器。仅真实落子播放短促的本地合成音效，预览、推荐和后台思考不发声，也不需要下载音频文件。
 
+对局动效由真实局面差异驱动：落子有落下、接触与扩散反馈，悔棋使用撤回残影，候选按次序进入，终局绘制胜利连线。读档和批量恢复不会冒充新落子；持续效果只使用 transform / opacity，系统的「减少动态效果」设置会关闭全部 CSS 与脚本动画。
+
 换手、十打和第五手选案等阶段操作贴在棋盘上沿或侧边，为按钮单独留白，不挡交叉点。「更多」只在展开时临时显示，不挤压棋盘；返回完整界面有明确按钮。新局不再承担隐藏的长按退出操作。
 
 ## 规则与对局方式
@@ -136,7 +138,7 @@ npm run benchmark:strength -- --resume
 
 可用 `--position-budgets=100,500,1000`、`--match-budgets=100,500`、`--openings=4` 和 `--output=...` 调整规模。默认结果见 [固定局面与配对棋力基线](reports/strength-baseline-v1.md)。
 
-关于页的「查看测试报告」打开 `report.html`。页面在打开、手动刷新、重新可见及前台每 60 秒读取同源 `reports/strength-baseline-v1-summary.json`，以 `no-store` 请求最新发布数据；Service Worker 不缓存报告 JSON。加载失败会显示错误，已有数据时保留上一次成功结果。界面数据校验、缓存策略和真实触屏／刷新流程可用 `npm run test:report` 与 `npm test` 验证。
+关于页的「查看测试报告」打开 `report.html`。页面在打开、手动刷新、重新可见及前台每 60 秒读取同源 `reports/strength-baseline-v1-summary.json`，以 `no-store` 请求最新发布数据；Service Worker 不缓存报告 JSON。加载失败会显示错误，已有数据时保留上一次成功结果。界面数据校验、缓存策略和真实触屏／刷新流程可用 `npm run test:report` 与 `npm test` 验证。对局动效的状态差异、减弱动态及真实桌面／手机验收使用 `npm run test:motion`。
 
 后台思考对照及自适应配对赛仍由 `package.json` 中的其它 benchmark / report 命令运行，长测试支持 `--resume`。它们检验有限样本下相对表现，不能推导真人胜率或通用 Elo。原始记录与源码 / 权重哈希保存在 `reports/`；参考 [后台思考报告](reports/ponder-benchmark.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [旧版完整验收](reports/validation.md)。界面调整不需要重跑全部棋力对战。
 
