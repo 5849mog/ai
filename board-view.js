@@ -1,5 +1,6 @@
 import { SIZE, winningLines } from "./game-rules.js";
 import { fitBoardToSlot } from "./board-layout.js";
+import { syncSvgChildren } from "./svg-view.js";
 
 const PAD = 46;
 const STEP = 528 / (SIZE - 1);
@@ -150,44 +151,51 @@ function renderBoard(boardSvg, state, idPrefix) {
       svg += '<circle data-stone="' + index + '" data-color="' + board[index] + '" cx="' + (p.x + .5) + '" cy="' + (p.y + 1.2) + '" r="14.3" fill="' +
         (board[index] === 1 ? "url(#blackStone)" : "url(#whiteStone)") +
         '" stroke="' + (board[index] === 1 ? "rgba(0,0,0,.58)" : "rgba(105,99,86,.36)") +
-        '" stroke-width=".75" filter="url(#stoneShadow)"/>';
+        '" stroke-width=".75" filter="url(#stoneShadow)" data-view-key="stone-' + index + '"/>';
       const stoneTexture = "./assets/stone-satin.svg";
       const stoneTone = board[index] === 1 ? "black" : "white";
       svg += '<image class="stone-texture ' + stoneTone + '" data-stone-texture="' + index + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
-        '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none"/>';
-      if (index === lastMove) svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3"/>';
+        '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none" data-view-key="texture-' + index + '"/>';
+      if (index === lastMove) svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3" data-view-key="last-' + index + '"/>';
       if (!editable) continue;
     }
 
     if (!board[index] && hoverIndex === index && pendingIndex !== index && canInteract) {
-      svg += '<circle class="hover-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
+      svg += '<circle class="hover-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '" data-view-key="hover-' + index + '"/>';
     }
     if (!board[index] && pendingIndex === index && canInteract) {
-      svg += '<circle class="pending-ring" cx="' + p.x + '" cy="' + p.y + '" r="16"/>';
-      svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '"/>';
+      svg += '<circle class="pending-ring" cx="' + p.x + '" cy="' + p.y + '" r="16" data-view-key="pending-ring-' + index + '"/>';
+      svg += '<circle class="pending-stone" cx="' + p.x + '" cy="' + p.y + '" r="12.3" fill="' + previewFill + '" data-view-key="pending-' + index + '"/>';
     }
-    const rank = recommendations.slice(0, 2).findIndex(move => move.index === index);
-    if (rank >= 0) {
+    if (canInteract) {
+      svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
+        '" role="button" aria-label="' + (editable ? '编辑 ' + coordinate(index) : '选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子')) + '" tabindex="-1" data-view-key="hit-' + index + '"/>';
+    }
+  }
+  // Rank order stays fixed even when candidates cross on the board. Updating a
+  // coordinate must not detach a marker or restart its entrance animation.
+  for (const [rank, move] of recommendations.slice(0, 2).entries()) {
+    const index = move.index;
+    if (Number.isInteger(index) && index >= 0 && index < board.length && !board[index]) {
+      const p = point(index);
       svg += '<g class="recommendation-marker ' + (rank === 0 ? 'first' : 'second') + '" data-recommendation="' + index + '" data-rank="' + (rank + 1) + '" aria-label="' + (rank === 0 ? '首选 ' : '次选 ') + coordinate(index) + '">';
       svg += '<circle class="recommendation-ring" cx="' + p.x + '" cy="' + p.y + '" r="14"/>';
       svg += '<text class="recommendation-number" x="' + p.x + '" y="' + p.y + '">' + (rank + 1) + '</text></g>';
     }
-    const hint = moveHints.slice(0, 3).find(move => move.index === index);
-    if (hint && !editable && !board[index] && !recommendations.length) {
-      const rank = moveHints.indexOf(hint) + 1;
+  }
+  for (const [order, hint] of moveHints.slice(0, 3).entries()) {
+    const index = hint.index;
+    if (Number.isInteger(index) && index >= 0 && index < board.length && !editable && !board[index] && !recommendations.length) {
+      const p = point(index), rank = order + 1;
       svg += `<g class="turn-hint hint-${rank}" data-hint="${index}" data-rank="${rank}" data-color="${hint.color}" role="img" aria-label="${hint.color === 1 ? "黑" : "白"}棋下一手候选 ${rank} ${coordinate(index)}"><title>${hint.color === 1 ? "黑" : "白"}棋下一手 · 候选 ${rank}</title><circle cx="${p.x}" cy="${p.y}" r="11.5"/><text class="turn-hint-number" x="${p.x}" y="${p.y}">${rank}</text></g>`;
-    }
-    if (canInteract) {
-      svg += '<circle class="hit-target" cx="' + p.x + '" cy="' + p.y + '" r="17" data-index="' + index +
-        '" role="button" aria-label="' + (editable ? '编辑 ' + coordinate(index) : '选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子')) + '" tabindex="-1"/>';
     }
   }
   for (const [order, index] of [...new Set(lines.flat())].entries()) {
     const p = point(index);
-    svg += `<circle class="winning-ring" data-winning-stone="${index}" cx="${p.x}" cy="${p.y}" r="17" style="--win-order:${order}"/>`;
+    svg += `<circle class="winning-ring" data-winning-stone="${index}" cx="${p.x}" cy="${p.y}" r="17" style="--win-order:${order}" data-view-key="winner-${index}"/>`;
   }
   for (const index of uncertain) if (Number.isInteger(index) && index >= 0 && index < board.length) {
-    const p = point(index); svg += `<rect class="uncertain-point" x="${p.x - 18}" y="${p.y - 18}" width="36" height="36" rx="4" data-uncertain="${index}"/>`;
+    const p = point(index); svg += `<rect class="uncertain-point" x="${p.x - 18}" y="${p.y - 18}" width="36" height="36" rx="4" data-uncertain="${index}" data-view-key="uncertain-${index}"/>`;
   }
   const answer = Number.isInteger(answerIndex) && answerIndex === lastMove && Boolean(board[answerIndex]);
   if (answer && !editable) {
@@ -200,7 +208,12 @@ function renderBoard(boardSvg, state, idPrefix) {
       .replace(/url\(#(woodSurface|blackStone|whiteStone|stoneShadow)\)/g, (_, id) => `url(#${idPrefix}${id})`)
       .replace('class="board-surface"', `class="board-surface" style="fill:url(#${idPrefix}woodSurface)"`);
   }
-  boardSvg.innerHTML = svg;
+  if (!boardSvg.children?.length || !boardSvg.ownerDocument?.createElementNS) boardSvg.innerHTML = svg;
+  else {
+    const next = boardSvg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "svg");
+    next.innerHTML = svg;
+    syncSvgChildren(boardSvg, next.children);
+  }
 }
 
 export function createBoardView(boardSvg, { idPrefix = "" } = {}) {

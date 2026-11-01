@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import { boardTransition, createBoardView } from "../board-view.js";
 import { createGameMotion, gamePhase } from "../game-motion.js";
+import { createAnalysisView } from "../analysis-view.js";
+import { readFile } from "node:fs/promises";
 
 const empty = () => new Uint8Array(225);
 
@@ -30,6 +32,94 @@ function boardFixture({ reduced = false } = {}) {
   const state = { board, lastMove: -1, canInteract: true, overlayKey: "test" };
   return { dom, svg, calls, view, board, state };
 }
+
+test("rapid candidate moves and hover updates keep ranks, stones and rings connected", () => {
+  const f = boardFixture();
+  try {
+    f.board[112] = 1;
+    Object.assign(f.state, { lastMove: 112, answerIndex: 112, pendingIndex: 97,
+      moveHints: [110, 111, 113].map(index => ({ index, color: 2 })) });
+    f.view.render(f.state);
+    const markers = [...f.svg.querySelectorAll(".turn-hint")];
+    const numbers = markers.map(marker => marker.querySelector("text"));
+    const rings = [...f.svg.querySelectorAll(".last-ring, .answer-ring, .pending-ring")];
+    const stone = f.svg.querySelector('[data-stone="112"]');
+    const observer = new f.dom.window.MutationObserver(() => {});
+    observer.observe(f.svg, { childList: true, subtree: true });
+    for (let update = 0; update < 24; update += 1) {
+      const indices = update % 2 ? [224, 0, 14] : [14, 224, 0];
+      f.state.moveHints = indices.map(index => ({ index, color: 2 }));
+      f.state.hoverIndex = update % 2 ? 111 : -1;
+      f.view.render(f.state);
+      for (const [rank, marker] of markers.entries()) {
+        assert.equal(f.svg.querySelector(`.turn-hint[data-rank="${rank + 1}"]`), marker);
+        assert.equal(marker.querySelector("text"), numbers[rank]);
+        assert.equal(Number(marker.dataset.hint), indices[rank]);
+        assert.equal(marker.querySelector("circle").getAttribute("cx"), String(46 + indices[rank] % 15 * 528 / 14));
+      }
+    }
+    const stable = [...markers, ...rings, stone];
+    const removed = observer.takeRecords().flatMap(record => [...record.removedNodes]);
+    assert.equal(removed.some(node => stable.some(element => node === element || node.contains(element))), false);
+    for (const element of stable) assert.equal(element.isConnected, true);
+    assert.equal(f.svg.querySelectorAll(".turn-hint").length, 3);
+    assert.equal(f.svg.querySelectorAll(".hit-target").length, 224);
+    f.view.render({ ...f.state, moveHints: [], pendingIndex: -1, answerIndex: -1 });
+    assert.equal(f.svg.querySelectorAll(".turn-hint, .pending-ring, .answer-ring").length, 0);
+    observer.disconnect();
+  } finally { f.dom.window.close(); }
+});
+
+test("recommendation ranks update in place when candidates swap positions", () => {
+  const f = boardFixture();
+  try {
+    f.state.recommendations = [{ index: 110 }, { index: 114 }];
+    f.view.render(f.state);
+    const markers = [...f.svg.querySelectorAll(".recommendation-marker")];
+    f.state.recommendations.reverse(); f.state.canInteract = false;
+    f.view.render(f.state);
+    for (const [rank, marker] of markers.entries()) {
+      assert.equal(f.svg.querySelector(`.recommendation-marker[data-rank="${rank + 1}"]`), marker);
+      assert.equal(Number(marker.dataset.recommendation), f.state.recommendations[rank].index);
+    }
+    assert.equal(f.svg.querySelectorAll(".hit-target").length, 0);
+    f.state.recommendations = []; f.view.render(f.state);
+    assert.equal(f.svg.querySelectorAll(".recommendation-marker").length, 0);
+  } finally { f.dom.window.close(); }
+});
+
+test("live win-rate refinements preserve the curve and current-point animation nodes", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const dom = new JSDOM(html), original = Object.getOwnPropertyDescriptor(globalThis, "document");
+  Object.defineProperty(globalThis, "document", { value: dom.window.document, configurable: true });
+  try {
+    const root = document.querySelector("#positionAnalysis"), view = createAnalysisView(root);
+    const history = [{ ply: 1, winRate: .5 }, { ply: 2, winRate: .6 }];
+    const analysis = { history, moves: [112, 113], playerColor: 1, current: history[1] };
+    view.render(analysis, 0);
+    const stable = [...root.querySelectorAll(".trend-line, .trend-area, .trend-halo, .trend-current")];
+    const beforeY = root.querySelector(".trend-current").getAttribute("cy");
+    const observer = new dom.window.MutationObserver(() => {});
+    observer.observe(root.querySelector("#trendData"), { childList: true, subtree: true });
+    for (let update = 0; update < 24; update += 1) {
+      history[1].winRate = .6 + update / 100;
+      view.render(analysis, 0);
+      for (const element of stable) assert.equal(root.querySelector(`.${element.getAttribute("class")}`), element);
+    }
+    assert.equal(observer.takeRecords().length, 0);
+    assert.notEqual(root.querySelector(".trend-current").getAttribute("cy"), beforeY);
+    assert.equal(root.querySelector("#playerWinRate").textContent, "83%");
+    analysis.moves.push(114); history.push({ ply: 3, winRate: null }); analysis.current = history[2];
+    view.render(analysis, 0);
+    assert.equal(root.querySelector(".trend-halo, .trend-current"), null);
+    analysis.moves = []; history.length = 0; analysis.current = null; view.render(analysis, 0);
+    assert.equal(root.querySelector("#trendData").children.length, 0);
+    observer.disconnect();
+  } finally {
+    original ? Object.defineProperty(globalThis, "document", original) : delete globalThis.document;
+    dom.window.close();
+  }
+});
 
 test("placement and undo get separate bounded effects; hover redraws do not replay placement", () => {
   const f = boardFixture();

@@ -1,4 +1,5 @@
 import { describePosition, trendGeometry } from "./position-analysis.js";
+import { syncSvgChildren } from "./svg-view.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const svgNode = (name, attributes) => {
@@ -48,20 +49,21 @@ export function createAnalysisView(root) {
       fill.style.width = known ? `${percent}%` : "0%";
       select("#winRateCaption").textContent = winner ? winner === 3 ? "平局" : "最终结果" : known ? "引擎估算胜率" : "等待评估";
       const geometry = trendGeometry(analysis.history, analysis.moves.length);
-      const layer = select("#trendData"); layer.replaceChildren();
+      const layer = select("#trendData"), children = [];
       for (const group of geometry.groups) {
         if (group.length > 1) {
           const path = curve(group);
-          layer.append(svgNode("path", { d: `${path} L${group.at(-1).x},37 L${group[0].x},37 Z`, class: "trend-area" }),
-            svgNode("path", { d: path, pathLength: 1, class: "trend-line" }));
+          children.push(svgNode("path", { d: `${path} L${group.at(-1).x},37 L${group[0].x},37 Z`, class: "trend-area", "data-view-key": `area-${group[0].ply}` }),
+            svgNode("path", { d: path, pathLength: 1, class: "trend-line", "data-view-key": `line-${group[0].ply}` }));
         }
-        if (group.length === 1) layer.append(svgNode("circle", { cx: group[0].x, cy: group[0].y, r: 2, class: "trend-point" }));
+        if (group.length === 1) children.push(svgNode("circle", { cx: group[0].x, cy: group[0].y, r: 2, class: "trend-point", "data-view-key": `point-${group[0].ply}` }));
       }
       if (known) {
         const last = geometry.groups.flat().find(item => item.ply === analysis.moves.length);
-        if (last) layer.append(svgNode("circle", { cx: last.x, cy: last.y, r: 5, class: "trend-halo" }),
+        if (last) children.push(svgNode("circle", { cx: last.x, cy: last.y, r: 5, class: "trend-halo" }),
           svgNode("circle", { cx: last.x, cy: last.y, r: 2.5, class: "trend-current" }));
       }
+      syncSvgChildren(layer, children);
       const currentPercent = (geometry.currentX - geometry.left) / (geometry.right - geometry.left) * 100;
       select("#trendCurrentStep").style.left = `clamp(32px, ${currentPercent}%, calc(100% - 32px))`;
       select("#trendCurrentStep").textContent = `${analysis.moves.length} 手`;
