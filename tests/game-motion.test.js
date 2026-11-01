@@ -94,6 +94,8 @@ test("HUD motion exposes state, animates meaningful text changes and honors redu
     assert.equal(document.documentElement.dataset.gamePhase, "thinking");
     assert.equal(document.documentElement.dataset.gameTurn, "2");
     assert.equal(document.querySelector("#frame").dataset.motionPhase, "thinking");
+    motion.render({ text: "深化当前变化", state: "ready", currentColor: 2, busy: true });
+    assert.equal(calls.length, reduced ? 0 : 1);
     motion.render({ text: "黑棋胜", state: "ready", currentColor: 2, winner: 1 });
     motion.announce();
     assert.equal(document.documentElement.dataset.gamePhase, "finished");

@@ -71,15 +71,17 @@
 
 /* State-driven game motion. Only transforms and opacity run continuously;
    transient stone effects are recreated from board diffs, never accumulated. */
-.board-svg .last-ring { transform-box: fill-box; transform-origin: center; animation: lastMoveBreathe 2.8s ease-in-out infinite; }
+.board-svg .last-ring { transform-box: fill-box; transform-origin: center; }
 .board-svg .hover-stone { transform-box: fill-box; transform-origin: center; animation: previewArrive 150ms ease-out; }
 .board-svg .pending-stone { transform-box: fill-box; transform-origin: center; animation: pendingSettle 260ms cubic-bezier(.2,.75,.25,1); }
 .board-svg .pending-ring { stroke-dasharray: 3 2; transform-box: fill-box; transform-origin: center; animation: pendingOrbit 5s linear infinite; }
 .aim-guides line { stroke-dasharray: 5 4; animation: guideArrive 260ms ease-out; }
-.recommendation-marker, .turn-hint, .opening-proposal { transform-box: fill-box; transform-origin: center; animation: candidateArrive 360ms cubic-bezier(.16,.78,.28,1) backwards; }
-.recommendation-marker[data-rank="2"], .turn-hint[data-rank="2"] { animation-delay: 65ms; }
-.turn-hint[data-rank="3"] { animation-delay: 130ms; }
-.answer-ring { transform-box: fill-box; transform-origin: center; animation: answerReveal 900ms cubic-bezier(.2,.7,.25,1); }
+.recommendation-marker, .opening-proposal { transform-box: fill-box; transform-origin: center; animation: candidateArrive 360ms cubic-bezier(.16,.78,.28,1) backwards; }
+.recommendation-marker[data-rank="2"] { animation-delay: 65ms; }
+/* Live hints can reorder several times per second. They must never replay an
+   entrance animation when the SVG is rebuilt; explicit recommendations still do. */
+.turn-hint { transform-box: fill-box; transform-origin: center; animation: none; }
+.answer-ring { transform-box: fill-box; transform-origin: center; }
 .winning-connector { stroke-dasharray: 1; stroke-dashoffset: 1; animation: victoryDraw 720ms cubic-bezier(.3,.7,.25,1) 100ms forwards; }
 .winning-ring { transform-box: fill-box; transform-origin: center; animation: victoryStone 580ms cubic-bezier(.16,.8,.3,1) backwards; animation-delay: calc(260ms + var(--win-order, 0) * 70ms); }
 .impact-ring, .impact-flash { pointer-events: none; }
@@ -90,13 +92,13 @@
 #stateText { display: inline-block; transform-origin: left center; }
 .state-indicator { position: relative; }
 .state-indicator::before, .state-indicator::after { content: ""; position: absolute; pointer-events: none; border-radius: 50%; }
-.state-indicator.thinking::before { inset: -6px; border: 1px solid #c4874638; animation: thinkingHalo 1.8s ease-in-out infinite; }
+.state-indicator.thinking::before { inset: -6px; border: 1px solid #c4874638; opacity: .7; }
 .state-indicator.thinking::after { inset: -4px; border: 1px solid transparent; border-top-color: #b16e32; border-right-color: #b16e3266; animation: thinkingOrbit 1.4s linear infinite; }
 .board-toolbar { position: relative; }
 .board-toolbar::after { content: ""; position: absolute; left: 4px; right: 4px; bottom: 0; height: 1px; pointer-events: none; background: linear-gradient(90deg, transparent, #b8793c, transparent); opacity: 0; transform: scaleX(.18); transform-origin: left; }
 html[data-game-phase="thinking"] .board-toolbar::after { animation: searchSweep 2.2s cubic-bezier(.45,0,.55,1) infinite; }
 .board-frame::after { content: ""; position: absolute; z-index: 2; inset: -5px; border: 1px solid transparent; border-radius: 11px; opacity: 0; pointer-events: none; }
-.board-frame[data-motion-phase="thinking"]::after { border-color: #b27a4266; animation: boardThinking 2.2s ease-in-out infinite; }
+.board-frame[data-motion-phase="thinking"]::after { border-color: #b27a4240; opacity: .32; }
 .board-frame[data-motion-phase="finished"]::after { border-color: #a840327d; animation: victoryFrame 1.4s ease-out; }
 html[data-game-phase="paused"] .state-indicator { background: #8b826f; box-shadow: 0 0 0 4px #8b826f1a; }
 html[data-game-phase="error"] .state-indicator { background: var(--accent); }
@@ -135,7 +137,6 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 @keyframes noticeArrive { from { opacity: 0; } to { opacity: 1; } }
 @media (max-width: 600px) {
   .board-frame::after { inset: -3px; border-radius: 8px; }
-  .board-svg .last-ring { animation-duration: 3.6s; }
 }
 @media (forced-colors: active) {
   .impact-ring, .impact-flash, .removed-stone, .board-frame::after, .board-toolbar::after { display: none; }

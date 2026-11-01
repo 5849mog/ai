@@ -1,9 +1,12 @@
 {
-  "version": "2026.11.01.1",
+  "version": "2026.11.01.2",
   "browser": "151.0.7922.108",
   "checks": [
     {
-      "name": "desktop placement, impact cleanup, AI thinking phase and automatic reply"
+      "name": "live hint rerenders stay stable without entrance or rank flicker"
+    },
+    {
+      "name": "desktop placement, impact cleanup, stable rings, AI thinking phase and automatic reply"
     },
     {
       "name": "recommendations enter with ranked motion and remain readable"
@@ -23,5 +26,5 @@
   ],
   "errors": [],
   "passed": true,
-  "completedAt": "2026-11-01T02:25:25.293Z"
+  "completedAt": "2026-11-01T02:58:54.073Z"
 }

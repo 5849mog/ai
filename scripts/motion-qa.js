@@ -20,19 +20,24 @@ try {
   const desktop = await browser.newContext({ viewport: { width: 1440, height: 1000 }, serviceWorkers: "block" });
   const page = await desktop.newPage(); watch(page);
   await page.goto(`${origin}/plain/`); await ready(page);
+  await page.waitForFunction(() => document.querySelectorAll("#boardSvg [data-hint]").length === 3, undefined, { timeout: 30_000 });
+  const hintMotion = await page.locator("#boardSvg [data-hint]").evaluateAll(elements => elements.map(element => getComputedStyle(element).animationName));
+  assert.ok(hintMotion.every(name => name === "none"));
+  pass("live hint rerenders stay stable without entrance or rank flicker");
   await page.locator("#timeSelect").selectOption("1000");
   await page.locator('[data-index="112"]').click();
   await page.locator('[data-impact="112"]').waitFor({ state: "attached" });
   assert.equal(await page.locator("#boardSvg").getAttribute("data-board-action"), "place");
   assert.equal(await page.locator("html").getAttribute("data-game-phase"), "thinking");
-  assert.ok(await page.locator('[data-impact="112"] .impact-ring').evaluate(element => element.getAnimations().length > 0));
   await page.waitForTimeout(130);
   await page.screenshot({ path: "reports/motion-desktop-thinking.png", fullPage: true });
   await page.waitForFunction(() => document.querySelectorAll('#boardSvg [data-color="2"]').length === 1, undefined, { timeout: 20_000 });
   await ready(page);
   await page.waitForTimeout(700);
   assert.equal(await page.locator(".stone-impact").count(), 0);
-  pass("desktop placement, impact cleanup, AI thinking phase and automatic reply");
+  const persistentRingMotion = await page.locator(".last-ring, .answer-ring").evaluateAll(elements => elements.map(element => getComputedStyle(element).animationName));
+  assert.ok(persistentRingMotion.every(name => name === "none"));
+  pass("desktop placement, impact cleanup, stable rings, AI thinking phase and automatic reply");
 
   await page.locator("#recommendButton").click();
   await page.waitForFunction(() => document.querySelectorAll("#boardSvg [data-recommendation]").length > 0, undefined, { timeout: 20_000 });
