@@ -2,6 +2,7 @@ import { createBoardView } from "./board-view.js";
 import { createRecord } from "./game-record.js";
 import { validateSeed } from "./renju-rules.js";
 import { boardRectangle, recognizeBoard } from "./image-board.js";
+import { findBoardGrid } from "./image-grid.js";
 import { updateControlMarkup } from "./app-update.js";
 
 // Some mobile WebViews lack ImageBitmap or reject images that <img> can decode.
@@ -32,7 +33,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     </div></div>`;
   const $ = selector => root.querySelector(selector), canvas = $(".import-image"), loupe = $(".import-loupe"), svg = $("svg"), context = canvas.getContext("2d", { willReadFrequently: true });
   const view = createBoardView(svg, { idPrefix: "image-import-" });
-  let image = null, frame = null, drag = null, board = new Uint8Array(225), uncertain = new Set(), tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, grid = true;
+  let image = null, frame = null, initialFrame = null, autoLocated = false, drag = null, board = new Uint8Array(225), uncertain = new Set(), tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, grid = true;
   const message = text => { $(".tool-message").textContent = text; };
   function controls() {
     $("[data-recognize]").disabled = loading || !image || !frame;
@@ -101,9 +102,9 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     controls();
   }
   function calibrate(resetFrame = false) {
-    if (image && (resetFrame || !frame)) frame = defaultFrame();
+    if (image && (resetFrame || !frame)) frame = { ...(initialFrame ?? defaultFrame()) };
     drag = null; correcting = false; loupe.hidden = true; svg.toggleAttribute("hidden", true); canvas.hidden = !image; $(".image-correction").hidden = true; $(".calibration-actions").hidden = !image; controls();
-    message("框的是 15 条横线和 15 条竖线的范围。拖四角对准最外层黑线交点（左上 A15、右下 O1）；不要框进木质边框或外侧留白。拖角时可看放大预览，红色网格应与黑线重合。"); draw();
+    message(`${autoLocated ? "已尝试自动定位，" : "请手动定位，"}检查红色网格是否与棋盘黑线重合。拖四角对准最外层交点（左上 A15、右下 O1），不要框进木质边框或外侧留白；拖动时可看放大预览。`); draw();
   }
   async function load(file) {
     if (!file) return;
@@ -115,9 +116,22 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       if (!active || token !== generation) { bitmap.close(); return; }
       if (bitmap.width * bitmap.height > 40_000_000) { bitmap.close(); throw new Error("图片像素过多，请先裁剪棋盘"); }
       if (Math.min(bitmap.width, bitmap.height) < 100) { bitmap.close(); throw new Error("图片太小，请使用清晰的棋盘截图"); }
+      // A failed or unsupported automatic scan is never allowed to block the
+      // existing manual calibration workflow. Only the small scan canvas is read.
+      let suggestion = null, scanWidth = 0, scanHeight = 0;
+      try {
+        const scan = document.createElement("canvas"), scale = Math.min(1, 900 / Math.max(bitmap.width, bitmap.height));
+        scan.width = scanWidth = Math.round(bitmap.width * scale); scan.height = scanHeight = Math.round(bitmap.height * scale);
+        const scanContext = scan.getContext("2d", { willReadFrequently: true });
+        scanContext.drawImage(bitmap.source ?? bitmap, 0, 0, scanWidth, scanHeight);
+        suggestion = findBoardGrid(scanContext.getImageData(0, 0, scanWidth, scanHeight));
+      } catch { /* retain manual crop */ }
       image?.close(); image = bitmap;
       const scale = Math.min(1, 1800 / Math.max(image.width, image.height));
       canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale);
+      autoLocated = Boolean(suggestion);
+      initialFrame = suggestion && { left: suggestion.left * canvas.width / scanWidth, right: suggestion.right * canvas.width / scanWidth,
+        top: suggestion.top * canvas.height / scanHeight, bottom: suggestion.bottom * canvas.height / scanHeight };
       calibrate(true);
     } catch (error) { if (active && token === generation) message(error.message); }
     finally { if (active && token === generation) { loading = false; controls(); } }
@@ -211,9 +225,9 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       $("[data-actor]").replaceChildren(...["player", "ai"].map((value, i) => { const option = document.createElement("option"); option.value = value; option.textContent = copilot ? ["录入对手棋", "AI 替我落子"][i] : ["我来走", "AI 来走"][i]; return option; }));
       $("[data-actor]").value = position.playerColor && position.currentColor === position.playerColor ? copilot ? "ai" : "player" : copilot ? "player" : "ai";
       $(".image-rule").textContent = `续局规则：${position.ruleLabel ?? "无禁手"}。${position.workflow === "follow" ? "双方继续由你手动录入。" : "下一手棋色和行棋方由你确定。"}`;
-      correcting = loading = false; svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = null; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
+      correcting = loading = false; svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = initialFrame = null; autoLocated = false; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
       message("选择截图或粘贴图片。图片只在本机处理，请使用正视的 15 × 15 棋盘。");
     },
-    dispose() { active = false; generation++; image?.close(); image = null; frame = drag = null; canvas.width = canvas.height = 1; history = []; }
+    dispose() { active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = null; autoLocated = false; canvas.width = canvas.height = 1; history = []; }
   };
 }
