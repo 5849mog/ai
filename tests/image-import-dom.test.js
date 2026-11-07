@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { JSDOM } from "jsdom";
 import { readFile } from "node:fs/promises";
+import { PNG } from "pngjs";
 import { createImageImport, decodeScreenshot } from "../image-import-ui.js";
 
 const flush = () => new Promise(done => setImmediate(done));
@@ -65,6 +66,37 @@ test("recognition reveals a real SVG grid with stones and editable targets throu
   assert.equal($("svg").hasAttribute("hidden"), true); assert.equal(canvas.hidden, true);
   assert.equal($('[data-confirm]').disabled, true);
   ui.dispose(); dom.window.close();
+});
+
+test("a real phone screenshot opens with a proposed grid, remains editable and resets to the proposed grid", async () => {
+  const { dom, $, ui, frame, applied } = fixture();
+  const pixels = PNG.sync.read(await readFile(new URL('../reports/mobile.png', import.meta.url)));
+  const getContext = dom.window.HTMLCanvasElement.prototype.getContext;
+  dom.window.HTMLCanvasElement.prototype.getContext = function (...args) {
+    return { ...getContext.call(this, ...args), getImageData: () => pixels };
+  };
+  // Recreate the UI so its existing canvas context also receives real pixels.
+  ui.dispose();
+  const root = $(".tool-header").parentElement;
+  const replacement = createImageImport(root, { getPosition: () => ({ workflow: "follow", currentColor: 1 }), applyRecord: () => assert.fail("must not apply without confirmation"), close() {} });
+  replacement.open();
+  globalThis.createImageBitmap = async () => ({ width: pixels.width, height: pixels.height, close() {} });
+  root.querySelector('input[type=file]').onchange({ target: { files: [{ type: "image/png", size: 100 }], value: "" } });
+  await flush();
+  assert.match(root.querySelector('.tool-message').textContent, /自动定位/);
+  const proposed = frame();
+  for (const [key, value] of Object.entries({ left: 43, top: 274, right: 346, bottom: 577 })) assert.ok(Math.abs(proposed[key] - value) < 2, key);
+  const boardCanvas = root.querySelector('.import-image');
+  boardCanvas.onpointerdown({ pointerId: 1, button: 0, clientX: proposed.left, clientY: proposed.top });
+  boardCanvas.onpointermove({ pointerId: 1, clientX: proposed.left + 12, clientY: proposed.top + 10 });
+  boardCanvas.onpointerup({ pointerId: 1 });
+  assert.notDeepEqual(frame(), proposed);
+  root.querySelector('[data-reset-frame]').click(); assert.deepEqual(frame(), proposed);
+  root.querySelector('[data-recognize]').click();
+  assert.equal(root.querySelector('svg').hasAttribute('hidden'), false);
+  assert.equal(root.querySelector('[data-stone="112"]').getAttribute('data-color'), '1');
+  assert.equal(applied(), 0);
+  replacement.dispose(); dom.window.close();
 });
 
 test("touch resize shows a loupe, ignores a second finger, clamps bounds, and retains the crop on return", async () => {
