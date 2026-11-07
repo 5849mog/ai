@@ -13,7 +13,7 @@ function fixture() {
   globalThis.document = dom.window.document;
   const pixels = { width: 650, height: 660, data: new Uint8ClampedArray(650 * 660 * 4) };
   for (let i = 0; i < pixels.data.length; i += 4) pixels.data.set([218, 183, 128, 255], i);
-  let frame, draws = 0, closed = 0, applied = 0;
+  let frame, draws = 0, lastDraw, closed = 0, applied = 0;
   // Place one stone of each color on the default crop's grid.
   for (const [index, rgb] of [[112, [35, 38, 31]], [113, [245, 245, 239]]]) {
     const cx = 39 + index % 15 * 572 / 14, cy = 44 + Math.floor(index / 15) * 572 / 14;
@@ -21,7 +21,7 @@ function fixture() {
       if (Math.hypot(x - cx, y - cy) < 17) pixels.data.set([...rgb, 255], (y * pixels.width + x) * 4);
     }
   }
-  const context = { clearRect() {}, fillRect() {}, drawImage() { draws++; }, beginPath() {}, arc() {}, fill() {}, stroke() {}, moveTo() {}, lineTo() {},
+  const context = { clearRect() {}, fillRect() {}, drawImage(...args) { draws++; lastDraw = args; }, beginPath() {}, arc() {}, fill() {}, stroke() {}, moveTo() {}, lineTo() {},
     strokeRect(x, y, w, h) { frame = { left: x, top: y, right: x + w, bottom: y + h }; }, getImageData: () => pixels };
   dom.window.HTMLCanvasElement.prototype.getContext = () => context;
   dom.window.HTMLCanvasElement.prototype.getBoundingClientRect = function () { return { left: 0, top: 0, width: this.width, height: this.height }; };
@@ -30,7 +30,7 @@ function fixture() {
   const ui = createImageImport(root, { getPosition: () => ({ workflow: "copilot", currentColor: 1 }), applyRecord: () => applied++, close() { ui.dispose(); } });
   ui.open();
   const load = async (file = { type: "image/png", size: 100 }) => { $('input[type=file]').onchange({ target: { files: [file], value: "" } }); await flush(); };
-  return { dom, root, $, ui, load, canvas: $('.import-image'), frame: () => ({ ...frame }), draws: () => draws, closed: () => closed, applied: () => applied };
+  return { dom, root, $, ui, load, canvas: $('.import-image'), frame: () => ({ ...frame }), draws: () => draws, lastDraw: () => lastDraw, closed: () => closed, applied: () => applied };
 }
 
 test("the previous SVG hidden-property assignment leaves the actual CSS hiding it", () => {
@@ -65,6 +65,33 @@ test("recognition reveals a real SVG grid with stones and editable targets throu
   ui.dispose(); ui.open();
   assert.equal($("svg").hasAttribute("hidden"), true); assert.equal(canvas.hidden, true);
   assert.equal($('[data-confirm]').disabled, true);
+  ui.dispose(); dom.window.close();
+});
+
+test("original comparison aligns the grid and preserves corrections, undo history and the current game", async () => {
+  const { dom, $, ui, load, canvas, frame, lastDraw, applied } = fixture();
+  await load(); const rect = frame(); $('[data-recognize]').click();
+  $('svg [data-index="100"]').dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  const counts = $('.image-counts').textContent;
+  assert.match(counts, /黑 2 · 白 1/); assert.equal($('[data-undo]').disabled, false);
+  $('[data-compare]').click();
+  assert.equal($('.import-reference').hidden, false); assert.equal($('svg').hasAttribute('hidden'), true);
+  assert.equal($('[data-compare]').getAttribute('aria-pressed'), 'true');
+  assert.equal($('[data-confirm]').disabled, true); assert.equal($('[data-undo]').disabled, true);
+  const [, x, y, width, height] = lastDraw();
+  const sx = 528 / (rect.right - rect.left), sy = 528 / (rect.bottom - rect.top);
+  assert.ok(Math.abs(x + rect.left * sx - 26) < 1e-8); assert.ok(Math.abs(y + rect.top * sy - 26) < 1e-8);
+  assert.ok(Math.abs(width - canvas.width * sx) < 1e-8); assert.ok(Math.abs(height - canvas.height * sy) < 1e-8);
+  await load({ type: 'image/gif', size: 100 });
+  assert.equal($('.import-reference').hidden, false); assert.equal(applied(), 0);
+  $('[data-compare]').click();
+  assert.equal($('.import-reference').hidden, true); assert.equal($('svg').hasAttribute('hidden'), false);
+  assert.equal($('.image-counts').textContent, counts); assert.equal($('[data-undo]').disabled, false);
+  assert.equal($('[data-confirm]').disabled, false); $('[data-undo]').click();
+  assert.match($('.image-counts').textContent, /黑 1 · 白 1/);
+  $('[data-compare]').click(); $('[data-recalibrate]').click();
+  assert.equal($('.import-reference').hidden, true); assert.equal(canvas.hidden, false);
+  assert.equal($('[data-compare]').getAttribute('aria-pressed'), 'false'); assert.equal(applied(), 0);
   ui.dispose(); dom.window.close();
 });
 
