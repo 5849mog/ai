@@ -24,24 +24,25 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   root.innerHTML = `<header class="tool-header"><h2>截图导入</h2><label class="image-picker">选择截图<input type="file" accept="image/png,image/jpeg,image/webp" /></label><button type="button" data-close>返回原局</button></header>
     ${updateControlMarkup()}
     <p class="tool-message" role="status">选择正视的 15 × 15 棋盘截图。图片只在本机处理。</p>
-    <div class="tool-workspace"><div class="tool-board-area"><canvas class="import-image" hidden aria-label="拖动框内区域移动，拖动四角把手调整识别范围"></canvas><canvas class="import-loupe" width="144" height="144" hidden aria-label="选框角点放大预览"></canvas><svg class="board-svg import-board" width="580" height="580" viewBox="20 20 580 580" preserveAspectRatio="xMidYMid meet" tabindex="0" role="group" aria-label="校正识别棋盘" hidden></svg></div>
+    <div class="tool-workspace"><div class="tool-board-area"><canvas class="import-image" hidden aria-label="拖动框内区域移动，拖动四角把手调整识别范围"></canvas><canvas class="import-loupe" width="144" height="144" hidden aria-label="选框角点放大预览"></canvas><canvas class="import-reference" width="580" height="580" hidden role="img" aria-label="截图中的原始棋盘"></canvas><svg class="board-svg import-board" width="580" height="580" viewBox="20 20 580 580" preserveAspectRatio="xMidYMid meet" tabindex="0" role="group" aria-label="校正识别棋盘" hidden></svg></div>
     <div class="tool-panel"><div class="calibration-actions" hidden><button type="button" data-reset-frame>重置选框</button><button type="button" data-grid aria-pressed="true">网格参考：开</button><button type="button" data-recognize disabled>识别棋子</button></div>
-      <div class="image-correction" hidden><p class="image-counts"></p><div class="tool-buttons" role="group" aria-label="校正工具"><button type="button" data-color="1" aria-pressed="true">黑棋</button><button type="button" data-color="2" aria-pressed="false">白棋</button><button type="button" data-color="0" aria-pressed="false">擦除</button><button type="button" data-undo disabled>撤回</button></div>
+      <div class="image-correction" hidden><div class="image-compare-row"><p class="image-counts"></p><button type="button" data-compare aria-pressed="false">查看原图</button></div><div class="tool-buttons" role="group" aria-label="校正工具"><button type="button" data-color="1" aria-pressed="true">黑棋</button><button type="button" data-color="2" aria-pressed="false">白棋</button><button type="button" data-color="0" aria-pressed="false">擦除</button><button type="button" data-undo disabled>撤回</button></div>
       <div class="tool-fields"><label>下一手棋色<select data-side><option value="1">黑棋</option><option value="2">白棋</option></select></label><label>这一手谁走<select data-actor></select></label></div>
       <p class="image-rule"></p><p>截图没有手序和换色记录。确认后作为中盘摆局续下，跳过开局交换与打点。</p>
       <button type="button" class="tool-primary" data-confirm>确认棋盘，替换当前对局</button><button type="button" data-recalibrate>返回截图标定</button></div>
     </div></div>`;
-  const $ = selector => root.querySelector(selector), canvas = $(".import-image"), loupe = $(".import-loupe"), svg = $("svg"), context = canvas.getContext("2d", { willReadFrequently: true });
+  const $ = selector => root.querySelector(selector), canvas = $(".import-image"), loupe = $(".import-loupe"), reference = $(".import-reference"), svg = $("svg"), context = canvas.getContext("2d", { willReadFrequently: true });
   const view = createBoardView(svg, { idPrefix: "image-import-" });
-  let image = null, frame = null, initialFrame = null, autoLocated = false, drag = null, board = new Uint8Array(225), uncertain = new Set(), tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, grid = true;
+  let image = null, frame = null, initialFrame = null, autoLocated = false, drag = null, board = new Uint8Array(225), uncertain = new Set(), tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, comparing = false, grid = true;
   const message = text => { $(".tool-message").textContent = text; };
   function controls() {
     $("[data-recognize]").disabled = loading || !image || !frame;
-    $("[data-confirm]").disabled = loading || !correcting;
+    $("[data-confirm]").disabled = loading || !correcting || comparing;
+    $("[data-compare]").disabled = loading || !correcting;
     $("[data-reset-frame]").disabled = $("[data-grid]").disabled = loading;
-    for (const button of root.querySelectorAll("[data-color]")) button.disabled = loading;
+    for (const button of root.querySelectorAll("[data-color]")) button.disabled = loading || comparing;
     $("[data-side]").disabled = $("[data-actor]").disabled = loading;
-    $("[data-undo]").disabled = loading || history.length === 0;
+    $("[data-undo]").disabled = loading || comparing || history.length === 0;
   }
   const defaultFrame = () => {
     const size = Math.min(canvas.width, canvas.height) * .88;
@@ -101,9 +102,21 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     $(".image-counts").textContent = `黑 ${board.filter(c => c === 1).length} · 白 ${board.filter(c => c === 2).length} · 待检查 ${uncertain.size} 点（橙框）`;
     controls();
   }
+  function resetComparison() {
+    comparing = false; reference.hidden = true;
+    $("[data-compare]").setAttribute("aria-pressed", "false");
+    $("[data-compare]").textContent = "查看原图";
+  }
+  function drawReference() {
+    // Match the SVG's viewBox and grid insets: its intersections run from
+    // 26 to 554 within a 580 square, regardless of the source screenshot size.
+    const zoom = reference.getContext("2d"), sx = 528 / (frame.right - frame.left), sy = 528 / (frame.bottom - frame.top);
+    zoom.clearRect(0, 0, 580, 580); zoom.fillStyle = "#f5f2ea"; zoom.fillRect(0, 0, 580, 580);
+    zoom.drawImage(image.source ?? image, 26 - frame.left * sx, 26 - frame.top * sy, canvas.width * sx, canvas.height * sy);
+  }
   function calibrate(resetFrame = false) {
     if (image && (resetFrame || !frame)) frame = { ...(initialFrame ?? defaultFrame()) };
-    drag = null; correcting = false; loupe.hidden = true; svg.toggleAttribute("hidden", true); canvas.hidden = !image; $(".image-correction").hidden = true; $(".calibration-actions").hidden = !image; controls();
+    resetComparison(); drag = null; correcting = false; loupe.hidden = true; svg.toggleAttribute("hidden", true); canvas.hidden = !image; $(".image-correction").hidden = true; $(".calibration-actions").hidden = !image; controls();
     message(`${autoLocated ? "已尝试自动定位，" : "请手动定位，"}检查红色网格是否与棋盘黑线重合。拖四角对准最外层交点（左上 A15、右下 O1），不要框进木质边框或外侧留白；拖动时可看放大预览。`); draw();
   }
   async function load(file) {
@@ -194,19 +207,31 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   $("[data-grid]").onclick = () => {
     grid = !grid; $("[data-grid]").setAttribute("aria-pressed", String(grid)); $("[data-grid]").textContent = `网格参考：${grid ? "开" : "关"}`; draw();
   };
+  $("[data-compare]").onclick = () => {
+    if (!correcting || loading || !image || !frame) return;
+    try {
+      if (!comparing) drawReference();
+      comparing = !comparing;
+      reference.hidden = !comparing; svg.toggleAttribute("hidden", comparing);
+      $("[data-compare]").setAttribute("aria-pressed", String(comparing));
+      $("[data-compare]").textContent = comparing ? "返回识别结果" : "查看原图";
+      message(comparing ? "正在查看截图原图。点击「返回识别结果」继续校正；已修改的棋子会保留。" : "逐点核对黑白棋，橙框优先检查。选择黑棋、白棋或擦除后点击棋盘校正；核对完成再确认。");
+      controls();
+    } catch { message("暂时无法显示原图，识别结果仍然保留。"); }
+  };
   for (const button of root.querySelectorAll("[data-color]")) button.onclick = () => {
     tool = Number(button.dataset.color);
     for (const b of root.querySelectorAll("[data-color]")) b.setAttribute("aria-pressed", String(b === button)); renderBoard();
   };
   svg.onclick = event => {
-    if (!correcting || loading) return;
+    if (!correcting || loading || comparing) return;
     const target = event.target.closest("[data-index]"), index = target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY);
     if (index < 0 || index >= 225) return;
     history.push({ index, color: board[index], uncertain: uncertain.has(index) }); board[index] = tool; uncertain.delete(index); renderBoard();
   };
   $("[data-undo]").onclick = () => { const saved = history.pop(); if (saved) { board[saved.index] = saved.color; if (saved.uncertain) uncertain.add(saved.index); renderBoard(); } };
   $("[data-confirm]").onclick = () => {
-    if (!correcting || loading) return;
+    if (!correcting || loading || comparing) return;
     try {
       validateSeed(board); const side = Number($("[data-side]").value), actor = $("[data-actor]").value, copilot = getPosition().workflow === "copilot";
       const playerColor = getPosition().workflow === "follow" ? getPosition().playerColor || side : actor === "player" ? copilot ? 3 - side : side : copilot ? side : 3 - side;
@@ -225,9 +250,9 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       $("[data-actor]").replaceChildren(...["player", "ai"].map((value, i) => { const option = document.createElement("option"); option.value = value; option.textContent = copilot ? ["录入对手棋", "AI 替我落子"][i] : ["我来走", "AI 来走"][i]; return option; }));
       $("[data-actor]").value = position.playerColor && position.currentColor === position.playerColor ? copilot ? "ai" : "player" : copilot ? "player" : "ai";
       $(".image-rule").textContent = `续局规则：${position.ruleLabel ?? "无禁手"}。${position.workflow === "follow" ? "双方继续由你手动录入。" : "下一手棋色和行棋方由你确定。"}`;
-      correcting = loading = false; svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = initialFrame = null; autoLocated = false; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
+      correcting = loading = false; resetComparison(); svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = initialFrame = null; autoLocated = false; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
       message("选择截图或粘贴图片。图片只在本机处理，请使用正视的 15 × 15 棋盘。");
     },
-    dispose() { active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = null; autoLocated = false; canvas.width = canvas.height = 1; history = []; }
+    dispose() { active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = null; autoLocated = comparing = false; canvas.width = canvas.height = 1; reference.hidden = true; history = []; }
   };
 }
