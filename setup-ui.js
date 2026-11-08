@@ -8,10 +8,10 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   const dialog = document.querySelector("#setupDialog"), svg = document.querySelector("#setupBoard");
   const view = createBoardView(svg, { idPrefix: "setup-" });
   const side = document.querySelector("#setupSide"), actor = document.querySelector("#setupActor");
-  const start = document.querySelector("#startSetup"), undo = document.querySelector("#undoSetup");
+  const start = document.querySelector("#startSetup"), undo = document.querySelector("#undoSetup"), alternate = document.querySelector("#setupAlternate");
   const message = document.querySelector("#setupMessage"), tools = [...dialog.querySelectorAll("[data-setup-tool]")];
   const draft = new Uint8Array(CELL_COUNT), history = [];
-  let tool = BLACK, keyboardIndex = 112, hoverIndex = -1, copilot = false, follow = false;
+  let tool = BLACK, keyboardIndex = 112, hoverIndex = -1, copilot = false, follow = false, alternating = false;
 
   function render() {
     let error = "";
@@ -25,6 +25,7 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     document.querySelector("#setupBlackCount").textContent = draft.filter(value => value === BLACK).length;
     document.querySelector("#setupWhiteCount").textContent = draft.filter(value => value === WHITE).length;
     undo.disabled = history.length === 0;
+    alternate.setAttribute("aria-pressed", String(alternating)); alternate.textContent = `交替摆子：${alternating ? "开" : "关"}`;
     for (const button of tools) button.setAttribute("aria-pressed", String(Number(button.dataset.setupTool) === tool));
     svg.setAttribute("aria-label", `自定义棋盘，当前${tool === 0 ? "擦除棋子" : tool === BLACK ? "摆黑棋" : "摆白棋"}。点一下编辑；方向键选点，回车编辑。`);
     view.render({ board: draft, lastMove: -1, pendingIndex: -1, hoverIndex: tool ? hoverIndex : -1,
@@ -32,7 +33,9 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   }
   function edit(index) {
     if (!dialog.open || !validIndex(index) || draft[index] === tool) return;
-    history.push(draft.slice()); draft[index] = tool; keyboardIndex = index; render();
+    history.push({ board: draft.slice(), placedTool: alternating && tool ? tool : null }); draft[index] = tool;
+    if (alternating && tool) tool = 3 - tool;
+    keyboardIndex = index; render();
   }
   function selected(event) {
     const target = event.target.closest("[data-index]");
@@ -44,7 +47,7 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     follow = current.workflow === "follow"; actor.parentElement.hidden = follow;
     actor.querySelector('[value="player"]').textContent = copilot ? "我录入对手棋" : "我来走";
     actor.querySelector('[value="ai"]').textContent = copilot ? "AI 替我落子" : "AI 来走";
-    draft.set(current.board); history.length = 0; tool = BLACK; hoverIndex = -1; keyboardIndex = 112;
+    draft.set(current.board); history.length = 0; tool = BLACK; alternating = false; hoverIndex = -1; keyboardIndex = 112;
     side.value = String(current.currentColor);
     actor.value = current.currentColor === current.playerColor ? (copilot ? "ai" : "player") : (copilot ? "player" : "ai");
     document.querySelector("#recordMenu").open = false;
@@ -53,9 +56,10 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   for (const button of tools) button.addEventListener("click", () => { tool = Number(button.dataset.setupTool); render(); });
   side.addEventListener("change", render);
   actor.addEventListener("change", render);
-  undo.addEventListener("click", () => { const saved = history.pop(); if (saved) { draft.set(saved); render(); } });
+  alternate.addEventListener("click", () => { alternating = !alternating; render(); });
+  undo.addEventListener("click", () => { const saved = history.pop(); if (saved) { draft.set(saved.board); if (alternating && saved.placedTool) tool = saved.placedTool; render(); } });
   document.querySelector("#clearSetup").addEventListener("click", () => {
-    if (draft.some(Boolean)) { history.push(draft.slice()); draft.fill(0); hoverIndex = -1; render(); }
+    if (draft.some(Boolean)) { history.push({ board: draft.slice(), placedTool: null }); draft.fill(0); hoverIndex = -1; render(); }
   });
   document.querySelector("#cancelSetup").addEventListener("click", () => dialog.close());
   svg.addEventListener("click", event => edit(selected(event)));

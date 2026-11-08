@@ -8,9 +8,9 @@
     <title>五目 · 五子棋与连珠</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=23" />
-    <link rel="stylesheet" href="./game-modes.css?v=6" />
+    <link rel="stylesheet" href="./game-modes.css?v=7" />
     <link rel="stylesheet" href="./opening.css?v=7" />
-    <link rel="stylesheet" href="./enhancements.css?v=51" />
+    <link rel="stylesheet" href="./enhancements.css?v=52" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -118,7 +118,7 @@
       <div class="setup-workspace">
         <div class="setup-board-wrap"><div class="board-frame"><svg class="board-svg" id="setupBoard" viewBox="20 20 580 580" tabindex="0" role="group" aria-label="自定义摆局棋盘"></svg></div></div>
         <div class="setup-panel">
-          <div class="setup-counts"><span><i class="setup-dot black" aria-hidden="true"></i>黑 <strong id="setupBlackCount">0</strong></span><span><i class="setup-dot white" aria-hidden="true"></i>白 <strong id="setupWhiteCount">0</strong></span><button type="button" id="clearSetup">清空</button></div>
+          <div class="setup-counts"><span><i class="setup-dot black" aria-hidden="true"></i>黑 <strong id="setupBlackCount">0</strong></span><span><i class="setup-dot white" aria-hidden="true"></i>白 <strong id="setupWhiteCount">0</strong></span><button type="button" id="setupAlternate" aria-pressed="false" title="成功摆下黑棋或白棋后，自动切换颜色">交替摆子：关</button><button type="button" id="clearSetup">清空</button></div>
           <div class="setup-tools" role="group" aria-label="摆局工具"><button type="button" data-setup-tool="1" aria-pressed="true"><i class="setup-dot black" aria-hidden="true"></i>黑棋</button><button type="button" data-setup-tool="2" aria-pressed="false"><i class="setup-dot white" aria-hidden="true"></i>白棋</button><button type="button" data-setup-tool="0" aria-pressed="false">擦除</button><button type="button" id="undoSetup" disabled>撤回</button></div>
           <div class="setup-turn"><label for="setupSide">下一手棋色<select id="setupSide"><option value="1">黑棋</option><option value="2">白棋</option></select></label><label for="setupActor">这一手谁走<select id="setupActor"><option value="player">我来走</option><option value="ai">AI 来走</option></select></label></div>
           <p id="setupMessage" class="setup-message" role="status">开始后将替换当前对局；摆好的棋子会作为起始局面保留。</p>

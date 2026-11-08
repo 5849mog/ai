@@ -6,10 +6,11 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame }) {
   root.innerHTML = `<header class="tool-header"><h2>本局复盘</h2><div><button type="button" data-close>返回结果</button><button type="button" data-new>新局</button></div></header>
     <p class="tool-message" role="status"></p><div class="tool-workspace"><div class="tool-board-area"><svg class="board-svg" viewBox="20 20 580 580" role="img" aria-label="复盘棋盘"></svg></div>
     <div class="tool-panel"><div class="review-navigation"><button type="button" data-prev>上一手</button><strong data-step></strong><button type="button" data-next>下一手</button></div><input type="range" data-timeline min="0" value="0" aria-label="棋谱回放进度" />
-    <p class="review-move"></p><div class="tool-buttons"><button type="button" data-best aria-pressed="false" disabled>查看 AI 建议</button><button type="button" data-stop>停止分析</button></div>
+    <p class="review-move"></p><div class="tool-buttons"><button type="button" data-best aria-pressed="false" disabled>查看 AI 建议</button><button type="button" data-play aria-pressed="false">自动播放</button><button type="button" data-stop>停止分析</button></div>
     <p class="review-caption">普通落子每次搜索最多 0.5 秒，开局比较每次最多 1 秒。开局结果为有限候选估算；后续仍可换色的阶段不标成确定失误。</p><button type="button" data-deep-review>深入复盘 · 每次搜索最多 5 秒</button><div class="opening-review-list" aria-label="开局决策分析"></div><div class="review-highlights" aria-label="本局关键落子"></div></div></div>`;
   const $ = selector => root.querySelector(selector), svg = $("svg"), view = createBoardView(svg, { idPrefix: "review-" });
-  let review = null, rows = [], openingRows = [], savedRecord, step = 0, showBest = false, controller = null, generation = 0;
+  let review = null, rows = [], openingRows = [], savedRecord, step = 0, showBest = false, controller = null, generation = 0, playing = false, playTimer = null;
+  function stopPlayback() { if (playTimer !== null) clearTimeout(playTimer); playTimer = null; playing = false; }
   function render() {
     if (!review) return;
     const frame = review.frames[step], row = rows.find(r => r.frame === step) ?? openingRows.find(r=>r.frame===step), suggested = showBest && row && (row.best!==null || row.points?.length);
@@ -25,6 +26,7 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame }) {
     $("[data-step]").textContent = frame.label; $("[data-prev]").disabled = step === 0; $("[data-next]").disabled = step === review.frames.length - 1;
     $("[data-timeline]").value = String(step); $("[data-best]").disabled = !row || row.best===null && !row.points?.length; $("[data-best]").setAttribute("aria-pressed", String(Boolean(suggested)));
     $("[data-best]").textContent = suggested ? "返回实战落子" : "查看 AI 建议";
+    $("[data-play]").textContent = playing ? "暂停播放" : "自动播放"; $("[data-play]").setAttribute("aria-pressed", String(playing));
     $(".review-move").textContent = row?.note ? `${row.label}：${row.note}${row.choice?` 建议${({keep:"保持执色",swap:"交换执色",ten:"十打"})[row.choice]}。`:""}${row.loss===null?"":` 相比有限候选，估算损失 ${(row.loss*100).toFixed(1)} 个百分点。`}` : row ? `${row.actor === 0 ? "我方" : "对方"}下在 ${coordinate(row.index)}；AI 建议 ${coordinate(row.best)}${row.loss === null ? "；本手未形成可比较的评估。" : `；估算损失 ${(row.loss * 100).toFixed(1)} 个百分点。`}` : "按原棋谱顺序回放。";
     const openingList=$(".opening-review-list");openingList.replaceChildren();
     for(const item of openingRows) {const button=document.createElement("button");button.type="button";button.textContent=`${item.actor===0?"我方":"对方"} · ${item.label}${item.loss===null?" · 阶段分析":` · 估算损失 ${(item.loss*100).toFixed(1)}%`}`;button.onclick=()=>seek(item.frame);openingList.append(button);}
@@ -34,18 +36,34 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame }) {
       for (const row of highlights) {
         const button = document.createElement("button"); button.type = "button";
         button.textContent = `第 ${row.ply} 手 · ${row.actor === 0 ? "我方" : "对方"} ${coordinate(row.index)} · −${(row.loss * 100).toFixed(1)}%`;
-        button.onclick = () => { step = row.frame; showBest = false; render(); }; container.append(button);
+        button.onclick = () => seek(row.frame); container.append(button);
       }
     } else if (rows.length) { const p = document.createElement("p"); p.textContent = rows.some(row => row.loss !== null) ? "可比较的已分析落子中，未发现超过 5 个百分点的损失。" : "目前暂无可比较的胜率评估，仍可回放并查看 AI 建议。"; container.append(p); }
   }
-  function seek(value) { step = Math.max(0, Math.min(review.frames.length - 1, value)); showBest = false; render(); }
+  function seek(value, manual = true) { if (!review) return; if (manual) stopPlayback(); step = Math.max(0, Math.min(review.frames.length - 1, value)); showBest = false; render(); }
+  function schedulePlayback() {
+    if (!playing || !review) return;
+    playTimer = setTimeout(() => {
+      playTimer = null; if (!playing || !review) return;
+      seek(step + 1, false);
+      if (step >= review.frames.length - 1) { stopPlayback(); render(); } else schedulePlayback();
+    }, 800);
+  }
   $("[data-prev]").onclick = () => seek(step - 1); $("[data-next]").onclick = () => seek(step + 1);
   $("[data-timeline]").oninput = event => seek(Number(event.target.value));
-  $("[data-best]").onclick = () => { showBest = !showBest; render(); };
+  $("[data-best]").onclick = () => { stopPlayback(); showBest = !showBest; render(); };
+  $("[data-play]").onclick = () => {
+    if (!review) return;
+    if (playing) { stopPlayback(); render(); return; }
+    if (step === review.frames.length - 1) seek(0, false);
+    playing = true; showBest = false; render(); schedulePlayback();
+  };
+  document.addEventListener("visibilitychange", () => { if (document.hidden && playing) { stopPlayback(); render(); } });
   $("[data-stop]").onclick = () => { controller?.abort(); cancelSearch(); $(".tool-message").textContent = "分析已停止，已完成的结果仍可查看。"; $("[data-stop]").hidden = true; };
   $("[data-close]").onclick = close; $("[data-new]").onclick = newGame;
   $("[data-deep-review]").onclick=()=>{controller?.abort();cancelSearch();void open(savedRecord,true);};
   async function open(record,deep=false) {
+      stopPlayback();
       savedRecord=record;
       $(".review-caption").textContent=deep?"深入复盘：每次搜索最多 5 秒，一组候选需要多次搜索。开局结果为有限候选估算；仍可换色的阶段不标成确定失误。":"普通落子每次搜索最多 0.5 秒，开局比较每次最多 1 秒。开局结果为有限候选估算；后续仍可换色的阶段不标成确定失误。";
       review = reviewFrames(record); rows = []; openingRows=[];step = review.frames.length - 1; showBest = false;
@@ -71,6 +89,6 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame }) {
   }
   return {
     open,
-    dispose() { generation++; controller?.abort(); cancelSearch(); controller = null; review = null; rows = []; openingRows=[]; }
+    dispose() { stopPlayback(); generation++; controller?.abort(); cancelSearch(); controller = null; review = null; rows = []; openingRows=[]; }
   };
 }

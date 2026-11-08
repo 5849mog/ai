@@ -30,7 +30,7 @@ function fixture() {
   const ui = createImageImport(root, { getPosition: () => ({ workflow: "copilot", currentColor: 1 }), applyRecord: () => applied++, close() { ui.dispose(); } });
   ui.open();
   const load = async (file = { type: "image/png", size: 100 }) => { $('input[type=file]').onchange({ target: { files: [file], value: "" } }); await flush(); };
-  return { dom, root, $, ui, load, canvas: $('.import-image'), frame: () => ({ ...frame }), draws: () => draws, lastDraw: () => lastDraw, closed: () => closed, applied: () => applied };
+  return { dom, root, $, ui, load, pixels, canvas: $('.import-image'), frame: () => ({ ...frame }), draws: () => draws, lastDraw: () => lastDraw, closed: () => closed, applied: () => applied };
 }
 
 test("the previous SVG hidden-property assignment leaves the actual CSS hiding it", () => {
@@ -93,6 +93,22 @@ test("original comparison aligns the grid and preserves corrections, undo histor
   assert.equal($('.import-reference').hidden, true); assert.equal(canvas.hidden, false);
   assert.equal($('[data-compare]').getAttribute('aria-pressed'), 'false'); assert.equal(applied(), 0);
   ui.dispose(); dom.window.close();
+});
+
+test("finds uncertain points in order and restores their focus when a correction is undone", async () => {
+  const { dom, $, ui, load, pixels, applied } = fixture();
+  for (let i = 0; i < pixels.data.length; i += 4) pixels.data.set([80, 75, 70, 255], i);
+  await load(); $('[data-recognize]').click();
+  assert.match($('.image-counts').textContent, /待检查 225/);
+  $('[data-next-uncertain]').click(); assert.equal($('[data-check-focus]').getAttribute('data-check-focus'), '0');
+  $('[data-next-uncertain]').click(); assert.equal($('[data-check-focus]').getAttribute('data-check-focus'), '1');
+  $('svg [data-index="1"]').dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
+  assert.match($('.image-counts').textContent, /待检查 224/); assert.equal($('[data-check-focus]'), null);
+  $('[data-undo]').click(); assert.match($('.image-counts').textContent, /待检查 225/);
+  assert.equal($('[data-check-focus]').getAttribute('data-check-focus'), '1');
+  $('[data-compare]').click(); assert.equal($('[data-next-uncertain]').disabled, true);
+  $('[data-compare]').click(); assert.equal($('[data-check-focus]').getAttribute('data-check-focus'), '1');
+  assert.equal(applied(), 0); ui.dispose(); dom.window.close();
 });
 
 test("a real phone screenshot opens with a proposed grid, remains editable and resets to the proposed grid", async () => {
