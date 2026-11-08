@@ -2,10 +2,11 @@ import { createImageImport } from "./image-import-ui.js";
 import { createReviewUi } from "./review-ui.js";
 import { updateControlMarkup } from "./app-update.js";
 import { createArchiveUi } from "./archive-ui.js";
+import { boardImageBlob } from "./board-image.js";
 
 // Inline quick controls and full-page workspaces share one lifecycle. Neither
 // workspace uses a popup or modifies the live game while it is being inspected.
-export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound }) {
+export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound, notify }) {
   const $ = selector => document.querySelector(selector), shell = $(".app-shell");
   const status = document.createElement("div"); status.id = "simpleStatusRow"; status.className = "simple-status-row";
   const rate = $("#simpleWinRate"); rate.before(status); status.append(rate);
@@ -45,7 +46,9 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     if (resume) onWorkspace(false); toggle.focus();
   }
   const image = createImageImport(imageRoot, { getPosition, applyRecord, close });
-  const review = createReviewUi(reviewRoot, { search, cancelSearch, close, newGame: () => { close(); newGame(); } });
+  const review = createReviewUi(reviewRoot, { search, cancelSearch, close, newGame: () => { close(); newGame(); }, branch: record => {
+    close({ resume: false }); try { resumeRecord?.({ record }); } finally { onWorkspace(false); }
+  } });
   const history=createArchiveUi(archiveRoot,{archive:archive??{list:()=>[],failed:false},close,resume:entry=>{if(resumeRecord?.(entry)!==false)close();},review:record=>{close({resume:false});open("review",record);},exportRecord:record=>{
     const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:"application/json"})),link=document.createElement("a");link.href=url;link.download="wumu-archive.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }});
@@ -72,6 +75,12 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const fullImage = document.createElement("button"); fullImage.type = "button"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
   const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
+  const saveImage = async () => { try {
+    const position=getPosition(), blob=await boardImageBlob({board:Array.from(position.board),lastMove:position.lastMove,candidates:[...(position.candidates??[])]});
+    const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='wumu-board.png';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  } catch(error) { notify?.(`保存图片失败：${error.message}`,true); } };
+  const quickImage=document.createElement('button');quickImage.type='button';quickImage.textContent='保存棋盘图';quickImage.onclick=()=>{collapse();void saveImage();};panel.querySelector('.quick-tools-actions').append(quickImage);
+  const fullBoardImage=document.createElement('button');fullBoardImage.type='button';fullBoardImage.textContent='保存棋盘图';fullBoardImage.onclick=()=>{ $("#recordMenu").open=false;void saveImage(); };$(".record-options").append(fullBoardImage);
   const fullSound=document.createElement("button");fullSound.type="button";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);

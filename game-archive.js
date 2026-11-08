@@ -11,6 +11,19 @@ export function archiveSummary(record) {
     moves: opening ? game.moves.length : game.record.moves.length,
     meaningful: opening ? game.moves.length > 0 || Boolean(game.options.seed) : game.record.moves.length > 0 || Boolean(game.record.setup) };
 }
+export function parseArchiveBackup(text) {
+  if (typeof text !== "string" || new TextEncoder().encode(text).length > 2 * 1024 * 1024) throw new Error("备份文件不能超过 2 MiB");
+  let data; try { data = JSON.parse(text); } catch { throw new Error("无法读取备份文件"); }
+  if (data?.format !== "wumu-archive-backup" || data.version !== 1 || !Array.isArray(data.entries) || data.entries.length > 50) throw new Error("不是有效的五目对局备份");
+  const seen = new Set();
+  return data.entries.map(entry => {
+    if (!entry || typeof entry.id !== "string" || !entry.id || entry.id.length > 200 || seen.has(entry.id) || !Number.isFinite(entry.updatedAt) || !Number.isFinite(entry.createdAt) || typeof entry.name !== "string" || entry.name.length > 40 || typeof entry.note !== "string" || entry.note.length > 500 || typeof entry.favorite !== "boolean") throw new Error("备份中有无效或重复的对局");
+    seen.add(entry.id); const summary = archiveSummary(entry.record);
+    if (!summary.meaningful) throw new Error("备份中包含空对局");
+    if (entry.meta != null && (typeof entry.meta !== "object" || Array.isArray(entry.meta))) throw new Error("备份中的附加信息无效");
+    return { id: entry.id, createdAt: entry.createdAt, updatedAt: entry.updatedAt, favorite: entry.favorite, name: entry.name, note: entry.note, record: summary.record, meta: entry.meta ?? {} };
+  });
+}
 export function createGameArchive({ storage, page, now = Date.now, id = () => globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`, limit = 50 } = {}) {
   const activeKey = ARCHIVE_KEY + ":active:" + page;
   let active = null, failed = false, cachedRaw, cachedEntries = [];
@@ -60,6 +73,27 @@ export function createGameArchive({ storage, page, now = Date.now, id = () => gl
     annotate(value, {name, note}) {
       const entries=read(),entry=entries.find(e=>e.id===value);if(!entry)return false;
       entry.name=String(name??"").trim().slice(0,40);entry.note=String(note??"").trim().slice(0,500);return write(entries);
+    },
+    exportBackup() {
+      const entries = read().map(e => ({ id:e.id, createdAt:Number.isFinite(e.createdAt)?e.createdAt:e.updatedAt, updatedAt:e.updatedAt, favorite:Boolean(e.favorite), name:e.name??"", note:e.note??"", record:e.record, meta:e.meta??{} }));
+      return JSON.stringify({ format:"wumu-archive-backup", version:1, entries }, null, 2);
+    },
+    importBackup(text) {
+      const incoming = parseArchiveBackup(text), entries = read(), used = new Set(entries.map(e => e.id)); let added = 0, skipped = 0;
+      const equivalent = (a,b) => JSON.stringify(a.record) === JSON.stringify(b.record) && (a.name??"") === b.name && (a.note??"") === b.note && Boolean(a.favorite) === b.favorite;
+      for (const item of incoming) {
+        const same = entries.find(e => e.id === item.id);
+        if (same && equivalent(same,item)) { skipped++; continue; }
+        if (used.has(item.id)) {
+          const base = item.id.slice(0, 180); let n = 1, duplicate = false;
+          while (used.has(`${base}-导入${n}`)) { if (equivalent(entries.find(e=>e.id===`${base}-导入${n}`),item)) { duplicate=true; break; } n++; }
+          if (duplicate) { skipped++; continue; } item.id = `${base}-导入${n}`;
+        }
+        used.add(item.id); entries.push(item); added++;
+      }
+      if (entries.length > limit) throw new Error(`导入后超过 ${limit} 局，请先整理最近对局`);
+      if (added && !write(entries)) throw new Error("设备存储不可用，未导入任何对局");
+      return { added, skipped };
     },
     remove(value) {
       const entries=read(); if(!entries.some(e=>e.id===value))return false;

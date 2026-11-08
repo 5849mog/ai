@@ -352,13 +352,13 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) persi
 document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
 enhancements = setupGameEnhancements({
   sound,
-  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, state,busy:busy&&(isAutomaticTurn(session)||adaptiveThinking),paused,ruleLabel: RULES[session.rule] }),
+  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,busy:busy&&(isAutomaticTurn(session)||adaptiveThinking),paused,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
   archive,resumeRecord:restoreArchived,
   pauseSearch:()=>{if(!busy)return;cancel();paused=true;persist();render();},
   resumeSearch:()=>{paused=false;render();void prepare();},
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); },
-  onWorkspace: onModal, newGame: () => newGame(), exitSimple: () => display.leave(),
+  onWorkspace: onModal, newGame: () => newGame(), exitSimple: () => display.leave(), notify,
   cancelSearch: () => engine.cancel(),
   search: async options => {
     const token = serial,rule=options.rule??session.rule;
