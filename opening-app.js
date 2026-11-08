@@ -32,7 +32,7 @@ const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORA
   storage: { getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) } });
 let session = new OpeningSession({ rule: document.body.dataset.defaultRule || "rif", workflow: document.body.dataset.defaultWorkflow || "copilot", initialBlackSeat: document.body.dataset.defaultWorkflow === "duel" ? 0 : null }), perspective = 1, state = "idle", serial = 0, requestId = 0;
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false, migratedFrom = null;
-let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
+let pending = -1, hover = -1, keyboard = 112, keyboardActive = false, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto";
 const hints = new TurnHints(); let hintsStamp = "";
@@ -106,6 +106,14 @@ function configureRule() { if ((engine.rule === "freestyle") !== (session.rule =
 const manualTurn = () => !paused && !forbiddenInput && canManualTurn(session, { modal, busy });
 const interactive = () => manualTurn() && !session.decision;
 const workflowLabel = { copilot: "AI 代下", follow: "手动记录", duel: "AI 对弈" };
+function cursorDescription(index) {
+  if (!Number.isInteger(index) || index < 0 || index >= session.board.length) return "未选择交叉点";
+  const color = session.board[index], at = coordinate(index);
+  if (!color) return `${at}，空点${interactive() ? `，可落${colorName(session.color)}棋` : ""}`;
+  const move = session.moves.indexOf(index);
+  return `${at}，${colorName(color)}棋${move >= 0 ? `，第 ${move + 1} 手` : "，起始棋子"}`;
+}
+function announceCursor() { $("#boardCursorStatus").textContent = cursorDescription(keyboard); }
 function renderAnalysis() {
   statsUpdates.cancel();
   analysisView.render(analysis, session.winner);
@@ -172,20 +180,24 @@ function render() {
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
-  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: requestedBoardMotion,
+  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, keyboardIndex: keyboard, keyboardActive, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: requestedBoardMotion,
     moveHints: hints.points,
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
   if (boardChanged) decorate();
-  const text = paused ? "思考已暂停 · 可继续或悔棋" : busy ? deepPhase || (isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…") : pending >= 0 ? "再点一次确认" : session.description();
+  const text = paused ? "思考已暂停 · 可继续或悔棋" : busy ? deepPhase || (isAutomaticTurn(session) ? "AI 思考中" : "正在分析当前操作…") : pending >= 0 ? `再点一次确认 · ${coordinate(pending)}` : session.description();
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
   $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}`;
   $("#undoButton").disabled = pending < 0 && (!session.events.length || session.workflow === "duel" && !session.actors.includes(0)); $("#retryButton").hidden = state !== "error";
-  $("#simpleUndoButton").disabled = $("#undoButton").disabled;
+  const undoLabel = pending >= 0 && !busy ? `取消待确认落点 ${coordinate(pending)}` : "悔棋，撤回上次操作";
+  $("#undoButton").setAttribute("aria-label", undoLabel); $("#undoButton").title = `${undoLabel}（U）`; $("#undoButton").setAttribute("aria-keyshortcuts", "U");
+  $("#simpleUndoButton").disabled = $("#undoButton").disabled; $("#simpleUndoButton").setAttribute("aria-label", undoLabel);
   $("#recommendButton").disabled = isAutomaticTurn(session) || session.stage === "setup" || Boolean(forbiddenInput) || session.workflow === "copilot" && session.decision || (!advice && !busy && (modal || session.winner || state !== "ready"));
   $("#recommendButton").setAttribute("aria-pressed", String(Boolean(advice) || busy));
+  const recommendLabel = busy ? "正在分析" : advice ? "收起推荐" : "推荐落点";
+  $("#recommendButton").setAttribute("aria-label", recommendLabel); $("#recommendButton").title = `${recommendLabel}（R）`; $("#recommendButton").setAttribute("aria-keyshortcuts", "R");
   $("#simpleRecommendButton").disabled = $("#recommendButton").disabled;
   $("#simpleRecommendButton").setAttribute("aria-pressed", $("#recommendButton").getAttribute("aria-pressed"));
   $("#simpleRecommendButton").title = $("#recommendButton").title;
@@ -197,7 +209,8 @@ function render() {
   $(".game-settings").dataset.controls = session.workflow === "follow" ? "3" : "2";
   $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
   $("#timeSelect").disabled = busy; $("#ponderToggle").disabled = busy;
-  svg.setAttribute("aria-label", `15 乘 15 连珠棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}方向键选点，回车确认。`);
+  const lastMoveText = session.lastMove >= 0 && session.board[session.lastMove] ? `最后一手 ${coordinate(session.lastMove)} ${colorName(session.board[session.lastMove])}棋。` : "尚未落子。";
+  svg.setAttribute("aria-label", `15 乘 15 连珠棋盘，共 ${session.moves.length} 手。${lastMoveText}${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}当前选点 ${cursorDescription(keyboard)}。方向键选点，回车确认。`);
   svg.setAttribute("aria-disabled", String(!interactive())); Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
   display?.render({ playerColor: session.playerColor, winner: session.winner, state, text, busy });
   if (display?.simple) {
@@ -305,18 +318,30 @@ function restoreArchived(entry) {
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
-svg.addEventListener("pointerdown", event => { pointerType = event.pointerType; });
+svg.addEventListener("pointerdown", event => { pointerType = event.pointerType; keyboardActive = false; });
 svg.addEventListener("pointermove", event => { if (event.pointerType !== "mouse" || !interactive()) return; const i = indexAt(event), next = session.canPoint(i) ? i : -1; if (hover !== next) { hover = next; render(); } });
 svg.addEventListener("pointerleave", () => { hover = -1; render(); });
 svg.addEventListener("click", event => {
   if (!interactive()) return; const index = indexAt(event);
   if (!session.canPoint(index)) { void place(index); return; }
-  if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && pending !== index) { pending = index; hover = -1; render(); } else void place(index);
+  if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && pending !== index) {
+    pending = keyboard = index; hover = -1; render(); $("#boardCursorStatus").textContent = `待确认 ${coordinate(index)}，再点一次落子`;
+  } else void place(index);
 });
 svg.addEventListener("keydown", event => {
-  if (!interactive()) return; const shifts = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
-  if (shifts[event.key]) { event.preventDefault(); const [dx, dy] = shifts[event.key]; keyboard = Math.max(0, Math.min(14, Math.floor(keyboard / 15) + dy)) * 15 + Math.max(0, Math.min(14, keyboard % 15 + dx)); hover = session.canPoint(keyboard) ? keyboard : -1; render(); }
-  else if (["Enter", " "].includes(event.key)) { event.preventDefault(); void place(keyboard); }
+  if (!interactive()) return;
+  const shifts = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  if (shifts[event.key] || event.key === "Home") {
+    event.preventDefault();
+    if (event.key === "Home") keyboard = 112;
+    else {
+      const [dx, dy] = shifts[event.key];
+      keyboard = Math.max(0, Math.min(14, Math.floor(keyboard / 15) + dy)) * 15 + Math.max(0, Math.min(14, keyboard % 15 + dx));
+    }
+    keyboardActive = true; hover = -1; render(); announceCursor();
+  } else if (["Enter", " "].includes(event.key)) { event.preventDefault(); void place(keyboard); }
+  else if (event.key.toLowerCase() === "r") { event.preventDefault(); if (!$("#recommendButton").disabled) void recommend(); }
+  else if (event.key.toLowerCase() === "u") { event.preventDefault(); if (!$("#undoButton").disabled) $("#undoButton").click(); }
 });
 for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventListener("click", event => {
   const button = event.target.closest("[data-flow-action]"); if (!button || button.disabled) return;
@@ -348,8 +373,21 @@ $("#simpleColor").addEventListener("keydown", event => { if (event.key.toLowerCa
 setupRecordUi({ getRecord: () => session.record(), notify, onModalChange: onModal,
   applyRecord: record => { restoreArchived({ record }); return persist(); }
 });
+document.addEventListener("pointerdown", event => {
+  const menu = $("#recordMenu");
+  if (menu.open && !menu.contains(event.target)) menu.open = false;
+  if (pending >= 0 && !event.target.closest("#boardSvg, button, a, input, select, summary, dialog, .opening-flow")) {
+    pending = -1; render(); $("#boardCursorStatus").textContent = "已取消待确认落点";
+  }
+});
 document.addEventListener("visibilitychange", () => { if (document.hidden) persist(); void syncPonder(); }); window.addEventListener("pagehide", persist);
-document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape" || document.querySelector("dialog[open]")) return;
+  const menu = $("#recordMenu");
+  if (menu.open) { event.preventDefault(); menu.open = false; menu.querySelector("summary").focus({ preventScroll: true }); return; }
+  if (pending >= 0) { event.preventDefault(); pending = -1; render(); $("#boardCursorStatus").textContent = "已取消待确认落点"; return; }
+  cancel(); render(); void prepare();
+});
 enhancements = setupGameEnhancements({
   sound,
   getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,busy:busy&&(isAutomaticTurn(session)||adaptiveThinking),paused,ruleLabel: RULES[session.rule] }),
