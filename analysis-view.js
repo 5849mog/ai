@@ -45,7 +45,13 @@ export function createAnalysisView(root) {
       select("#playerWinRate").textContent = known ? `${percent}%` : "—";
       select("#aiWinRate").textContent = known ? `${100 - percent}%` : "—";
       bar.setAttribute("aria-label", known ? `引擎估算胜率：你 ${percent}%，AI ${100 - percent}%` : winner === 3 ? "平局，对局结束" : "当前局势等待评估");
-      if (known) bar.setAttribute("aria-valuenow", percent); else bar.removeAttribute("aria-valuenow");
+      if (known) {
+        bar.setAttribute("aria-valuenow", percent);
+        bar.setAttribute("aria-valuetext", `当前视角 ${percent}%，对方 ${100 - percent}%`);
+      } else {
+        bar.removeAttribute("aria-valuenow");
+        bar.removeAttribute("aria-valuetext");
+      }
       fill.style.width = known ? `${percent}%` : "0%";
       select("#winRateCaption").textContent = winner ? winner === 3 ? "平局" : "最终结果" : known ? "引擎估算胜率" : "等待评估";
       const geometry = trendGeometry(analysis.history, analysis.moves.length);

@@ -78,10 +78,14 @@ function animateStoneRemoval(boardSvg, removed, before) {
   }
 }
 
-function animateBoardTransition(boardSvg, transition, state, before) {
+function boardAction(boardSvg, transition, state) {
   const reduced = boardSvg.ownerDocument?.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-  if (boardSvg.dataset) boardSvg.dataset.boardAction = reduced ? "reduced" : state.motion === "reset" ? "reset" : transition.type;
-  if (reduced || state.motion === "reset" || state.motion === "none") return;
+  return reduced ? "reduced" : state.motion === "reset" ? "reset" : transition.type;
+}
+
+function animateBoardTransition(boardSvg, transition, state, before) {
+  const action = boardAction(boardSvg, transition, state);
+  if (action === "reduced" || action === "reset" || state.motion === "none") return;
   if (transition.type === "place") animateStonePlacement(boardSvg, state.lastMove, state.board[state.lastMove]);
   else if (transition.type === "undo") animateStoneRemoval(boardSvg, transition.removed, before);
 }
@@ -110,7 +114,7 @@ function nearestIntersection(boardSvg, clientX, clientY) {
 }
 
 function renderBoard(boardSvg, state, idPrefix) {
-  const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [], moveHints = [] } = state;
+  const { board, lastMove, pendingIndex, hoverIndex = -1, keyboardIndex = -1, keyboardActive = false, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [], moveHints = [] } = state;
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   const lines = editable ? [] : winningLines(board, lastMove);
   let svg = "";
@@ -172,6 +176,13 @@ function renderBoard(boardSvg, state, idPrefix) {
         '" role="button" aria-label="' + (editable ? '编辑 ' + coordinate(index) : '选择 ' + coordinate(index) + (playerColor === 1 ? ' 落黑子' : ' 落白子')) + '" tabindex="-1" data-view-key="hit-' + index + '"/>';
     }
   }
+  if (keyboardActive && Number.isInteger(keyboardIndex) && keyboardIndex >= 0 && keyboardIndex < board.length) {
+    const p = point(keyboardIndex), label = coordinate(keyboardIndex);
+    const width = label.length * 8 + 10;
+    const x = keyboardIndex % SIZE > 10 ? p.x - width - 18 : p.x + 18;
+    const y = Math.floor(keyboardIndex / SIZE) < 2 ? p.y + 18 : p.y - 34;
+    svg += `<g class="keyboard-cursor" data-keyboard-cursor="${keyboardIndex}" data-view-key="keyboard-cursor" aria-hidden="true"><circle cx="${p.x}" cy="${p.y}" r="18"/><rect x="${x}" y="${y}" width="${width}" height="20" rx="4"/><text x="${x + width / 2}" y="${y + 14}">${label}</text></g>`;
+  }
   // Rank order stays fixed even when candidates cross on the board. Updating a
   // coordinate must not detach a marker or restart its entrance animation.
   for (const [rank, move] of recommendations.slice(0, 2).entries()) {
@@ -228,12 +239,15 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
       // Snapshot values, not array identity: live boards mutate in place.
       // Callers with extra SVG overlays include their state in overlayKey and
       // append those overlays only when render returns true.
-      const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
+      const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex, state.keyboardIndex, Boolean(state.keyboardActive),
         Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
         (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color])]);
       if (key === previousKey) return false;
       const transition = boardTransition(previousBoard, state.board, state.lastMove);
+      // Set the action before inserting new SVG so restored candidates and rings
+      // never begin an entrance animation that is cancelled one frame later.
+      if (boardSvg.dataset) boardSvg.dataset.boardAction = boardAction(boardSvg, transition, state);
       renderBoard(boardSvg, state, idPrefix);
       if (typeof boardSvg.querySelectorAll === "function") animateBoardTransition(boardSvg, transition, state, previousBoard);
       previousKey = key; previousBoard = Array.from(state.board); return true;

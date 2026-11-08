@@ -1,7 +1,10 @@
 {
-  "version": "2026.11.01.1",
+  "version": "2026.11.08.4",
   "browser": "151.0.7922.108",
   "checks": [
+    {
+      "name": "keyboard cursor, Home, coordinate announcements, board context and menu dismissal"
+    },
     {
       "name": "desktop placement, impact cleanup, AI thinking phase and automatic reply"
     },
@@ -12,10 +15,13 @@
       "name": "undo removes the actual prior stones with bounded recovery ghosts"
     },
     {
-      "name": "real five-in-a-row finale and reload restoration without false placement"
+      "name": "real five-in-a-row finale and reload restoration without false placement or entrance replays"
     },
     {
       "name": "mobile two-tap confirmation, aiming motion and no horizontal overflow"
+    },
+    {
+      "name": "forced-colors mode preserves both stone colors and grid without textures"
     },
     {
       "name": "reduced-motion mode disables both CSS and Web Animations effects"
@@ -23,5 +29,5 @@
   ],
   "errors": [],
   "passed": true,
-  "completedAt": "2026-11-01T02:25:25.293Z"
+  "completedAt": "2026-11-08T04:39:03.465Z"
 }
