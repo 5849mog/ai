@@ -90,3 +90,40 @@ test('review autoplay stops on manual navigation, at the end, in the background 
     Object.defineProperty(document,'hidden',{ configurable:true,value:false }); play.click(); review.dispose(); assert.equal(timers.size,0);
   } finally { globalThis.setTimeout = oldSet; globalThis.clearTimeout = oldClear; finish(); }
 });
+
+test('saved names and notes survive game updates and deletion undo; history can be searched, filtered and sorted', () => {
+  const dom = new JSDOM('<div id="root"></div>', { url:'https://example.com/ai/' }), finish=bind(dom);
+  try {
+    let n=0,t=0; const archive=createGameArchive({storage:dom.window.localStorage,page:'test',id:()=>`g${++n}`,now:()=>++t});
+    archive.capture(createRecord([0],1));const id=archive.list()[0].id;
+    assert.equal(archive.annotate(id,{name:'关键对局',note:'防守变化'}),true);
+    archive.capture(createRecord([0,15],1)); assert.equal(archive.list()[0].name,'关键对局');assert.equal(archive.list()[0].note,'防守变化');
+    archive.begin();archive.capture(createRecord([112],1));const newer=archive.list()[0].id;
+    const root=document.querySelector('#root'),ui=createArchiveUi(root,{archive,close(){},resume(){},review(){},exportRecord(){}});ui.open();
+    const search=root.querySelector('[data-archive-search]');search.value='防守';search.dispatchEvent(new dom.window.Event('input'));
+    assert.equal(root.querySelectorAll('.archive-card').length,1);assert.equal(root.querySelector('.archive-card').dataset.archiveId,id);
+    search.value='';search.dispatchEvent(new dom.window.Event('input'));
+    const rule=root.querySelector('[data-rule-filter]');rule.value='rif';rule.dispatchEvent(new dom.window.Event('change'));assert.equal(root.querySelectorAll('.archive-card').length,0);
+    rule.value='freestyle';rule.dispatchEvent(new dom.window.Event('change'));assert.equal(root.querySelectorAll('.archive-card').length,2);
+    const sort=root.querySelector('[data-archive-sort]');sort.value='oldest';sort.dispatchEvent(new dom.window.Event('change'));assert.equal(root.querySelector('.archive-card').dataset.archiveId,id);
+    archive.favorite(newer);sort.value='favorite';sort.dispatchEvent(new dom.window.Event('change'));assert.equal(root.querySelector('.archive-card').dataset.archiveId,newer);
+    const saved=archive.list().find(x=>x.id===id);archive.remove(id);assert.equal(archive.restore(saved),true);assert.equal(archive.list().find(x=>x.id===id).note,'防守变化');ui.dispose();
+  } finally {finish();}
+});
+
+test('review supports endpoints, keyboard navigation, reverse playback and speed changes', () => {
+  const dom=new JSDOM('<div id="root"></div>',{url:'https://example.com/ai/',pretendToBeVisual:true}),finish=bind(dom);
+  const oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout;let id=0;const timers=new Map();
+  globalThis.setTimeout=(fn,delay)=>{const key=++id;timers.set(key,{fn,delay});return key;};globalThis.clearTimeout=key=>timers.delete(key);
+  try {
+    const root=document.querySelector('#root'),ui=createReviewUi(root,{search:()=>new Promise(()=>{}),cancelSearch(){},close(){},newGame(){}});
+    void ui.open(createRecord([0,15,1,16,2,17,3,18,4],1));const slider=root.querySelector('[data-timeline]');
+    root.querySelector('[data-first]').click();assert.equal(slider.value,'0');root.querySelector('[data-last]').click();assert.equal(slider.value,'9');
+    const svg=root.querySelector('svg');svg.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true}));assert.equal(slider.value,'8');
+    svg.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Home',bubbles:true}));assert.equal(slider.value,'0');
+    root.querySelector('[data-direction]').value='-1';root.querySelector('[data-speed]').value='400';root.querySelector('[data-play]').click();
+    assert.equal(slider.value,'9');let [token,timer]=[...timers][0];assert.equal(timer.delay,400);timers.delete(token);timer.fn();assert.equal(slider.value,'8');
+    root.querySelector('[data-speed]').value='1400';root.querySelector('[data-speed]').dispatchEvent(new dom.window.Event('change'));assert.equal([...timers.values()][0].delay,1400);
+    ui.dispose();assert.equal(timers.size,0);
+  } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;finish();}
+});

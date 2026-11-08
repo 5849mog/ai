@@ -52,11 +52,15 @@ export function createGameArchive({ storage, page, now = Date.now, id = () => gl
     capture(record, meta={}) {
       const summary=archiveSummary(record); if(!summary.meaningful) {const entries=read();return entries.some(e=>e.id===active)?write(entries.filter(e=>e.id!==active)):true;}
       if(!active) use(); const entries=read(), existing=entries.find(e=>e.id===active), stamp=now();
-      const entry={id:active,createdAt:existing?.createdAt??stamp,updatedAt:stamp,favorite:existing?.favorite??false,record:summary.record,
+      const entry={id:active,createdAt:existing?.createdAt??stamp,updatedAt:stamp,favorite:existing?.favorite??false,name:existing?.name??"",note:existing?.note??"",record:summary.record,
         meta:{version:meta.version,timeMs:meta.timeMs,mode:meta.mode,openingPlan:meta.openingPlan??null}};
       if(existing) entries.splice(entries.indexOf(existing),1); entries.push(entry); return write(entries);
     },
     favorite(value) {const entries=read(), entry=entries.find(e=>e.id===value); if(!entry)return false;entry.favorite=!entry.favorite;return write(entries);},
+    annotate(value, {name, note}) {
+      const entries=read(),entry=entries.find(e=>e.id===value);if(!entry)return false;
+      entry.name=String(name??"").trim().slice(0,40);entry.note=String(note??"").trim().slice(0,500);return write(entries);
+    },
     remove(value) {
       const entries=read(); if(!entries.some(e=>e.id===value))return false;
       // A failed storage write must not detach the still-current archived game.
@@ -67,7 +71,7 @@ export function createGameArchive({ storage, page, now = Date.now, id = () => gl
       // Never overwrite a newer copy or evict another game to undo a deletion.
       if(!entry || typeof entry.id!=="string" || !Number.isFinite(entry.updatedAt) || entries.some(e=>e.id===entry.id) || entries.length>=limit) return false;
       try { if(!archiveSummary(entry.record).meaningful)return false; } catch { return false; }
-      entries.push({id:entry.id,createdAt:entry.createdAt,updatedAt:entry.updatedAt,favorite:Boolean(entry.favorite),record:entry.record,meta:entry.meta});
+      entries.push({id:entry.id,createdAt:entry.createdAt,updatedAt:entry.updatedAt,favorite:Boolean(entry.favorite),name:entry.name??"",note:entry.note??"",record:entry.record,meta:entry.meta});
       return write(entries);
     },
     get failed() {return failed;}
