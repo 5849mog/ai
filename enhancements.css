@@ -159,3 +159,5 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 .review-navigation button { flex: 0 0 auto; padding: 4px; }
 .review-play-options { display: flex; gap: 12px; margin: 5px 0; color: var(--muted); font-size: 11px; }
 .review-play-options select { min-height: 34px; }
+
+.archive-backup { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted); font-size:12px; }

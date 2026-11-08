@@ -1,9 +1,22 @@
-import { archiveTitle } from "./game-archive.js";
+import { archiveTitle, parseArchiveBackup } from "./game-archive.js";
 import { RULES } from "./opening-session.js";
 export function createArchiveUi(root,{archive,close,resume,review,exportRecord}) {
   root.innerHTML=`<header class="tool-header"><h2>最近对局</h2><button type="button" data-archive-close>返回棋盘</button></header><p class="tool-message">自动保留最近 50 局，收藏优先保留。数据保存在本设备浏览器中。</p><div class="archive-filter"><label>筛选 <select data-archive-filter><option value="all">全部对局</option><option value="favorite">我的收藏</option><option value="unfinished">未结束</option><option value="finished">已结束</option></select></label><label>规则 <select data-rule-filter><option value="all">全部规则</option><option value="freestyle">无禁手</option><option value="renju">禁手自由开局</option><option value="rif">五手两打</option><option value="taraguchi10">塔拉山口-10</option></select></label><label>排序 <select data-archive-sort><option value="recent">最近更新</option><option value="oldest">最早更新</option><option value="favorite">收藏优先</option></select></label><input data-archive-search type="search" placeholder="搜索名称或备注" aria-label="搜索名称或备注" maxlength="80"><span data-archive-count></span></div><div class="archive-list"></div><div class="archive-notice" role="status"></div>`;
   root.querySelector("[data-archive-close]").onclick=close;
-  let removed=null, status="";
+  const bar=document.createElement("div");bar.className="archive-backup";
+  bar.innerHTML='<button type="button" data-backup-export>导出全部对局备份</button><label class="image-picker">选择备份导入<input type="file" accept="application/json,.json" data-backup-file></label><span data-backup-preview></span><button type="button" data-backup-confirm hidden>确认合并</button><button type="button" data-backup-cancel hidden>取消</button>';
+  root.querySelector(".archive-filter").before(bar);
+  let removed=null, status="", pendingBackup=null, backupGeneration=0;
+  const preview=()=>{const active=Boolean(pendingBackup);bar.querySelector('[data-backup-confirm]').hidden=bar.querySelector('[data-backup-cancel]').hidden=!active;bar.querySelector('[data-backup-preview]').textContent=active?`备份包含 ${pendingBackup.count} 局，确认后合并到现有记录。`:'';};
+  bar.querySelector('[data-backup-export]').onclick=()=>{try {
+    const url=URL.createObjectURL(new Blob([archive.exportBackup()],{type:'application/json'})),link=document.createElement('a');link.href=url;link.download='wumu-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(error){status=error.message;renderNotice();}};
+  bar.querySelector('[data-backup-file]').onchange=async event=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;const token=++backupGeneration;
+    try {if(file.size>2*1024*1024)throw new Error('备份文件不能超过 2 MiB');const text=await file.text();const entries=parseArchiveBackup(text);if(token!==backupGeneration)return;pendingBackup={text,count:entries.length};status='';preview();renderNotice();}
+    catch(error){if(token!==backupGeneration)return;pendingBackup=null;status=error.message;preview();renderNotice();}
+  };
+  bar.querySelector('[data-backup-confirm]').onclick=()=>{if(!pendingBackup)return;try {const result=archive.importBackup(pendingBackup.text);pendingBackup=null;status=`已合并 ${result.added} 局，跳过 ${result.skipped} 局重复记录。`;preview();render();}catch(error){status=error.message;renderNotice();}};
+  bar.querySelector('[data-backup-cancel]').onclick=()=>{backupGeneration++;pendingBackup=null;preview();};
   function render() {
     const list=root.querySelector(".archive-list"), filter=root.querySelector("[data-archive-filter]").value;
     list.replaceChildren();const all=archive.list();
@@ -40,5 +53,5 @@ export function createArchiveUi(root,{archive,close,resume,review,exportRecord})
   }
   for(const selector of ["[data-archive-filter]","[data-rule-filter]","[data-archive-sort]"])root.querySelector(selector).onchange=render;
   root.querySelector("[data-archive-search]").oninput=render;
-  return {open:render,dispose(){removed=null;status="";root.querySelector("[data-archive-filter]").value="all";root.querySelector("[data-rule-filter]").value="all";root.querySelector("[data-archive-sort]").value="recent";root.querySelector("[data-archive-search]").value="";}};
+  return {open:render,dispose(){backupGeneration++;pendingBackup=null;preview();removed=null;status="";root.querySelector("[data-archive-filter]").value="all";root.querySelector("[data-rule-filter]").value="all";root.querySelector("[data-archive-sort]").value="recent";root.querySelector("[data-archive-search]").value="";}};
 }
