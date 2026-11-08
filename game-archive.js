@@ -57,7 +57,19 @@ export function createGameArchive({ storage, page, now = Date.now, id = () => gl
       if(existing) entries.splice(entries.indexOf(existing),1); entries.push(entry); return write(entries);
     },
     favorite(value) {const entries=read(), entry=entries.find(e=>e.id===value); if(!entry)return false;entry.favorite=!entry.favorite;return write(entries);},
-    remove(value) {const entries=read();if(value===active)use();return write(entries.filter(e=>e.id!==value));},
+    remove(value) {
+      const entries=read(); if(!entries.some(e=>e.id===value))return false;
+      // A failed storage write must not detach the still-current archived game.
+      const removed=write(entries.filter(e=>e.id!==value)); if(removed&&value===active)use(); return removed;
+    },
+    restore(entry) {
+      const entries=read();
+      // Never overwrite a newer copy or evict another game to undo a deletion.
+      if(!entry || typeof entry.id!=="string" || !Number.isFinite(entry.updatedAt) || entries.some(e=>e.id===entry.id) || entries.length>=limit) return false;
+      try { if(!archiveSummary(entry.record).meaningful)return false; } catch { return false; }
+      entries.push({id:entry.id,createdAt:entry.createdAt,updatedAt:entry.updatedAt,favorite:Boolean(entry.favorite),record:entry.record,meta:entry.meta});
+      return write(entries);
+    },
     get failed() {return failed;}
   };
 }

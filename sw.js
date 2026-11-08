@@ -1,7 +1,7 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.07.2";
-const VERSION = PREFIX + "261107-v56";
+const RELEASE = "2026.11.08.1";
+const VERSION = PREFIX + "261108-v57";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -15,6 +15,7 @@ CORE.push("opening.css?v=6", "enhancements.css?v=48");
 CORE.push("opening.css?v=7", "enhancements.css?v=49", "styles.css?v=23", "game-modes.css?v=6", "sound.js");
 CORE.push("enhancements.css?v=50", "game-motion.js");
 CORE.push("enhancements.css?v=51");
+CORE.push("enhancements.css?v=52", "game-modes.css?v=7");
 CORE.push("svg-view.js", "image-grid.js");
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";

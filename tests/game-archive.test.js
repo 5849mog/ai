@@ -8,7 +8,7 @@ function fixture(limit=50) {
   const map=new Map();let serial=0,stamp=0,fail=false;
   const storage={getItem:key=>map.get(key)??null,setItem:(key,value)=>{if(fail)throw Error('quota');map.set(key,value);},removeItem:key=>map.delete(key)};
   const options={storage,page:'freestyle',id:()=>`game-${++serial}`,now:()=>++stamp,limit};
-  return {map,storage,archive:createGameArchive(options),options,fail:()=>{fail=true;}};
+  return {map,storage,archive:createGameArchive(options),options,fail:(value=true)=>{fail=value;}};
 }
 test('live updates, undo and terminal result replace one stable game; New retains previous games',()=>{
   const f=fixture(),a=f.archive;a.resume(createRecord([],1));
@@ -56,4 +56,22 @@ test('archive and cross-page transfer preserve a pending three-stone plan for va
   const openingPlan={key:'fixture',points:[112,97,80],remembered:false};f.archive.capture(s.record(),{openingPlan});
   const entry=f.archive.list()[0];assert.deepEqual(entry.meta.openingPlan,openingPlan);queueArchiveRestore(f.storage,entry);
   assert.deepEqual(takeArchiveRestore(f.storage,'gomoku-opening').meta.openingPlan,openingPlan);
+});
+test('undoing a deletion restores the complete entry without evicting other games or overwriting a changed copy',()=>{
+  const f=fixture(2),a=f.archive;a.capture(createRecord([0,15],1),{timeMs:5000,mode:'fixed'});
+  const id=a.list()[0].id;a.favorite(id);const saved=a.list()[0];
+  assert.equal(a.remove(id),true);assert.equal(a.list().length,0);
+  assert.equal(a.restore(saved),true);const restored=a.list()[0];
+  assert.deepEqual(restored.record,saved.record);assert.deepEqual(restored.meta,saved.meta);
+  assert.equal(restored.favorite,true);assert.equal(restored.createdAt,saved.createdAt);assert.equal(restored.updatedAt,saved.updatedAt);
+  assert.equal(a.restore(saved),false);
+  a.begin();a.capture(createRecord([1],1));assert.equal(a.remove(id),true);
+  a.begin();a.capture(createRecord([2],1));const before=a.list().map(e=>e.id);
+  assert.equal(a.restore(saved),false);assert.deepEqual(a.list().map(e=>e.id),before);
+});
+test('failed deletion leaves the active game attached to the original archive entry',()=>{
+  const f=fixture(),a=f.archive;a.capture(createRecord([0],1));const id=a.list()[0].id;
+  f.fail();assert.equal(a.remove(id),false);assert.equal(a.list()[0].id,id);
+  f.fail(false);a.capture(createRecord([0,15],1));
+  assert.equal(a.list().length,1);assert.equal(a.list()[0].id,id);assert.deepEqual(a.list()[0].record.moves,[0,15]);
 });
