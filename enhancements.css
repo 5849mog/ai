@@ -57,7 +57,7 @@
 .review-highlights button { display: block; width: 100%; text-align: left; margin-top: 4px; }
 .opening-review-list button { display:block; width:100%; text-align:left; margin-top:4px; }
 .archive-list { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; }
-.archive-filter { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.archive-filter { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
 .archive-filter select { min-height: 34px; padding: 4px 8px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 5px; }
 .archive-notice { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .archive-card { border:1px solid var(--line); border-radius:8px; padding:10px; margin:0 0 8px; background:var(--paper); }
@@ -148,3 +148,14 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 @media (forced-colors: active) {
   .impact-ring, .impact-flash, .removed-stone, .board-frame::after, .board-toolbar::after { display: none; }
 }
+
+.archive-filter input, .archive-edit input, .archive-edit textarea, .review-play-options select { color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 5px; padding: 6px; font: inherit; }
+.archive-filter input { min-width: 120px; flex: 1 1 150px; min-height: 34px; }
+.archive-edit { margin-top: 7px; font-size: 12px; color: var(--muted); }
+.archive-edit summary { cursor: pointer; }
+.archive-edit input, .archive-edit textarea { display: block; width: 100%; margin: 6px 0; }
+.archive-edit textarea { min-height: 62px; resize: vertical; }
+.review-navigation strong { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-size: 11px; }
+.review-navigation button { flex: 0 0 auto; padding: 4px; }
+.review-play-options { display: flex; gap: 12px; margin: 5px 0; color: var(--muted); font-size: 11px; }
+.review-play-options select { min-height: 34px; }
