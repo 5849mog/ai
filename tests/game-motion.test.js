@@ -70,6 +70,25 @@ test("rapid candidate moves and hover updates keep ranks, stones and rings conne
   } finally { f.dom.window.close(); }
 });
 
+test("keyboard cursor has a stable identity, coordinate badge and edge-aware placement", () => {
+  const f = boardFixture();
+  try {
+    Object.assign(f.state, { keyboardActive: true, keyboardIndex: 112 });
+    f.view.render(f.state);
+    const cursor = f.svg.querySelector(".keyboard-cursor");
+    assert.equal(cursor.dataset.keyboardCursor, "112");
+    assert.equal(cursor.querySelector("text").textContent, "H8");
+    assert.equal(cursor.getAttribute("aria-hidden"), "true");
+    f.state.keyboardIndex = 0; f.view.render(f.state);
+    assert.equal(f.svg.querySelector(".keyboard-cursor"), cursor);
+    assert.equal(cursor.querySelector("text").textContent, "A15");
+    const label = cursor.querySelector("rect");
+    assert.ok(Number(label.getAttribute("y")) > 46);
+    f.state.keyboardActive = false; f.view.render(f.state);
+    assert.equal(f.svg.querySelector(".keyboard-cursor"), null);
+  } finally { f.dom.window.close(); }
+});
+
 test("recommendation ranks update in place when candidates swap positions", () => {
   const f = boardFixture();
   try {
@@ -109,11 +128,14 @@ test("live win-rate refinements preserve the curve and current-point animation n
     assert.equal(observer.takeRecords().length, 0);
     assert.notEqual(root.querySelector(".trend-current").getAttribute("cy"), beforeY);
     assert.equal(root.querySelector("#playerWinRate").textContent, "83%");
+    assert.equal(root.querySelector("#winRateBar").getAttribute("aria-valuenow"), "83");
+    assert.equal(root.querySelector("#winRateBar").getAttribute("aria-valuetext"), "当前视角 83%，对方 17%");
     analysis.moves.push(114); history.push({ ply: 3, winRate: null }); analysis.current = history[2];
     view.render(analysis, 0);
     assert.equal(root.querySelector(".trend-halo, .trend-current"), null);
     analysis.moves = []; history.length = 0; analysis.current = null; view.render(analysis, 0);
     assert.equal(root.querySelector("#trendData").children.length, 0);
+    assert.equal(root.querySelector("#winRateBar").hasAttribute("aria-valuetext"), false);
     observer.disconnect();
   } finally {
     original ? Object.defineProperty(globalThis, "document", original) : delete globalThis.document;
@@ -184,7 +206,11 @@ test("HUD motion exposes state, animates meaningful text changes and honors redu
     assert.equal(document.documentElement.dataset.gamePhase, "thinking");
     assert.equal(document.documentElement.dataset.gameTurn, "2");
     assert.equal(document.querySelector("#frame").dataset.motionPhase, "thinking");
+    motion.render({ text: "深入搜索第 12 层", state: "ready", currentColor: 2, busy: true });
+    assert.equal(calls.length, reduced ? 0 : 1, "search refinements do not replay status motion");
     motion.render({ text: "黑棋胜", state: "ready", currentColor: 2, winner: 1 });
+    document.querySelector("#notice").textContent = "对局结束";
+    motion.announce();
     motion.announce();
     assert.equal(document.documentElement.dataset.gamePhase, "finished");
     assert.equal(document.querySelector("#board").dataset.winner, "1");
