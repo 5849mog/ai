@@ -10,7 +10,7 @@ export function gamePhase({ busy = false, paused = false, winner = 0, state = "r
 // One state-driven controller for the DOM around the board. The board itself
 // owns stone transitions; this module never starts a perpetual JS render loop.
 export function createGameMotion({ root, board, status, frame, notice }) {
-  let previousText = "", previousWinner = 0;
+  let previousText = "", previousWinner = 0, previousPhase = "", previousNotice = "";
   let statusAnimation, noticeAnimation;
   const reduced = () => root.ownerDocument?.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   return {
@@ -21,7 +21,9 @@ export function createGameMotion({ root, board, status, frame, notice }) {
       board.dataset.phase = phase;
       board.dataset.winner = String(snapshot.winner || 0);
       frame.dataset.motionPhase = phase;
-      if (previousText && text !== previousText && !reduced()) {
+      const meaningfulTextChange = previousText && text !== previousText &&
+        (phase !== previousPhase || phase === "ready" && previousPhase === "ready");
+      if (meaningfulTextChange && !reduced()) {
         statusAnimation?.cancel();
         statusAnimation = status.animate?.([
           { opacity: .25, transform: "translateY(4px)" },
@@ -32,11 +34,13 @@ export function createGameMotion({ root, board, status, frame, notice }) {
       if (snapshot.winner && !previousWinner && !reduced()) {
         frame.animate?.([{ opacity: .82 }, { opacity: 1 }], { duration: 720, easing: "ease-out" });
       }
-      previousText = text; previousWinner = snapshot.winner || 0;
+      previousText = text; previousWinner = snapshot.winner || 0; previousPhase = phase;
       return phase;
     },
     announce() {
-      if (reduced()) return;
+      const text = notice.textContent || "";
+      if (text === previousNotice || reduced()) return;
+      previousNotice = text;
       noticeAnimation?.cancel();
       noticeAnimation = notice.animate?.([{ opacity: 0 }, { opacity: 1, offset: .35 }, { opacity: 1 }],
         { duration: 260, easing: "ease-out" });
