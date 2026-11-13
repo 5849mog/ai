@@ -33,3 +33,18 @@ test('PNG renderer draws real stones and labels proposals separately',async()=>{
  const board=new Uint8Array(225);board[112]=1;board[113]=2;drawBoardImage(ctx,{board,lastMove:113,candidates:[97,98]});assert.deepEqual(text.map(x=>x[0]),['A1','A2']);assert.ok(arcs.length>=14);
  const doc={createElement:()=>({getContext:()=>ctx,toBlob:callback=>callback(new Blob(['png'],{type:'image/png'}))})};assert.equal((await boardImageBlob({board},doc)).type,'image/png');assert.throws(()=>drawBoardImage(ctx,{board:[]}),/棋盘无效/);
 });
+
+test('unfinished review reconstruction stays identical to historical review for completed games',async()=>{
+ const {reviewFramesIncludingUnfinished}=await import('../partial-review.js');
+ const records=[won()];
+ for(const rule of ['renju','rif','taraguchi10']){
+  const board=new Uint8Array(225);board[112]=1;
+  const s=new OpeningSession({rule,workflow:'follow',initialBlackSeat:0,seed:{board,sideToMove:2}});
+  while(!s.winner){const index=s.allowedMoves({safe:true})[0];s.apply({type:'stone',index});}
+  records.push(s.record());
+ }
+ for(const record of records)assert.deepEqual(reviewFramesIncludingUnfinished(record),reviewFrames(record));
+ const partial=new OpeningSession({rule:'rif',workflow:'follow',initialBlackSeat:0});
+ for(const index of [112,97,96])partial.apply({type:'stone',index});partial.apply({type:'decision',choice:'swap'});
+ const review=reviewFramesIncludingUnfinished(partial.record());assert.equal(review.frames.length,5);assert.equal(review.frames.at(-1).winner,0);assert.equal(replaySession(reviewBranch(partial.record(),4)).blackSeat,partial.blackSeat);
+});

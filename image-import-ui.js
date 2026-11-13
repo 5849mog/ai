@@ -24,7 +24,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   root.innerHTML = `<header class="tool-header"><h2>截图导入</h2><label class="image-picker">选择截图<input type="file" accept="image/png,image/jpeg,image/webp" /></label><button type="button" data-close>返回原局</button></header>
     ${updateControlMarkup()}
     <p class="tool-message" role="status">选择正视的 15 × 15 棋盘截图。图片只在本机处理。</p>
-    <div class="tool-workspace"><div class="tool-board-area"><canvas class="import-image" hidden aria-label="拖动框内区域移动，拖动四角把手调整识别范围"></canvas><canvas class="import-loupe" width="144" height="144" hidden aria-label="选框角点放大预览"></canvas><canvas class="import-reference" width="580" height="580" hidden role="img" aria-label="截图中的原始棋盘"></canvas><svg class="board-svg import-board" width="580" height="580" viewBox="20 20 580 580" preserveAspectRatio="xMidYMid meet" tabindex="0" role="group" aria-label="校正识别棋盘" hidden></svg></div>
+    <div class="tool-workspace"><div class="tool-board-area"><canvas class="import-image" hidden aria-label="拖动框内区域移动，拖动四角把手调整识别范围"></canvas><canvas class="import-loupe" width="144" height="144" hidden aria-label="选框角点放大预览"></canvas><canvas class="import-reference" width="580" height="580" hidden role="img" aria-label="截图中的原始棋盘"></canvas><svg class="board-svg import-board" width="580" height="580" viewBox="20 20 580 580" preserveAspectRatio="xMidYMid meet" tabindex="0" role="group" aria-label="校正识别棋盘，方向键选点，回车编辑，1 黑棋、2 白棋、0 擦除" hidden></svg></div>
     <div class="tool-panel"><div class="calibration-actions" hidden><button type="button" data-reset-frame>重置选框</button><button type="button" data-grid aria-pressed="true">网格参考：开</button><button type="button" data-recognize disabled>识别棋子</button></div>
       <div class="image-correction" hidden><div class="image-compare-row"><p class="image-counts"></p><button type="button" data-next-uncertain>定位疑点</button><button type="button" data-compare aria-pressed="false">查看原图</button></div><div class="tool-buttons" role="group" aria-label="校正工具"><button type="button" data-color="1" aria-pressed="true">黑棋</button><button type="button" data-color="2" aria-pressed="false">白棋</button><button type="button" data-color="0" aria-pressed="false">擦除</button><button type="button" data-undo disabled>撤回</button></div>
       <div class="tool-fields"><label>下一手棋色<select data-side><option value="1">黑棋</option><option value="2">白棋</option></select></label><label>这一手谁走<select data-actor></select></label></div>
@@ -33,7 +33,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     </div></div>`;
   const $ = selector => root.querySelector(selector), canvas = $(".import-image"), loupe = $(".import-loupe"), reference = $(".import-reference"), svg = $("svg"), context = canvas.getContext("2d", { willReadFrequently: true });
   const view = createBoardView(svg, { idPrefix: "image-import-" });
-  let image = null, frame = null, initialFrame = null, autoLocated = false, drag = null, board = new Uint8Array(225), uncertain = new Set(), checkIndex = -1, tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, comparing = false, grid = true;
+  let image = null, frame = null, initialFrame = null, autoLocated = false, drag = null, board = new Uint8Array(225), uncertain = new Set(), checkIndex = -1, keyboardIndex = 112, keyboardActive = false, tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, comparing = false, grid = true;
   const message = text => { $(".tool-message").textContent = text; };
   function controls() {
     $("[data-recognize]").disabled = loading || !image || !frame;
@@ -100,7 +100,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   }
   function renderBoard() {
     if (!uncertain.has(checkIndex)) checkIndex = -1;
-    const changed = view.render({ board, lastMove: -1, pendingIndex: -1, playerColor: tool || 1, canInteract: true, editable: true, uncertain: [...uncertain], overlayKey: `check:${checkIndex}` });
+    const changed = view.render({ board, lastMove: -1, pendingIndex: -1, hoverIndex: keyboardActive ? keyboardIndex : -1, playerColor: tool || 1, canInteract: true, editable: true, uncertain: [...uncertain], overlayKey: `check:${checkIndex}` });
     if (changed && checkIndex >= 0) {
       const focus = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       focus.setAttribute("class", "image-check-focus"); focus.setAttribute("data-check-focus", String(checkIndex));
@@ -203,7 +203,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       // Markers are instructions only; they must not enter recognition pixels.
       context.drawImage(image.source ?? image, 0, 0, canvas.width, canvas.height);
       const recognized = recognizeBoard(context.getImageData(0, 0, canvas.width, canvas.height), rectangle);
-      board = recognized.board; uncertain = new Set(recognized.uncertain); checkIndex = -1; history = [];
+      board = recognized.board; uncertain = new Set(recognized.uncertain); checkIndex = -1; keyboardIndex = 112; keyboardActive = false; history = [];
       renderBoard(); correcting = true; canvas.hidden = loupe.hidden = true;
       // SVGElement has no HTMLElement.hidden reflection: change the attribute itself.
       svg.toggleAttribute("hidden", false); $(".calibration-actions").hidden = true; $(".image-correction").hidden = false; controls();
@@ -230,18 +230,30 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   $("[data-next-uncertain]").onclick = () => {
     if (loading || !correcting || comparing || !uncertain.size) return;
     const points = [...uncertain].sort((a, b) => a - b);
-    checkIndex = points.find(index => index > checkIndex) ?? points[0]; renderBoard();
+    checkIndex = points.find(index => index > checkIndex) ?? points[0]; keyboardIndex=checkIndex; renderBoard();
     message("红圈标出了一个待检查点。选黑棋、白棋或擦除并点击该点，即可确认；再点「定位疑点」查看下一处。");
   };
   for (const button of root.querySelectorAll("[data-color]")) button.onclick = () => {
     tool = Number(button.dataset.color);
     for (const b of root.querySelectorAll("[data-color]")) b.setAttribute("aria-pressed", String(b === button)); renderBoard();
   };
+  function editPoint(index) {
+    if (!correcting || loading || comparing || index < 0 || index >= 225) return;
+    if (board[index] === tool && !uncertain.has(index)) return;
+    history.push({ index, color: board[index], uncertain: uncertain.has(index), focused: checkIndex === index });
+    board[index] = tool; uncertain.delete(index); keyboardIndex=index; renderBoard();
+    if (!uncertain.size) message("待检查点已全部确认；请再核对黑白棋和下一手棋色。");
+  }
   svg.onclick = event => {
-    if (!correcting || loading || comparing) return;
     const target = event.target.closest("[data-index]"), index = target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY);
-    if (index < 0 || index >= 225) return;
-    history.push({ index, color: board[index], uncertain: uncertain.has(index), focused: checkIndex === index }); board[index] = tool; uncertain.delete(index); renderBoard();
+    keyboardActive=false; editPoint(index);
+  };
+  svg.onkeydown = event => {
+    if (!correcting || loading || comparing) return;
+    const shifts={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+    if(shifts[event.key]) {event.preventDefault();const [dx,dy]=shifts[event.key];keyboardIndex=Math.max(0,Math.min(14,Math.floor(keyboardIndex/15)+dy))*15+Math.max(0,Math.min(14,keyboardIndex%15+dx));keyboardActive=true;renderBoard();}
+    else if(event.key==="Enter"||event.key===" "){event.preventDefault();keyboardActive=true;editPoint(keyboardIndex);}
+    else if(["0","1","2"].includes(event.key)){event.preventDefault();root.querySelector(`button[data-color="${event.key}"]`).click();}
   };
   $("[data-undo]").onclick = () => { const saved = history.pop(); if (saved) { board[saved.index] = saved.color; if (saved.uncertain) uncertain.add(saved.index); if (saved.focused && saved.uncertain) checkIndex = saved.index; renderBoard(); } };
   $("[data-confirm]").onclick = () => {
@@ -258,7 +270,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     open() {
       active = true; const position = getPosition(), copilot = position.workflow === "copilot";
       $("[data-actor]").parentElement.hidden = position.workflow === "follow";
-      board = new Uint8Array(225); uncertain = new Set(); checkIndex = -1; history = []; tool = 1;
+      board = new Uint8Array(225); uncertain = new Set(); checkIndex = -1; keyboardIndex=112; keyboardActive=false; history = []; tool = 1;
       for (const button of root.querySelectorAll("[data-color]")) button.setAttribute("aria-pressed", String(button.dataset.color === "1"));
       $("[data-side]").value = String(position.currentColor || 1);
       $("[data-actor]").replaceChildren(...["player", "ai"].map((value, i) => { const option = document.createElement("option"); option.value = value; option.textContent = copilot ? ["录入对手棋", "AI 替我落子"][i] : ["我来走", "AI 来走"][i]; return option; }));

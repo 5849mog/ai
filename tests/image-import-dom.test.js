@@ -195,3 +195,16 @@ test("mobile styles retain visible intrinsic-sized boards and hidden overlays", 
   assert.match(css, /\.enhancement-workspace \[hidden\]/);
   assert.match(css, /\.tool-board-area > svg \{[^}]*width:[^}]*height:[^}]*flex: 0 0 auto/s);
 });
+
+test('screenshot corrections support keyboard tools and do not record identical edits', async () => {
+  const {dom,$,ui,load}=fixture();await load();$('[data-recognize]').click();const svg=$('svg');
+  const key=k=>svg.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:k,bubbles:true}));
+  // The center is already black: confirming an identical certain point is a no-op.
+  key('Enter');assert.equal($('[data-undo]').disabled,true);
+  key('2');key('ArrowRight');key('ArrowRight');key('Enter');
+  assert.equal(svg.querySelector('[data-stone="114"]').getAttribute('data-color'),'2');
+  key('0');key('Enter');assert.equal(svg.querySelector('[data-stone="114"]'),null);
+  $('[data-undo]').click();assert.equal(svg.querySelector('[data-stone="114"]').getAttribute('data-color'),'2');
+  $('[data-undo]').click();assert.equal(svg.querySelector('[data-stone="114"]'),null);assert.equal($('[data-undo]').disabled,true);
+  ui.dispose();dom.window.close();
+});
