@@ -62,6 +62,7 @@
 .archive-notice { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .archive-card { border:1px solid var(--line); border-radius:8px; padding:10px; margin:0 0 8px; background:var(--paper); }
 .archive-card p { margin:0 0 6px; font-size:13px; }
+.archive-note { white-space: pre-wrap; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .archive-card p + p, .archive-notice { font-size:12px; color:var(--muted); }
 .archive-actions { display:flex; flex-wrap:wrap; gap:6px; }
 .review-candidate { pointer-events: none; }

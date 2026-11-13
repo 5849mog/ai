@@ -127,3 +127,51 @@ test('review supports endpoints, keyboard navigation, reverse playback and speed
     ui.dispose();assert.equal(timers.size,0);
   } finally {globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;finish();}
 });
+
+test('archive can review an unfinished game, search its result and reset all filters', () => {
+  const dom = new JSDOM('<div id="root"></div>', {url:'https://example.com/ai/'}), finish = bind(dom);
+  try {
+    let n=0;const archive=createGameArchive({storage:dom.window.localStorage,page:'polish',id:()=>String(++n),now:()=>n});
+    archive.capture(createRecord([112],1)); const first=archive.list()[0].id;
+    archive.annotate(first,{name:'布局',note:'注意防守'});
+    archive.begin();archive.capture(createRecord([0,15,1,16,2,17,3,18,4],1));
+    let reviewed=null;const root=document.querySelector('#root'),ui=createArchiveUi(root,{archive,close(){},resume(){},review(record){reviewed=record;},exportRecord(){}});ui.open();
+    const input=root.querySelector('[data-archive-search]');input.value='未结束';input.dispatchEvent(new dom.window.Event('input'));
+    assert.equal(root.querySelectorAll('.archive-card').length,1);assert.match(root.querySelector('.archive-note').textContent,/注意防守/);
+    [...root.querySelectorAll('.archive-card button')].find(x=>x.textContent==='复盘').click();assert.deepEqual(reviewed.moves,[112]);
+    root.querySelector('[data-reset-filters]').click();assert.equal(input.value,'');assert.equal(root.querySelectorAll('.archive-card').length,2);
+    const sort=root.querySelector('[data-archive-sort]');sort.value='shortest';sort.dispatchEvent(new dom.window.Event('change'));assert.equal(root.querySelector('.archive-card').dataset.archiveId,first);
+    sort.value='longest';sort.dispatchEvent(new dom.window.Event('change'));assert.notEqual(root.querySelector('.archive-card').dataset.archiveId,first);
+    ui.dispose();
+  } finally {finish();}
+});
+
+test('selecting another backup invalidates the old preview while the new file is still reading', async () => {
+ const dom=new JSDOM('<div id="root"></div>',{url:'https://example.com/ai/'}),finish=bind(dom);
+ try {
+  const archive=createGameArchive({storage:dom.window.localStorage,page:'backup'});archive.capture(createRecord([112],1));
+  const root=document.querySelector('#root'),ui=createArchiveUi(root,{archive,close(){},resume(){},review(){},exportRecord(){}}),input=root.querySelector('[data-backup-file]');ui.open();
+  const text=archive.exportBackup();await input.onchange({target:{files:[{size:text.length,text:async()=>text}],value:''}});assert.equal(root.querySelector('[data-backup-confirm]').hidden,false);
+  let complete;const loading=input.onchange({target:{files:[{size:10,text:()=>new Promise(resolve=>{complete=resolve;})}],value:''}});
+  assert.equal(root.querySelector('[data-backup-confirm]').hidden,true);complete('invalid');await loading;assert.equal(root.querySelector('[data-backup-confirm]').hidden,true);assert.match(root.querySelector('.archive-notice').textContent,/无法读取/);ui.dispose();
+ } finally {finish();}
+});
+
+test('review keyboard jumps five frames and space toggles playback, with accessible timeline position', () => {
+ const dom=new JSDOM('<div id="root"></div>',{url:'https://example.com/ai/',pretendToBeVisual:true}),finish=bind(dom);
+ try {
+  const root=document.querySelector('#root'),ui=createReviewUi(root,{search:()=>new Promise(()=>{}),cancelSearch(){},close(){},newGame(){}});
+  void ui.open(createRecord([0,15,1,16,2,17,3,18,4],1));const svg=root.querySelector('svg'),slider=root.querySelector('[data-timeline]');
+  const key=k=>svg.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:k,bubbles:true}));key('ArrowDown');assert.equal(slider.value,'4');assert.match(slider.getAttribute('aria-valuetext'),/第 4 步，共 9 步/);
+  key('ArrowUp');assert.equal(slider.value,'9');key(' ');assert.equal(root.querySelector('[data-play]').getAttribute('aria-pressed'),'true');key(' ');assert.equal(root.querySelector('[data-play]').getAttribute('aria-pressed'),'false');ui.dispose();
+ } finally {finish();}
+});
+
+test('unfinished review renders the real position and can branch from a prior move', () => {
+ const dom=new JSDOM('<div id="root"></div>',{url:'https://example.com/ai/',pretendToBeVisual:true}),finish=bind(dom);
+ try {
+  let branch=null;const root=document.querySelector('#root'),ui=createReviewUi(root,{search:()=>new Promise(()=>{}),cancelSearch(){},close(){},newGame(){},branch:r=>{branch=r;}});
+  void ui.open(createRecord([112,113],1));const slider=root.querySelector('[data-timeline]');assert.equal(slider.value,'2');assert.equal(root.querySelectorAll('[data-stone]').length,2);
+  root.querySelector('[data-prev]').click();root.querySelector('[data-branch]').click();assert.deepEqual(branch.moves,[112]);ui.dispose();
+ } finally {finish();}
+});
