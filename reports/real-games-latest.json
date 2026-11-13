@@ -1,0 +1,4396 @@
+{
+  "schema": 2,
+  "createdAt": "2026-11-13T12:22:20.907Z",
+  "batches": [
+    {
+      "schema": 2,
+      "identity": {
+        "appVersion": "2026.11.13.1",
+        "sourceCommit": "6e3d8d85dee5a6f135ab935c24482b8a5edcbfbe",
+        "rule": "freestyle-15",
+        "engine": "Rapfi single-thread SIMD WASM · mix9svq",
+        "threads": 1,
+        "memoryMiB": 256,
+        "matchups": [
+          [
+            1000,
+            5000
+          ]
+        ],
+        "openings": [
+          {
+            "id": "opening-01",
+            "moves": [
+              112,
+              97,
+              82
+            ]
+          },
+          {
+            "id": "opening-02",
+            "moves": [
+              112,
+              97,
+              83
+            ]
+          }
+        ],
+        "sources": {
+          "scripts/real-game-benchmark.js": "d105ee1ecc47116af4ff5da6f9ec79ad6c5dcd5020c898e2c2b1796f4a05dc1d",
+          "scripts/freestyle-node-engine.js": "8db6731ff3be1b93d1174164e223b6b749f6c913afff4bff9bd0d5ebc46f4abc",
+          "tests/fixtures/openings.js": "66a9020ac46de0ce765f3e00df694ae926ce2a2196285bc4fd374c219d8695a1",
+          "game-rules.js": "84a67fe982cce49b41e78e7b80b06f7d77e1f9e6d97201875a4143a2c20f7d40",
+          "engine-protocol.js": "c2b082115eb5e733b4ffa06571abfc4ca38cf4f8b8c896b66d508bc4ebf9ee74",
+          "engine-assessment.js": "c1883b5130277e71aea57b449f240c63547a6b8779dbadae19145c08581b43c8",
+          "engine/rapfi-250615/manifest.json": "4a007a926e2183f9899f263b401fa30eba4a05c0660fba36ca3ccbf743ca0d53",
+          "engine/rapfi-250615/rapfi-single-simd128.js": "345ead03ed648d7ff9724c7f1cc589d607d66ee8f1a7017c219258ebb1a63f93",
+          "engine/rapfi-250615/rapfi-single-simd128.wasm": "b59b574131dd6f520bb281dd771529cfc1896a3cb68fc364426f895a3e7759d0",
+          "engine/rapfi-250615/rapfi.data": "ffdfcd33f35ab916abefa62eafa105b32a9f9a1afdacf49ff6d11d02c44e5415"
+        }
+      },
+      "device": {
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "os": "linux 6.18.57",
+        "arch": "x64",
+        "node": "v24.22.1"
+      },
+      "startedAt": "2026-11-13T12:09:01.164Z",
+      "complete": true,
+      "games": [
+        {
+          "id": "1000-5000-opening-01-1",
+          "openingId": "opening-01",
+          "shortMs": 1000,
+          "longMs": 5000,
+          "longColor": 1,
+          "moves": [
+            {
+              "index": 126,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 976,
+              "depth": 15,
+              "nodes": 22436
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4980,
+              "depth": 22,
+              "nodes": 211501
+            },
+            {
+              "index": 125,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 977,
+              "depth": 18,
+              "nodes": 82309
+            },
+            {
+              "index": 80,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4476,
+              "depth": 27,
+              "nodes": 864391
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 17,
+              "nodes": 6171
+            },
+            {
+              "index": 127,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4062,
+              "depth": 26,
+              "nodes": 894588
+            },
+            {
+              "index": 83,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 16,
+              "nodes": 23223
+            },
+            {
+              "index": 111,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4400,
+              "depth": 30,
+              "nodes": 765624
+            },
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 19,
+              "nodes": 89130
+            },
+            {
+              "index": 64,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3814,
+              "depth": 26,
+              "nodes": 688152
+            },
+            {
+              "index": 48,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 808,
+              "depth": 20,
+              "nodes": 186468
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3789,
+              "depth": 28,
+              "nodes": 660897
+            },
+            {
+              "index": 95,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 787,
+              "depth": 15,
+              "nodes": 174599
+            },
+            {
+              "index": 66,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3938,
+              "depth": 29,
+              "nodes": 648101
+            },
+            {
+              "index": 81,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 829,
+              "depth": 26,
+              "nodes": 154792
+            },
+            {
+              "index": 65,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4371,
+              "depth": 32,
+              "nodes": 800355
+            },
+            {
+              "index": 67,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 766,
+              "depth": 25,
+              "nodes": 128664
+            },
+            {
+              "index": 109,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4455,
+              "depth": 31,
+              "nodes": 773768
+            },
+            {
+              "index": 108,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 826,
+              "depth": 23,
+              "nodes": 148139
+            },
+            {
+              "index": 50,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4141,
+              "depth": 28,
+              "nodes": 641706
+            },
+            {
+              "index": 53,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 249,
+              "depth": 30,
+              "nodes": 59594
+            },
+            {
+              "index": 39,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 122,
+              "depth": 26,
+              "nodes": 26282
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 193,
+              "depth": 29,
+              "nodes": 41787
+            },
+            {
+              "index": 68,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 173,
+              "depth": 26,
+              "nodes": 33714
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 420,
+              "depth": 29,
+              "nodes": 76128
+            },
+            {
+              "index": 36,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 552,
+              "depth": 28,
+              "nodes": 105409
+            },
+            {
+              "index": 140,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 9,
+              "depth": 27,
+              "nodes": 1187
+            },
+            {
+              "index": 155,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 305
+            },
+            {
+              "index": 129,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 290
+            },
+            {
+              "index": 145,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 100
+            },
+            {
+              "index": 78,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 75
+            },
+            {
+              "index": 20,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 824
+            },
+            {
+              "index": 35,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 52,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 84,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 4,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 1,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "1000-5000-opening-01-2",
+          "openingId": "opening-01",
+          "shortMs": 1000,
+          "longMs": 5000,
+          "longColor": 2,
+          "moves": [
+            {
+              "index": 81,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4974,
+              "depth": 18,
+              "nodes": 165929
+            },
+            {
+              "index": 113,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 987,
+              "depth": 15,
+              "nodes": 24081
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4975,
+              "depth": 17,
+              "nodes": 270541
+            },
+            {
+              "index": 114,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 17,
+              "nodes": 102160
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4403,
+              "depth": 29,
+              "nodes": 706573
+            },
+            {
+              "index": 130,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 760,
+              "depth": 19,
+              "nodes": 135517
+            },
+            {
+              "index": 66,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3899,
+              "depth": 30,
+              "nodes": 625622
+            },
+            {
+              "index": 98,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 803,
+              "depth": 22,
+              "nodes": 150129
+            },
+            {
+              "index": 146,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2257,
+              "depth": 26,
+              "nodes": 370449
+            },
+            {
+              "index": 126,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 768,
+              "depth": 23,
+              "nodes": 137050
+            },
+            {
+              "index": 84,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3949,
+              "depth": 27,
+              "nodes": 581671
+            },
+            {
+              "index": 158,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 961,
+              "depth": 20,
+              "nodes": 183234
+            },
+            {
+              "index": 116,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4437,
+              "depth": 30,
+              "nodes": 761183
+            },
+            {
+              "index": 140,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 845,
+              "depth": 21,
+              "nodes": 118097
+            },
+            {
+              "index": 154,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 1435,
+              "depth": 26,
+              "nodes": 266200
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 744,
+              "depth": 23,
+              "nodes": 142498
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2330,
+              "depth": 31,
+              "nodes": 413720
+            },
+            {
+              "index": 141,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 792,
+              "depth": 24,
+              "nodes": 131275
+            },
+            {
+              "index": 51,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 558,
+              "depth": 30,
+              "nodes": 108154
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 292,
+              "depth": 26,
+              "nodes": 53921
+            },
+            {
+              "index": 143,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 614,
+              "depth": 29,
+              "nodes": 108045
+            },
+            {
+              "index": 127,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 732,
+              "depth": 29,
+              "nodes": 124672
+            },
+            {
+              "index": 36,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 149,
+              "depth": 27,
+              "nodes": 24987
+            },
+            {
+              "index": 21,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 121,
+              "depth": 26,
+              "nodes": 23444
+            },
+            {
+              "index": 155,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 115,
+              "depth": 26,
+              "nodes": 22624
+            },
+            {
+              "index": 172,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 252,
+              "depth": 26,
+              "nodes": 44212
+            },
+            {
+              "index": 157,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 17,
+              "depth": 26,
+              "nodes": 4682
+            },
+            {
+              "index": 156,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 41,
+              "depth": 26,
+              "nodes": 14838
+            },
+            {
+              "index": 188,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 75
+            },
+            {
+              "index": 186,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 144,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 171,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 0,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "1000-5000-opening-02-1",
+          "openingId": "opening-02",
+          "shortMs": 1000,
+          "longMs": 5000,
+          "longColor": 1,
+          "moves": [
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 14,
+              "nodes": 11544
+            },
+            {
+              "index": 81,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4971,
+              "depth": 21,
+              "nodes": 334213
+            },
+            {
+              "index": 100,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 984,
+              "depth": 17,
+              "nodes": 15579
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3923,
+              "depth": 24,
+              "nodes": 598446
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 728,
+              "depth": 15,
+              "nodes": 145114
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3913,
+              "depth": 26,
+              "nodes": 609890
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 14,
+              "nodes": 29073
+            },
+            {
+              "index": 80,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4503,
+              "depth": 28,
+              "nodes": 758374
+            },
+            {
+              "index": 82,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 833,
+              "depth": 16,
+              "nodes": 155651
+            },
+            {
+              "index": 66,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3738,
+              "depth": 29,
+              "nodes": 658280
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 739,
+              "depth": 21,
+              "nodes": 141579
+            },
+            {
+              "index": 64,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4000,
+              "depth": 30,
+              "nodes": 668178
+            },
+            {
+              "index": 48,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 790,
+              "depth": 24,
+              "nodes": 124004
+            },
+            {
+              "index": 67,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4081,
+              "depth": 33,
+              "nodes": 689908
+            },
+            {
+              "index": 99,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 150,
+              "depth": 32,
+              "nodes": 40788
+            },
+            {
+              "index": 101,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 315,
+              "depth": 26,
+              "nodes": 61507
+            },
+            {
+              "index": 86,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 645,
+              "depth": 34,
+              "nodes": 127591
+            },
+            {
+              "index": 72,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 298,
+              "depth": 26,
+              "nodes": 49033
+            },
+            {
+              "index": 65,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 445,
+              "depth": 30,
+              "nodes": 98022
+            },
+            {
+              "index": 109,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 533,
+              "depth": 29,
+              "nodes": 112823
+            },
+            {
+              "index": 123,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 148,
+              "depth": 29,
+              "nodes": 34277
+            },
+            {
+              "index": 94,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 170,
+              "depth": 27,
+              "nodes": 38668
+            },
+            {
+              "index": 130,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 289
+            },
+            {
+              "index": 146,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 100
+            },
+            {
+              "index": 52,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 8,
+              "depth": 26,
+              "nodes": 75
+            },
+            {
+              "index": 79,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 124,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 49,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 1,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "1000-5000-opening-02-2",
+          "openingId": "opening-02",
+          "shortMs": 1000,
+          "longMs": 5000,
+          "longColor": 2,
+          "moves": [
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3893,
+              "depth": 17,
+              "nodes": 349040
+            },
+            {
+              "index": 129,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 978,
+              "depth": 18,
+              "nodes": 44314
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4977,
+              "depth": 20,
+              "nodes": 373300
+            },
+            {
+              "index": 100,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 754,
+              "depth": 15,
+              "nodes": 72387
+            },
+            {
+              "index": 115,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4760,
+              "depth": 19,
+              "nodes": 420831
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 974,
+              "depth": 16,
+              "nodes": 12582
+            },
+            {
+              "index": 80,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4493,
+              "depth": 18,
+              "nodes": 468739
+            },
+            {
+              "index": 116,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 976,
+              "depth": 20,
+              "nodes": 80641
+            },
+            {
+              "index": 132,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4971,
+              "depth": 18,
+              "nodes": 29150
+            },
+            {
+              "index": 126,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 993,
+              "depth": 15,
+              "nodes": 62104
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4971,
+              "depth": 16,
+              "nodes": 468250
+            },
+            {
+              "index": 82,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 979,
+              "depth": 15,
+              "nodes": 33991
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4013,
+              "depth": 19,
+              "nodes": 452000
+            },
+            {
+              "index": 95,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 978,
+              "depth": 13,
+              "nodes": 47997
+            },
+            {
+              "index": 81,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4058,
+              "depth": 16,
+              "nodes": 557018
+            },
+            {
+              "index": 127,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 983,
+              "depth": 14,
+              "nodes": 75569
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4972,
+              "depth": 17,
+              "nodes": 439024
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 789,
+              "depth": 14,
+              "nodes": 87666
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4975,
+              "depth": 17,
+              "nodes": 104413
+            },
+            {
+              "index": 157,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 975,
+              "depth": 13,
+              "nodes": 31280
+            },
+            {
+              "index": 49,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4974,
+              "depth": 15,
+              "nodes": 310678
+            },
+            {
+              "index": 65,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 769,
+              "depth": 12,
+              "nodes": 114392
+            },
+            {
+              "index": 156,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4980,
+              "depth": 14,
+              "nodes": 377802
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 11,
+              "nodes": 2781
+            },
+            {
+              "index": 172,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4033,
+              "depth": 21,
+              "nodes": 765245
+            },
+            {
+              "index": 86,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 17,
+              "nodes": 45405
+            },
+            {
+              "index": 140,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3770,
+              "depth": 22,
+              "nodes": 859738
+            },
+            {
+              "index": 124,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 14,
+              "nodes": 129031
+            },
+            {
+              "index": 188,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4428,
+              "depth": 26,
+              "nodes": 804117
+            },
+            {
+              "index": 204,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 730,
+              "depth": 16,
+              "nodes": 148872
+            },
+            {
+              "index": 146,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4441,
+              "depth": 24,
+              "nodes": 777973
+            },
+            {
+              "index": 84,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 767,
+              "depth": 18,
+              "nodes": 120168
+            },
+            {
+              "index": 85,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3837,
+              "depth": 26,
+              "nodes": 579194
+            },
+            {
+              "index": 68,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 861,
+              "depth": 19,
+              "nodes": 131016
+            },
+            {
+              "index": 52,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2047,
+              "depth": 26,
+              "nodes": 348701
+            },
+            {
+              "index": 54,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 875,
+              "depth": 22,
+              "nodes": 160874
+            },
+            {
+              "index": 40,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 874,
+              "depth": 26,
+              "nodes": 181496
+            },
+            {
+              "index": 71,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 838,
+              "depth": 22,
+              "nodes": 132719
+            },
+            {
+              "index": 131,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 429,
+              "depth": 30,
+              "nodes": 92506
+            },
+            {
+              "index": 70,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 857,
+              "depth": 29,
+              "nodes": 183543
+            },
+            {
+              "index": 130,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 21,
+              "depth": 29,
+              "nodes": 6724
+            },
+            {
+              "index": 162,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 12,
+              "depth": 26,
+              "nodes": 4297
+            },
+            {
+              "index": 160,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 17,
+              "depth": 29,
+              "nodes": 5445
+            },
+            {
+              "index": 174,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 11,
+              "depth": 26,
+              "nodes": 3488
+            },
+            {
+              "index": 133,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 17,
+              "depth": 27,
+              "nodes": 3713
+            },
+            {
+              "index": 134,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 6,
+              "depth": 26,
+              "nodes": 1116
+            },
+            {
+              "index": 145,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 1079
+            },
+            {
+              "index": 175,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 340
+            },
+            {
+              "index": 104,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 315
+            },
+            {
+              "index": 118,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 75
+            },
+            {
+              "index": 102,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 69,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 67,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 72,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        }
+      ],
+      "finishedAt": "2026-11-13T12:12:56.091Z"
+    },
+    {
+      "schema": 2,
+      "identity": {
+        "appVersion": "2026.11.13.1",
+        "sourceCommit": "6e3d8d85dee5a6f135ab935c24482b8a5edcbfbe",
+        "rule": "freestyle-15",
+        "engine": "Rapfi single-thread SIMD WASM · mix9svq",
+        "threads": 1,
+        "memoryMiB": 256,
+        "matchups": [
+          [
+            1000,
+            10000
+          ]
+        ],
+        "openings": [
+          {
+            "id": "opening-01",
+            "moves": [
+              112,
+              97,
+              82
+            ]
+          },
+          {
+            "id": "opening-02",
+            "moves": [
+              112,
+              97,
+              83
+            ]
+          }
+        ],
+        "sources": {
+          "scripts/real-game-benchmark.js": "d105ee1ecc47116af4ff5da6f9ec79ad6c5dcd5020c898e2c2b1796f4a05dc1d",
+          "scripts/freestyle-node-engine.js": "8db6731ff3be1b93d1174164e223b6b749f6c913afff4bff9bd0d5ebc46f4abc",
+          "tests/fixtures/openings.js": "66a9020ac46de0ce765f3e00df694ae926ce2a2196285bc4fd374c219d8695a1",
+          "game-rules.js": "84a67fe982cce49b41e78e7b80b06f7d77e1f9e6d97201875a4143a2c20f7d40",
+          "engine-protocol.js": "c2b082115eb5e733b4ffa06571abfc4ca38cf4f8b8c896b66d508bc4ebf9ee74",
+          "engine-assessment.js": "c1883b5130277e71aea57b449f240c63547a6b8779dbadae19145c08581b43c8",
+          "engine/rapfi-250615/manifest.json": "4a007a926e2183f9899f263b401fa30eba4a05c0660fba36ca3ccbf743ca0d53",
+          "engine/rapfi-250615/rapfi-single-simd128.js": "345ead03ed648d7ff9724c7f1cc589d607d66ee8f1a7017c219258ebb1a63f93",
+          "engine/rapfi-250615/rapfi-single-simd128.wasm": "b59b574131dd6f520bb281dd771529cfc1896a3cb68fc364426f895a3e7759d0",
+          "engine/rapfi-250615/rapfi.data": "ffdfcd33f35ab916abefa62eafa105b32a9f9a1afdacf49ff6d11d02c44e5415"
+        }
+      },
+      "device": {
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "os": "linux 6.18.57",
+        "arch": "x64",
+        "node": "v24.22.1"
+      },
+      "startedAt": "2026-11-13T12:09:08.088Z",
+      "complete": true,
+      "games": [
+        {
+          "id": "1000-10000-opening-01-1",
+          "openingId": "opening-01",
+          "shortMs": 1000,
+          "longMs": 10000,
+          "longColor": 1,
+          "moves": [
+            {
+              "index": 126,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 986,
+              "depth": 15,
+              "nodes": 22436
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9978,
+              "depth": 23,
+              "nodes": 990848
+            },
+            {
+              "index": 125,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 982,
+              "depth": 18,
+              "nodes": 82309
+            },
+            {
+              "index": 80,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7551,
+              "depth": 32,
+              "nodes": 1442995
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 974,
+              "depth": 17,
+              "nodes": 6171
+            },
+            {
+              "index": 127,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8746,
+              "depth": 31,
+              "nodes": 1687200
+            },
+            {
+              "index": 83,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 971,
+              "depth": 16,
+              "nodes": 23223
+            },
+            {
+              "index": 111,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8607,
+              "depth": 33,
+              "nodes": 1472688
+            },
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 975,
+              "depth": 19,
+              "nodes": 89130
+            },
+            {
+              "index": 64,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8093,
+              "depth": 30,
+              "nodes": 1344645
+            },
+            {
+              "index": 48,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 809,
+              "depth": 20,
+              "nodes": 186468
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9455,
+              "depth": 32,
+              "nodes": 1597241
+            },
+            {
+              "index": 95,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 831,
+              "depth": 15,
+              "nodes": 174599
+            },
+            {
+              "index": 66,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8716,
+              "depth": 32,
+              "nodes": 1380217
+            },
+            {
+              "index": 81,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 805,
+              "depth": 26,
+              "nodes": 154792
+            },
+            {
+              "index": 65,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8021,
+              "depth": 35,
+              "nodes": 1472719
+            },
+            {
+              "index": 67,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 777,
+              "depth": 25,
+              "nodes": 128664
+            },
+            {
+              "index": 109,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8897,
+              "depth": 34,
+              "nodes": 1601017
+            },
+            {
+              "index": 108,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 906,
+              "depth": 23,
+              "nodes": 148139
+            },
+            {
+              "index": 50,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8403,
+              "depth": 31,
+              "nodes": 1296886
+            },
+            {
+              "index": 53,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 232,
+              "depth": 30,
+              "nodes": 59594
+            },
+            {
+              "index": 39,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 139,
+              "depth": 26,
+              "nodes": 26282
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 179,
+              "depth": 29,
+              "nodes": 41787
+            },
+            {
+              "index": 68,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 169,
+              "depth": 26,
+              "nodes": 33714
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 401,
+              "depth": 29,
+              "nodes": 76128
+            },
+            {
+              "index": 36,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 556,
+              "depth": 28,
+              "nodes": 105409
+            },
+            {
+              "index": 140,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 7,
+              "depth": 27,
+              "nodes": 1187
+            },
+            {
+              "index": 155,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 305
+            },
+            {
+              "index": 129,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 290
+            },
+            {
+              "index": 145,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 100
+            },
+            {
+              "index": 78,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 75
+            },
+            {
+              "index": 20,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 824
+            },
+            {
+              "index": 35,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 52,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 84,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 4,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 1,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "1000-10000-opening-01-2",
+          "openingId": "opening-01",
+          "shortMs": 1000,
+          "longMs": 10000,
+          "longColor": 2,
+          "moves": [
+            {
+              "index": 66,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8765,
+              "depth": 20,
+              "nodes": 722464
+            },
+            {
+              "index": 113,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 975,
+              "depth": 20,
+              "nodes": 26677
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9981,
+              "depth": 22,
+              "nodes": 405197
+            },
+            {
+              "index": 83,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 18,
+              "nodes": 11962
+            },
+            {
+              "index": 96,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8202,
+              "depth": 21,
+              "nodes": 803794
+            },
+            {
+              "index": 81,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 826,
+              "depth": 16,
+              "nodes": 57263
+            },
+            {
+              "index": 84,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9984,
+              "depth": 25,
+              "nodes": 654093
+            },
+            {
+              "index": 95,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 880,
+              "depth": 16,
+              "nodes": 86479
+            },
+            {
+              "index": 67,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9985,
+              "depth": 19,
+              "nodes": 206415
+            },
+            {
+              "index": 99,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 978,
+              "depth": 16,
+              "nodes": 22772
+            },
+            {
+              "index": 80,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9973,
+              "depth": 20,
+              "nodes": 700519
+            },
+            {
+              "index": 68,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 982,
+              "depth": 14,
+              "nodes": 31570
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8777,
+              "depth": 20,
+              "nodes": 1335220
+            },
+            {
+              "index": 85,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 985,
+              "depth": 15,
+              "nodes": 83042
+            },
+            {
+              "index": 71,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9977,
+              "depth": 18,
+              "nodes": 724215
+            },
+            {
+              "index": 115,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 971,
+              "depth": 18,
+              "nodes": 68365
+            },
+            {
+              "index": 131,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9976,
+              "depth": 19,
+              "nodes": 420767
+            },
+            {
+              "index": 141,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 975,
+              "depth": 14,
+              "nodes": 12444
+            },
+            {
+              "index": 127,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9978,
+              "depth": 18,
+              "nodes": 566015
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 16,
+              "nodes": 68057
+            },
+            {
+              "index": 94,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 18,
+              "nodes": 1172694
+            },
+            {
+              "index": 108,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 971,
+              "depth": 13,
+              "nodes": 42421
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9974,
+              "depth": 21,
+              "nodes": 1106362
+            },
+            {
+              "index": 140,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 15,
+              "nodes": 55787
+            },
+            {
+              "index": 139,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9716,
+              "depth": 29,
+              "nodes": 1609798
+            },
+            {
+              "index": 125,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 760,
+              "depth": 16,
+              "nodes": 185537
+            },
+            {
+              "index": 109,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8407,
+              "depth": 27,
+              "nodes": 1286089
+            },
+            {
+              "index": 124,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 744,
+              "depth": 20,
+              "nodes": 115665
+            },
+            {
+              "index": 156,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8664,
+              "depth": 26,
+              "nodes": 1211965
+            },
+            {
+              "index": 157,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 948,
+              "depth": 17,
+              "nodes": 124830
+            },
+            {
+              "index": 129,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7725,
+              "depth": 26,
+              "nodes": 1164254
+            },
+            {
+              "index": 130,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 891,
+              "depth": 17,
+              "nodes": 102387
+            },
+            {
+              "index": 52,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7921,
+              "depth": 30,
+              "nodes": 1276678
+            },
+            {
+              "index": 38,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 884,
+              "depth": 19,
+              "nodes": 126587
+            },
+            {
+              "index": 100,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 4540,
+              "depth": 26,
+              "nodes": 640503
+            },
+            {
+              "index": 173,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 894,
+              "depth": 18,
+              "nodes": 124584
+            },
+            {
+              "index": 189,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 4470,
+              "depth": 26,
+              "nodes": 653479
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 930,
+              "depth": 19,
+              "nodes": 130569
+            },
+            {
+              "index": 144,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 3751,
+              "depth": 26,
+              "nodes": 605425
+            },
+            {
+              "index": 155,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 794,
+              "depth": 20,
+              "nodes": 118115
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 1845,
+              "depth": 26,
+              "nodes": 308198
+            },
+            {
+              "index": 174,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 922,
+              "depth": 23,
+              "nodes": 150941
+            },
+            {
+              "index": 86,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 333,
+              "depth": 26,
+              "nodes": 63667
+            },
+            {
+              "index": 170,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 489,
+              "depth": 26,
+              "nodes": 104428
+            },
+            {
+              "index": 185,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 212,
+              "depth": 26,
+              "nodes": 52872
+            },
+            {
+              "index": 172,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 300,
+              "depth": 26,
+              "nodes": 56405
+            },
+            {
+              "index": 171,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 67,
+              "depth": 26,
+              "nodes": 19121
+            },
+            {
+              "index": 175,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 84,
+              "depth": 26,
+              "nodes": 22640
+            },
+            {
+              "index": 176,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 27,
+              "depth": 26,
+              "nodes": 6618
+            },
+            {
+              "index": 160,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 30,
+              "depth": 26,
+              "nodes": 7314
+            },
+            {
+              "index": 145,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 202,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 894
+            },
+            {
+              "index": 187,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 188,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 146,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 216,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 1,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "1000-10000-opening-02-1",
+          "openingId": "opening-02",
+          "shortMs": 1000,
+          "longMs": 10000,
+          "longColor": 1,
+          "moves": [
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 979,
+              "depth": 14,
+              "nodes": 11544
+            },
+            {
+              "index": 81,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9977,
+              "depth": 21,
+              "nodes": 334213
+            },
+            {
+              "index": 100,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 979,
+              "depth": 17,
+              "nodes": 15579
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7479,
+              "depth": 30,
+              "nodes": 1201485
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 802,
+              "depth": 13,
+              "nodes": 144744
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9439,
+              "depth": 30,
+              "nodes": 1198992
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 14,
+              "nodes": 29073
+            },
+            {
+              "index": 80,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7624,
+              "depth": 30,
+              "nodes": 1154181
+            },
+            {
+              "index": 82,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 787,
+              "depth": 17,
+              "nodes": 166705
+            },
+            {
+              "index": 66,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8338,
+              "depth": 33,
+              "nodes": 1446126
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 762,
+              "depth": 21,
+              "nodes": 141579
+            },
+            {
+              "index": 64,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 6746,
+              "depth": 33,
+              "nodes": 1159865
+            },
+            {
+              "index": 48,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 780,
+              "depth": 24,
+              "nodes": 124004
+            },
+            {
+              "index": 67,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 4747,
+              "depth": 34,
+              "nodes": 855622
+            },
+            {
+              "index": 99,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 144,
+              "depth": 32,
+              "nodes": 40788
+            },
+            {
+              "index": 101,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 326,
+              "depth": 26,
+              "nodes": 61507
+            },
+            {
+              "index": 86,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 545,
+              "depth": 34,
+              "nodes": 127591
+            },
+            {
+              "index": 72,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 239,
+              "depth": 26,
+              "nodes": 49033
+            },
+            {
+              "index": 65,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 459,
+              "depth": 30,
+              "nodes": 98022
+            },
+            {
+              "index": 109,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 504,
+              "depth": 29,
+              "nodes": 112823
+            },
+            {
+              "index": 123,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 141,
+              "depth": 29,
+              "nodes": 34277
+            },
+            {
+              "index": 94,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 172,
+              "depth": 27,
+              "nodes": 38668
+            },
+            {
+              "index": 130,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 289
+            },
+            {
+              "index": 146,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 100
+            },
+            {
+              "index": 52,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 75
+            },
+            {
+              "index": 79,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 124,
+              "color": 2,
+              "budgetMs": 1000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 49,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 5,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "1000-10000-opening-02-2",
+          "openingId": "opening-02",
+          "shortMs": 1000,
+          "longMs": 10000,
+          "longColor": 2,
+          "moves": [
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9432,
+              "depth": 20,
+              "nodes": 938760
+            },
+            {
+              "index": 129,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 18,
+              "nodes": 44314
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 20,
+              "nodes": 373300
+            },
+            {
+              "index": 100,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 794,
+              "depth": 15,
+              "nodes": 72387
+            },
+            {
+              "index": 85,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9975,
+              "depth": 19,
+              "nodes": 420831
+            },
+            {
+              "index": 130,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 965,
+              "depth": 15,
+              "nodes": 86361
+            },
+            {
+              "index": 116,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7478,
+              "depth": 20,
+              "nodes": 558567
+            },
+            {
+              "index": 99,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 831,
+              "depth": 15,
+              "nodes": 60105
+            },
+            {
+              "index": 131,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9978,
+              "depth": 19,
+              "nodes": 358624
+            },
+            {
+              "index": 101,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 859,
+              "depth": 16,
+              "nodes": 62272
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9976,
+              "depth": 21,
+              "nodes": 427430
+            },
+            {
+              "index": 117,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 971,
+              "depth": 16,
+              "nodes": 11109
+            },
+            {
+              "index": 143,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9977,
+              "depth": 22,
+              "nodes": 437766
+            },
+            {
+              "index": 158,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 976,
+              "depth": 15,
+              "nodes": 54364
+            },
+            {
+              "index": 144,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9975,
+              "depth": 17,
+              "nodes": 177111
+            },
+            {
+              "index": 160,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 899,
+              "depth": 16,
+              "nodes": 75417
+            },
+            {
+              "index": 145,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9976,
+              "depth": 19,
+              "nodes": 359799
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 972,
+              "depth": 15,
+              "nodes": 30750
+            },
+            {
+              "index": 126,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8348,
+              "depth": 20,
+              "nodes": 632469
+            },
+            {
+              "index": 174,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 980,
+              "depth": 16,
+              "nodes": 47139
+            },
+            {
+              "index": 188,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9974,
+              "depth": 19,
+              "nodes": 83577
+            },
+            {
+              "index": 146,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 988,
+              "depth": 13,
+              "nodes": 6746
+            },
+            {
+              "index": 132,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8469,
+              "depth": 17,
+              "nodes": 708569
+            },
+            {
+              "index": 54,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 975,
+              "depth": 14,
+              "nodes": 60274
+            },
+            {
+              "index": 38,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7767,
+              "depth": 17,
+              "nodes": 687291
+            },
+            {
+              "index": 55,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 809,
+              "depth": 15,
+              "nodes": 63735
+            },
+            {
+              "index": 56,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8085,
+              "depth": 20,
+              "nodes": 760010
+            },
+            {
+              "index": 39,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 980,
+              "depth": 14,
+              "nodes": 64898
+            },
+            {
+              "index": 69,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9978,
+              "depth": 20,
+              "nodes": 726610
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 983,
+              "depth": 16,
+              "nodes": 58183
+            },
+            {
+              "index": 81,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9649,
+              "depth": 19,
+              "nodes": 901008
+            },
+            {
+              "index": 65,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 773,
+              "depth": 17,
+              "nodes": 76354
+            },
+            {
+              "index": 51,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9979,
+              "depth": 19,
+              "nodes": 431003
+            },
+            {
+              "index": 64,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 973,
+              "depth": 15,
+              "nodes": 5757
+            },
+            {
+              "index": 80,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7505,
+              "depth": 19,
+              "nodes": 707892
+            },
+            {
+              "index": 66,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 984,
+              "depth": 16,
+              "nodes": 11697
+            },
+            {
+              "index": 67,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9973,
+              "depth": 16,
+              "nodes": 502970
+            },
+            {
+              "index": 109,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 826,
+              "depth": 14,
+              "nodes": 80346
+            },
+            {
+              "index": 124,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8910,
+              "depth": 16,
+              "nodes": 881548
+            },
+            {
+              "index": 125,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 980,
+              "depth": 13,
+              "nodes": 10657
+            },
+            {
+              "index": 156,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9331,
+              "depth": 19,
+              "nodes": 2014191
+            },
+            {
+              "index": 93,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 971,
+              "depth": 15,
+              "nodes": 92480
+            },
+            {
+              "index": 141,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8280,
+              "depth": 26,
+              "nodes": 1638311
+            },
+            {
+              "index": 171,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 974,
+              "depth": 14,
+              "nodes": 139746
+            },
+            {
+              "index": 63,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7606,
+              "depth": 24,
+              "nodes": 1646303
+            },
+            {
+              "index": 172,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 727,
+              "depth": 18,
+              "nodes": 134574
+            },
+            {
+              "index": 173,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9028,
+              "depth": 27,
+              "nodes": 1419148
+            },
+            {
+              "index": 157,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 867,
+              "depth": 18,
+              "nodes": 152541
+            },
+            {
+              "index": 127,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 6785,
+              "depth": 26,
+              "nodes": 1057682
+            },
+            {
+              "index": 159,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 932,
+              "depth": 18,
+              "nodes": 160280
+            },
+            {
+              "index": 161,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 4750,
+              "depth": 26,
+              "nodes": 740935
+            },
+            {
+              "index": 155,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 948,
+              "depth": 21,
+              "nodes": 153837
+            },
+            {
+              "index": 139,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8705,
+              "depth": 30,
+              "nodes": 1418897
+            },
+            {
+              "index": 92,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 940,
+              "depth": 19,
+              "nodes": 135389
+            },
+            {
+              "index": 107,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 5984,
+              "depth": 30,
+              "nodes": 1075014
+            },
+            {
+              "index": 94,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 859,
+              "depth": 20,
+              "nodes": 127081
+            },
+            {
+              "index": 95,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2293,
+              "depth": 26,
+              "nodes": 394277
+            },
+            {
+              "index": 79,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 839,
+              "depth": 22,
+              "nodes": 129607
+            },
+            {
+              "index": 49,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 1053,
+              "depth": 26,
+              "nodes": 164707
+            },
+            {
+              "index": 106,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 782,
+              "depth": 23,
+              "nodes": 121857
+            },
+            {
+              "index": 50,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 47,
+              "depth": 26,
+              "nodes": 12761
+            },
+            {
+              "index": 91,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 64,
+              "depth": 26,
+              "nodes": 19187
+            },
+            {
+              "index": 90,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 61,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 6,
+              "depth": 26,
+              "nodes": 1149
+            },
+            {
+              "index": 77,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 76,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 46,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 121,
+              "color": 1,
+              "budgetMs": 1000,
+              "wallMs": 1,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        }
+      ],
+      "finishedAt": "2026-11-13T12:19:41.944Z"
+    },
+    {
+      "schema": 2,
+      "identity": {
+        "appVersion": "2026.11.13.1",
+        "sourceCommit": "6e3d8d85dee5a6f135ab935c24482b8a5edcbfbe",
+        "rule": "freestyle-15",
+        "engine": "Rapfi single-thread SIMD WASM · mix9svq",
+        "threads": 1,
+        "memoryMiB": 256,
+        "matchups": [
+          [
+            5000,
+            10000
+          ]
+        ],
+        "openings": [
+          {
+            "id": "opening-01",
+            "moves": [
+              112,
+              97,
+              82
+            ]
+          },
+          {
+            "id": "opening-02",
+            "moves": [
+              112,
+              97,
+              83
+            ]
+          }
+        ],
+        "sources": {
+          "scripts/real-game-benchmark.js": "d105ee1ecc47116af4ff5da6f9ec79ad6c5dcd5020c898e2c2b1796f4a05dc1d",
+          "scripts/freestyle-node-engine.js": "8db6731ff3be1b93d1174164e223b6b749f6c913afff4bff9bd0d5ebc46f4abc",
+          "tests/fixtures/openings.js": "66a9020ac46de0ce765f3e00df694ae926ce2a2196285bc4fd374c219d8695a1",
+          "game-rules.js": "84a67fe982cce49b41e78e7b80b06f7d77e1f9e6d97201875a4143a2c20f7d40",
+          "engine-protocol.js": "c2b082115eb5e733b4ffa06571abfc4ca38cf4f8b8c896b66d508bc4ebf9ee74",
+          "engine-assessment.js": "c1883b5130277e71aea57b449f240c63547a6b8779dbadae19145c08581b43c8",
+          "engine/rapfi-250615/manifest.json": "4a007a926e2183f9899f263b401fa30eba4a05c0660fba36ca3ccbf743ca0d53",
+          "engine/rapfi-250615/rapfi-single-simd128.js": "345ead03ed648d7ff9724c7f1cc589d607d66ee8f1a7017c219258ebb1a63f93",
+          "engine/rapfi-250615/rapfi-single-simd128.wasm": "b59b574131dd6f520bb281dd771529cfc1896a3cb68fc364426f895a3e7759d0",
+          "engine/rapfi-250615/rapfi.data": "ffdfcd33f35ab916abefa62eafa105b32a9f9a1afdacf49ff6d11d02c44e5415"
+        }
+      },
+      "device": {
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "os": "linux 6.18.57",
+        "arch": "x64",
+        "node": "v24.22.1"
+      },
+      "startedAt": "2026-11-13T12:09:08.092Z",
+      "complete": true,
+      "games": [
+        {
+          "id": "5000-10000-opening-01-1",
+          "openingId": "opening-01",
+          "shortMs": 5000,
+          "longMs": 10000,
+          "longColor": 1,
+          "moves": [
+            {
+              "index": 81,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4977,
+              "depth": 18,
+              "nodes": 165929
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9977,
+              "depth": 21,
+              "nodes": 575933
+            },
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3824,
+              "depth": 17,
+              "nodes": 471977
+            },
+            {
+              "index": 65,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 19,
+              "nodes": 372954
+            },
+            {
+              "index": 80,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4978,
+              "depth": 18,
+              "nodes": 307394
+            },
+            {
+              "index": 68,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9079,
+              "depth": 22,
+              "nodes": 1798738
+            },
+            {
+              "index": 54,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4973,
+              "depth": 19,
+              "nodes": 329792
+            },
+            {
+              "index": 79,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9973,
+              "depth": 18,
+              "nodes": 797510
+            },
+            {
+              "index": 64,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3898,
+              "depth": 17,
+              "nodes": 769821
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7753,
+              "depth": 18,
+              "nodes": 1165942
+            },
+            {
+              "index": 126,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4449,
+              "depth": 17,
+              "nodes": 749345
+            },
+            {
+              "index": 144,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8858,
+              "depth": 22,
+              "nodes": 2020780
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4972,
+              "depth": 16,
+              "nodes": 104307
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8100,
+              "depth": 28,
+              "nodes": 1227253
+            },
+            {
+              "index": 141,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4973,
+              "depth": 17,
+              "nodes": 500846
+            },
+            {
+              "index": 129,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9360,
+              "depth": 29,
+              "nodes": 1479284
+            },
+            {
+              "index": 156,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4149,
+              "depth": 28,
+              "nodes": 694728
+            },
+            {
+              "index": 171,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8321,
+              "depth": 33,
+              "nodes": 1281282
+            },
+            {
+              "index": 157,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 1658,
+              "depth": 26,
+              "nodes": 256464
+            },
+            {
+              "index": 159,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7502,
+              "depth": 30,
+              "nodes": 1109950
+            },
+            {
+              "index": 174,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3124,
+              "depth": 27,
+              "nodes": 510738
+            },
+            {
+              "index": 116,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8749,
+              "depth": 30,
+              "nodes": 1420606
+            },
+            {
+              "index": 155,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4146,
+              "depth": 37,
+              "nodes": 879914
+            },
+            {
+              "index": 124,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 1821,
+              "depth": 34,
+              "nodes": 365649
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 246,
+              "depth": 26,
+              "nodes": 37499
+            },
+            {
+              "index": 99,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 1097,
+              "depth": 35,
+              "nodes": 208825
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 510,
+              "depth": 26,
+              "nodes": 80133
+            },
+            {
+              "index": 158,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 3783,
+              "depth": 34,
+              "nodes": 827748
+            },
+            {
+              "index": 130,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2303,
+              "depth": 32,
+              "nodes": 374974
+            },
+            {
+              "index": 100,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 2124,
+              "depth": 31,
+              "nodes": 407121
+            },
+            {
+              "index": 84,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 546,
+              "depth": 29,
+              "nodes": 103561
+            },
+            {
+              "index": 101,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 677,
+              "depth": 29,
+              "nodes": 117466
+            },
+            {
+              "index": 127,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 11,
+              "depth": 26,
+              "nodes": 2170
+            },
+            {
+              "index": 169,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 390
+            },
+            {
+              "index": 154,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 363
+            },
+            {
+              "index": 153,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 125
+            },
+            {
+              "index": 102,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 100
+            },
+            {
+              "index": 146,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 56,
+              "depth": 26,
+              "nodes": 16750
+            },
+            {
+              "index": 145,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 131,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 161,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 86,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 1,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "5000-10000-opening-01-2",
+          "openingId": "opening-01",
+          "shortMs": 5000,
+          "longMs": 10000,
+          "longColor": 2,
+          "moves": [
+            {
+              "index": 66,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8110,
+              "depth": 20,
+              "nodes": 722464
+            },
+            {
+              "index": 113,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4972,
+              "depth": 22,
+              "nodes": 311809
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9625,
+              "depth": 23,
+              "nodes": 945113
+            },
+            {
+              "index": 83,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4975,
+              "depth": 21,
+              "nodes": 165451
+            },
+            {
+              "index": 96,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8561,
+              "depth": 21,
+              "nodes": 803794
+            },
+            {
+              "index": 81,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4973,
+              "depth": 23,
+              "nodes": 126992
+            },
+            {
+              "index": 84,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9975,
+              "depth": 25,
+              "nodes": 654093
+            },
+            {
+              "index": 95,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4979,
+              "depth": 17,
+              "nodes": 109904
+            },
+            {
+              "index": 67,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9985,
+              "depth": 19,
+              "nodes": 206415
+            },
+            {
+              "index": 99,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4979,
+              "depth": 20,
+              "nodes": 223951
+            },
+            {
+              "index": 80,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9974,
+              "depth": 20,
+              "nodes": 700519
+            },
+            {
+              "index": 68,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4976,
+              "depth": 18,
+              "nodes": 398366
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9699,
+              "depth": 20,
+              "nodes": 1335220
+            },
+            {
+              "index": 85,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4131,
+              "depth": 18,
+              "nodes": 472766
+            },
+            {
+              "index": 71,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9979,
+              "depth": 18,
+              "nodes": 724215
+            },
+            {
+              "index": 115,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4977,
+              "depth": 18,
+              "nodes": 68365
+            },
+            {
+              "index": 131,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 19,
+              "nodes": 420767
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4972,
+              "depth": 18,
+              "nodes": 482175
+            },
+            {
+              "index": 94,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 17,
+              "nodes": 630594
+            },
+            {
+              "index": 141,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4036,
+              "depth": 17,
+              "nodes": 743852
+            },
+            {
+              "index": 127,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7566,
+              "depth": 22,
+              "nodes": 1700540
+            },
+            {
+              "index": 108,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3964,
+              "depth": 16,
+              "nodes": 532589
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9973,
+              "depth": 21,
+              "nodes": 1106362
+            },
+            {
+              "index": 140,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4972,
+              "depth": 26,
+              "nodes": 812095
+            },
+            {
+              "index": 139,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9194,
+              "depth": 29,
+              "nodes": 1609798
+            },
+            {
+              "index": 125,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4367,
+              "depth": 25,
+              "nodes": 704648
+            },
+            {
+              "index": 109,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8139,
+              "depth": 27,
+              "nodes": 1286089
+            },
+            {
+              "index": 124,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4883,
+              "depth": 25,
+              "nodes": 744856
+            },
+            {
+              "index": 156,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8087,
+              "depth": 26,
+              "nodes": 1211965
+            },
+            {
+              "index": 157,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4663,
+              "depth": 22,
+              "nodes": 692891
+            },
+            {
+              "index": 129,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7885,
+              "depth": 26,
+              "nodes": 1164254
+            },
+            {
+              "index": 130,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3783,
+              "depth": 22,
+              "nodes": 560038
+            },
+            {
+              "index": 52,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7806,
+              "depth": 29,
+              "nodes": 1129072
+            },
+            {
+              "index": 38,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3839,
+              "depth": 24,
+              "nodes": 466224
+            },
+            {
+              "index": 100,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 4722,
+              "depth": 26,
+              "nodes": 640503
+            },
+            {
+              "index": 126,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4787,
+              "depth": 24,
+              "nodes": 639282
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 782,
+              "depth": 29,
+              "nodes": 210520
+            },
+            {
+              "index": 142,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 628,
+              "depth": 26,
+              "nodes": 144156
+            },
+            {
+              "index": 144,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 703,
+              "depth": 26,
+              "nodes": 133943
+            },
+            {
+              "index": 155,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 793,
+              "depth": 26,
+              "nodes": 166275
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 272,
+              "depth": 26,
+              "nodes": 62011
+            },
+            {
+              "index": 170,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 532,
+              "depth": 26,
+              "nodes": 95698
+            },
+            {
+              "index": 185,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 153,
+              "depth": 26,
+              "nodes": 10781
+            },
+            {
+              "index": 154,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 136,
+              "depth": 26,
+              "nodes": 32042
+            },
+            {
+              "index": 168,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 122,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 72,
+              "depth": 26,
+              "nodes": 15946
+            },
+            {
+              "index": 123,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 138,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 186,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 106,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "5000-10000-opening-02-1",
+          "openingId": "opening-02",
+          "shortMs": 5000,
+          "longMs": 10000,
+          "longColor": 1,
+          "moves": [
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3793,
+              "depth": 17,
+              "nodes": 349040
+            },
+            {
+              "index": 129,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9641,
+              "depth": 21,
+              "nodes": 790476
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4974,
+              "depth": 20,
+              "nodes": 373300
+            },
+            {
+              "index": 115,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9979,
+              "depth": 19,
+              "nodes": 230847
+            },
+            {
+              "index": 143,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4979,
+              "depth": 20,
+              "nodes": 206367
+            },
+            {
+              "index": 100,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9977,
+              "depth": 20,
+              "nodes": 508037
+            },
+            {
+              "index": 85,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4972,
+              "depth": 20,
+              "nodes": 430163
+            },
+            {
+              "index": 99,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9095,
+              "depth": 23,
+              "nodes": 1008405
+            },
+            {
+              "index": 131,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4971,
+              "depth": 18,
+              "nodes": 370808
+            },
+            {
+              "index": 96,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9261,
+              "depth": 22,
+              "nodes": 1156761
+            },
+            {
+              "index": 128,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4973,
+              "depth": 17,
+              "nodes": 346145
+            },
+            {
+              "index": 158,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9976,
+              "depth": 20,
+              "nodes": 647187
+            },
+            {
+              "index": 66,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4979,
+              "depth": 17,
+              "nodes": 365138
+            },
+            {
+              "index": 126,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 19,
+              "nodes": 1049477
+            },
+            {
+              "index": 110,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4679,
+              "depth": 17,
+              "nodes": 598700
+            },
+            {
+              "index": 156,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9318,
+              "depth": 27,
+              "nodes": 1586210
+            },
+            {
+              "index": 140,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3968,
+              "depth": 24,
+              "nodes": 911796
+            },
+            {
+              "index": 159,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9162,
+              "depth": 29,
+              "nodes": 1459615
+            },
+            {
+              "index": 157,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4003,
+              "depth": 27,
+              "nodes": 595274
+            },
+            {
+              "index": 141,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7983,
+              "depth": 29,
+              "nodes": 1290971
+            },
+            {
+              "index": 111,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 3681,
+              "depth": 26,
+              "nodes": 659558
+            },
+            {
+              "index": 174,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 9167,
+              "depth": 30,
+              "nodes": 1513096
+            },
+            {
+              "index": 144,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4213,
+              "depth": 28,
+              "nodes": 755363
+            },
+            {
+              "index": 190,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7726,
+              "depth": 29,
+              "nodes": 1215927
+            },
+            {
+              "index": 142,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2859,
+              "depth": 26,
+              "nodes": 475282
+            },
+            {
+              "index": 160,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 7861,
+              "depth": 31,
+              "nodes": 1340955
+            },
+            {
+              "index": 162,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 4000,
+              "depth": 29,
+              "nodes": 690338
+            },
+            {
+              "index": 146,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 8506,
+              "depth": 33,
+              "nodes": 1563520
+            },
+            {
+              "index": 188,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 1134,
+              "depth": 26,
+              "nodes": 198674
+            },
+            {
+              "index": 175,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 6182,
+              "depth": 31,
+              "nodes": 1069536
+            },
+            {
+              "index": 205,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2638,
+              "depth": 32,
+              "nodes": 550785
+            },
+            {
+              "index": 161,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 3413,
+              "depth": 32,
+              "nodes": 692730
+            },
+            {
+              "index": 173,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 412,
+              "depth": 27,
+              "nodes": 81146
+            },
+            {
+              "index": 206,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 544,
+              "depth": 26,
+              "nodes": 119006
+            },
+            {
+              "index": 222,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 83,
+              "depth": 26,
+              "nodes": 22313
+            },
+            {
+              "index": 177,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 217,
+              "depth": 26,
+              "nodes": 39719
+            },
+            {
+              "index": 189,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 5,
+              "depth": 26,
+              "nodes": 363
+            },
+            {
+              "index": 221,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 4,
+              "depth": 26,
+              "nodes": 125
+            },
+            {
+              "index": 176,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 100
+            },
+            {
+              "index": 145,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 17,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 193,
+              "color": 2,
+              "budgetMs": 5000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 130,
+              "color": 1,
+              "budgetMs": 10000,
+              "wallMs": 0,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        },
+        {
+          "id": "5000-10000-opening-02-2",
+          "openingId": "opening-02",
+          "shortMs": 5000,
+          "longMs": 10000,
+          "longColor": 2,
+          "moves": [
+            {
+              "index": 113,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9192,
+              "depth": 20,
+              "nodes": 938760
+            },
+            {
+              "index": 129,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4980,
+              "depth": 20,
+              "nodes": 120731
+            },
+            {
+              "index": 114,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 20,
+              "nodes": 373300
+            },
+            {
+              "index": 115,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4974,
+              "depth": 19,
+              "nodes": 230847
+            },
+            {
+              "index": 101,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 20,
+              "nodes": 206367
+            },
+            {
+              "index": 126,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4033,
+              "depth": 19,
+              "nodes": 395243
+            },
+            {
+              "index": 98,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8717,
+              "depth": 20,
+              "nodes": 986160
+            },
+            {
+              "index": 99,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4990,
+              "depth": 20,
+              "nodes": 302952
+            },
+            {
+              "index": 131,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9977,
+              "depth": 20,
+              "nodes": 459601
+            },
+            {
+              "index": 130,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4974,
+              "depth": 19,
+              "nodes": 327282
+            },
+            {
+              "index": 116,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9980,
+              "depth": 19,
+              "nodes": 613027
+            },
+            {
+              "index": 86,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4265,
+              "depth": 18,
+              "nodes": 444983
+            },
+            {
+              "index": 145,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 9972,
+              "depth": 18,
+              "nodes": 740835
+            },
+            {
+              "index": 143,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4975,
+              "depth": 17,
+              "nodes": 318484
+            },
+            {
+              "index": 159,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7682,
+              "depth": 25,
+              "nodes": 1599478
+            },
+            {
+              "index": 173,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3953,
+              "depth": 21,
+              "nodes": 821014
+            },
+            {
+              "index": 117,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 8330,
+              "depth": 31,
+              "nodes": 1535381
+            },
+            {
+              "index": 103,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3725,
+              "depth": 26,
+              "nodes": 709740
+            },
+            {
+              "index": 85,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 7918,
+              "depth": 34,
+              "nodes": 1474848
+            },
+            {
+              "index": 128,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4387,
+              "depth": 27,
+              "nodes": 777156
+            },
+            {
+              "index": 127,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 1590,
+              "depth": 26,
+              "nodes": 337717
+            },
+            {
+              "index": 133,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 4520,
+              "depth": 32,
+              "nodes": 860563
+            },
+            {
+              "index": 69,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 3314,
+              "depth": 33,
+              "nodes": 713843
+            },
+            {
+              "index": 53,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 763,
+              "depth": 26,
+              "nodes": 157039
+            },
+            {
+              "index": 148,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2497,
+              "depth": 36,
+              "nodes": 596600
+            },
+            {
+              "index": 144,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 2064,
+              "depth": 35,
+              "nodes": 466183
+            },
+            {
+              "index": 146,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 253,
+              "depth": 28,
+              "nodes": 54840
+            },
+            {
+              "index": 161,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 206,
+              "depth": 26,
+              "nodes": 43462
+            },
+            {
+              "index": 147,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 205,
+              "depth": 26,
+              "nodes": 43986
+            },
+            {
+              "index": 149,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 266,
+              "depth": 26,
+              "nodes": 56657
+            },
+            {
+              "index": 96,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 260,
+              "depth": 26,
+              "nodes": 55349
+            },
+            {
+              "index": 158,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 412,
+              "depth": 26,
+              "nodes": 79816
+            },
+            {
+              "index": 188,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 88,
+              "depth": 26,
+              "nodes": 18888
+            },
+            {
+              "index": 172,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 117,
+              "depth": 26,
+              "nodes": 28180
+            },
+            {
+              "index": 186,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 171,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 53,
+              "depth": 26,
+              "nodes": 14583
+            },
+            {
+              "index": 157,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 170,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 3,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 174,
+              "color": 2,
+              "budgetMs": 10000,
+              "wallMs": 2,
+              "depth": 26,
+              "nodes": 50
+            },
+            {
+              "index": 169,
+              "color": 1,
+              "budgetMs": 5000,
+              "wallMs": 0,
+              "depth": null,
+              "nodes": null
+            }
+          ],
+          "winner": 1
+        }
+      ],
+      "finishedAt": "2026-11-13T12:21:56.046Z"
+    }
+  ]
+}
