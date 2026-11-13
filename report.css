@@ -244,3 +244,31 @@ td:nth-child(n+2) { white-space: nowrap; }
   .table-scroll { overflow: visible; }
   table { min-width: 0; }
 }
+
+/* Match-first report. Each rate stays tied to its named opponent. */
+.real-hero-panel { width:min(100%,500px); justify-self:end; padding:clamp(28px,4vw,56px); border:1px solid color-mix(in oklch,var(--r-sage) 28%,transparent); background:var(--r-night-raised); }
+.real-hero-panel > span, .real-replay-controls > span { color:var(--r-sage); font:11px var(--r-mono); letter-spacing:.1em; }
+.real-hero-panel strong { display:block; margin:30px 0 0; font:500 clamp(80px,10vw,150px)/1 var(--r-serif); color:var(--r-paper); }
+.real-hero-panel p { color:var(--r-paper); margin:12px 0 32px; }
+.real-hero-panel small { display:block; margin-top:30px; color:color-mix(in oklch,var(--r-paper) 60%,transparent); }
+.hero-facts { display:flex; flex-wrap:wrap; gap:8px; }
+.hero-facts span { border:1px solid color-mix(in oklch,var(--r-sage) 35%,transparent); padding:5px 10px; color:var(--r-sage); font-size:12px; }
+.real-match-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.real-match-card { padding:clamp(22px,3vw,36px); background:#fffdf6; border:1px solid var(--r-line); min-width:0; }
+.pair-kicker { color:var(--r-muted); font-size:13px; margin:0; }
+.pair-rate { display:block; margin:26px 0 4px; font:500 clamp(44px,5vw,72px)/1 var(--r-serif); letter-spacing:-.04em; }
+.pair-desc,.pair-record,.pair-score { font-size:13px; color:var(--r-muted); }
+.real-bar { display:flex; width:100%; height:9px; gap:2px; margin:26px 0 12px; background:var(--r-paper-deep); overflow:hidden; }
+.real-bar i { display:block; min-width:0; }.real-bar .win {background:#557d61}.real-bar .draw {background:#c7b78b}.real-bar .loss {background:#b2513c}
+.pair-record { color:var(--r-ink); font-weight:600; }.pair-score { margin-bottom:0; }
+.real-replay { display:grid; grid-template-columns:minmax(240px,560px) minmax(220px,1fr); gap:clamp(24px,5vw,80px); align-items:center; margin:36px 0; }
+.real-board-wrap { width:100%; aspect-ratio:1; min-width:0; }.real-board-wrap svg { display:block; width:100%; height:100%; }
+.real-replay-controls h3 { font:500 clamp(24px,3vw,42px) var(--r-serif); margin:16px 0; }.real-replay-controls p {color:color-mix(in oklch,var(--r-paper) 72%,transparent);min-height:2em}
+.real-replay-controls input { width:100%; accent-color:var(--r-sage); margin:14px 0 22px; }.real-replay-controls > div {display:flex;gap:10px;}
+.real-replay-controls button,.replay-button { cursor:pointer; padding:10px 16px; border:1px solid color-mix(in oklch,var(--r-paper) 40%,transparent); background:transparent; color:var(--r-paper); font:inherit; }
+.real-replay-controls button:disabled { opacity:.4; cursor:default; }
+@media (max-width:800px) { .real-match-grid {grid-template-columns:1fr;} .real-replay {grid-template-columns:1fr;} .real-board-wrap {max-width:500px;margin:auto;} }
+
+.pair-color { margin:5px 0 0; font-size:12px; color:var(--r-muted); }
+
+.real-sample-note { margin:22px 0 0; padding:15px 18px; border-left:3px solid var(--r-cinnabar); background:#fffdf6; color:var(--r-muted); font-size:13px; }

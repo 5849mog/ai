@@ -127,20 +127,20 @@ npm run build:engine
 
 ## 棋力与历史验证
 
-统一棋力基线使用真实单线程 SIMD WASM，先运行独立穷举校验的固定战术题，再对固定三手开局交换执色进行不同时间预算的自动配对赛。输出包括解题／杀棋成功率、胜负和、得分率、深度、节点数及墙钟耗时；源码、引擎和局面均记录 SHA-256，报告生成时逐题、逐手复核。
+[实战棋力报告](report.html) 以完整对局为主：1 秒、5 秒、10 秒三个固定档位两两配对；同一三手开局交换黑白，逐盘记录每手落子、时间预算、实际耗时和终局。页面把胜率与对手和样本数一起展示，并支持回放。胜率是胜局 / 总局数，得分率按胜 1、和 0.5、负 0 计算。
+
+这是同一 Rapfi 单线程 WASM 与 mix9svq 权重之间的自对弈；三组批次分别绑定不同逻辑 CPU 并行运行，每手清空搜索缓存并关闭后台思考。使用无禁手规则；预设三手开局不检验完整开局决策，也不能推导对真人、其他软件或某个对手的胜率。有限开局和样本不足以确定统计优势或 Elo。每盘均可以通过 [实战原始记录](reports/real-games-latest.json) 核验。
+
+复测命令（每组可指定独立 CPU 核心，避免相互争用）：
 
 ```sh
-npm run benchmark:strength
-npm run report:strength
-# 中断后沿用同一输出文件续跑；配置或源码身份不同会拒绝续跑
-npm run benchmark:strength -- --resume
+GIT_COMMIT=$(git rev-parse HEAD) node scripts/real-game-benchmark.js --pair=1000-5000 --openings=2 --output=reports/real-games-1v5.json
+GIT_COMMIT=$(git rev-parse HEAD) node scripts/real-game-benchmark.js --pair=1000-10000 --openings=2 --output=reports/real-games-1v10.json
+GIT_COMMIT=$(git rev-parse HEAD) node scripts/real-game-benchmark.js --pair=5000-10000 --openings=2 --output=reports/real-games-5v10.json
+node scripts/real-game-report.js reports/real-games-1v5.json reports/real-games-1v10.json reports/real-games-5v10.json
 ```
 
-可用 `--position-budgets=100,500,1000`、`--match-budgets=100,500`、`--openings=4` 和 `--output=...` 调整规模。默认结果见 [固定局面与配对棋力基线](reports/strength-baseline-v1.md)。
-
-关于页的「查看测试报告」打开 `report.html`。页面在打开、手动刷新、重新可见及前台每 60 秒读取同源 `reports/strength-baseline-v1-summary.json`，以 `no-store` 请求最新发布数据；Service Worker 不缓存报告 JSON。加载失败会显示错误，已有数据时保留上一次成功结果。界面数据校验、缓存策略和真实触屏／刷新流程可用 `npm run test:report` 与 `npm test` 验证。对局动效的状态差异、减弱动态及真实桌面／手机验收使用 `npm run test:motion`。
-
-后台思考对照及自适应配对赛仍由 `package.json` 中的其它 benchmark / report 命令运行，长测试支持 `--resume`。它们检验有限样本下相对表现，不能推导真人胜率或通用 Elo。原始记录与源码 / 权重哈希保存在 `reports/`；参考 [后台思考报告](reports/ponder-benchmark.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [旧版完整验收](reports/validation.md)。界面调整不需要重跑全部棋力对战。
+每手写入检查点，中断后用相同参数附加 `--resume`；报告生成器检查源码与引擎哈希、执色配对、时间预算与每手合法性。页面在打开、手动刷新和重新可见时读取同源 JSON，报告数据不会被 Service Worker 缓存。早期的 [固定局面与配对基线](reports/strength-baseline-v1.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [后台思考报告](reports/ponder-benchmark.md) 保留为历史资料。
 
 ## 开源许可
 
