@@ -536,3 +536,20 @@ test('AI takeover completes formal opening decisions without manual input', asyn
     } finally { f.close(); }
   }
 });
+
+for (const timeMs of [100,500]) test('fast '+timeMs+'ms settings restore and drive both sides of AI takeover', async () => {
+  const f=await environment('index.html',{timeMs,holdSearch:true});
+  try {
+    await f.load();
+    assert.equal(document.querySelector('#timeSelect').value,String(timeMs));
+    const toggle=document.querySelector('[aria-controls="simpleQuickTools"]'); toggle.click();
+    const option=document.querySelector('[data-time="'+timeMs+'"]'); assert.ok(option); assert.equal(option.getAttribute('aria-pressed'),'true');
+    option.click(); assert.equal(localStorage.getItem('gomoku-thinking-ms'),String(timeMs));
+    const entry=[...document.querySelectorAll('button')].find(b=>b.textContent==='AI 接管我方'&&!b.hidden); entry.click(); await settled();
+    const worker=f.workers.at(-1); let job=worker.searches.at(-1);
+    assert.equal(job.timeMs,timeMs); assert.equal(job.sideToMove,1);
+    worker.emit({type:'move',requestId:job.requestId,result:{index:112}}); await settled();
+    job=worker.searches.at(-1); assert.equal(job.timeMs,timeMs); assert.equal(job.sideToMove,2);
+    assert.equal(savedSession(f).moves.length,1);
+  } finally { f.close(); }
+});
