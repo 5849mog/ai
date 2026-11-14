@@ -31,15 +31,8 @@ test("unsupported or blocked audio and storage never prevent play", () => {
   assert.doesNotThrow(() => sound.setEnabled(true)); assert.equal(sound.playStone(), false);
 });
 
-test('recorded samples load only when enabled, avoid immediate repeats, and fall back when unavailable', async () => {
-  let requests=0; const played=[];
-  class SampleContext extends FakeAudioContext {
-    decodeAudioData(bytes) { return Promise.resolve({id:new Uint8Array(bytes)[0]}); }
-    createBufferSource() { const source={playbackRate:{value:1},connect(){},start(){played.push(this.buffer.id);},stop(){}};return source; }
-  }
-  const fetch=async url=>{requests++;const id=Number(String(url).match(/stone-(\d)/)[1]);return {ok:true,arrayBuffer:async()=>new Uint8Array([id]).buffer};};
-  const s=createSoundFeedback({AudioContext:SampleContext,fetch,random:()=>0});assert.equal(requests,0);assert.equal(s.playStone(),false);assert.equal(requests,0);
-  s.setEnabled(true);await new Promise(resolve=>setImmediate(resolve));assert.equal(requests,5);
-  assert.equal(s.playStone(),true);assert.equal(s.playStone(),true);assert.deepEqual(played,[1,2]);s.setEnabled(false);assert.equal(s.playStone(),false);
-  const failed=createSoundFeedback({AudioContext:SampleContext,fetch:async()=>{throw Error('offline');}});failed.setEnabled(true);await new Promise(resolve=>setImmediate(resolve));assert.equal(failed.playStone(),true);
+test("synthesized sound never fetches recordings", () => {
+  let requests = 0;
+  const sound = createSoundFeedback({ AudioContext: FakeAudioContext, fetch: () => { requests++; } });
+  sound.setEnabled(true); assert.equal(sound.playStone(), true); assert.equal(requests, 0);
 });

@@ -175,3 +175,10 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 .archive-preview svg { display:block; width:min(100%,300px); height:auto; aspect-ratio:1; margin:8px 0; }
 .archive-copy button { margin:6px 6px 0 0; }
 .review-jumps select { max-width:100%; padding:5px; }
+
+.spectator-controls { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+.spectator-controls button { border:1px solid var(--line); border-radius:5px; padding:5px 9px; background:#fbf9f1; color:var(--ink); font:inherit; font-size:12px; cursor:pointer; }
+.spectator-controls button[hidden] { display:none; }
+.spectator-controls button[aria-pressed="true"] { border-color:var(--accent, #a84032); }
+.simple-mode .spectator-controls { display:none; }
+.board-bottom { flex-direction: column; }

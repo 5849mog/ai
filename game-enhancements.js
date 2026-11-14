@@ -8,7 +8,7 @@ import { exportName, downloadText, downloadBlob } from "./export-utils.js";
 
 // Inline quick controls and full-page workspaces share one lifecycle. Neither
 // workspace uses a popup or modifies the live game while it is being inspected.
-export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound, notify }) {
+export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound, notify, getControlState, toggleHints, toggleSelfPlay }) {
   const $ = selector => document.querySelector(selector), shell = $(".app-shell");
   const status = document.createElement("div"); status.id = "simpleStatusRow"; status.className = "simple-status-row";
   const rate = $("#simpleWinRate"); rate.before(status); status.append(rate);
@@ -98,14 +98,22 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     const full=document.createElement('button');full.type='button';full.textContent=label;full.onclick=()=>{$('#recordMenu').open=false;void copyRecord(format);};$('.record-options').append(full);
     const quick=document.createElement('button');quick.type='button';quick.textContent=label;quick.onclick=()=>{collapse();void copyRecord(format);};panel.querySelector('.quick-tools-actions').append(quick);
   }
+  const quickHints=document.createElement("button"),quickSelf=document.createElement("button"),fullHints=document.createElement("button"),fullSelf=document.createElement("button");
+  for(const button of [quickHints,quickSelf,fullHints,fullSelf]) button.type="button";
+  quickHints.onclick=()=>{toggleHints?.();collapse();}; fullHints.onclick=()=>{toggleHints?.();$("#recordMenu").open=false;};
+  quickSelf.onclick=()=>{toggleSelfPlay?.();collapse();}; fullSelf.onclick=()=>{toggleSelfPlay?.();$("#recordMenu").open=false;};
+  panel.querySelector(".quick-tools-actions").append(quickHints,quickSelf);
+  const spectatorControls=document.createElement("div"); spectatorControls.className="spectator-controls"; spectatorControls.append(fullHints,fullSelf); $(".game-actions").after(spectatorControls);
   const fullSound=document.createElement("button");fullSound.type="button";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);
   const fullPause=document.createElement("button");fullPause.type="button";fullPause.className="icon-button";fullPause.hidden=true;fullPause.onclick=()=>getPosition().paused?resumeSearch?.():pauseSearch?.();$(".game-actions").append(fullPause);
   function render() {
-    const position = getPosition();
+    const position = getPosition(), controls=getControlState?.();
+    for(const b of [quickHints,fullHints]) { b.hidden=!controls; b.textContent=controls?.showHints?"隐藏棋盘提示":"显示棋盘提示"; b.setAttribute("aria-pressed", String(!controls?.showHints)); }
+    for(const b of [quickSelf,fullSelf]) { b.hidden=!controls || (!controls.canSelfPlay && !controls.selfPlay); b.textContent=controls?.selfPlay?"结束 AI 接管":"AI 接管我方"; b.setAttribute("aria-pressed", String(Boolean(controls?.selfPlay))); }
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
-    pauseEntry.hidden=!(position.busy && $("#timeSelect").value==="adaptive" && pauseSearch);resumeEntry.hidden=!position.paused;
+    pauseEntry.hidden=!((position.busy && ($("#timeSelect").value==="adaptive" || position.selfPlay)) && pauseSearch);resumeEntry.hidden=!position.paused;
     fullPause.hidden=pauseEntry.hidden&&resumeEntry.hidden;fullPause.textContent=position.paused?"继续思考":"暂停思考";
     syncNotice();
     for (const b of [reviewEntry, resultButton]) b.hidden = !position.winner;
