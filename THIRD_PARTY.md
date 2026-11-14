@@ -40,3 +40,8 @@ Emscripten 3.1.64 编译四个浏览器版本。engine/rapfi-250615/manifest.jso
 Rapfi 链接的 cpptoml、cxxopts、LZ4、xxHash、LZ4 stream 和 SIMDe，以及 Emscripten 运行时的上游许可声明，完整保存在 [NOTICE-Dependencies.txt](./engine/rapfi-250615/NOTICE-Dependencies.txt)。这些组件保留各自的 MIT、BSD、CC0 或 LLVM 等许可声明。
 
 手机连接窗口使用 qrcode 1.5.4（MIT，来源：https://github.com/soldair/node-qrcode/tree/v1.5.4），完整许可证见 [qrcode-LICENSE.txt](./remote/licenses/qrcode-LICENSE.txt)。二维码在本机生成，配对信息不发送给在线二维码服务。
+
+
+## 棋子落子录音
+
+`assets/sounds/stone-1.mp3`、`stone-2.mp3` 改编自 kelsey_w 的 [Glass Place 2.wav](https://freesound.org/people/kelsey_w/sounds/467057/)；`stone-3.mp3` 改编自同一作者的 [Glass Pick Up & Place.wav](https://freesound.org/people/kelsey_w/sounds/467043/)。素材经 [appgurueu/go](https://github.com/appgurueu/go/tree/997ce85260d232a05dd668c32c6854bf34e3d5be) 的 OGG 衍生版本取得，授权为 [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)。本项目截取单次接触、调整音量和尾部淡出，转为单声道 MP3。原作者不对本项目背书。
