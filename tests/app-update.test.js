@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { setupAppUpdates, updateControlMarkup } from '../app-update.js';
+import { setupAppUpdates, updateControlMarkup, createSafeUpdateGate } from '../app-update.js';
 import { APP_VERSION } from '../app-release.js';
 
 const flush = () => new Promise(done => setImmediate(done));
@@ -55,4 +55,21 @@ test('legacy messages cannot falsely report the new version or offline completen
   const f = fixture(); await f.ui.initialized; const before = f.doc.querySelector('#offlineState').textContent;
   const event = new Event('message'); event.data = { type: 'offline-ready' }; f.serviceWorker.dispatchEvent(event);
   assert.equal(f.doc.querySelector('#offlineState').textContent, before); f.dom.window.close();
+});
+test('automatic application is gated and only reloads for a newer installed version', async()=>{
+ const dom=new JSDOM(updateControlMarkup()),events=new EventTarget(),registration=new EventTarget();let allowed=false,reloads=0,updates=0;
+ registration.update=async()=>{updates++;};events.controller={postMessage(){}};events.register=async()=>registration;
+ const ui=setupAppUpdates({container:dom.window.document,serviceWorker:events,reload:()=>reloads++,autoApply:()=>allowed});await ui.initialized;assert.equal(updates,1);
+ const status=version=>{const e=new Event('message');e.data={type:'app-status',version,offline:true};events.dispatchEvent(e);};
+ status(APP_VERSION);assert.equal(reloads,0);status(newerVersion);assert.equal(reloads,0);allowed=true;status(newerVersion);assert.equal(reloads,1);dom.window.close();
+});
+
+test('safe gate blocks unsaved work, corruption, failed saves and reload loops',()=>{
+ const state={untouched:true,loadSafe:true,hidden:false,modal:false,busy:false,pending:false,forbidden:false};let saved=0;const values=new Map();const storage={getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)};
+ const gate=createSafeUpdateGate({state:()=>state,storage,key:'once',save:()=>{saved++;return true;}});
+ for(const name of ['hidden','modal','busy','pending','forbidden']){state[name]=true;assert.equal(gate('next'),false);state[name]=false;}assert.equal(saved,0);
+ state.untouched=false;assert.equal(gate('next'),null);state.untouched=true;state.loadSafe=false;assert.equal(gate('next'),null);state.loadSafe=true;
+ assert.equal(gate('next'),true);assert.equal(saved,1);assert.equal(gate('next'),null);assert.equal(saved,1);
+ assert.equal(createSafeUpdateGate({state:()=>state,storage,key:'fail',save:()=>false})('next'),null);
+ assert.equal(createSafeUpdateGate({state:()=>state,storage:{getItem(){throw Error('blocked');}},key:'x',save:()=>true})('next'),null);
 });

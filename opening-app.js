@@ -13,7 +13,7 @@ import { describeSearch } from "./search-info.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
-import { setupAppUpdates } from "./app-update.js";
+import { setupAppUpdates, createSafeUpdateGate } from "./app-update.js";
 import { setupRecordUi } from "./record-ui.js";
 import { sessionFromRecord, loadSessionRecord } from "./session-records.js";
 import { createScheduledTask } from "./ui-scheduler.js";
@@ -32,6 +32,10 @@ const openingBook = createOpeningBook({ pool: RIF_OPENINGS, storageKey: `${STORA
   storage: { getItem: key => localStorage.getItem(key), setItem: (key, value) => localStorage.setItem(key, value) } });
 let session = new OpeningSession({ rule: document.body.dataset.defaultRule || "rif", workflow: document.body.dataset.defaultWorkflow || "copilot", initialBlackSeat: document.body.dataset.defaultWorkflow === "duel" ? 0 : null }), perspective = 1, state = "idle", serial = 0, requestId = 0;
 let busy = false, modal = false, advice = null, stats = null, statsColor = 1, pondering = false, migratedFrom = null;
+// Auto-apply only during an untouched launch. Once a person interacts, keep
+// the page stable until they reopen it or explicitly choose to update.
+let updateLaunchUntouched = true, updateLoadSafe = true;
+for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto";
@@ -53,10 +57,10 @@ try {
     for (const record of loaded.backups) if (JSON.stringify(record) !== JSON.stringify(saved?.record) && !backup.list().some(entry => JSON.stringify(entry.record) === JSON.stringify(record))) { backup.begin(); backup.capture(record); }
   }
   if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
-  if (loaded.error) notify(loaded.error, true);
+  if (loaded.error) { updateLoadSafe = false; notify(loaded.error, true); }
   const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (["1000", "5000", "10000", ADAPTIVE_MODE].includes(time)) $("#timeSelect").value = time;
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
-} catch { notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
+} catch { updateLoadSafe = false; notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
 function persist() {
   analysisUpdates.cancel();
   if(archiveReady)archiveCurrent();
@@ -368,7 +372,14 @@ enhancements = setupGameEnhancements({
     return engine.search({ ...options, requestId: ++requestId });
   }
 });
-setupAppUpdates();
+const updateGate = createSafeUpdateGate({
+  state: () => ({ untouched:updateLaunchUntouched, loadSafe:updateLoadSafe, hidden:document.hidden, modal, busy, pending:pending>=0, forbidden:Boolean(forbiddenInput) }),
+  storage: { getItem:key=>sessionStorage.getItem(key), setItem:(key,value)=>sessionStorage.setItem(key,value) },
+  key: `gomoku-auto-update:${location.pathname}`, save: persist
+});
+setupAppUpdates({ autoApply: version => {
+  const decision = updateGate(version); if (decision === true) updateLaunchUntouched = false; return decision;
+} });
 const transferred=takeArchiveRestore(localStorage);if(transferred)restoreArchived(transferred);
 
 render(); void prepare(); if (location.hash === "guide") dialogs.openGuide();

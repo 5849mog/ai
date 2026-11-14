@@ -8,15 +8,27 @@ function newerVersion(candidate, current) {
   return false;
 }
 
+export function createSafeUpdateGate({ state, storage, key, save }) {
+  return version => {
+    const s = state();
+    if (!s.untouched || !s.loadSafe) return null;
+    if (s.hidden || s.modal || s.busy || s.pending || s.forbidden) return false;
+    try {
+      if (storage.getItem(key) === version || !save()) return null;
+      storage.setItem(key, version); return true;
+    } catch { return null; }
+  };
+}
+
 export function updateControlMarkup() {
   return `<div class="app-update-control"><span data-app-version role="status">版本 ${APP_VERSION}</span><button type="button" data-app-update>检查更新</button></div>`;
 }
 
-// Updating never reloads a live game or an unconfirmed screenshot automatically.
+// Automatic reload is opt-in and gated by the caller protecting live work.
 export function setupAppUpdates({ container = document, serviceWorker = navigator.serviceWorker,
-  reload = () => location.reload(), returnWhenCurrent = false } = {}) {
+  reload = () => location.reload(), returnWhenCurrent = false, autoApply = null } = {}) {
   const labels = [...container.querySelectorAll("[data-app-version]")], buttons = [...container.querySelectorAll("[data-app-update]")];
-  let registration, busy = false, ready = false, current = "", checked = false;
+  let registration, busy = false, ready = false, current = "", checked = false, retryTimer = null, retryCount = 0;
   function render(text) {
     for (const label of labels) label.textContent = text ?? `页面 ${APP_VERSION}${current ? ` · 缓存 ${current}` : ""}`;
     for (const button of buttons) {
@@ -30,6 +42,14 @@ export function setupAppUpdates({ container = document, serviceWorker = navigato
     if (data?.type !== "app-status" || typeof data.version !== "string") return;
     current = data.version; ready = newerVersion(current, APP_VERSION);
     render();
+    if (ready && autoApply) {
+      const decision = autoApply(current);
+      if (decision === true) { if (retryTimer !== null) clearTimeout(retryTimer); reload(); return; }
+      if (decision === false && retryTimer === null && retryCount < 20) {
+        retryCount++; retryTimer = setTimeout(() => { retryTimer = null; askStatus(); }, 3000);
+      }
+      if (decision === null && retryTimer !== null) { clearTimeout(retryTimer); retryTimer = null; }
+    }
     const offline = container.querySelector("#offlineState");
     if (offline) offline.textContent = data.offline ? "已缓存 · 可离线使用" : "页面已缓存 · 引擎离线缓存未完成";
   });
@@ -46,7 +66,15 @@ export function setupAppUpdates({ container = document, serviceWorker = navigato
     .then(value => {
       registration = value; watch(value.installing);
       value.addEventListener("updatefound", () => watch(value.installing));
-      value.waiting?.postMessage({ type: "activate-update" }); askStatus(); return value;
+      value.waiting?.postMessage({ type: "activate-update" }); askStatus();
+      if (autoApply) {
+        const update = () => { if (!container.hidden) void value.update().catch(() => {}); };
+        void value.update().catch(() => {});
+        container.addEventListener("visibilitychange", () => { if (!container.hidden) update(); });
+        container.defaultView?.addEventListener("online", update);
+        container.defaultView?.setInterval(update, 30 * 60 * 1000);
+      }
+      return value;
     }).catch(() => { render(`版本 ${APP_VERSION} · 离线更新暂不可用，联网后重试`); return null; });
   async function check() {
     if (busy) return;
