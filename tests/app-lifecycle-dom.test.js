@@ -553,3 +553,43 @@ for (const timeMs of [100,500]) test('fast '+timeMs+'ms settings restore and dri
     assert.equal(savedSession(f).moves.length,1);
   } finally { f.close(); }
 });
+
+test('spectator settings apply per color, single-step pauses, pacing waits, and background stops play', async () => {
+ const f=await environment('index.html',{holdSearch:true});
+ try {
+  await f.load();
+  const button=label=>[...document.querySelectorAll('button')].find(b=>b.textContent===label&&!b.hidden);
+  button('AI 接管我方').click();await settled();button('暂停思考').click();await settled();
+  const panel=[...document.querySelectorAll('.spectator-settings')].find(x=>!x.hidden);
+  for(const [key,value] of [['black','100'],['white','500'],['delay','500']]) {
+   const input=panel.querySelector('[data-spectator="'+key+'"]');input.value=value;input.dispatchEvent(new f.dom.window.Event('change'));
+  }
+  panel.querySelector('[data-step]').click();await settled();let w=f.workers.at(-1),q=w.searches.at(-1);assert.equal(q.sideToMove,1);assert.equal(q.timeMs,100);
+  w.emit({type:'move',requestId:q.requestId,result:{index:112}});await settled();
+  assert.equal(savedSession(f).moves.length,1);assert.equal(button('继续思考').hidden,false);
+  panel.querySelector('[data-step]').click();await settled();q=w.searches.at(-1);assert.equal(q.sideToMove,2);assert.equal(q.timeMs,500);
+  w.emit({type:'move',requestId:q.requestId,result:{index:113}});await settled();assert.equal(savedSession(f).moves.length,2);
+  button('继续思考').click();await settled();q=w.searches.at(-1);assert.equal(q.sideToMove,1);
+  w.emit({type:'move',requestId:q.requestId,result:{index:114}});await settled();const count=w.searches.length;assert.equal(savedSession(f).moves.length,3);
+  f.advance(499);await settled();assert.equal(w.searches.length,count);
+  f.advance(1);await settled();assert.equal(w.searches.length,count+1);q=w.searches.at(-1);assert.equal(q.sideToMove,2);
+  Object.defineProperty(document,'hidden',{value:true,configurable:true});document.dispatchEvent(new f.dom.window.Event('visibilitychange'));await settled();
+  w.emit({type:'move',requestId:q.requestId,result:{index:115}});await settled();assert.equal(savedSession(f).moves.length,3);
+  assert.equal(button('继续思考').hidden,false);
+ } finally { f.close(); }
+});
+
+test('spectator keyboard controls pause and step without capturing text input',async()=>{
+ const f=await environment('index.html',{holdSearch:true});
+ try {
+  await f.load();const find=t=>[...document.querySelectorAll('button')].find(b=>b.textContent===t&&!b.hidden);
+  find('AI 接管我方').click();await settled();const first=f.workers.at(-1);
+  document.querySelector('#boardSvg').dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true}));await settled();
+  assert.ok(find('继续思考'));const count=f.workers.length;
+  document.querySelector('#timeSelect').dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true}));await settled();
+  assert.equal(f.workers.length,count);assert.ok(find('继续思考'));
+  document.querySelector('#boardSvg').dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));await settled();
+  const worker=f.workers.at(-1),q=worker.searches.at(-1);assert.notEqual(worker,first);
+  worker.emit({type:'move',requestId:q.requestId,result:{index:112}});await settled();assert.equal(savedSession(f).moves.length,1);assert.ok(find('继续思考'));
+ } finally { f.close(); }
+});

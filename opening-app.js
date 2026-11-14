@@ -42,6 +42,9 @@ let forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
 try { showHints = localStorage.getItem("gomoku-show-hints") !== "false"; } catch {}
 const automaticTurn = () => isAutomaticTurn(session) || (selfPlay && session.workflow === "duel" && !session.winner && session.stage !== "setup");
+let selfPlayTimer=null, singleStep=false;
+const spectator={ black:"shared", white:"shared", delay:"0" };
+function cancelSelfPlayTimer(){ if(selfPlayTimer!==null)clearTimeout(selfPlayTimer); selfPlayTimer=null; }
 const hints = new TurnHints(); let hintsStamp = "";
 const hintUpdates = createScheduledTask(() => render(), 100);
 const archive=createGameArchive({storage:{getItem:key=>localStorage.getItem(key),setItem:(key,value)=>localStorage.setItem(key,value)},page:"opening"});
@@ -101,7 +104,7 @@ const engine = new GomokuEngine({ rule: session.rule,
   }
 });
 function cancel({ keepHints = false } = {}) {
-  hints.cancel({ keepPoints: keepHints }); hintUpdates.cancel();
+  cancelSelfPlayTimer(); singleStep=false; hints.cancel({ keepPoints: keepHints }); hintUpdates.cancel();
   statsUpdates.cancel();
   serial++; requestId++; busy = false;adaptiveThinking=false;deepPhase=""; advice = null; forbiddenInput = null; pending = hover = -1; analysis.cancel(); engine.stopPonder();
   // Recording several external opening stones must not restart model loading.
@@ -205,7 +208,7 @@ function render() {
   $(".color-control").hidden = session.decision || session.workflow !== "follow";
   $(".game-settings").dataset.controls = session.workflow === "follow" ? "3" : "2";
   $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
-  $("#timeSelect").disabled = busy; $("#ponderToggle").disabled = busy;
+  $("#timeSelect").disabled = busy && !selfPlay; $("#ponderToggle").disabled = busy;
   svg.setAttribute("aria-label", `15 乘 15 连珠棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}方向键选点，回车确认。`);
   svg.setAttribute("aria-disabled", String(!interactive())); Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
   display?.render({ playerColor: session.playerColor, winner: session.winner, state, text, busy });
@@ -268,10 +271,15 @@ function placeForcedCenter() {
 }
 async function autoPlay() {
   if (busy || modal || session.winner) return;
-  const token = serial; busy = true;deepPhase="";adaptiveThinking=$("#timeSelect").value===ADAPTIVE_MODE; engine.stopPonder(); render();
+  const token = serial; busy = true;deepPhase=""; engine.stopPonder(); render();
   const settings={isCancelled:()=>token!==serial || modal || paused,cancelSearch:()=>engine.cancel(),onProgress:phase=>{deepPhase=phase;render();}};
+  let delayNext=false;
   try { while (token === serial && !modal && automaticTurn()) {
-    const time = Number($("#timeSelect").value), openingBatch = session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage);
+    const actorColor=session.actor===session.blackSeat?1:2;
+    const chosen=selfPlay ? spectator[actorColor===1?"black":"white"] : "shared";
+    const budget=chosen==="shared"?$("#timeSelect").value:chosen;
+    adaptiveThinking=budget===ADAPTIVE_MODE;
+    const time = Number(budget), openingBatch = session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage);
     const planned = openingBatch ? openingBook.plan(session) : null;
     const suggestion = planned ? { points: [planned.points[session.moves.length]] }
       : adaptiveThinking ? await adviseAdaptiveOpening(session,searchFor(token),settings)
@@ -281,8 +289,10 @@ async function autoPlay() {
     if (session.decision) commit({ type: "decision", choice: suggestion.choice }, true);
     else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index }, true);
     else commit({ type: session.stage === "choose" ? "select" : "stone", index: suggestion.points[0] }, true, suggestion.result);
+    if(singleStep && selfPlay && !session.winner) { singleStep=false; paused=true; break; }
+    if(selfPlay && !session.winner && Number(spectator.delay)>0) { delayNext=true; break; }
   } } catch (error) { if (error.name !== "AbortError" && token === serial) { state = "error"; notify(`AI 未完成操作：${error.message}。可重试或悔棋。`, true); } }
-  finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;adaptiveThinking=false;deepPhase=""; render(); if (state !== "error") {if(reinit)void prepare();else void syncPonder();} } }
+  finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;adaptiveThinking=false;deepPhase=""; render(); if (state !== "error") {if(delayNext && !paused && selfPlay) { selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); } else if(reinit && !paused)void prepare();else void syncPonder();} } }
 }
 async function recommend({automatic=false}={}) {
   if (busy || advice) { cancel(); render(); void prepare(); return; }
@@ -366,10 +376,27 @@ $("#simpleColor").addEventListener("keydown", event => { if (event.key.toLowerCa
 setupRecordUi({ getRecord: () => session.record(), notify, onModalChange: onModal,
   applyRecord: record => { restoreArchived({ record }); return persist(); }
 });
-document.addEventListener("visibilitychange", () => { if (document.hidden) persist(); void syncPonder(); }); window.addEventListener("pagehide", persist);
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    if(selfPlay && !paused && !session.winner){cancel();paused=true;render();notify("切到后台，AI 对决已暂停");}
+    persist();
+  }
+  void syncPonder();
+}); window.addEventListener("pagehide", persist);
 document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
+function pauseThinking() { if(!busy && !selfPlay)return;cancel();paused=true;persist();render(); }
+function resumeThinking() { paused=false;render();void prepare(); }
+function stepThinking() { if(!selfPlay || !paused || session.winner || modal)return;singleStep=true;paused=false;render();void prepare(); }
+document.addEventListener("keydown", event => {
+  if(!selfPlay || modal || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target?.closest?.("input,select,textarea,button,[contenteditable=true]"))return;
+  if(event.key===" "){event.preventDefault();if(paused)resumeThinking();else pauseThinking();}
+  else if(event.key==="ArrowRight" && paused){event.preventDefault();stepThinking();}
+});
 enhancements = setupGameEnhancements({
   sound,
+  spectatorSettings: spectator,
+  onSpectatorChange: (key,value) => { const allowed=key==="delay"?["0","500","1000","2000"]:["shared","100","500","1000","5000","10000"]; if(allowed.includes(value))spectator[key]=value; },
+  stepSelfPlay: stepThinking,
   getControlState: () => ({ showHints, selfPlay, canSelfPlay: session.workflow === "duel" && session.stage !== "setup" && !session.winner }),
   toggleHints: () => { showHints=!showHints; try { localStorage.setItem("gomoku-show-hints", String(showHints)); } catch {} render(); },
   toggleSelfPlay: () => {
@@ -379,8 +406,8 @@ enhancements = setupGameEnhancements({
   getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,busy:busy&&(automaticTurn()||adaptiveThinking),paused,selfPlay,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
   archive,resumeRecord:restoreArchived,
-  pauseSearch:()=>{if(!busy && !selfPlay)return;cancel();paused=true;persist();render();},
-  resumeSearch:()=>{paused=false;render();void prepare();},
+  pauseSearch:pauseThinking,
+  resumeSearch:resumeThinking,
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); },
   onWorkspace: onModal, newGame: () => newGame(), exitSimple: () => display.leave(), notify,
   cancelSearch: () => engine.cancel(),
