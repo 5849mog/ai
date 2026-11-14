@@ -61,7 +61,7 @@ try {
   }
   if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
   if (loaded.error) { updateLoadSafe = false; notify(loaded.error, true); }
-  const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (["1000", "5000", "10000", ADAPTIVE_MODE].includes(time)) $("#timeSelect").value = time;
+  const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (["100", "500", "1000", "5000", "10000", ADAPTIVE_MODE].includes(time)) $("#timeSelect").value = time;
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { updateLoadSafe = false; notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
 function persist() {
