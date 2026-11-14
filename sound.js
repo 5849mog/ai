@@ -1,6 +1,6 @@
 const STORAGE_KEY = "gomoku-sound";
 
-// Three locally hosted recordings, prepared after sound is enabled. A short
+// Five locally hosted Go stone recordings, prepared after sound is enabled. A short
 // synthesized fallback keeps play responsive if decoding or loading fails.
 export function createSoundFeedback({ storage, AudioContext: AudioContextClass = globalThis.AudioContext ?? globalThis.webkitAudioContext, fetch: fetchAudio = globalThis.fetch, random = Math.random } = {}) {
   let enabled = false, context = null, master = null, samples = [], loading = null, loadAttempted = false, previous = -1;
@@ -19,7 +19,7 @@ export function createSoundFeedback({ storage, AudioContext: AudioContextClass =
   function prepareSamples(audio) {
     if (loading || samples.length || loadAttempted || !fetchAudio || typeof audio.decodeAudioData !== "function") return;
     loadAttempted = true;
-    const urls = [1, 2, 3].map(n => new URL(`./assets/sounds/stone-${n}.mp3`, import.meta.url));
+    const urls = [1, 2, 3, 4, 5].map(n => new URL(`./assets/sounds/stone-${n}.mp3`, import.meta.url));
     loading = Promise.allSettled(urls.map(async url => {
       const response = await fetchAudio(url); if (!response.ok) throw new Error("sound unavailable");
       return audio.decodeAudioData(await response.arrayBuffer());
@@ -45,7 +45,7 @@ export function createSoundFeedback({ storage, AudioContext: AudioContextClass =
         const available = samples.map((_,i)=>i).filter(i=>samples.length===1 || i!==previous);
         const index=available[Math.min(available.length-1,Math.floor(random()*available.length))]; previous=index;
         const source=audio.createBufferSource(), gain=audio.createGain();
-        source.buffer=samples[index]; source.playbackRate.value=.99+random()*.02; gain.gain.value=.38;
+        source.buffer=samples[index]; source.playbackRate.value=1; gain.gain.value=.38;
         source.connect(gain); gain.connect(master); source.start(audio.currentTime+.004); return true;
       }
       const now = audio.currentTime + .004;
