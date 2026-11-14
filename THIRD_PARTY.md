@@ -44,4 +44,4 @@ Rapfi 链接的 cpptoml、cxxopts、LZ4、xxHash、LZ4 stream 和 SIMDe，以及
 
 ## 棋子落子录音
 
-`assets/sounds/stone-1.mp3`、`stone-2.mp3` 改编自 kelsey_w 的 [Glass Place 2.wav](https://freesound.org/people/kelsey_w/sounds/467057/)；`stone-3.mp3` 改编自同一作者的 [Glass Pick Up & Place.wav](https://freesound.org/people/kelsey_w/sounds/467043/)。素材经 [appgurueu/go](https://github.com/appgurueu/go/tree/997ce85260d232a05dd668c32c6854bf34e3d5be) 的 OGG 衍生版本取得，授权为 [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)。本项目截取单次接触、调整音量和尾部淡出，转为单声道 MP3。原作者不对本项目背书。
+`assets/sounds/stone-1.mp3` 至 `stone-5.mp3` 改编自 billhails2 的 [GoStoneSounds.ogg](https://freesound.org/people/billhails2/sounds/588317/)，授权为 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/)。原作者说明录音是云子落在围棋棋盘上的五次声音。素材取自 [Masame 的 place.mp3](https://github.com/Slymaster/masame/blob/4f0b623286ff9e61d16567246efb7fb1512d7d35/public/assets/board3d/place.mp3) 中标注为该来源的最后五个 0.5 秒片段，参见 [来源说明](https://github.com/Slymaster/masame/blob/4f0b623286ff9e61d16567246efb7fb1512d7d35/public/assets/board3d/CREDITS.md)。本项目将片段分别截取、尾部淡出并转码为单声道 MP3。

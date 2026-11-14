@@ -39,7 +39,7 @@ test('recorded samples load only when enabled, avoid immediate repeats, and fall
   }
   const fetch=async url=>{requests++;const id=Number(String(url).match(/stone-(\d)/)[1]);return {ok:true,arrayBuffer:async()=>new Uint8Array([id]).buffer};};
   const s=createSoundFeedback({AudioContext:SampleContext,fetch,random:()=>0});assert.equal(requests,0);assert.equal(s.playStone(),false);assert.equal(requests,0);
-  s.setEnabled(true);await new Promise(resolve=>setImmediate(resolve));assert.equal(requests,3);
+  s.setEnabled(true);await new Promise(resolve=>setImmediate(resolve));assert.equal(requests,5);
   assert.equal(s.playStone(),true);assert.equal(s.playStone(),true);assert.deepEqual(played,[1,2]);s.setEnabled(false);assert.equal(s.playStone(),false);
   const failed=createSoundFeedback({AudioContext:SampleContext,fetch:async()=>{throw Error('offline');}});failed.setEnabled(true);await new Promise(resolve=>setImmediate(resolve));assert.equal(failed.playStone(),true);
 });
