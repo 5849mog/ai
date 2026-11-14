@@ -1,9 +1,9 @@
 const STORAGE_KEY = "gomoku-sound";
 
-// Five locally hosted Go stone recordings, prepared after sound is enabled. A short
-// synthesized fallback keeps play responsive if decoding or loading fails.
-export function createSoundFeedback({ storage, AudioContext: AudioContextClass = globalThis.AudioContext ?? globalThis.webkitAudioContext, fetch: fetchAudio = globalThis.fetch, random = Math.random } = {}) {
-  let enabled = false, context = null, master = null, samples = [], loading = null, loadAttempted = false, previous = -1;
+// A short, locally synthesized stone-on-wood contact. No media request is made,
+// and an AudioContext is only created after the user explicitly enables sound.
+export function createSoundFeedback({ storage, AudioContext: AudioContextClass = globalThis.AudioContext ?? globalThis.webkitAudioContext } = {}) {
+  let enabled = false, context = null, master = null;
   try { enabled = storage?.getItem(STORAGE_KEY) === "true"; } catch { /* Sound remains optional when storage is blocked. */ }
 
   function ensureContext() {
@@ -16,22 +16,10 @@ export function createSoundFeedback({ storage, AudioContext: AudioContextClass =
     return context;
   }
 
-  function prepareSamples(audio) {
-    if (loading || samples.length || loadAttempted || !fetchAudio || typeof audio.decodeAudioData !== "function") return;
-    loadAttempted = true;
-    const urls = [1, 2, 3, 4, 5].map(n => new URL(`./assets/sounds/stone-${n}.mp3`, import.meta.url));
-    loading = Promise.allSettled(urls.map(async url => {
-      const response = await fetchAudio(url); if (!response.ok) throw new Error("sound unavailable");
-      return audio.decodeAudioData(await response.arrayBuffer());
-    })).then(results => { samples = results.filter(r => r.status === "fulfilled").map(r => r.value); })
-      .finally(() => { loading = null; });
-  }
-
   function setEnabled(value) {
-    const wasEnabled = enabled; enabled = Boolean(value);
-    if (enabled && !wasEnabled && !samples.length) loadAttempted = false;
+    enabled = Boolean(value);
     try { storage?.setItem(STORAGE_KEY, String(enabled)); } catch { /* The current session still honors the choice. */ }
-    if (enabled) { const audio = ensureContext(); if (audio) prepareSamples(audio); }
+    if (enabled) ensureContext();
     else if (context?.state === "running") void context.suspend().catch(() => {});
     return enabled;
   }
@@ -39,19 +27,11 @@ export function createSoundFeedback({ storage, AudioContext: AudioContextClass =
   function playStone() {
     if (!enabled) return false;
     const audio = ensureContext(); if (!audio) return false;
-    prepareSamples(audio);
     try {
-      if (samples.length) {
-        const available = samples.map((_,i)=>i).filter(i=>samples.length===1 || i!==previous);
-        const index=available[Math.min(available.length-1,Math.floor(random()*available.length))]; previous=index;
-        const source=audio.createBufferSource(), gain=audio.createGain();
-        source.buffer=samples[index]; source.playbackRate.value=1; gain.gain.value=.38;
-        source.connect(gain); gain.connect(master); source.start(audio.currentTime+.004); return true;
-      }
       const now = audio.currentTime + .004;
       const noiseLength = Math.floor(audio.sampleRate * .055);
-      const buffer = audio.createBuffer(1, noiseLength, audio.sampleRate), noiseSamples = buffer.getChannelData(0);
-      for (let i = 0; i < noiseSamples.length; i += 1) noiseSamples[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseLength * .16));
+      const buffer = audio.createBuffer(1, noiseLength, audio.sampleRate), samples = buffer.getChannelData(0);
+      for (let i = 0; i < samples.length; i += 1) samples[i] = (Math.random() * 2 - 1) * Math.exp(-i / (noiseLength * .16));
       const contact = audio.createBufferSource(), filter = audio.createBiquadFilter(), contactGain = audio.createGain();
       contact.buffer = buffer; filter.type = "bandpass"; filter.frequency.value = 1450 + Math.random() * 180; filter.Q.value = .75;
       contactGain.gain.setValueAtTime(.16, now); contactGain.gain.exponentialRampToValueAtTime(.0001, now + .06);

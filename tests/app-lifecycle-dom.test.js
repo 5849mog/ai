@@ -492,3 +492,47 @@ test('restoring a formal opening awaiting its first stone fills center once',asy
  const setup=new OpeningSession({rule:'taraguchi10',workflow:'follow',initialBlackSeat:1});const f=await environment('renju.html',{saved:{record:setup.record(),perspective:2}});
  try{await f.load();await settled();const s=savedSession(f);assert.deepEqual(s.moves,[112]);assert.equal(s.stage,'swap1');assert.equal(s.actors.at(-1),1);assert.equal(s.record().events.filter(e=>e.type==='stone').length,1);}finally{f.close();}
 });
+
+test('hint visibility persists, and AI takeover alternates sides and can be paused or returned to the player', async () => {
+  const f = await environment('index.html', { holdSearch: true });
+  try {
+    await f.load(); let w=f.workers.at(-1);
+    const find = label => [...document.querySelectorAll('button')].find(b=>b.textContent===label && !b.hidden);
+    assert.ok(document.querySelectorAll('#boardSvg [data-hint]').length);
+    find('隐藏棋盘提示').click();
+    assert.equal(document.querySelectorAll('#boardSvg [data-hint]').length, 0);
+    assert.equal(localStorage.getItem('gomoku-show-hints'), 'false');
+    find('AI 接管我方').click(); await settled();
+    let job=w.searches.at(-1); assert.equal(job.sideToMove,1);
+    w.emit({type:'move',requestId:job.requestId,result:{index:112}}); await settled();
+    job=w.searches.at(-1); assert.equal(job.sideToMove,2);
+    assert.equal(savedSession(f).moves.length,1);
+    const pause=find('暂停思考'); assert.ok(pause); pause.click(); await settled();
+    w.emit({type:'move',requestId:job.requestId,result:{index:113}}); await settled();
+    assert.equal(savedSession(f).moves.length,1);
+    find('继续思考').click(); await settled(); w=f.workers.at(-1); job=w.searches.at(-1); assert.equal(job.sideToMove,2);
+    w.emit({type:'move',requestId:job.requestId,result:{index:113}}); await settled();
+    assert.equal(savedSession(f).moves.length,2); assert.equal(w.searches.at(-1).sideToMove,1);
+    find('结束 AI 接管').click(); await settled();
+    assert.equal(savedSession(f).moves.length,2);
+    clickPoint(f,114); await settled(); assert.equal(savedSession(f).moves.length,3);
+    find('显示棋盘提示').click(); assert.equal(localStorage.getItem('gomoku-show-hints'),'true');
+  } finally { f.close(); }
+});
+
+test('AI takeover completes formal opening decisions without manual input', async () => {
+  for (const rule of ['rif','taraguchi10']) {
+    const setup=new OpeningSession({rule,workflow:'duel',initialBlackSeat:null});
+    const f=await environment('renju.html',{saved:{record:setup.record(),perspective:1},completeAssessment:true});
+    try {
+      await f.load();
+      document.querySelector('#simpleOpeningFlow [data-flow-action="start"][data-value="0"]').click(); await settled();
+      const start=[...document.querySelectorAll('button')].find(b=>b.textContent==='AI 接管我方' && !b.hidden); assert.ok(start); start.click();
+      for(let i=0;i<100 && savedSession(f).moves.length<7;i++)await settled();
+      const s=savedSession(f); assert.ok(s.moves.length>=7 || s.winner, `${rule}: ${s.stage} ${s.moves.length}`);
+      assert.ok(s.events.some(e=>e.type==='decision' && e.automatic));
+      if(rule==='rif') assert.ok(s.events.some(e=>e.type==='select' && e.automatic));
+      const stop=[...document.querySelectorAll('button')].find(b=>b.textContent==='结束 AI 接管'&&!b.hidden); stop?.click();
+    } finally { f.close(); }
+  }
+});
