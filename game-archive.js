@@ -74,8 +74,16 @@ export function createGameArchive({ storage, page, now = Date.now, id = () => gl
       const entries=read(),entry=entries.find(e=>e.id===value);if(!entry)return false;
       entry.name=String(name??"").trim().slice(0,40);entry.note=String(note??"").trim().slice(0,500);return write(entries);
     },
-    exportBackup() {
-      const entries = read().map(e => ({ id:e.id, createdAt:Number.isFinite(e.createdAt)?e.createdAt:e.updatedAt, updatedAt:e.updatedAt, favorite:Boolean(e.favorite), name:e.name??"", note:e.note??"", record:e.record, meta:e.meta??{} }));
+    setFavorites(ids, favorite) {
+      if (!Array.isArray(ids) || typeof favorite !== "boolean") return false;
+      const selected=new Set(ids), entries=read();
+      if (!selected.size || !entries.some(e=>selected.has(e.id))) return false;
+      for(const e of entries) if(selected.has(e.id)) e.favorite=favorite;
+      return write(entries);
+    },
+    exportBackup(ids = null) {
+      const selected=ids===null?null:new Set(ids);
+      const entries = read().filter(e=>!selected || selected.has(e.id)).map(e => ({ id:e.id, createdAt:Number.isFinite(e.createdAt)?e.createdAt:e.updatedAt, updatedAt:e.updatedAt, favorite:Boolean(e.favorite), name:e.name??"", note:e.note??"", record:e.record, meta:e.meta??{} }));
       return JSON.stringify({ format:"wumu-archive-backup", version:1, entries }, null, 2);
     },
     importBackup(text) {
@@ -122,4 +130,4 @@ export function takeArchiveRestore(storage, format) {
     archiveSummary(entry.record); storage.removeItem(TRANSFER_KEY); return entry;
   } catch {return null;}
 }
-export const archiveTitle = entry => `${RULES[entry.rule]} · ${entry.moves} 手 · ${entry.winner===3?"和棋":entry.winner?entry.winner===entry.playerColor?"我方胜":"我方负":"未结束"}`;
+export const archiveTitle = entry => `${RULES[entry.rule]} · ${entry.moves} 手 · ${entry.winner===3?"和棋":entry.winner?![1,2].includes(entry.playerColor)?"执色未确定":entry.winner===entry.playerColor?"我方胜":"我方负":"未结束"}`;

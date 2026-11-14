@@ -1,7 +1,7 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.14.5";
-const VERSION = PREFIX + "261114-v66";
+const RELEASE = "2026.11.14.6";
+const VERSION = PREFIX + "261114-v67";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -16,7 +16,7 @@ CORE.push("opening.css?v=7", "enhancements.css?v=49", "styles.css?v=23", "game-m
 CORE.push("enhancements.css?v=50", "game-motion.js");
 CORE.push("enhancements.css?v=51");
 CORE.push("enhancements.css?v=52", "game-modes.css?v=7", "enhancements.css?v=53");
-CORE.push("assets/sounds/stone-1.mp3", "assets/sounds/stone-2.mp3", "assets/sounds/stone-3.mp3", "assets/sounds/stone-4.mp3", "assets/sounds/stone-5.mp3", "forced-opening.js", "export-utils.js", "report.css?v=2", "report.js?v=2", "real-game-model.js", "svg-view.js", "image-grid.js", "board-image.js", "review-branch.js", "partial-review.js", "enhancements.css?v=54", "enhancements.css?v=55");
+CORE.push("assets/sounds/stone-1.mp3", "assets/sounds/stone-2.mp3", "assets/sounds/stone-3.mp3", "assets/sounds/stone-4.mp3", "assets/sounds/stone-5.mp3", "forced-opening.js", "export-utils.js", "report.css?v=2", "report.js?v=2", "real-game-model.js", "svg-view.js", "image-grid.js", "board-image.js", "review-branch.js", "partial-review.js", "enhancements.css?v=54", "enhancements.css?v=55", "enhancements.css?v=56");
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
 CORE.push("game-modes.css?v=2", "game-modes.css?v=3", "game-modes.css?v=4", "renju.html", "opening.css", "opening.css?v=1", "opening.css?v=2", "opening.css?v=3", "opening-session.js", "opening-flow.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",
