@@ -162,3 +162,16 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 .review-play-options select { min-height: 34px; }
 
 .archive-backup { display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted); font-size:12px; }
+
+.archive-batch, .archive-advanced, .archive-preview, .archive-copy, .review-jumps { font-size:12px; color:var(--muted); }
+.archive-batch summary, .archive-advanced summary, .archive-preview summary, .archive-copy summary, .review-jumps summary { cursor:pointer; }
+.archive-batch-controls { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0; }
+.archive-advanced[open] { display:flex; flex-wrap:wrap; gap:6px; }
+.archive-advanced label { margin-right:6px; }
+.archive-stats { margin:3px 0; font-size:12px; color:var(--muted); }
+.archive-choice { display:none; align-items:center; gap:5px; float:right; font-size:12px; }
+.archive-batch[open] ~ .archive-list .archive-choice { display:flex; }
+.archive-preview, .archive-copy { margin-top:7px; }
+.archive-preview svg { display:block; width:min(100%,300px); height:auto; aspect-ratio:1; margin:8px 0; }
+.archive-copy button { margin:6px 6px 0 0; }
+.review-jumps select { max-width:100%; padding:5px; }
