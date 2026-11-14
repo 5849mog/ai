@@ -123,11 +123,11 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     for(const b of [quickSelf,fullSelf]) { b.hidden=!controls || (!controls.canSelfPlay && !controls.selfPlay); b.textContent=controls?.selfPlay?"结束 AI 接管":"AI 接管我方"; b.setAttribute("aria-pressed", String(Boolean(controls?.selfPlay))); }
     for(const area of [fullSpectator,quickSpectator]) {
       area.hidden=!position.selfPlay;
-      for(const input of area.querySelectorAll("[data-spectator]")) input.value=spectatorSettings?.[input.dataset.spectator]??(input.dataset.spectator==="delay"?"0":"shared");
+      for(const input of area.querySelectorAll("[data-spectator]")) { const value=spectatorSettings?.[input.dataset.spectator]??(input.dataset.spectator==="delay"?"0":"shared"); if(input.value!==value)input.value=value; }
       area.querySelector("[data-step]").disabled=!position.paused || !position.selfPlay;
     }
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
-    pauseEntry.hidden=!(((position.busy && $("#timeSelect").value==="adaptive") || (position.selfPlay && !position.paused)) && pauseSearch);resumeEntry.hidden=!position.paused;
+    pauseEntry.hidden=!(((position.busy && $("#timeSelect").value==="adaptive") || (position.selfPlay && !position.paused && position.state!=="error")) && pauseSearch);resumeEntry.hidden=!position.paused;
     fullPause.hidden=pauseEntry.hidden&&resumeEntry.hidden;fullPause.textContent=position.paused?"继续思考":"暂停思考";
     syncNotice();
     for (const b of [reviewEntry, resultButton]) b.hidden = !position.winner;

@@ -44,6 +44,11 @@ try { showHints = localStorage.getItem("gomoku-show-hints") !== "false"; } catch
 const automaticTurn = () => isAutomaticTurn(session) || (selfPlay && session.workflow === "duel" && !session.winner && session.stage !== "setup");
 let selfPlayTimer=null, singleStep=false;
 const spectator={ black:"shared", white:"shared", delay:"0" };
+const spectatorOptions={black:["shared","100","500","1000","5000","10000"],white:["shared","100","500","1000","5000","10000"],delay:["0","500","1000","2000"]};
+try {
+  const saved=JSON.parse(localStorage.getItem("gomoku-spectator-settings") || "{}");
+  for(const key of Object.keys(spectator)) if(spectatorOptions[key].includes(saved?.[key])) spectator[key]=saved[key];
+} catch { /* Invalid or unavailable preferences use the defaults. */ }
 function cancelSelfPlayTimer(){ if(selfPlayTimer!==null)clearTimeout(selfPlayTimer); selfPlayTimer=null; }
 const hints = new TurnHints(); let hintsStamp = "";
 const hintUpdates = createScheduledTask(() => render(), 100);
@@ -155,7 +160,7 @@ function decorate() {
   }
 }
 function renderFlow() {
-  const selfPlayText = state === "error" ? "AI 对决已停止 · 请重试或结束接管" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中`;
+  const selfPlayText = state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中`;
   const flow = selfPlay && !session.winner && session.stage !== "setup" ? { title: paused ? "AI 对决已暂停" : selfPlayText, note: "双方由同一引擎轮流操作，可随时暂停或结束接管。", actions: [] } : openingFlow(session, { busy, state, advice, forbidden: forbiddenInput });
   for (const [root, hidden] of [[$("#openingFlow"), false], [$("#simpleOpeningFlow"), !display?.simple]]) {
     root.hidden = hidden;
@@ -178,18 +183,19 @@ function render() {
   const stamp = JSON.stringify([Array.from(session.board), session.color, session.rule, session.stage, session.winner]);
   if (stamp !== hintsStamp) {
     hintsStamp = stamp;
+    const enabled = !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose";
     hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage,
-      allowedMoves: session.allowedMoves({ safe: true }), enabled: !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose" });
+      allowedMoves: enabled ? session.allowedMoves({ safe: true }) : [], enabled });
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
   const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: requestedBoardMotion,
     moveHints: showHints ? hints.points : [],
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
-    answerIndex: session.events.at(-1)?.automatic && session.events.at(-1)?.type === "stone" ? session.lastMove : -1,
+    answerIndex: session.events.at(-1)?.automatic && ["stone","select"].includes(session.events.at(-1)?.type) ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
   if (boardChanged) decorate();
-  const text = paused ? "思考已暂停 · 可继续或悔棋" : selfPlay && !session.winner && session.stage !== "setup" ? state === "error" ? "AI 对决已停止 · 请重试或结束接管" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中` : busy ? deepPhase || (automaticTurn() ? "AI 思考中" : "正在分析当前操作…") : pending >= 0 ? "再点一次确认" : session.description();
+  const text = paused ? "思考已暂停 · 可继续或悔棋" : selfPlay && !session.winner && session.stage !== "setup" ? state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中` : busy ? deepPhase || (automaticTurn() ? "AI 思考中" : "正在分析当前操作…") : pending >= 0 ? "再点一次确认" : session.description();
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
   $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}`;
@@ -232,7 +238,7 @@ async function syncPonder() {
   const id = ++requestId; analysis.begin(id, session.color);
   hints.begin(id);
   try { await engine.ponder({ board: session.board, sideToMove: session.color, requestId: id, allowSetup: true,
-    multiPV: HINT_COUNT, sliceMs: HINT_SLICE_MS, allowedMoves: hints.position.allowedMoves }); } catch (error) { if (error.name !== "AbortError") render(); }
+    multiPV: showHints ? HINT_COUNT : 1, sliceMs: HINT_SLICE_MS, allowedMoves: hints.position.allowedMoves }); } catch (error) { if (error.name !== "AbortError") render(); }
 }
 async function prepare() {
   const token = serial; if (paused || modal || forbiddenInput || session.winner || session.stage === "setup") return;
@@ -252,17 +258,17 @@ function searchFor(token) { return async (options,context={}) => {
   // Hypothetical fifths and swap evaluations never enter the actual trend.
   if (["play", "w6"].includes(session.stage) && deepRoot) analysis.begin(id, options.sideToMove);
   if(adaptiveThinking && !deepRoot)analysis.cancel();
-  const multiPV = root && automaticTurn() && !options.balance && (!adaptiveThinking || options.multiPV > 1) ? Math.max(HINT_COUNT, options.multiPV ?? 1) : options.multiPV;
+  const multiPV = root && showHints && automaticTurn() && !options.balance && (!adaptiveThinking || options.multiPV > 1) ? Math.max(HINT_COUNT, options.multiPV ?? 1) : options.multiPV;
   const result = await engine.search({ ...options, ...(multiPV ? { multiPV } : {}), requestId: id });
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError"); return result;
 }; }
 function commit(event, automatic = false, result = null) {
-  boardMotion = event.type === "stone" ? "move" : "auto";
+  boardMotion = ["stone","select"].includes(event.type) ? "move" : "auto";
   const continuation = automatic && event.type === "stone" && ["play", "w6"].includes(session.stage) ? result : null;
   if(continuation?.adaptive)analysis.begin(requestId,session.color);
   if (continuation) analysis.accept({ requestId, sideToMove: session.color, stats: continuation });
   session.apply(event, { automatic }); if (session.winner) selfPlay=false; if (automatic && event.type === "stone") openingBook.remember(session);
-  positionChanged(false, continuation); render(); if (event.type === "stone") sound.playStone();
+  positionChanged(false, continuation); render(); if (["stone","select"].includes(event.type)) sound.playStone();
 }
 function placeForcedCenter() {
   const event=forcedOpeningMove(session);
@@ -292,7 +298,7 @@ async function autoPlay() {
     if(singleStep && selfPlay && !session.winner) { singleStep=false; paused=true; break; }
     if(selfPlay && !session.winner && Number(spectator.delay)>0) { delayNext=true; break; }
   } } catch (error) { if (error.name !== "AbortError" && token === serial) { state = "error"; notify(`AI 未完成操作：${error.message}。可重试或悔棋。`, true); } }
-  finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;adaptiveThinking=false;deepPhase=""; render(); if (state !== "error") {if(delayNext && !paused && selfPlay) { selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); } else if(reinit && !paused)void prepare();else void syncPonder();} } }
+  finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;adaptiveThinking=false;deepPhase=""; if(state !== "error" && delayNext && !paused && selfPlay) selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); render(); if(state !== "error" && selfPlayTimer===null) {if(reinit && !paused)void prepare();else void syncPonder();} } }
 }
 async function recommend({automatic=false}={}) {
   if (busy || advice) { cancel(); render(); void prepare(); return; }
@@ -395,10 +401,14 @@ document.addEventListener("keydown", event => {
 enhancements = setupGameEnhancements({
   sound,
   spectatorSettings: spectator,
-  onSpectatorChange: (key,value) => { const allowed=key==="delay"?["0","500","1000","2000"]:["shared","100","500","1000","5000","10000"]; if(allowed.includes(value))spectator[key]=value; },
+  onSpectatorChange: (key,value) => {
+    if(!spectatorOptions[key]?.includes(value))return;
+    spectator[key]=value;
+    try { localStorage.setItem("gomoku-spectator-settings",JSON.stringify(spectator)); } catch {}
+  },
   stepSelfPlay: stepThinking,
   getControlState: () => ({ showHints, selfPlay, canSelfPlay: session.workflow === "duel" && session.stage !== "setup" && !session.winner }),
-  toggleHints: () => { showHints=!showHints; try { localStorage.setItem("gomoku-show-hints", String(showHints)); } catch {} render(); },
+  toggleHints: () => { showHints=!showHints; try { localStorage.setItem("gomoku-show-hints", String(showHints)); } catch {} engine.stopPonder(); render(); void syncPonder(); },
   toggleSelfPlay: () => {
     if (session.workflow !== "duel" || session.stage === "setup" || session.winner) return;
     selfPlay=!selfPlay; paused=false; cancel(); render(); void prepare();

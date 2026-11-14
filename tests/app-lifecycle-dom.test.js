@@ -593,3 +593,63 @@ test('spectator keyboard controls pause and step without capturing text input',a
   worker.emit({type:'move',requestId:q.requestId,result:{index:112}});await settled();assert.equal(savedSession(f).moves.length,1);assert.ok(find('继续思考'));
  } finally { f.close(); }
 });
+
+test('hidden hints reduce background and automatic searches to one line without disabling explicit suggestions',async()=>{
+ const f=await environment('index.html',{holdSearch:true});
+ try{
+  f.dom.window.localStorage.setItem('gomoku-show-hints','false');await f.load();
+  const w=f.workers.at(-1);assert.equal(w.ponderJob.multiPV,1);assert.equal(document.querySelectorAll('#boardSvg [data-hint]').length,0);
+  clickPoint(f,112);await settled();assert.equal(w.searches.at(-1).multiPV,1);
+ }finally{f.close();}
+});
+
+test('spectator settings persist and invalid saved values safely fall back',async()=>{
+ const f=await environment('index.html',{holdSearch:true});
+ try{
+  localStorage.setItem('gomoku-spectator-settings',JSON.stringify({black:'100',white:'invalid',delay:'500'}));await f.load();
+  [...document.querySelectorAll('button')].find(b=>b.textContent==='AI 接管我方'&&!b.hidden).click();await settled();
+  const panel=[...document.querySelectorAll('.spectator-settings')].find(x=>!x.hidden);
+  assert.equal(panel.querySelector('[data-spectator="black"]').value,'100');
+  assert.equal(panel.querySelector('[data-spectator="white"]').value,'shared');
+  assert.equal(panel.querySelector('[data-spectator="delay"]').value,'500');
+  const input=panel.querySelector('[data-spectator="white"]');input.value='500';input.dispatchEvent(new f.dom.window.Event('change'));
+  assert.deepEqual(JSON.parse(localStorage.getItem('gomoku-spectator-settings')),{black:'100',white:'500',delay:'500'});
+ }finally{f.close();}
+});
+
+test('spectator pacing reports waiting and cancels pending continuation on pause',async()=>{
+ const f=await environment('index.html',{holdSearch:true});
+ try {
+  localStorage.setItem('gomoku-spectator-settings',JSON.stringify({delay:'500'}));await f.load();
+  const find=t=>[...document.querySelectorAll('button')].find(b=>b.textContent===t&&!b.hidden);
+  find('AI 接管我方').click();await settled();const w=f.workers.at(-1),q=w.searches.at(-1);
+  w.emit({type:'move',requestId:q.requestId,result:{index:112}});await settled();
+  assert.match(document.querySelector('#stateText').textContent,/等待下一步/);
+  find('暂停思考').click();const searches=w.searches.length;f.advance(500);await settled();
+  assert.equal(w.searches.length,searches);assert.equal(savedSession(f).moves.length,1);
+ }finally{f.close();}
+});
+
+test('automatically chosen fifth candidate receives normal stone sound and answer marker',async()=>{
+ const s=new OpeningSession({rule:'rif',workflow:'duel',initialBlackSeat:0});
+ for(const index of [112,97,96])s.apply({type:'stone',index});
+ s.apply({type:'decision',choice:'keep'});s.apply({type:'stone',index:128});
+ const candidates=distinctCandidates(s.board,s.allowedMoves({safe:true})).slice(0,2);
+ for(const index of candidates)s.apply({type:'offer',index});
+ const f=await environment('renju.html',{saved:{record:s.record(),perspective:1},holdSearch:true});
+ const old=Object.getOwnPropertyDescriptor(globalThis,'AudioContext');let plays=0;
+ class AudioFixture { constructor(){this.state='running';this.currentTime=0;this.sampleRate=8000;this.destination={};}
+  createGain(){return {gain:{value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}};}
+  createBuffer(){return {getChannelData:()=>new Float32Array(440)};}
+  createBufferSource(){return {connect(){},start(){plays++},stop(){}};}
+  createBiquadFilter(){return {frequency:{value:0},Q:{value:0},connect(){}};}
+  createOscillator(){return {frequency:{value:0},connect(){},start(){},stop(){}};}
+ }
+ Object.defineProperty(globalThis,'AudioContext',{value:AudioFixture,configurable:true});
+ try{
+  localStorage.setItem('gomoku-sound','true');await f.load();const w=f.workers.at(-1);
+  for(let i=0;i<2;i++){const q=w.searches.at(-1),index=q.allowedMoves?.[0]??q.board.findIndex(v=>!v);w.emit({type:'move',requestId:q.requestId,result:{index,assessment:{depth:12,bestIndex:index,winRate:.55,evaluation:20,mate:null}}});await settled();}
+  const record=savedSession(f);assert.equal(record.events.at(-1).type,'select');assert.ok(plays>0);
+  assert.ok(document.querySelector('#boardSvg [data-answer="'+record.lastMove+'"]'));
+ }finally{old?Object.defineProperty(globalThis,'AudioContext',old):delete globalThis.AudioContext;f.close();}
+});
