@@ -8,7 +8,7 @@ import { exportName, downloadText, downloadBlob } from "./export-utils.js";
 
 // Inline quick controls and full-page workspaces share one lifecycle. Neither
 // workspace uses a popup or modifies the live game while it is being inspected.
-export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound, notify, getControlState, toggleHints, toggleSelfPlay }) {
+export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onWorkspace, search, cancelSearch, newGame, archive, resumeRecord, pauseSearch, resumeSearch, exitSimple, sound, notify, getControlState, toggleHints, toggleSelfPlay, spectatorSettings, onSpectatorChange, stepSelfPlay }) {
   const $ = selector => document.querySelector(selector), shell = $(".app-shell");
   const status = document.createElement("div"); status.id = "simpleStatusRow"; status.className = "simple-status-row";
   const rate = $("#simpleWinRate"); rate.before(status); status.append(rate);
@@ -104,6 +104,15 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   quickSelf.onclick=()=>{toggleSelfPlay?.();collapse();}; fullSelf.onclick=()=>{toggleSelfPlay?.();$("#recordMenu").open=false;};
   panel.querySelector(".quick-tools-actions").append(quickHints,quickSelf);
   const spectatorControls=document.createElement("div"); spectatorControls.className="spectator-controls"; spectatorControls.append(fullHints,fullSelf); $(".game-actions").after(spectatorControls);
+  const makeSpectatorPanel=()=>{
+    const details=document.createElement("details");details.className="spectator-settings";details.hidden=true;
+    details.innerHTML='<summary>观战设置</summary><div><label>黑棋思考 <select data-spectator="black"><option value="shared">跟随每步思考</option><option value="100">0.1 秒</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="5000">5 秒</option><option value="10000">10 秒</option></select></label><label>白棋思考 <select data-spectator="white"><option value="shared">跟随每步思考</option><option value="100">0.1 秒</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="5000">5 秒</option><option value="10000">10 秒</option></select></label><label>落子间隔 <select data-spectator="delay"><option value="0">无间隔</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="2000">2 秒</option></select></label><button type="button" data-step>下一步</button></div><p>设置从下一次思考生效；暂停后可单步观看。键盘空格暂停或继续，右方向键单步。开局换色按当前执色分配。</p>';
+    for(const input of details.querySelectorAll("[data-spectator]")) input.onchange=()=>{onSpectatorChange?.(input.dataset.spectator,input.value); render();};
+    details.querySelector("[data-step]").onclick=()=>stepSelfPlay?.();
+    return details;
+  };
+  const fullSpectator=makeSpectatorPanel(),quickSpectator=makeSpectatorPanel();
+  spectatorControls.after(fullSpectator);panel.querySelector(".quick-tools-actions").after(quickSpectator);
   const fullSound=document.createElement("button");fullSound.type="button";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);
@@ -112,8 +121,13 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     const position = getPosition(), controls=getControlState?.();
     for(const b of [quickHints,fullHints]) { b.hidden=!controls; b.textContent=controls?.showHints?"隐藏棋盘提示":"显示棋盘提示"; b.setAttribute("aria-pressed", String(!controls?.showHints)); }
     for(const b of [quickSelf,fullSelf]) { b.hidden=!controls || (!controls.canSelfPlay && !controls.selfPlay); b.textContent=controls?.selfPlay?"结束 AI 接管":"AI 接管我方"; b.setAttribute("aria-pressed", String(Boolean(controls?.selfPlay))); }
+    for(const area of [fullSpectator,quickSpectator]) {
+      area.hidden=!position.selfPlay;
+      for(const input of area.querySelectorAll("[data-spectator]")) input.value=spectatorSettings?.[input.dataset.spectator]??(input.dataset.spectator==="delay"?"0":"shared");
+      area.querySelector("[data-step]").disabled=!position.paused || !position.selfPlay;
+    }
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
-    pauseEntry.hidden=!((position.busy && ($("#timeSelect").value==="adaptive" || position.selfPlay)) && pauseSearch);resumeEntry.hidden=!position.paused;
+    pauseEntry.hidden=!(((position.busy && $("#timeSelect").value==="adaptive") || (position.selfPlay && !position.paused)) && pauseSearch);resumeEntry.hidden=!position.paused;
     fullPause.hidden=pauseEntry.hidden&&resumeEntry.hidden;fullPause.textContent=position.paused?"继续思考":"暂停思考";
     syncNotice();
     for (const b of [reviewEntry, resultButton]) b.hidden = !position.winner;
