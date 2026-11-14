@@ -1,0 +1,107 @@
+/* A quiet visual system for the live game. All sizing stays within the
+   existing board-fitting layout; no overlays cover playable intersections. */
+.opening-page {
+  --ui-ink: #29382f;
+  --ui-muted: #68766a;
+  --ui-border: rgba(53, 76, 57, .16);
+  --ui-surface: rgba(255, 253, 247, .76);
+  --ui-shadow: 0 2px 8px rgba(40, 49, 35, .045);
+}
+.opening-page .topbar { border-bottom: 1px solid rgba(70, 85, 66, .09); }
+.opening-page .brand-mark {
+  border-radius: 7px; background-color: #a54838;
+  box-shadow: inset 0 1px 0 #ffead747, 0 3px 8px #643e2b1c;
+}
+.opening-page .brand-copy { color: #303b31; letter-spacing: .16em; }
+.opening-page .record-menu summary { border: 1px solid transparent; border-radius: 9px; transition: background-color .16s, border-color .16s; }
+.opening-page .record-menu[open] summary, .opening-page .record-menu summary:hover { border-color: var(--ui-border); background: var(--ui-surface); }
+.opening-page .record-options { min-width: 164px; max-height: min(72dvh, 620px); overflow-y: auto; overscroll-behavior: contain; border-radius: 11px; border-color: var(--ui-border); background: #fffdf8; box-shadow: 0 16px 36px #293c3024, 0 3px 8px #293c300d; }
+.opening-page .record-options button { min-height: 40px; padding: 9px 12px; font-size: 13px; color: var(--ui-ink); }
+.opening-page .record-options button:hover { background: #eef2e9; }
+.opening-page .board-toolbar { padding-top: 3px; }
+.opening-page .game-state { gap: 8px; color: var(--ui-ink); }
+.opening-page .game-state strong { font-weight: 650; letter-spacing: .01em; }
+.opening-page .search-clock { color: #718070; letter-spacing: .015em; }
+.opening-page .state-indicator { box-shadow: 0 0 0 4px #708a701c; }
+.opening-page .board-frame {
+  border: 1px solid #bba27680;
+  box-shadow: inset 0 1px 0 #fff7de, 0 2px 0 #b59b72, 0 8px 18px #5b4d301c, 0 20px 40px #5b4d300d;
+}
+.opening-page .board-svg .grid-line { stroke: rgba(59, 53, 39, .69); }
+.opening-page .board-svg .last-ring { stroke-width: 2.1; }
+.opening-page .game-actions { gap: 7px; }
+.opening-page .icon-button {
+  border-color: var(--ui-border); border-radius: 9px;
+  background: var(--ui-surface); color: #3b5141; box-shadow: var(--ui-shadow), inset 0 1px #fff;
+  font-weight: 550; transition: background-color .16s, border-color .16s, box-shadow .16s, transform .16s;
+}
+@media (hover: hover) {
+  .opening-page .icon-button:hover:not(:disabled) { filter: none; background: #f0f4eb; border-color: #8b9e85; box-shadow: 0 4px 12px #374e3814; }
+}
+.opening-page .icon-button:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 2px 4px #263a291c; }
+.opening-page .icon-button-primary { color: #fffaf2; border-color: #8b392d; background: linear-gradient(155deg, #ad4a39, #943a2d); box-shadow: inset 0 1px #fff4e329, 0 3px 8px #84412b25; }
+@media (hover: hover) {
+  .opening-page .icon-button-primary:hover:not(:disabled) { color: #fffaf2; background: #a34434; border-color: #80382d; }
+}
+.opening-page .icon-button:disabled { opacity: .43; }
+.opening-page .spectator-controls { width: 100%; justify-content: flex-start; gap: 6px; }
+.opening-page .spectator-controls button {
+  min-height: 30px; padding: 5px 10px; border-color: var(--ui-border); border-radius: 7px;
+  background: #f5f5ec; color: #526653; font-weight: 550;
+}
+.opening-page .spectator-controls button[aria-pressed="true"] { background: #e6eee1; border-color: #9aaf93; color: #31593f; }
+.opening-page .opening-flow h2 { color: #2e4334; font-weight: 650; letter-spacing: .01em; }
+.opening-page .opening-flow p { color: #758174; }
+.opening-page .opening-flow button { border-color: var(--ui-border); border-radius: 8px; background: var(--ui-surface); box-shadow: inset 0 1px #fff; }
+.opening-page .opening-flow button[data-suggested="true"] { color: #345d3f; background: #e9f0e5; border-color: #91a88b; }
+.opening-page .time-control select, .opening-page .color-control select, .opening-page .ponder-control {
+  border-color: var(--ui-border); border-radius: 8px; background: var(--ui-surface); box-shadow: inset 0 1px #fff, var(--ui-shadow);
+}
+.opening-page .time-control > span, .opening-page .color-control > span, .opening-page .ponder-control > span { color: #718071; }
+.opening-page .ponder-control input:checked { background: #59795d; border-color: #59795d; }
+.opening-page .engine-analysis { border-color: var(--ui-border); }
+.opening-page .position-heading p { color: #324a37; font-weight: 600; letter-spacing: .01em; }
+.opening-page .win-rate-labels strong { font-weight: 650; letter-spacing: -.035em; }
+.opening-page .win-rate-caption { color: #7d887a; }
+.opening-page .win-rate-bar { height: 7px; border-radius: 99px; background: #e2ddd1; }
+.opening-page .win-rate-bar > span { border-radius: 99px; background: linear-gradient(90deg, #658267, #455f49); }
+.opening-page .trend-heading { color: #718071; }
+.opening-page .trend-guide { stroke: #9aab96; opacity: .32; }
+.opening-page .trend-line { stroke: #53765c; stroke-width: 2; }
+.opening-page .engine-metrics { border-color: var(--ui-border); }
+.opening-page .analysis-values dd { color: #425848; }
+.opening-page .spectator-settings summary { cursor: pointer; color: #58705b; font-weight: 600; }
+.opening-page .spectator-settings select, .opening-page .spectator-settings button { border-color: var(--ui-border); border-radius: 7px; background: #fffdf8; }
+.opening-page .simple-status-row button, .opening-page .simple-quick-tools button { border-color: var(--ui-border); border-radius: 7px; }
+.opening-page .simple-quick-tools { border-color: var(--ui-border); border-radius: 12px; background: #fffdf8; box-shadow: 0 14px 40px #2e423024; }
+.opening-page .simple-controls .icon-button { border-radius: 9px; }
+.opening-page .simple-controls .icon-button small { color: inherit; opacity: .72; }
+.opening-page .simple-win-rate { font-weight: 550; }
+.opening-page #simpleOpeningFlow:not([data-actions="0"]) { border-color: var(--ui-border); border-radius: 10px; background: #fffdf8f2; box-shadow: 0 4px 14px #32463414; }
+.opening-page .game-notice, .opening-page .simple-notice { border-radius: 9px; }
+.opening-page :is(button, select, summary, a, input):focus-visible { outline: 3px solid #6b8a72; outline-offset: 2px; }
+@media (max-width: 600px) {
+  .opening-page .topbar { border-bottom: 0; }
+  .opening-page .record-options { right: 0; max-height: min(70dvh, 560px); }
+  .opening-page .spectator-controls button { min-height: 34px; }
+  .opening-page .game-actions { gap: 6px; }
+}
+@media (min-width: 601px) and (max-height: 520px) and (orientation: landscape) {
+  .opening-page .topbar { border-bottom: 0; }
+  .opening-page .spectator-controls { margin-top: 3px; }
+  .opening-page .spectator-controls button { min-height: 27px; padding-block: 3px; }
+  .opening-page .spectator-settings > div { padding: 3px 0; gap: 4px; }
+  .opening-page .spectator-settings select, .opening-page .spectator-settings button { min-height: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opening-page .record-menu summary, .opening-page .icon-button { transition: none; }
+}
+@media (forced-colors: active) {
+  .opening-page .spectator-controls button[aria-pressed="true"] { color: HighlightText; background: Highlight; }
+  .opening-page .icon-button-primary { color: ButtonText; background: ButtonFace; }
+}
+/* The pause control shares the action row; keep its label on one line. */
+.opening-page .game-actions > .icon-button { font-size: 12px; white-space: nowrap; }
+@media (max-height: 600px) {
+  .opening-page .spectator-settings > p { display: none; }
+}
