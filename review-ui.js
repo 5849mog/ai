@@ -2,6 +2,8 @@ import { createBoardView, coordinate } from "./board-view.js";
 import { analyzeReview, reviewHighlights } from "./game-review.js";
 import { reviewFramesIncludingUnfinished } from "./partial-review.js";
 import { reviewBranch } from "./review-branch.js";
+import { exportName, downloadText, downloadBlob } from "./export-utils.js";
+import { sessionSgf } from "./session-records.js";
 import { boardImageBlob } from "./board-image.js";
 import { analyzeOpeningReview } from "./opening-review.js";
 
@@ -10,7 +12,7 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame, bra
     <p class="tool-message" role="status"></p><div class="tool-workspace"><div class="tool-board-area"><svg class="board-svg" viewBox="20 20 580 580" role="img" tabindex="0" aria-label="复盘棋盘，方向键逐步回放，上下键跳五步，空格播放或暂停"></svg></div>
     <div class="tool-panel"><div class="review-navigation"><button type="button" data-first>开头</button><button type="button" data-prev>上一手</button><strong data-step></strong><button type="button" data-next>下一手</button><button type="button" data-last>末尾</button></div><input type="range" data-timeline min="0" value="0" aria-label="棋谱回放进度" />
     <p class="review-move"></p><div class="review-play-options"><label>播放速度 <select data-speed><option value="1400">慢速</option><option value="800" selected>正常</option><option value="400">快速</option></select></label><label>方向 <select data-direction><option value="1">正放</option><option value="-1">倒放</option></select></label></div><div class="tool-buttons"><button type="button" data-best aria-pressed="false" disabled>查看 AI 建议</button><button type="button" data-play aria-pressed="false">自动播放</button><button type="button" data-stop>停止分析</button></div>
-    <p class="review-caption">普通落子每次搜索最多 0.5 秒，开局比较每次最多 1 秒。开局结果为有限候选估算；后续仍可换色的阶段不标成确定失误。</p><div class="tool-buttons"><button type="button" data-branch>从此处另开一局</button><button type="button" data-save-frame>保存此刻棋盘图</button><button type="button" data-deep-review>深入复盘 · 每次最多 5 秒</button></div><div class="opening-review-list" aria-label="开局决策分析"></div><div class="review-highlights" aria-label="本局关键落子"></div></div></div>`;
+    <p class="review-caption">普通落子每次搜索最多 0.5 秒，开局比较每次最多 1 秒。开局结果为有限候选估算；后续仍可换色的阶段不标成确定失误。</p><div class="tool-buttons"><button type="button" data-branch>从此处另开一局</button><button type="button" data-save-frame>保存此刻棋盘图</button><button type="button" data-save-position>导出此处棋谱</button><button type="button" data-save-sgf>导出此处 SGF</button><button type="button" data-deep-review>深入复盘 · 每次最多 5 秒</button></div><div class="opening-review-list" aria-label="开局决策分析"></div><div class="review-highlights" aria-label="本局关键落子"></div></div></div>`;
   const $ = selector => root.querySelector(selector), svg = $("svg"), view = createBoardView(svg, { idPrefix: "review-" });
   let review = null, rows = [], openingRows = [], savedRecord, step = 0, showBest = false, controller = null, generation = 0, playing = false, playTimer = null;
   function stopPlayback() { if (playTimer !== null) clearTimeout(playTimer); playTimer = null; playing = false; }
@@ -78,9 +80,15 @@ export function createReviewUi(root, { search, cancelSearch, close, newGame, bra
   };
   $("[data-save-frame]").onclick=async()=>{
     if(!review)return;const frame=review.frames[step],selected=step;
-    try {const blob=await boardImageBlob({board:frame.board,lastMove:frame.lastMove,candidates:frame.candidates});const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=`wumu-review-${selected}.png`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+    try {const blob=await boardImageBlob({board:frame.board,lastMove:frame.lastMove,candidates:frame.candidates});downloadBlob(blob,exportName(`review-${selected}`,"png"));$(".tool-message").textContent="棋盘图已导出。";}
     catch(error){$(".tool-message").textContent=`保存图片失败：${error.message}`;}
   };
+  function exportFrame(format) {
+    try {const record=step===review.frames.length-1?savedRecord:reviewBranch(savedRecord,step);const text=format==='sgf'?sessionSgf(record):JSON.stringify(record,null,2)+'\n';downloadText(text,exportName(`review-${step}`,format==='sgf'?'sgf':'gomoku.json'),format==='sgf'?'application/x-go-sgf':'application/json');$(".tool-message").textContent=format==='sgf'&&record.rule&&record.rule!=='freestyle'?`第 ${step} 步 SGF 已导出；完整开局操作请使用五目棋谱。`:`第 ${step} 步棋谱已导出。`;}
+    catch(error){$(".tool-message").textContent=`导出失败：${error.message}`;}
+  }
+  $("[data-save-position]").onclick=()=>exportFrame('json');
+  $("[data-save-sgf]").onclick=()=>exportFrame('sgf');
   $("[data-deep-review]").onclick=()=>{controller?.abort();cancelSearch();void open(savedRecord,true);};
   async function open(record,deep=false) {
       stopPlayback();controller?.abort();

@@ -1,6 +1,7 @@
 import { createBoardView } from "./board-view.js";
 import { MAX_RECORD_BYTES, createRecord } from "./game-record.js";
 import { sessionFromRecord, parseSessionRecord, sessionSgf } from "./session-records.js";
+import { exportName, downloadText } from "./export-utils.js";
 import { RULES } from "./opening-session.js";
 
 export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange }) {
@@ -10,11 +11,8 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
   function download(format) {
     const record = sessionFromRecord(getRecord()).record();
     const text = format === "sgf" ? sessionSgf(record) : JSON.stringify(record, null, 2) + "\n";
-    const blob = new Blob([text], { type: format === "sgf" ? "application/x-go-sgf;charset=utf-8" : "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob), link = document.createElement("a");
-    link.href = url; link.download = `wumu-${Date.now()}.${format === "sgf" ? "sgf" : "gomoku.json"}`;
-    document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-    menu.open = false; notify("棋谱已导出");
+    downloadText(text, exportName('record', format === 'sgf' ? 'sgf' : 'gomoku.json'), format === 'sgf' ? 'application/x-go-sgf' : 'application/json');
+    menu.open = false; notify(format === "sgf" && record.rule !== "freestyle" ? "SGF 已导出；完整开局操作请使用五目棋谱" : "棋谱已导出");
   }
   $("#exportJson").onclick = () => download("json"); $("#exportSgf").onclick = () => download("sgf");
   $("#importRecord").onclick = () => { menu.open = false; fileInput.value = ""; fileInput.click(); };
