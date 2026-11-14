@@ -480,3 +480,15 @@ for(const rule of ['freestyle','renju','rif','taraguchi10'])test(`${rule}: rotat
   assert.equal(document.querySelector('.app-shell').style.length,0,'no measured height is fed back into the parent layout');
  }finally{f.close();}
 });
+
+for(const rule of ['rif','taraguchi10'])for(const seat of [0,1])test(`${rule}: selecting either opener places center automatically and undo returns to setup`,async()=>{
+ const setup=new OpeningSession({rule,workflow:'follow',initialBlackSeat:null});const f=await environment('renju.html',{saved:{record:setup.record(),perspective:1}});
+ try{await f.load();document.querySelector(`#simpleOpeningFlow [data-flow-action="start"][data-value="${seat}"]`).click();await settled();
+  let s=savedSession(f);assert.deepEqual(s.moves,[112]);assert.equal(s.colors[0],1);assert.equal(s.actors.at(-1),seat);assert.equal(s.stage,rule==='rif'?'w2':'swap1');
+  document.querySelector('#simpleUndoButton').click();await settled();s=savedSession(f);assert.equal(s.stage,'setup');assert.deepEqual(s.moves,[]);
+ }finally{f.close();}
+});
+test('restoring a formal opening awaiting its first stone fills center once',async()=>{
+ const setup=new OpeningSession({rule:'taraguchi10',workflow:'follow',initialBlackSeat:1});const f=await environment('renju.html',{saved:{record:setup.record(),perspective:2}});
+ try{await f.load();await settled();const s=savedSession(f);assert.deepEqual(s.moves,[112]);assert.equal(s.stage,'swap1');assert.equal(s.actors.at(-1),1);assert.equal(s.record().events.filter(e=>e.type==='stone').length,1);}finally{f.close();}
+});
