@@ -1,4 +1,5 @@
 import { OpeningSession, replaySession, RULES, colorName, coordinate, canManualTurn, isAutomaticTurn } from "./opening-session.js";
+import { forcedOpeningMove } from "./forced-opening.js";
 import { openingFlow, openingMarks, chosenProposal } from "./opening-flow.js";
 import { moveVerdict } from "./renju-rules.js";
 import { adviseOpening } from "./opening-advisor.js";
@@ -186,7 +187,8 @@ function render() {
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
   $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}`;
-  $("#undoButton").disabled = pending < 0 && (!session.events.length || session.workflow === "duel" && !session.actors.includes(0)); $("#retryButton").hidden = state !== "error";
+  const first = session.events[0], forcedOnly = session.events.length === 1 && !session.options.seed && ["rif", "taraguchi10"].includes(session.rule) && first?.type === "stone" && first.index === 112 && first.automatic;
+  $("#undoButton").disabled = pending < 0 && (forcedOnly || !session.events.length || session.workflow === "duel" && !session.actors.includes(0)); $("#retryButton").hidden = state !== "error";
   $("#simpleUndoButton").disabled = $("#undoButton").disabled;
   $("#recommendButton").disabled = isAutomaticTurn(session) || session.stage === "setup" || Boolean(forbiddenInput) || session.workflow === "copilot" && session.decision || (!advice && !busy && (modal || session.winner || state !== "ready"));
   $("#recommendButton").setAttribute("aria-pressed", String(Boolean(advice) || busy));
@@ -256,6 +258,11 @@ function commit(event, automatic = false, result = null) {
   session.apply(event, { automatic }); if (automatic && event.type === "stone") openingBook.remember(session);
   positionChanged(false, continuation); render(); if (event.type === "stone") sound.playStone();
 }
+function placeForcedCenter() {
+  const event=forcedOpeningMove(session);
+  if (!event) return false;
+  commit(event, true); return true;
+}
 async function autoPlay() {
   if (busy || modal || session.winner) return;
   const token = serial; busy = true;deepPhase="";adaptiveThinking=$("#timeSelect").value===ADAPTIVE_MODE; engine.stopPonder(); render();
@@ -303,9 +310,9 @@ async function place(index) {
   cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
-function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); boardMotion="reset"; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); render(); if(!modal)void prepare(); }
+function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;cancel(); boardMotion="reset"; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); placeForcedCenter(); render(); if(!modal)void prepare(); }
 function restoreArchived(entry) {
-  const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();boardMotion="reset";session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);render();if(!modal)void prepare();return true;
+  const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);paused=false;cancel();boardMotion="reset";session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);placeForcedCenter();render();if(!modal)void prepare();return true;
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
@@ -325,7 +332,7 @@ svg.addEventListener("keydown", event => {
 for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventListener("click", event => {
   const button = event.target.closest("[data-flow-action]"); if (!button || button.disabled) return;
   const { flowAction: action, value } = button.dataset;
-  if (action === "start" && session.stage === "setup") { cancel(); commit({ type: "start", initialBlackSeat: Number(value) }); void prepare(); }
+  if (action === "start" && session.stage === "setup") { cancel(); commit({ type: "start", initialBlackSeat: Number(value) }); placeForcedCenter(); void prepare(); }
   else if (action === "decision") decision(value);
   else if (action === "select") void place(Number(value));
   else if (action === "handoff") handoff();
@@ -338,7 +345,11 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
 });
 $("#recommendButton").onclick = recommend;
 $("#simpleRecommendButton").onclick = recommend;
-$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); boardMotion="undo"; const plan = openingBook.snapshot(session); session = session.undo(); openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
+$("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;cancel(); boardMotion="undo"; const plan = openingBook.snapshot(session); session = session.undo();
+  // A system-placed mandatory center is not a separate decision to undo.
+  if (forcedOpeningMove(session) && session.events.at(-1)?.type === "start") session = session.undo();
+  else if (forcedOpeningMove(session)) session.apply({type:"stone",index:112},{automatic:true});
+  openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
 $("#colorSelect").onchange = () => { cancel({ keepHints: true }); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
@@ -382,4 +393,4 @@ setupAppUpdates({ autoApply: version => {
 } });
 const transferred=takeArchiveRestore(localStorage);if(transferred)restoreArchived(transferred);
 
-render(); void prepare(); if (location.hash === "guide") dialogs.openGuide();
+placeForcedCenter(); render(); void prepare(); if (location.hash === "guide") dialogs.openGuide();
