@@ -105,3 +105,22 @@
 @media (max-height: 600px) {
   .opening-page .spectator-settings > p { display: none; }
 }
+
+/* Keep the compact panel readable at phone width and give every control a
+   consistent touch target. Scrolling belongs to the panel, not the board. */
+.opening-page .simple-quick-tools { padding: 10px; max-height: min(68dvh, 420px, calc(100dvh - 120px - env(safe-area-inset-top) - env(safe-area-inset-bottom))); }
+.opening-page .quick-tools-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; color:var(--ui-ink); font-size:14px; }
+.opening-page .quick-tools-header button { flex:0 0 auto; min-height:32px; padding:4px 10px; background:transparent; }
+.opening-page .quick-tools-label { margin:7px 0 5px; color:#68786a; font-size:11px; font-weight:600; letter-spacing:.03em; }
+.opening-page .simple-quick-tools .quick-time-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+.opening-page .simple-quick-tools .quick-tools-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; margin-top:0; }
+.opening-page .quick-time-grid button, .opening-page .quick-tools-actions button { min-width:0; min-height:38px; padding:5px 3px; line-height:1.25; overflow-wrap:anywhere; }
+.opening-page .simple-quick-tools p { margin-top:8px; line-height:1.45; }
+.opening-page .simple-quick-tools .app-update-control { margin-top:6px; padding-top:6px; border-top:1px solid var(--ui-border); }
+@media (max-width:380px) {
+  .opening-page .simple-quick-tools .quick-time-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-height:520px) and (orientation:landscape) {
+  .opening-page .simple-quick-tools { max-height:min(78dvh, 360px, calc(100dvh - 120px - env(safe-area-inset-top) - env(safe-area-inset-bottom))); }
+  .opening-page .quick-time-grid button, .opening-page .quick-tools-actions button { min-height:34px; }
+}

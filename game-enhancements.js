@@ -28,7 +28,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   }
   if (sourceNotice && typeof MutationObserver === "function") new MutationObserver(syncNotice).observe(sourceNotice,
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
-  panel.innerHTML = `<div class="tool-buttons" role="group" aria-label="每步思考时间"><button type="button" data-time="100">0.1 秒</button><button type="button" data-time="500">0.5 秒</button><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button><button type="button" data-sound aria-pressed="false">声效关</button></div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button><button type="button" data-collapse>收起</button></div><p>用于后续自动落子；推荐仍为 1 秒。关闭后台思考可省电。</p>${updateControlMarkup()}`;
+  panel.innerHTML = `<div class="quick-tools-header"><strong>快捷设置</strong><button type="button" data-collapse aria-label="收起快捷设置">收起</button></div><div class="quick-tools-label">每步思考与开关</div><div class="tool-buttons quick-time-grid" role="group" aria-label="每步思考时间"><button type="button" data-time="100">0.1 秒</button><button type="button" data-time="500">0.5 秒</button><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button><button type="button" data-sound aria-pressed="false">声效关</button></div><div class="quick-tools-label">对局工具</div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button></div><p>思考时间用于自动落子；推荐固定为 1 秒。</p>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
   const remoteEntry = document.createElement("button"); remoteEntry.type = "button"; remoteEntry.dataset.remoteMenu = ""; remoteEntry.textContent = "电脑引擎";
   panel.querySelector(".quick-tools-actions").append(remoteEntry);
@@ -102,7 +102,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   for(const button of [quickHints,quickSelf,fullHints,fullSelf]) button.type="button";
   quickHints.onclick=()=>{toggleHints?.();collapse();}; fullHints.onclick=()=>{toggleHints?.();$("#recordMenu").open=false;};
   quickSelf.onclick=()=>{toggleSelfPlay?.();collapse();}; fullSelf.onclick=()=>{toggleSelfPlay?.();$("#recordMenu").open=false;};
-  panel.querySelector(".quick-tools-actions").append(quickHints,quickSelf);
+  panel.querySelector("[data-image]").before(quickHints); panel.querySelector("[data-image]").before(quickSelf);
   const spectatorControls=document.createElement("div"); spectatorControls.className="spectator-controls"; spectatorControls.append(fullHints,fullSelf); $(".game-actions").after(spectatorControls);
   const makeSpectatorPanel=()=>{
     const details=document.createElement("details");details.className="spectator-settings";details.hidden=true;
