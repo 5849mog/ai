@@ -17,7 +17,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   retryEntry.onclick = () => $("#retryButton").click();
   const pauseEntry=document.createElement("button");pauseEntry.type="button";pauseEntry.textContent="暂停思考";pauseEntry.hidden=true;pauseEntry.onclick=()=>pauseSearch?.();status.append(pauseEntry);
   const resumeEntry=document.createElement("button");resumeEntry.type="button";resumeEntry.textContent="继续思考";resumeEntry.hidden=true;resumeEntry.onclick=()=>resumeSearch?.();status.append(resumeEntry);
-  const toggle = document.createElement("button"); toggle.type = "button"; toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", "simpleQuickTools"); status.append(toggle);
+  const toggle = document.createElement("button"); toggle.type = "button"; toggle.dataset.uiIcon="settings"; toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", "simpleQuickTools"); status.append(toggle);
   const panel = document.createElement("div"); panel.id = "simpleQuickTools"; panel.className = "simple-quick-tools"; panel.hidden = true; status.after(panel);
   const notice = document.createElement("div"); notice.className = "simple-notice"; notice.hidden = true; notice.setAttribute("role", "status"); status.after(notice);
   const sourceNotice = $("#gameNotice");
@@ -30,11 +30,11 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
   panel.innerHTML = `<div class="quick-tools-header"><strong>快捷设置</strong><button type="button" data-collapse aria-label="收起快捷设置">收起</button></div><div class="quick-tools-label">每步思考与开关</div><div class="tool-buttons quick-time-grid" role="group" aria-label="每步思考时间"><button type="button" data-time="100">0.1 秒</button><button type="button" data-time="500">0.5 秒</button><button type="button" data-time="1000">1 秒</button><button type="button" data-time="5000">5 秒</button><button type="button" data-time="10000">10 秒</button><button type="button" data-time="adaptive">自适应深思</button><button type="button" data-ponder aria-pressed="true">后台思考</button><button type="button" data-sound aria-pressed="false">声效关</button></div><div class="quick-tools-label">对局工具</div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button></div><p>思考时间用于自动落子；推荐固定为 1 秒。</p>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
-  const remoteEntry = document.createElement("button"); remoteEntry.type = "button"; remoteEntry.dataset.remoteMenu = ""; remoteEntry.textContent = "电脑引擎";
+  const remoteEntry = document.createElement("button"); remoteEntry.type = "button"; remoteEntry.dataset.remoteMenu = ""; remoteEntry.dataset.uiIcon="engine"; remoteEntry.textContent = "电脑引擎";
   panel.querySelector(".quick-tools-actions").append(remoteEntry);
-  const setupEntry = document.createElement("button"); setupEntry.type = "button"; setupEntry.textContent = "自定义摆局";
+  const setupEntry = document.createElement("button"); setupEntry.type = "button"; setupEntry.dataset.uiIcon="board"; setupEntry.textContent = "自定义摆局";
   setupEntry.onclick = () => { collapse(); $("#openSetup").click(); }; remoteEntry.before(setupEntry);
-  const fullEntry = document.createElement("button"); fullEntry.type = "button"; fullEntry.textContent = "完整界面"; fullEntry.dataset.fullView = "";
+  const fullEntry = document.createElement("button"); fullEntry.type = "button"; fullEntry.textContent = "完整界面"; fullEntry.dataset.uiIcon="layout"; fullEntry.dataset.fullView = "";
   fullEntry.onclick = () => { collapse(); exitSimple?.(); }; panel.querySelector(".quick-tools-actions").append(fullEntry);
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
@@ -74,10 +74,10 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     select.value = button.dataset.time; select.dispatchEvent(new Event("change")); collapse(); render();
   };
   panel.querySelector("[data-ponder]").onclick = () => { const input = $("#ponderToggle"); if (input.disabled) return; input.checked = !input.checked; input.dispatchEvent(new Event("change")); collapse(); render(); };
-  const soundButton = panel.querySelector("[data-sound]");
+  const soundButton = panel.querySelector("[data-sound]"); soundButton.dataset.uiIcon="audio";
   function toggleSound() { if (!sound) return; const enabled = sound.setEnabled(!sound.enabled); if (enabled) sound.playStone(); render(); }
   soundButton.hidden = !sound; soundButton.onclick = () => { toggleSound(); collapse(); };
-  panel.querySelector("[data-image]").onclick = () => open("image"); reviewEntry.onclick = () => open("review");
+  panel.querySelector("[data-image]").dataset.uiIcon="camera"; panel.querySelector("[data-image]").onclick = () => open("image"); reviewEntry.onclick = () => open("review");
   panel.querySelector("[data-archive]").onclick=()=>open("archive");
   const fullImage = document.createElement("button"); fullImage.type = "button"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
@@ -99,6 +99,8 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     const quick=document.createElement('button');quick.type='button';quick.textContent=label;quick.onclick=()=>{collapse();void copyRecord(format);};panel.querySelector('.quick-tools-actions').append(quick);
   }
   const quickHints=document.createElement("button"),quickSelf=document.createElement("button"),fullHints=document.createElement("button"),fullSelf=document.createElement("button");
+  for(const button of [quickHints,fullHints]) button.dataset.uiIcon="eye";
+  for(const button of [quickSelf,fullSelf]) button.dataset.uiIcon="bot";
   for(const button of [quickHints,quickSelf,fullHints,fullSelf]) button.type="button";
   quickHints.onclick=()=>{toggleHints?.();collapse();}; fullHints.onclick=()=>{toggleHints?.();$("#recordMenu").open=false;};
   quickSelf.onclick=()=>{toggleSelfPlay?.();collapse();}; fullSelf.onclick=()=>{toggleSelfPlay?.();$("#recordMenu").open=false;};
