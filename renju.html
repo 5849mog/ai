@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./game-modes.css?v=7" />
     <link rel="stylesheet" href="./opening.css?v=7" />
     <link rel="stylesheet" href="./enhancements.css?v=58" />
-    <link rel="stylesheet" href="./ui-refinement.css?v=4" />
+    <link rel="stylesheet" href="./ui-refinement.css?v=5" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -95,9 +95,9 @@
       </main>
       <div class="simple-win-rate" id="simpleWinRate" aria-label="AI 估算胜率">胜率 · 等待开局</div>
       <div class="simple-controls" id="simpleControls" hidden>
-        <button class="icon-button icon-button-primary" id="simpleRestart" type="button" aria-label="新局"><span id="simpleRestartLabel">新局</span><small>重新开局</small></button>
-        <button class="icon-button" id="simpleColor" type="button" title="设置规则与对局方式"><span id="simpleColorLabel">对局</span><small>五手两打</small></button>
-        <button class="icon-button" id="simpleUndoButton" type="button" disabled><span>悔棋</span><small>撤回上次操作</small></button>
+        <button class="icon-button icon-button-primary" id="simpleRestart" data-ui-icon="restart" type="button" aria-label="新局"><span id="simpleRestartLabel">新局</span><small>重新开局</small></button>
+        <button class="icon-button" id="simpleColor" data-ui-icon="settings" type="button" title="设置规则与对局方式"><span id="simpleColorLabel">对局</span><small>五手两打</small></button>
+        <button class="icon-button" id="simpleUndoButton" data-ui-icon="undo" type="button" disabled><span>悔棋</span><small>撤回上次操作</small></button>
         <button class="icon-button" id="simpleRecommendButton" type="button" aria-label="推荐落点" title="分析当前开局动作或落点" aria-pressed="false" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-2.9-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></svg><span id="simpleRecommendLabel">推荐</span><small id="simpleRecommendNote">AI 落点建议</small></button>
       </div>
       <footer class="page-footer"><span id="offlineState">本机计算</span><a href="./about.html" target="_blank" rel="noopener">关于与开源许可</a></footer>

@@ -181,3 +181,17 @@ test("quick settings keep the close action at the header and prioritize live gam
   toggle.click();actions[1].click();assert.equal(selfClicks,1);assert.equal(panel.hidden,true);
   toggle.click();panel.querySelector('[data-collapse]').click();assert.equal(panel.hidden,true);
 });
+
+test("game control icons remain decorative while button labels and actions stay intact", () => {
+ const {doc}=environment();let soundEnabled=false, toggles=0;
+ setupGameEnhancements({getPosition:()=>({winner:0}),getRecord:()=>createRecord([],1),onWorkspace(){},applyRecord(){},cancelSearch(){},newGame(){},
+  sound:{get enabled(){return soundEnabled;},setEnabled(v){soundEnabled=v;return v;},playStone(){}},
+  getControlState:()=>({showHints:true,selfPlay:false,canSelfPlay:true}),toggleHints:()=>toggles++});
+ const panel=doc.querySelector('#simpleQuickTools'), hint=byText(panel,'隐藏棋盘提示'),camera=panel.querySelector('[data-image]');
+ assert.equal(hint.dataset.uiIcon,'eye');assert.equal(camera.dataset.uiIcon,'camera');
+ assert.equal(byText(panel,'自定义摆局').dataset.uiIcon,'board');
+ assert.equal(byText(panel,'电脑引擎').dataset.uiIcon,'engine');
+ assert.equal(byText(panel,'完整界面').dataset.uiIcon,'layout');
+ assert.equal(panel.querySelector('[data-sound]').dataset.uiIcon,'audio');
+ hint.click();assert.equal(toggles,1);
+});
