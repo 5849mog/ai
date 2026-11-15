@@ -653,3 +653,15 @@ test('automatically chosen fifth candidate receives normal stone sound and answe
   assert.ok(document.querySelector('#boardSvg [data-answer="'+record.lastMove+'"]'));
  }finally{old?Object.defineProperty(globalThis,'AudioContext',old):delete globalThis.AudioContext;f.close();}
 });
+
+test('closing the full menu with Escape keeps the active AI search and restores focus',async()=>{
+ const f=await environment('index.html',{holdSearch:true});
+ try{
+  await f.load();clickPoint(f,112);await settled();const worker=f.workers.at(-1),q=worker.searches.at(-1);
+  const menu=document.querySelector('#recordMenu'),summary=menu.querySelector('summary');summary.click();assert.equal(menu.open,true);
+  summary.dispatchEvent(new f.dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+  assert.equal(menu.open,false);assert.equal(document.activeElement,summary);assert.equal(worker.dead,false);
+  worker.emit({type:'move',requestId:q.requestId,result:{index:113}});await settled();
+  assert.equal(savedSession(f).moves.length,2);
+ }finally{f.close();}
+});

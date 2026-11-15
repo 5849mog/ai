@@ -17,7 +17,10 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
   $("#exportJson").onclick = () => download("json"); $("#exportSgf").onclick = () => download("sgf");
   $("#importRecord").onclick = () => { menu.open = false; fileInput.value = ""; fileInput.click(); };
   document.addEventListener("pointerdown", event => { if (!menu.contains(event.target)) menu.open = false; });
-  document.addEventListener("keydown", event => { if (event.key === "Escape") menu.open = false; });
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape" || !menu.open || document.querySelector("dialog[open]")) return;
+    event.preventDefault(); event.stopImmediatePropagation(); menu.open = false; menu.querySelector("summary")?.focus();
+  }, true);
   fileInput.onchange = async () => {
     const file = fileInput.files[0], serial = ++readSerial; if (!file) return;
     try {

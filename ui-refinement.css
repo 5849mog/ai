@@ -154,3 +154,19 @@
 @media (forced-colors:active) {
   .opening-page [data-ui-icon]::before { background:ButtonText; }
 }
+
+/* The full menu follows the same local icon system as the compact controls. */
+.opening-page [data-ui-icon="guide"] { --ui-icon:url("./assets/icons/guide.svg"); }
+.opening-page [data-ui-icon="import"] { --ui-icon:url("./assets/icons/import.svg"); }
+.opening-page [data-ui-icon="export"] { --ui-icon:url("./assets/icons/export.svg"); }
+.opening-page [data-ui-icon="copy"] { --ui-icon:url("./assets/icons/copy.svg"); }
+.opening-page .record-options button { display:flex; align-items:center; gap:9px; }
+.opening-page .record-options button:not([data-ui-icon]) { padding-left:37px; }
+.opening-page .record-options button[data-ui-icon]::before { color:#607763; }
+.opening-page .record-options button:focus-visible { outline-offset:-3px; }
+@media (pointer:coarse) {
+  .opening-page .record-options button { min-height:44px; }
+}
+@media (forced-colors:active) {
+  .opening-page .record-options button[data-ui-icon]::before { background:ButtonText; }
+}

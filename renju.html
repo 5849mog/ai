@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./game-modes.css?v=7" />
     <link rel="stylesheet" href="./opening.css?v=7" />
     <link rel="stylesheet" href="./enhancements.css?v=58" />
-    <link rel="stylesheet" href="./ui-refinement.css?v=5" />
+    <link rel="stylesheet" href="./ui-refinement.css?v=6" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -26,15 +26,15 @@
           <details class="record-menu" id="recordMenu">
             <summary aria-label="棋谱与模式菜单"><span>菜单</span><span aria-hidden="true">⌄</span><span class="board-size">15 × 15</span></summary>
             <div class="record-options">
-              <button type="button" id="openModes">对局设置</button>
-              <button type="button" id="openGuide">规则说明</button>
-              <button type="button" id="openSetup">自定义摆局</button>
-              <button type="button" id="enterSimpleMode">简洁界面</button>
-              <button type="button" id="openRemoteEngine">电脑引擎</button>
+              <button type="button" id="openModes" data-ui-icon="settings">对局设置</button>
+              <button type="button" id="openGuide" data-ui-icon="guide">规则说明</button>
+              <button type="button" id="openSetup" data-ui-icon="board">自定义摆局</button>
+              <button type="button" id="enterSimpleMode" data-ui-icon="layout">简洁界面</button>
+              <button type="button" id="openRemoteEngine" data-ui-icon="engine">电脑引擎</button>
               <hr />
-              <button type="button" id="importRecord">导入棋谱</button>
-              <button type="button" id="exportJson">导出五目文件</button>
-              <button type="button" id="exportSgf">导出 SGF</button>
+              <button type="button" id="importRecord" data-ui-icon="import">导入棋谱</button>
+              <button type="button" id="exportJson" data-ui-icon="export">导出五目文件</button>
+              <button type="button" id="exportSgf" data-ui-icon="export">导出 SGF</button>
             </div>
           </details>
         </div>

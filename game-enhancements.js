@@ -79,7 +79,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   soundButton.hidden = !sound; soundButton.onclick = () => { toggleSound(); collapse(); };
   panel.querySelector("[data-image]").dataset.uiIcon="camera"; panel.querySelector("[data-image]").onclick = () => open("image"); reviewEntry.onclick = () => open("review");
   panel.querySelector("[data-archive]").onclick=()=>open("archive");
-  const fullImage = document.createElement("button"); fullImage.type = "button"; $(".record-options").append(fullImage);
+  const fullImage = document.createElement("button"); fullImage.type = "button"; fullImage.dataset.uiIcon="camera"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
   const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
   const saveImage = async () => { try {
@@ -87,7 +87,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     downloadBlob(blob,exportName('board','png')); notify?.('棋盘图片已导出');
   } catch(error) { notify?.(`保存图片失败：${error.message}`,true); } };
   const quickImage=document.createElement('button');quickImage.type='button';quickImage.textContent='保存棋盘图';quickImage.onclick=()=>{collapse();void saveImage();};panel.querySelector('.quick-tools-actions').append(quickImage);
-  const fullBoardImage=document.createElement('button');fullBoardImage.type='button';fullBoardImage.textContent='保存棋盘图';fullBoardImage.onclick=()=>{ $("#recordMenu").open=false;void saveImage(); };$(".record-options").append(fullBoardImage);
+  const fullBoardImage=document.createElement('button');fullBoardImage.type='button';fullBoardImage.dataset.uiIcon='camera';fullBoardImage.textContent='保存棋盘图';fullBoardImage.onclick=()=>{ $("#recordMenu").open=false;void saveImage(); };$(".record-options").append(fullBoardImage);
   const copyRecord = async format => { try {
     if (!navigator.clipboard?.writeText) throw new Error('当前浏览器不支持复制，请使用文件导出');
     const record=getRecord(), text=format==='sgf'?sessionSgf(record):JSON.stringify(record,null,2);
@@ -95,7 +95,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   } catch(error) { notify?.(`复制失败：${error.message}`,true); } };
   for(const format of ['sgf','json']) {
     const label=format==='sgf'?'复制 SGF':'复制五目棋谱';
-    const full=document.createElement('button');full.type='button';full.textContent=label;full.onclick=()=>{$('#recordMenu').open=false;void copyRecord(format);};$('.record-options').append(full);
+    const full=document.createElement('button');full.type='button';full.dataset.uiIcon='copy';full.textContent=label;full.onclick=()=>{$('#recordMenu').open=false;void copyRecord(format);};$('.record-options').append(full);
     const quick=document.createElement('button');quick.type='button';quick.textContent=label;quick.onclick=()=>{collapse();void copyRecord(format);};panel.querySelector('.quick-tools-actions').append(quick);
   }
   const quickHints=document.createElement("button"),quickSelf=document.createElement("button"),fullHints=document.createElement("button"),fullSelf=document.createElement("button");
@@ -115,7 +115,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   };
   const fullSpectator=makeSpectatorPanel(),quickSpectator=makeSpectatorPanel();
   spectatorControls.after(fullSpectator);panel.querySelector(".quick-tools-actions").after(quickSpectator);
-  const fullSound=document.createElement("button");fullSound.type="button";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
+  const fullSound=document.createElement("button");fullSound.type="button";fullSound.dataset.uiIcon="audio";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);
   const fullPause=document.createElement("button");fullPause.type="button";fullPause.className="icon-button";fullPause.hidden=true;fullPause.onclick=()=>getPosition().paused?resumeSearch?.():pauseSearch?.();$(".game-actions").append(fullPause);
