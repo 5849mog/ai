@@ -164,3 +164,20 @@ test("sound controls share one opt-in state and preview only after enabling", ()
   assert.equal(enabled, true); assert.equal(previews, 1); assert.equal(button.getAttribute("aria-pressed"), "true");
   button.click(); assert.equal(enabled, false); assert.equal(previews, 1);
 });
+
+test("quick settings keep the close action at the header and prioritize live game controls", () => {
+  const { doc } = environment(); let hintClicks=0, selfClicks=0;
+  setupGameEnhancements({
+    getPosition:()=>({winner:0}), getRecord:()=>createRecord([],1), onWorkspace(){}, applyRecord(){}, cancelSearch(){}, newGame(){},
+    getControlState:()=>({showHints:true,selfPlay:false,canSelfPlay:true}),
+    toggleHints:()=>hintClicks++, toggleSelfPlay:()=>selfClicks++
+  });
+  const toggle=doc.querySelector('[aria-controls=simpleQuickTools]'), panel=doc.querySelector('#simpleQuickTools');
+  toggle.click(); assert.equal(panel.hidden,false);
+  assert.ok(panel.querySelector('.quick-tools-header').querySelector('[data-collapse]'));
+  const actions=panel.querySelector('.quick-tools-actions').querySelectorAll('button');
+  assert.equal(actions[0].textContent,'隐藏棋盘提示');assert.equal(actions[1].textContent,'AI 接管我方');
+  actions[0].click();assert.equal(hintClicks,1);assert.equal(panel.hidden,true);
+  toggle.click();actions[1].click();assert.equal(selfClicks,1);assert.equal(panel.hidden,true);
+  toggle.click();panel.querySelector('[data-collapse]').click();assert.equal(panel.hidden,true);
+});
