@@ -29,7 +29,7 @@
 }
 .opening-page .board-svg .grid-line { stroke: rgba(59, 53, 39, .69); }
 .opening-page .board-svg .last-ring { stroke-width: 2.1; }
-.opening-page .game-actions { gap: 7px; }
+.opening-page .game-actions { gap: 7px; flex-wrap: wrap; }
 .opening-page .icon-button {
   border-color: var(--ui-border); border-radius: 9px;
   background: var(--ui-surface); color: #3b5141; box-shadow: var(--ui-shadow), inset 0 1px #fff;

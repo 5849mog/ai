@@ -354,13 +354,13 @@ test('freestyle deep mode uses adaptive budget, pauses without placing a move, a
     assert.equal(byText('暂停思考').hidden,false);byText('暂停思考').click();await settled();
     assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,1);assert.equal(byText('继续思考').hidden,false);
     old.onmessage({data:{type:'move',requestId:job.requestId,result:{index:113,x:8,y:7}}});await settled();assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,1);
-    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.notEqual(next,old);assert.ok(search.timeMs>0&&search.timeMs<=6000);
+    const resume=byText('继续思考');resume.click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.notEqual(next,old);assert.ok(search.timeMs>0&&search.timeMs<=6000);
     for(let pass=0;pass<10;pass++) {
       const w=f.workers.at(-1),q=w.searches.at(-1);if(!q||q.answered)break;q.answered=true;
       const allowed=q.allowedMoves??q.board.flatMap((v,i)=>v?[]:[i]),index=allowed.includes(113)?113:allowed[0];
       w.emit({type:'move',requestId:q.requestId,result:{index,x:index%15,y:Math.floor(index/15),assessment:{depth:15,bestIndex:index,winRate:.55,mate:null},recommendations:allowed.slice(0,q.multiPV).map(index=>({index,depth:15,winRate:.55}))}});await settled();
     }
-    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,2);assert.equal(byText('继续思考').hidden,true);
+    assert.equal(document.querySelectorAll('#boardSvg [data-stone]').length,2);assert.equal(resume.hidden,true);
     document.querySelector('#simpleRestart').click();await settled();const entries=JSON.parse(localStorage.getItem(ARCHIVE_KEY)).entries;assert.equal(entries.length,1);assert.deepEqual(replaySession(entries[0].record).moves,[112,113]);
     assert.equal(entries[0].meta.timeMs,6000);assert.equal(entries[0].meta.mode,'adaptive');assert.equal(savedSession(f).moves.length,0);
   }finally{f.close();}
@@ -372,9 +372,9 @@ for(const rule of ['freestyle','renju','rif','taraguchi10']) test(`${rule}: deep
     await f.load();await settled();const old=f.workers.at(-1),job=old.searches.at(-1);assert.ok(job.timeMs>0&&job.timeMs<=6000);assert.equal(job.sideToMove,2);
     byText('暂停思考').click();await settled();assert.equal(savedSession(f).events.length,0);assert.equal(savedSession(f).board[112],1);
     old.onmessage({data:{type:'move',requestId:job.requestId,result:{index:113,x:8,y:7}}});await settled();assert.equal(savedSession(f).events.length,0);
-    byText('继续思考').click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.ok(search.timeMs>0&&search.timeMs<=6000);
+    const resume=byText('继续思考');resume.click();await settled();const next=f.workers.at(-1),search=next.searches.at(-1);assert.ok(search.timeMs>0&&search.timeMs<=6000);
     document.querySelector('#simpleRestart').click();await settled();next.onmessage({data:{type:'move',requestId:search.requestId,result:{index:113,x:8,y:7}}});await settled();
-    assert.equal(savedSession(f).stage,'setup');assert.equal(savedSession(f).moves.length,0);assert.equal(byText('继续思考').hidden,true);
+    assert.equal(savedSession(f).stage,'setup');assert.equal(savedSession(f).moves.length,0);assert.equal(resume.hidden,true);
   }finally{f.close();}
 });
 test('history can restore a partial RIF proposal from a different live rule without losing the live game',async()=>{
@@ -560,14 +560,17 @@ test('spectator settings apply per color, single-step pauses, pacing waits, and 
   await f.load();
   const button=label=>[...document.querySelectorAll('button')].find(b=>b.textContent===label&&!b.hidden);
   button('AI 接管我方').click();await settled();button('暂停思考').click();await settled();
+  const step=document.querySelector('#simpleStatusRow [data-step]');assert.equal(step.hidden,false);
   const panel=[...document.querySelectorAll('.spectator-settings')].find(x=>!x.hidden);
   for(const [key,value] of [['black','100'],['white','500'],['delay','500']]) {
    const input=panel.querySelector('[data-spectator="'+key+'"]');input.value=value;input.dispatchEvent(new f.dom.window.Event('change'));
   }
-  panel.querySelector('[data-step]').click();await settled();let w=f.workers.at(-1),q=w.searches.at(-1);assert.equal(q.sideToMove,1);assert.equal(q.timeMs,100);
+  step.focus();step.click();await settled();assert.equal(step.hidden,true);
+  assert.equal(document.activeElement.parentElement.id,'simpleStatusRow');assert.equal(document.activeElement.textContent,'暂停思考');
+  let w=f.workers.at(-1),q=w.searches.at(-1);assert.equal(q.sideToMove,1);assert.equal(q.timeMs,100);
   w.emit({type:'move',requestId:q.requestId,result:{index:112}});await settled();
   assert.equal(savedSession(f).moves.length,1);assert.equal(button('继续思考').hidden,false);
-  panel.querySelector('[data-step]').click();await settled();q=w.searches.at(-1);assert.equal(q.sideToMove,2);assert.equal(q.timeMs,500);
+  step.click();await settled();q=w.searches.at(-1);assert.equal(q.sideToMove,2);assert.equal(q.timeMs,500);
   w.emit({type:'move',requestId:q.requestId,result:{index:113}});await settled();assert.equal(savedSession(f).moves.length,2);
   button('继续思考').click();await settled();q=w.searches.at(-1);assert.equal(q.sideToMove,1);
   w.emit({type:'move',requestId:q.requestId,result:{index:114}});await settled();const count=w.searches.length;assert.equal(savedSession(f).moves.length,3);
@@ -601,6 +604,57 @@ test('hidden hints reduce background and automatic searches to one line without 
   const w=f.workers.at(-1);assert.equal(w.ponderJob.multiPV,1);assert.equal(document.querySelectorAll('#boardSvg [data-hint]').length,0);
   clickPoint(f,112);await settled();assert.equal(w.searches.at(-1).multiPV,1);
  }finally{f.close();}
+});
+
+test('a fixed-time reply can be paused without undoing the human move, then continued once', async () => {
+  const f = await environment('index.html', { holdSearch: true, timeMs: 5000 });
+  try {
+    await f.load(); clickPoint(f, 112); await settled();
+    const worker = f.workers.at(-1), reply = worker.searches.at(-1);
+    const pause = [...document.querySelectorAll('#simpleStatusRow button')].find(button => button.textContent === '暂停思考');
+    assert.equal(pause.hidden, false); pause.click(); await settled();
+    assert.equal(pause.textContent, '继续思考');
+    worker.emit({ type: 'move', requestId: reply.requestId, result: { index: 113 } }); await settled();
+    assert.deepEqual(savedSession(f).moves, [112]);
+    pause.click(); await settled();
+    const resumed = f.workers.at(-1), job = resumed.searches.at(-1);
+    assert.equal(job.timeMs, 5000); assert.equal(job.sideToMove, 2);
+    resumed.emit({ type: 'move', requestId: job.requestId, result: { index: 113 } }); await settled();
+    assert.deepEqual(savedSession(f).moves, [112, 113]); assert.equal(pause.hidden, true);
+  } finally { f.close(); }
+});
+
+test('turning off background thinking stops it immediately and applies to fresh positions', async () => {
+  const session = new OpeningSession({ rule: 'freestyle', workflow: 'follow', initialBlackSeat: 0 });
+  session.apply({ type: 'stone', index: 112 });
+  const f = await environment('index.html', { saved: { record: session.record(), perspective: 1 }, holdSearch: true });
+  try {
+    await f.load(); const worker = f.workers.at(-1), first = worker.ponderJob;
+    assert.ok(first); assert.equal(first.sideToMove, 2);
+    const toggle = document.querySelector('#ponderToggle');
+    toggle.checked = false; toggle.dispatchEvent(new f.dom.window.Event('change')); await settled();
+    assert.equal(worker.last.type, 'stop-ponder');
+    clickPoint(f, 97); await settled(); assert.equal(worker.ponderJob, first);
+    document.querySelector('#simpleRecommendButton').click(); await settled(); assert.equal(worker.searches.at(-1).sideToMove, 1);
+    document.querySelector('#simpleRecommendButton').click(); await settled();
+    toggle.checked = true; toggle.dispatchEvent(new f.dom.window.Event('change')); await settled();
+    assert.equal(f.workers.at(-1).ponderJob.sideToMove, 1);
+  } finally { f.close(); }
+});
+
+test('cancel recommendation rejects a late result and preserves the current board hints', async () => {
+  const f = await environment('index.html', { holdSearch: true });
+  try {
+    await f.load(); const button = document.querySelector('#simpleRecommendButton');
+    const hints = () => [...document.querySelectorAll('#boardSvg [data-hint]')].map(node => node.dataset.hint);
+    const initial = hints(); assert.equal(initial.length, 3);
+    button.click(); await settled(); const worker = f.workers.at(-1), job = worker.searches.at(-1);
+    assert.equal(button.getAttribute('aria-label'), '取消推荐'); assert.equal(button.disabled, false);
+    button.click(); await settled();
+    worker.emit({ type: 'move', requestId: job.requestId, result: { index: 113, recommendations: [{ index: 113 }] } }); await settled();
+    assert.equal(button.getAttribute('aria-label'), '推荐'); assert.deepEqual(hints(), initial);
+    assert.deepEqual(savedSession(f).moves, []); assert.equal(document.querySelector('#recommendationLegend').hidden, true);
+  } finally { f.close(); }
 });
 
 test('spectator settings persist and invalid saved values safely fall back',async()=>{

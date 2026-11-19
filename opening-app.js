@@ -42,6 +42,8 @@ let forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
 try { showHints = localStorage.getItem("gomoku-show-hints") !== "false"; } catch {}
 const automaticTurn = () => isAutomaticTurn(session) || (selfPlay && session.workflow === "duel" && !session.winner && session.stage !== "setup");
+const canPauseThinking = () => !modal && !paused && !session.winner && state !== "error"
+  && (selfPlay || adaptiveThinking || automaticTurn());
 let selfPlayTimer=null, singleStep=false;
 const spectator={ black:"shared", white:"shared", delay:"0" };
 const spectatorOptions={black:["shared","100","500","1000","5000","10000"],white:["shared","100","500","1000","5000","10000"],delay:["0","500","1000","2000"]};
@@ -101,7 +103,6 @@ const engine = new GomokuEngine({ rule: session.rule,
   onState: event => { state = event.state; pondering = Boolean(event.pondering); render(); },
   onStats: event => {
     if (hints.accept(event)) hintUpdates.schedule();
-    if (event.phase === "ponder" && event.sliceComplete && !$("#ponderToggle").checked) engine.stopPonder();
     if (modal || event.requestId !== requestId || adaptiveThinking && !deepRoot) return;
     stats = event.stats; statsColor = event.sideToMove;
     if (["play", "w6"].includes(session.stage) && analysis.accept(event)) analysisUpdates.schedule();
@@ -202,11 +203,17 @@ function render() {
   const first = session.events[0], forcedOnly = session.events.length === 1 && !session.options.seed && ["rif", "taraguchi10"].includes(session.rule) && first?.type === "stone" && first.index === 112 && first.automatic;
   $("#undoButton").disabled = pending < 0 && (forcedOnly || !session.events.length || session.workflow === "duel" && !session.actors.includes(0)); $("#retryButton").hidden = state !== "error";
   $("#simpleUndoButton").disabled = $("#undoButton").disabled;
-  $("#recommendButton").disabled = automaticTurn() || session.stage === "setup" || Boolean(forbiddenInput) || session.workflow === "copilot" && session.decision || (!advice && !busy && (modal || session.winner || state !== "ready"));
-  $("#recommendButton").setAttribute("aria-pressed", String(Boolean(advice) || busy));
-  $("#simpleRecommendButton").disabled = $("#recommendButton").disabled;
-  $("#simpleRecommendButton").setAttribute("aria-pressed", $("#recommendButton").getAttribute("aria-pressed"));
-  $("#simpleRecommendButton").title = $("#recommendButton").title;
+  const automatic = automaticTurn(), canRecommend = !automatic && !paused && !modal && !session.winner
+    && session.stage !== "setup" && !forbiddenInput && !(session.workflow === "copilot" && session.decision);
+  const recommending = canRecommend && busy;
+  const recommendLabel = recommending ? "取消推荐" : advice ? "收起推荐" : "推荐";
+  for (const button of [$("#recommendButton"), $("#simpleRecommendButton")]) {
+    button.disabled = !canRecommend || (!advice && !busy && state !== "ready");
+    button.setAttribute("aria-pressed", String(Boolean(advice) || recommending));
+    button.setAttribute("aria-label", recommendLabel);
+    button.title = recommending || advice ? recommendLabel : "分析开局动作或落点（最多 1 秒搜索）";
+  }
+  $("#recommendButton span").textContent = recommendLabel;
   $("#recommendationLegend").hidden = !advice; $("#secondRecommendation").hidden = (advice?.points?.length ?? 0) < 2 || session.offerCount || session.stage === "choose";
   $("#recommendationNote").textContent = advice?.choice ? `建议${({ swap: "交换", keep: "保持", ten: "十打" })[advice.choice]}` : advice && session.offerCount ? "候选建议" : advice && session.stage === "choose" ? "绿圈首选" : "";
   $("#recommendationLegend .first").hidden = !advice?.points || Boolean(session.offerCount) || session.stage === "choose";
@@ -221,8 +228,8 @@ function render() {
   if (display?.simple) {
     $("#simpleColorLabel").textContent = "对局"; $("#simpleColor small").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
     $("#simpleColor").setAttribute("aria-label", `对局设置：${RULES[session.rule]}，${workflowLabel[session.workflow]}`);
-    $("#simpleRecommendLabel").textContent = busy ? automaticTurn() ? "AI 落子中" : "分析中" : advice ? "收起推荐" : "推荐";
-    $("#simpleRecommendNote").textContent = busy ? "请稍候" : advice ? "点击关闭标记" : "AI 落点建议";
+    $("#simpleRecommendLabel").textContent = busy && automatic ? "AI 落子中" : recommendLabel;
+    $("#simpleRecommendNote").textContent = recommending ? "正在分析" : busy ? "请稍候" : advice ? "关闭建议标记" : "AI 落点建议";
   }
   renderFlow();
   if (pending >= 0 && display?.simple) {
@@ -233,7 +240,7 @@ function render() {
   motion.render({ text, busy, paused, winner: session.winner, currentColor: session.color, state });
 }
 async function syncPonder() {
-  if (busy || modal || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked && hints.points.length || paused || document.hidden || advice || automaticTurn()) { engine.stopPonder(); return; }
+  if (busy || modal || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked || paused || document.hidden || advice || automaticTurn()) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   const id = ++requestId; analysis.begin(id, session.color);
   hints.begin(id);
@@ -301,7 +308,7 @@ async function autoPlay() {
   finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;adaptiveThinking=false;deepPhase=""; if(state !== "error" && delayNext && !paused && selfPlay) selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); render(); if(state !== "error" && selfPlayTimer===null) {if(reinit && !paused)void prepare();else void syncPonder();} } }
 }
 async function recommend({automatic=false}={}) {
-  if (busy || advice) { cancel(); render(); void prepare(); return; }
+  if (busy || advice) { cancel({ keepHints: true }); render(); void prepare(); return; }
   if (!manualTurn() || state !== "ready") return;
   const token = serial; busy = true;adaptiveThinking=automatic && $("#timeSelect").value===ADAPTIVE_MODE;engine.stopPonder(); pending = hover = -1; render();
   try { const suggestion = adaptiveThinking?await adviseAdaptiveOpening(session,searchFor(token),{isCancelled:()=>token!==serial || modal || paused,cancelSearch:()=>engine.cancel(),onProgress:phase=>{deepPhase=phase;render();}}):await adviseOpening(session, searchFor(token), 1000);
@@ -389,8 +396,8 @@ document.addEventListener("visibilitychange", () => {
   }
   void syncPonder();
 }); window.addEventListener("pagehide", persist);
-document.addEventListener("keydown", event => { if (event.key === "Escape" && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
-function pauseThinking() { if(!busy && !selfPlay)return;cancel();paused=true;persist();render(); }
+document.addEventListener("keydown", event => { if (event.key === "Escape" && !event.defaultPrevented && !document.querySelector("dialog[open]")) { cancel(); render(); void prepare(); } });
+function pauseThinking() { if(!canPauseThinking())return;cancel({ keepHints: true });paused=true;persist();render(); }
 function resumeThinking() { paused=false;render();void prepare(); }
 function stepThinking() { if(!selfPlay || !paused || session.winner || modal)return;singleStep=true;paused=false;render();void prepare(); }
 document.addEventListener("keydown", event => {
@@ -413,7 +420,7 @@ enhancements = setupGameEnhancements({
     if (session.workflow !== "duel" || session.stage === "setup" || session.winner) return;
     selfPlay=!selfPlay; paused=false; cancel(); render(); void prepare();
   },
-  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,busy:busy&&(automaticTurn()||adaptiveThinking),paused,selfPlay,ruleLabel: RULES[session.rule] }),
+  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,canPause:canPauseThinking(),paused,selfPlay,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
   archive,resumeRecord:restoreArchived,
   pauseSearch:pauseThinking,
