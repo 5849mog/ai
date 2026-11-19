@@ -7,11 +7,15 @@ export function setupDisplayModes({ onChange, onNewGame, onOpenSettings }) {
   const fromUrl = () => new URL(location.href).searchParams.get("view") === "simple";
   function apply(value) {
     if (value === simple && controls.hidden === !value) return;
+    const active = document.activeElement;
+    const focusBoard = value ? active?.closest("#recordMenu") : active?.closest("#simpleControls, #simpleStatusRow, #simpleQuickTools");
     simple = value;
     document.body.classList.toggle("simple-mode", simple); controls.hidden = !simple;
     document.documentElement.classList.toggle("simple-view", simple);
-    document.querySelector("#boardSvg").setAttribute("viewBox", simple ? "30 30 560 560" : "20 20 580 580");
+    const board = document.querySelector("#boardSvg");
+    board.setAttribute("viewBox", simple ? "30 30 560 560" : "20 20 580 580");
     onChange(simple);
+    if (focusBoard) board.focus({ preventScroll: true });
   }
   function leave() {
     if (!simple) return;

@@ -15,9 +15,9 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const reviewEntry = document.createElement("button"); reviewEntry.type = "button"; reviewEntry.textContent = "复盘本局"; reviewEntry.hidden = true; status.append(reviewEntry);
   const retryEntry = document.createElement("button"); retryEntry.type = "button"; retryEntry.textContent = "重试 AI"; retryEntry.hidden = true; status.append(retryEntry);
   retryEntry.onclick = () => $("#retryButton").click();
-  const pauseEntry=document.createElement("button");pauseEntry.type="button";pauseEntry.textContent="暂停思考";pauseEntry.hidden=true;pauseEntry.onclick=()=>pauseSearch?.();status.append(pauseEntry);
-  const resumeEntry=document.createElement("button");resumeEntry.type="button";resumeEntry.textContent="继续思考";resumeEntry.hidden=true;resumeEntry.onclick=()=>resumeSearch?.();status.append(resumeEntry);
-  const toggle = document.createElement("button"); toggle.type = "button"; toggle.dataset.uiIcon="settings"; toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", "simpleQuickTools"); status.append(toggle);
+  const pauseEntry = document.createElement("button"); pauseEntry.type = "button"; status.append(pauseEntry);
+  const simpleStep = document.createElement("button"); simpleStep.type = "button"; status.append(simpleStep);
+  const toggle = document.createElement("button"); toggle.type = "button"; toggle.textContent = "更多"; toggle.dataset.uiIcon="settings"; toggle.setAttribute("aria-label", "更多对局设置"); toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", "simpleQuickTools"); status.append(toggle);
   const panel = document.createElement("div"); panel.id = "simpleQuickTools"; panel.className = "simple-quick-tools"; panel.hidden = true; status.after(panel);
   const notice = document.createElement("div"); notice.className = "simple-notice"; notice.hidden = true; notice.setAttribute("role", "status"); status.after(notice);
   const sourceNotice = $("#gameNotice");
@@ -39,7 +39,12 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
   let active = null, recordKey = null, opening = false, currentReview=true;
-  function collapse() { panel.hidden = true; toggle.setAttribute("aria-expanded", "false"); }
+  function collapse({ restoreFocus = true } = {}) {
+    if (panel.hidden) return;
+    const focusedInside = Boolean(document.activeElement && panel.contains(document.activeElement));
+    panel.hidden = true; toggle.setAttribute("aria-expanded", "false");
+    if (restoreFocus && focusedInside) toggle.focus();
+  }
   function close({ resume = true } = {}) {
     if (!active) return;
     const previous = active; active = null;
@@ -62,13 +67,21 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   function open(kind, archivedRecord=null) {
     if (active || kind === "review" && !archivedRecord && !getPosition().winner) return;
     const record = structuredClone(archivedRecord??getRecord()); recordKey = JSON.stringify(record);currentReview=!archivedRecord;
-    collapse(); active = kind; opening = true; onWorkspace(true); opening = false;
+    collapse({ restoreFocus: false }); active = kind; opening = true; onWorkspace(true); opening = false;
     shell.hidden = true; workspace.hidden = false; imageRoot.hidden = kind !== "image"; reviewRoot.hidden = kind !== "review";archiveRoot.hidden=kind!=="archive"; workspace.focus();
     if (kind === "image") image.open(); else if(kind==="review")void review.open(record);else history.open();
     $("#recordMenu").open = false;
   }
-  toggle.onclick = () => { panel.hidden = !panel.hidden; toggle.setAttribute("aria-expanded", String(!panel.hidden)); };
-  panel.querySelector("[data-collapse]").onclick = collapse;
+  const closeQuick = panel.querySelector("[data-collapse]");
+  toggle.onclick = event => {
+    if (!panel.hidden) { collapse(); return; }
+    panel.hidden = false; toggle.setAttribute("aria-expanded", "true");
+    if (event.detail === 0) closeQuick.focus();
+  };
+  closeQuick.onclick = () => collapse();
+  panel.addEventListener("focusout", event => {
+    if (event.relatedTarget && !panel.contains(event.relatedTarget) && event.relatedTarget !== toggle) collapse({ restoreFocus: false });
+  });
   for (const button of panel.querySelectorAll("[data-time]")) button.onclick = () => {
     const select = $("#timeSelect"); if (select.disabled) return;
     select.value = button.dataset.time; select.dispatchEvent(new Event("change")); collapse(); render();
@@ -108,9 +121,8 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const spectatorControls=document.createElement("div"); spectatorControls.className="spectator-controls"; spectatorControls.append(fullHints,fullSelf); $(".game-actions").after(spectatorControls);
   const makeSpectatorPanel=()=>{
     const details=document.createElement("details");details.className="spectator-settings";details.hidden=true;
-    details.innerHTML='<summary>观战设置</summary><div><label>黑棋思考 <select data-spectator="black"><option value="shared">跟随每步思考</option><option value="100">0.1 秒</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="5000">5 秒</option><option value="10000">10 秒</option></select></label><label>白棋思考 <select data-spectator="white"><option value="shared">跟随每步思考</option><option value="100">0.1 秒</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="5000">5 秒</option><option value="10000">10 秒</option></select></label><label>落子间隔 <select data-spectator="delay"><option value="0">无间隔</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="2000">2 秒</option></select></label><button type="button" data-step>下一步</button></div><p>设置从下一次思考生效；暂停后可单步观看。键盘空格暂停或继续，右方向键单步。开局换色按当前执色分配。</p>';
+    details.innerHTML='<summary>观战设置</summary><div><label>黑棋思考 <select data-spectator="black"><option value="shared">跟随每步思考</option><option value="100">0.1 秒</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="5000">5 秒</option><option value="10000">10 秒</option></select></label><label>白棋思考 <select data-spectator="white"><option value="shared">跟随每步思考</option><option value="100">0.1 秒</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="5000">5 秒</option><option value="10000">10 秒</option></select></label><label>落子间隔 <select data-spectator="delay"><option value="0">无间隔</option><option value="500">0.5 秒</option><option value="1000">1 秒</option><option value="2000">2 秒</option></select></label></div><p>设置从下一次思考生效。键盘空格暂停或继续，右方向键单步。开局换色按当前执色分配。</p>';
     for(const input of details.querySelectorAll("[data-spectator]")) input.onchange=()=>{onSpectatorChange?.(input.dataset.spectator,input.value); render();};
-    details.querySelector("[data-step]").onclick=()=>stepSelfPlay?.();
     return details;
   };
   const fullSpectator=makeSpectatorPanel(),quickSpectator=makeSpectatorPanel();
@@ -118,7 +130,14 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const fullSound=document.createElement("button");fullSound.type="button";fullSound.dataset.uiIcon="audio";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);
-  const fullPause=document.createElement("button");fullPause.type="button";fullPause.className="icon-button";fullPause.hidden=true;fullPause.onclick=()=>getPosition().paused?resumeSearch?.():pauseSearch?.();$(".game-actions").append(fullPause);
+  const fullPause = document.createElement("button"), fullStep = document.createElement("button");
+  for (const button of [fullPause, fullStep]) { button.type = "button"; button.className = "icon-button"; }
+  $(".game-actions").append(fullPause, fullStep);
+  for (const [pause, step] of [[pauseEntry, simpleStep], [fullPause, fullStep]]) {
+    pause.onclick = () => getPosition().paused ? resumeSearch?.() : pauseSearch?.();
+    step.setAttribute("data-step", ""); step.textContent = "下一步";
+    step.onclick = () => { if (document.activeElement === step) pause.focus(); stepSelfPlay?.(); };
+  }
   function render() {
     const position = getPosition(), controls=getControlState?.();
     for(const b of [quickHints,fullHints]) { b.hidden=!controls; b.textContent=controls?.showHints?"隐藏棋盘提示":"显示棋盘提示"; b.setAttribute("aria-pressed", String(!controls?.showHints)); }
@@ -126,25 +145,27 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     for(const area of [fullSpectator,quickSpectator]) {
       area.hidden=!position.selfPlay;
       for(const input of area.querySelectorAll("[data-spectator]")) { const value=spectatorSettings?.[input.dataset.spectator]??(input.dataset.spectator==="delay"?"0":"shared"); if(input.value!==value)input.value=value; }
-      area.querySelector("[data-step]").disabled=!position.paused || !position.selfPlay;
     }
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
-    pauseEntry.hidden=!(((position.busy && $("#timeSelect").value==="adaptive") || (position.selfPlay && !position.paused && position.state!=="error")) && pauseSearch);resumeEntry.hidden=!position.paused;
-    fullPause.hidden=pauseEntry.hidden&&resumeEntry.hidden;fullPause.textContent=position.paused?"继续思考":"暂停思考";
+    for (const [pause, step] of [[pauseEntry, simpleStep], [fullPause, fullStep]]) {
+      pause.hidden = position.paused ? !resumeSearch : !position.canPause || !pauseSearch;
+      pause.textContent = position.paused ? "继续思考" : "暂停思考";
+      step.hidden = !(position.selfPlay && position.paused && stepSelfPlay);
+    }
     syncNotice();
     for (const b of [reviewEntry, resultButton]) b.hidden = !position.winner;
-    const time = $("#timeSelect"), ponder = $("#ponderToggle"); toggle.textContent = "更多";
-    toggle.setAttribute("aria-label", time.value==="adaptive"?"自适应深思 0～6 秒，展开快捷设置":`每步最多 ${Number(time.value) / 1000} 秒，展开快捷设置与截图导入`);
+    const time = $("#timeSelect"), ponder = $("#ponderToggle");
+    toggle.title = time.value === "adaptive" ? "自适应深思 0～6 秒" : `每步最多 ${Number(time.value) / 1000} 秒`;
     for (const b of panel.querySelectorAll("[data-time]")) { b.disabled = time.disabled; b.setAttribute("aria-pressed", String(b.dataset.time === time.value)); }
     const p = panel.querySelector("[data-ponder]"); p.disabled = ponder.disabled; p.setAttribute("aria-pressed", String(ponder.checked)); p.textContent = `后台${ponder.checked ? "开" : "关"}`;
     soundButton.setAttribute("aria-pressed", String(Boolean(sound?.enabled))); soundButton.textContent = `声效${sound?.enabled ? "开" : "关"}`;
     fullSound.setAttribute("aria-pressed", String(Boolean(sound?.enabled))); fullSound.textContent = `声效：${sound?.enabled ? "开" : "关"}`;
-    if (!document.body.classList.contains("simple-mode")) collapse();
+    if (!document.body.classList.contains("simple-mode")) collapse({ restoreFocus: false });
     // Undo, import and New invalidate a terminal review immediately. Applying a
     // screenshot is allowed to finish its own close without reentrant disposal.
     if (active === "review" && currentReview && !opening && (!position.winner || JSON.stringify(getRecord()) !== recordKey)) close();
   }
-  document.addEventListener("pointerdown", event => { if (!panel.hidden && !panel.contains(event.target) && !toggle.contains(event.target)) collapse(); });
+  document.addEventListener("pointerdown", event => { if (!panel.hidden && !panel.contains(event.target) && !toggle.contains(event.target)) collapse({ restoreFocus: false }); });
   document.addEventListener("keydown", event => { if (event.key !== "Escape") return; if (active) { event.preventDefault(); event.stopImmediatePropagation(); close(); } else if (!panel.hidden) { event.preventDefault(); event.stopImmediatePropagation(); collapse(); toggle.focus(); } }, true);
   $("#timeSelect").addEventListener("change", render); $("#ponderToggle").addEventListener("change", render);
   render(); return { render, close, get active() { return active; } };

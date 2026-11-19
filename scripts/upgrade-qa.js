@@ -39,7 +39,7 @@ try{
  await page.waitForFunction(async name=>{const names=await caches.keys();return names.includes(name)&&Boolean(navigator.serviceWorker.controller)&&Boolean(await(await caches.open('gomoku-rapfi:/plain/:engine-250615')).match(new URL('__engine_offline_ready__',location.href).href));},oldCache,{timeout:60000});
  pass('Previous v47 page and fixed engine models are actually cached');
  stage='new';await page.evaluate(async()=>{await(await navigator.serviceWorker.getRegistration()).update();});
- await page.waitForFunction(async name=>{const c=await caches.open(name);return Boolean(await c.match(new URL('session-records.js',location.href).href))&&document.querySelector('[data-app-version]')?.textContent.includes('缓存 2026.10.18.3');},newCache,{timeout:60000});
+ await page.waitForFunction(async ({cache, version})=>{const c=await caches.open(cache);return Boolean(await c.match(new URL('session-records.js',location.href).href))&&document.querySelector('[data-app-version]')?.textContent.includes(`缓存 ${version}`);},{cache:newCache,version:APP_VERSION},{timeout:60000});
  await page.locator('[aria-controls="simpleQuickTools"]').tap();
  await page.waitForFunction(()=>document.querySelector('#simpleQuickTools [data-app-update]')?.textContent==='刷新使用新版');
  await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('#simpleQuickTools [data-app-update]').click()]);await ready(2);

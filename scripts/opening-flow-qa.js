@@ -53,7 +53,10 @@ try {
   if (!layoutOnly && !recordsOnly) {
   for (const opener of [0, 1]) for (const swap of ["keep", "swap"]) {
     await page.locator("#simpleRestart").tap(); await stage("setup"); await action("start", opener).tap();
-    if (opener === 1) for (const index of [112, 97, 96]) await play(index);
+    if (opener === 1) {
+      assert.equal((await game()).moves[0], 112);
+      for (const index of [97, 96]) await play(index);
+    }
     await stage("swap3");
     let s = await game(); assert.deepEqual(s.colors, [1, 2, 1]); assert.equal(s.moves.length, 3);
     assert.deepEqual(await page.locator(".opening-order").allTextContents(), ["1", "2", "3"]);
@@ -143,7 +146,8 @@ try {
       assert.deepEqual(await record(), legacy.record());
       if (restart === "new") await page.locator("#simpleRestart").tap(); else await selectRule("rif", "follow");
       await stage("setup"); assert.equal((await game()).workflow, "follow"); assert.equal(await action("start").count(), 2);
-      await action("start", 0).tap(); for (const index of [112,97,96]) await play(index); await stage("swap3");
+      await action("start", 0).tap(); assert.equal((await game()).moves[0], 112);
+      for (const index of [97,96]) await play(index); await stage("swap3");
       assert.deepEqual((await game()).colors, [1, 2, 1]);
     }
     pass("Existing manual records and manual workflow remain intact after New and explicit settings");

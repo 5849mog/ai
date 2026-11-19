@@ -40,7 +40,9 @@ try{
  assert.deepEqual(await record(),current);pass('Home enters the complete simple view directly; settings are an isolated draft');
  await page.goto(base+'renju.html?view=simple');await flow('start').count();assert.deepEqual(await record(),current);
  await page.goto(base+'?view=simple');assert.deepEqual(await record(),current);pass('Home and old Renju URL resume the same current game');
- await settings('taraguchi10','follow');await flow('start',0).tap();await tap(112);await flow('decision','keep').tap();
+ await settings('taraguchi10','follow');await flow('start',0).tap();
+ assert.equal((await game()).moves[0],112);assert.equal((await game()).events.at(-1).automatic,true);
+ await flow('decision','keep').tap();
  assert.equal((await game()).stage,'w2');await page.locator('#simpleRestart').tap();assert.equal((await game()).workflow,'follow');assert.equal((await game()).stage,'setup');
  await page.locator('#simpleRestart').dispatchEvent('contextmenu');assert.ok(await page.locator('body').evaluate(n=>n.classList.contains('simple-mode')));
  pass('New preserves rule and workflow; there is no long-press display switch');
@@ -61,6 +63,11 @@ try{
   report.layouts.push({width,height,boardSide:before.width,morePreservesBoard:true});
  }
  pass('More overlays temporarily without resizing the board; Escape closes one level at a time');
+ const more=page.locator('[aria-controls="simpleQuickTools"]'),closeQuick=page.locator('#simpleQuickTools [data-collapse]');
+ await more.focus();await page.keyboard.press('Enter');assert.equal(await closeQuick.evaluate(button=>button===document.activeElement),true);
+ await page.keyboard.press('Enter');assert.equal(await more.getAttribute('aria-expanded'),'false');assert.equal(await more.evaluate(button=>button===document.activeElement),true);
+ await more.press('Enter');await page.locator('#simpleRestart').focus();assert.equal(await more.getAttribute('aria-expanded'),'false');
+ pass('Quick settings move keyboard focus on open, restore it on close, and dismiss when focus moves away');
  await page.setViewportSize({width:390,height:844});const unchanged=await record();await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.locator('[data-full-view]').tap();await page.waitForFunction(()=>!document.body.classList.contains('simple-mode'));assert.deepEqual(await record(),unchanged);
  await page.locator('#recordMenu summary').tap();await page.locator('#enterSimpleMode').tap();assert.deepEqual(await record(),unchanged);pass('Explicit full/simple controls preserve the exact game');
  const old=createRecord([112,97],1);await importFile('old.json',JSON.stringify(old));assert.ok(await page.locator('#importColor').isVisible());await page.locator('#confirmImport').tap();assert.deepEqual((await game()).moves,old.moves);assert.equal((await game()).workflow,'duel');
