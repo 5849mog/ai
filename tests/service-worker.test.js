@@ -19,6 +19,7 @@ function fixture({ engineError = false, enginePutError = false } = {}) {
   async function fetcher(request, options) {
     const url = key(request); network.push({ url, options });
     if (engineError && /\/engine\//.test(url)) throw new Error('model download failed');
+    if (url.endsWith('app-release.js')) return new Response(`export const APP_VERSION = "${APP_VERSION}";`);
     if (url.endsWith('manifest.json')) return Response.json({ files: { 'model.bin': {}, 'engine.wasm': {} } });
     return new Response('fresh:' + url);
   }
@@ -26,7 +27,7 @@ function fixture({ engineError = false, enginePutError = false } = {}) {
   const context = vm.createContext({ URL, Request, Response, caches, fetch: fetcher, self: { location: { href: base + 'sw.js' }, addEventListener: (type, fn) => { handlers[type] = fn; },
     skipWaiting: async () => { skipped = true; }, clients: { claim: async () => { claimed = true; }, matchAll: async () => [client] } } });
   vm.runInContext(source, context);
-  const constants = vm.runInContext('({ PREFIX, VERSION, ENGINE_CACHE, RELEASE, CORE, ENGINE, RENJU })', context);
+  const constants = vm.runInContext('({ PREFIX, SHELL_PREFIX, SHELL_MARKER, VERSION, ENGINE_CACHE, RELEASE, CORE, ENGINE, RENJU })', context);
   async function dispatch(type, extra = {}) { let pending; handlers[type]({ ...extra, waitUntil: p => { pending = p; } }); await pending; }
   async function request(path, { mode } = {}) {
     let pending; const req = new Request(new URL(path, base));
@@ -78,9 +79,30 @@ test('failed engine warmup retains legacy offline assets and never serves old ap
 test('simple navigation shares the shell; the recovery page bypasses its cached copy', async () => {
   const f = fixture(); await f.dispatch('install');
   assert.equal(await (await f.request('renju.html?view=simple', { mode: 'navigate' })).text(), 'fresh:' + base + 'renju.html');
+  assert.equal(await (await f.request('?view=simple&computer-launch=1', { mode: 'navigate' })).text(), 'fresh:' + base);
   const shell = await f.caches.open(f.VERSION); await shell.put(base + 'update.html', new Response('stale recovery'));
   assert.equal(await (await f.request('update.html')).text(), 'fresh:' + base + 'update.html');
   assert.equal(f.network.at(-1).options.cache, 'no-store');
+});
+
+test('older cleanup cannot touch the current shell, and current cleanup keeps a newer shell', async () => {
+  const f = fixture(); await f.dispatch('install');
+  const old = f.PREFIX + '261120-v79', newer = f.SHELL_PREFIX + '261120-v999';
+  assert.equal(f.VERSION.startsWith(f.PREFIX), false);
+  await f.caches.open(old); await f.caches.open(newer);
+  await f.dispatch('message', { data: { type: 'offline-status' }, source: f.client });
+  assert.equal(f.stores.has(old), false);
+  assert.equal(f.stores.has(f.VERSION), true); assert.equal(f.stores.has(newer), true);
+});
+
+test('missing page cache is rebuilt before the next offline-ready announcement', async () => {
+  const f = fixture(); await f.dispatch('install');
+  await f.dispatch('message', { data: { type: 'offline-status' }, source: f.client });
+  await f.caches.delete(f.VERSION); f.messages.length = 0;
+  await f.dispatch('message', { data: { type: 'offline-status' }, source: f.client });
+  assert.equal(f.messages[0].shell, false); assert.equal(f.messages[0].offline, false);
+  assert.equal(f.messages.at(-1).shell, true); assert.equal(f.messages.at(-1).version, APP_VERSION);
+  assert.equal(f.messages.at(-1).offline, true); assert.ok(await (await f.caches.open(f.VERSION)).match(f.SHELL_MARKER));
 });
 test('published report data always bypasses shell caches and uses no-store network requests', async () => {
   const f = fixture(); await f.dispatch('install');

@@ -35,6 +35,8 @@
 .opening-page .board-svg .last-ring { stroke-width: 2.1; }
 .opening-page .board-svg .keyboard-point { fill: none; stroke: #174d36; stroke-width: 2.4; pointer-events: none; }
 .opening-page .board-svg .keyboard-point[data-available="false"] { stroke: #8c3326; stroke-dasharray: 4 3; }
+.opening-page :is(.import-image, .import-board, #setupBoard):focus-visible { outline: 3px solid #587b61; outline-offset: 2px; }
+.opening-page .tool-message[data-state="error"] { color: #8c3326; font-weight: 600; }
 .opening-page .game-actions { gap: 7px; flex-wrap: wrap; }
 .opening-page .icon-button {
   border-color: var(--ui-border); border-radius: 9px;

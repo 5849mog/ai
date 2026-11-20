@@ -72,6 +72,13 @@ test("restart, imported records and color changes clear analysis even when moves
     assert.equal(accept(model), false);
   }
 });
+test("switching the viewing color retains samples, forced colors and the running search", () => {
+  const model = new PositionAnalysis([112], 1); model.begin(1, 1);
+  accept(model, 1, 1, .75, 8, 113, "M3"); model.changePerspective(2);
+  assert.equal(model.current.winRate, .25); assert.equal(model.current.forcedColor, 1);
+  assert.equal(model.history.length, 1); assert.equal(accept(model, 1, 1, .875, 9), true);
+  assert.equal(model.current.winRate, .125); model.changePerspective(1); assert.equal(model.current.winRate, .875);
+});
 test("resume requires an exact chronological record and rejects corrupt or out-of-range derived history", () => {
   const store = storage(), model = new PositionAnalysis([112, 113], 1); model.begin(1, 1); accept(model); model.save(store);
   const resumed = new PositionAnalysis([112, 113], 1); assert.equal(resumed.load(store), true);

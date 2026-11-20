@@ -23,7 +23,8 @@ export function renderSimpleWinRate(root, analysis, winner, { available = true, 
   const black = analysis.playerColor === 1 ? percent : percent == null ? null : 100 - percent;
   const text = winner ? winner === 3 ? "和棋" : `${winner === 1 ? "黑" : "白"}胜`
     : percent == null ? waiting : `黑 ${black}% · 白 ${100 - black}%`;
-  root.textContent = `胜率 · ${text}`;
+  root.textContent = winner ? `结果 · ${text}` : `胜率 · ${text}`;
+  root.setAttribute("aria-label", winner ? `对局结果：${text}` : `AI 估算胜率：${text}`);
   root.dataset.state = winner ? "finished" : percent == null ? "waiting" : "rated";
 }
 
