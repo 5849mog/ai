@@ -1,5 +1,6 @@
 const STORAGE_KEY = `gomoku-analysis:${new URL("./", import.meta.url).pathname}:v1`;
 const sameMoves = (a, b) => a.length === b.length && a.every((move, i) => move === b[i]);
+const validDistance = value => Number.isInteger(value) && value > 0 && value <= 225;
 const validPoint = point => point && Number.isInteger(point.ply) && point.ply >= 0 &&
   point.ply <= 225 && (point.winRate === null || Number.isFinite(point.winRate) && point.winRate >= 0 && point.winRate <= 1) &&
   Number.isInteger(point.depth) && point.depth >= 0 && point.depth <= 1000 &&
@@ -39,9 +40,12 @@ export class PositionAnalysis {
         !Number.isInteger(assessment.bestIndex) || assessment.bestIndex < 0 || assessment.bestIndex >= 225 ||
         assessment.mate != null && !/^[+-]?M\d+$/.test(assessment.mate)) return false;
     const forcedColor = assessment.mate ? (assessment.mate.startsWith("-") ? 3 - sideToMove : sideToMove) : 0;
+    // Rapfi reports plies from the root: both colors' stones count.
+    const distance = forcedColor ? Number(assessment.mate.slice(assessment.mate.indexOf("M") + 1)) : 0;
     const point = { ply: this.moves.length,
       winRate: sideToMove === this.playerColor ? assessment.winRate : 1 - assessment.winRate,
-      depth: assessment.depth, forcedColor, bestIndex: assessment.bestIndex, kind: "engine" };
+      depth: assessment.depth, forcedColor, bestIndex: assessment.bestIndex, kind: "engine",
+      ...(validDistance(distance) ? { matePlies: distance } : {}) };
     const previous = this.points.get(point.ply);
     // Short ponder slices cannot erase a deeper, already completed search.
     if (previous?.kind === "engine" && previous.depth > point.depth) return false;
@@ -55,7 +59,10 @@ export class PositionAnalysis {
     // The final PV score can follow the AI's actual best move, but never an
     // arbitrary human move or an alternative from MultiPV.
     if (follows && previous && previous.bestIndex === index && assessment?.bestIndex === index && previous.depth === assessment.depth) {
-      this.points.set(moves.length, { ...previous, ply: moves.length, kind: "continuation" });
+      const { matePlies, ...point } = previous;
+      // The rate can follow the best move, but the remaining distance belongs
+      // to the previous board. Wait for a fresh assessment of the new root.
+      this.points.set(moves.length, { ...point, ply: moves.length, kind: "continuation" });
     }
   }
   finish(winner) {
@@ -79,7 +86,8 @@ export class PositionAnalysis {
           !data.points.every(point => validPoint(point) && point.ply <= this.moves.length) ||
           new Set(data.points.map(point => point.ply)).size !== data.points.length) return false;
       this.points = new Map(data.points.map(point => [point.ply, { ply: point.ply, winRate: point.winRate,
-        depth: point.depth, forcedColor: point.forcedColor, bestIndex: point.bestIndex, kind: point.kind }])); return true;
+        depth: point.depth, forcedColor: point.forcedColor, bestIndex: point.bestIndex, kind: point.kind,
+        ...(point.kind === "engine" && point.forcedColor && validDistance(point.matePlies) ? { matePlies: point.matePlies } : {}) }])); return true;
     } catch { return false; }
   }
 }

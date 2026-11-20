@@ -114,6 +114,15 @@ test('published report data always bypasses shell caches and uses no-store netwo
   assert.equal(f.CORE.some(item => item.startsWith('reports/')), false);
 });
 
+test('release notes refresh independently of the installed shell', async () => {
+  const f = fixture(); await f.dispatch('install');
+  const path = 'content/feed.json';
+  const shell = await f.caches.open(f.VERSION); await shell.put(base + path, new Response('stale notes'));
+  assert.equal(await (await f.request(path)).text(), 'fresh:' + base + path);
+  assert.equal(f.network.at(-1).options.cache, 'no-store');
+  assert.equal(f.CORE.includes(path), false);
+});
+
 test('storage quota failures do not discard a successfully downloaded online engine response', async () => {
   const f = fixture({ enginePutError: true });
   assert.equal(await (await f.request(f.ENGINE + 'engine.wasm')).text(), 'fresh:' + base + f.ENGINE + 'engine.wasm');

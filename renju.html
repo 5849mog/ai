@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./game-modes.css?v=7" />
     <link rel="stylesheet" href="./opening.css?v=7" />
     <link rel="stylesheet" href="./enhancements.css?v=58" />
-    <link rel="stylesheet" href="./ui-refinement.css?v=9" />
+    <link rel="stylesheet" href="./ui-refinement.css?v=10" />
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -31,6 +31,7 @@
               <button type="button" id="openSetup" data-ui-icon="board">自定义摆局</button>
               <button type="button" id="enterSimpleMode" data-ui-icon="layout">简洁界面</button>
               <button type="button" id="openRemoteEngine" data-ui-icon="engine">电脑引擎</button>
+              <div data-release-notes="full"></div>
               <hr />
               <button type="button" id="importRecord" data-ui-icon="import">导入棋谱</button>
               <button type="button" id="exportJson" data-ui-icon="export">导出五目文件</button>
@@ -86,6 +87,7 @@
                   <dl class="analysis-values">
                     <div><dt>深度</dt><dd id="searchDepth">—</dd></div><div><dt>评分</dt><dd id="searchScore">—</dd></div>
                     <div><dt>节点</dt><dd id="searchNodes">—</dd></div><div><dt>速度</dt><dd id="searchSpeed">—</dd></div>
+                    <div class="endgame-estimate"><dt>预计剩余</dt><dd id="endgameEstimate" role="status" data-state="waiting">开局后推演</dd></div>
                   </dl>
                 </div>
               </div>
