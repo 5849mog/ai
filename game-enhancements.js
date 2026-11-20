@@ -50,7 +50,9 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     const previous = active; active = null;
     if (previous === "image") image.dispose(); else if(previous==="review") review.dispose();else history.dispose();
     workspace.hidden = true; imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; shell.hidden = false;
-    if (resume) onWorkspace(false); toggle.focus();
+    if (resume) onWorkspace(false);
+    const trigger = previous === "image" && !document.body.classList.contains("simple-mode") ? $("#recordMenu summary") : toggle;
+    trigger?.focus({ preventScroll: true });
   }
   const image = createImageImport(imageRoot, { getPosition, applyRecord, close });
   const review = createReviewUi(reviewRoot, { search, cancelSearch, close, newGame: () => { close(); newGame(); }, branch: record => {
@@ -75,7 +77,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const closeQuick = panel.querySelector("[data-collapse]");
   toggle.onclick = event => {
     if (!panel.hidden) { collapse(); return; }
-    panel.hidden = false; toggle.setAttribute("aria-expanded", "true");
+    panel.hidden = false; panel.scrollTop = 0; toggle.setAttribute("aria-expanded", "true");
     if (event.detail === 0) closeQuick.focus();
   };
   closeQuick.onclick = () => collapse();

@@ -34,13 +34,32 @@ try{
  await page.goto(base);await page.waitForFunction(()=>document.querySelector('#boardSvg').getAttribute('aria-disabled')==='false');
  assert.equal(await page.locator('.mode-link').count(),0);await page.locator('#recordMenu summary').tap();await page.locator('#enterSimpleMode').tap();
  assert.deepEqual(await page.locator('#simpleControls > button > span:first-of-type').allTextContents(),['新局','对局','悔棋','推荐']);
+ const board=page.locator('#boardSvg'),cursor=board.locator('[data-keyboard-point]'),preview=board.locator('.pending-stone');
+ await board.press('ArrowLeft');assert.equal(await cursor.getAttribute('data-keyboard-point'),'111');
+ await board.press('Home');assert.equal(await cursor.getAttribute('data-keyboard-point'),'112');
+ await board.press('r');await page.getByRole('button',{name:'收起推荐',exact:true}).waitFor();
+ await board.press('r');assert.equal(await board.locator('[data-recommendation]').count(),0);
+ await board.locator('[data-index="112"]').tap();await preview.waitFor();
+ for(const selector of ['#stateText','#simpleOpeningFlow h2','#openingFlow h2']) assert.match(await page.locator(selector).textContent(),/再点一次确认 · H8/);
+ await page.keyboard.press('Escape');assert.equal(await preview.count(),0);
+ assert.doesNotMatch(await page.locator('#simpleOpeningFlow h2').textContent(),/再点一次确认/);
+ assert.equal(await page.locator('body.simple-mode').count(),1);
  await tap(112);await page.waitForFunction(()=>document.querySelectorAll('#boardSvg [data-stone]').length===2);
+ await board.press('Home');assert.equal(await cursor.getAttribute('data-available'),'false');
+ assert.match(await board.getAttribute('aria-label'),/H8，此处不可选/);
+ await board.locator('[data-index="97"]').tap();await preview.waitFor();
+ const stone=await board.locator('[data-stone="112"]').boundingBox();
+ await page.touchscreen.tap(stone.x+stone.width/2,stone.y+stone.height/2);assert.equal(await preview.count(),0);
+ await board.locator('[data-index="97"]').tap();await preview.waitFor();assert.equal((await game()).moves.length,2);
+ await page.keyboard.press('Escape');assert.equal(await preview.count(),0);
+ pass('Touch previews identify the point and cancel safely; board keyboard cursor, Home and R work');
  const current=await record();
  await page.locator('#simpleColor').tap();await page.locator('#ruleMode').selectOption('taraguchi10');await page.locator('#workflowMode').selectOption('follow');await page.locator('#modeDialog [data-close]').tap();
  assert.deepEqual(await record(),current);pass('Home enters the complete simple view directly; settings are an isolated draft');
  await page.goto(base+'renju.html?view=simple');await flow('start').count();assert.deepEqual(await record(),current);
  await page.goto(base+'?view=simple');assert.deepEqual(await record(),current);pass('Home and old Renju URL resume the same current game');
- await settings('taraguchi10','follow');await flow('start',0).tap();
+ await settings('taraguchi10','follow');await flow('start',0).press('Enter');
+ assert.equal(await board.evaluate(node=>node===document.activeElement),true);
  assert.equal((await game()).moves[0],112);assert.equal((await game()).events.at(-1).automatic,true);
  await flow('decision','keep').tap();
  assert.equal((await game()).stage,'w2');await page.locator('#simpleRestart').tap();assert.equal((await game()).workflow,'follow');assert.equal((await game()).stage,'setup');
@@ -54,11 +73,17 @@ try{
  await importFile('opening.json',JSON.stringify(partial.record()));await page.locator('#confirmImport').tap();assert.deepEqual(await record(),partial.record());pass('Formal JSON import previews before confirmation and preserves partial proposals');
  await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.getByRole('button',{name:'自定义摆局',exact:true}).tap();assert.equal(await page.locator('#setupActor').isVisible(),false);await page.locator('#cancelSetup').tap();assert.deepEqual(await record(),partial.record());
  await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.locator('[data-image]').tap();assert.equal(await page.locator('[data-actor]').isVisible(),false);await page.getByRole('button',{name:'返回原局',exact:true}).tap();assert.deepEqual(await record(),partial.record());
+ assert.equal(await page.locator('[aria-controls="simpleQuickTools"]').evaluate(node=>node===document.activeElement),true);
  pass('Manual recording offers no misleading AI actor in custom setup or image import');
  for(const [width,height]of [[260,420],[320,240],[390,844],[844,390],[820,1180],[1440,900]]){
   await page.setViewportSize({width,height});await settle();const before=await page.locator('.board-frame').first().boundingBox();
   await page.locator('[aria-controls="simpleQuickTools"]').tap();await settle();const after=await page.locator('.board-frame').first().boundingBox();assert.deepEqual(after,before);
   const b=await page.locator('#simpleQuickTools').boundingBox();assert.ok(b.x>=0&&b.y>=0&&b.x+b.width<=width+.5&&b.y+b.height<=height+.5);if(width===390)await page.screenshot({path:'.cache/navigation/more.png'});
+  if(width<=380){
+   const columns=await page.locator('.quick-tools-actions').evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length);assert.equal(columns,2);
+   await page.locator('#simpleQuickTools').evaluate(node=>{node.scrollTop=node.scrollHeight;});
+   const close=await page.locator('#simpleQuickTools [data-collapse]').boundingBox();assert.ok(close.y>=b.y&&close.y+close.height<=b.y+b.height);
+  }
   await page.keyboard.press('Escape');assert.equal(await page.locator('#simpleQuickTools').isVisible(),false);assert.ok(await page.locator('body').evaluate(n=>n.classList.contains('simple-mode')));
   report.layouts.push({width,height,boardSide:before.width,morePreservesBoard:true});
  }
@@ -73,7 +98,20 @@ try{
  const old=createRecord([112,97],1);await importFile('old.json',JSON.stringify(old));assert.ok(await page.locator('#importColor').isVisible());await page.locator('#confirmImport').tap();assert.deepEqual((await game()).moves,old.moves);assert.equal((await game()).workflow,'duel');
  await importFile('old.sgf',exportSgf(old));await page.locator('#confirmImport').tap();assert.deepEqual((await game()).moves,old.moves);pass('Old freestyle JSON and SGF remain importable in the same interface');
  await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.locator('[data-full-view]').tap();await page.waitForFunction(()=>!document.body.classList.contains('simple-mode'));
- for(const [selector,name]of [['#exportJson','json'],['#exportSgf','sgf']]){await page.locator('#recordMenu summary').tap();const [download]=await Promise.all([page.waitForEvent('download'),page.locator(selector).tap()]);const parsed=parseSessionRecord(await readFile(await download.path(),'utf8'));assert.deepEqual(parsed.session.board,(await game()).board);}
+ const menu=page.locator('#recordMenu'),summary=menu.locator('summary');
+ await page.setViewportSize({width:320,height:240});await summary.press('Enter');
+ const menuBounds=await menu.locator('.record-options').boundingBox();assert.ok(menuBounds.y+menuBounds.height<=240.5);
+ await page.locator('#openModes').focus();await board.focus();assert.equal(await menu.evaluate(node=>node.open),false);
+ await page.setViewportSize({width:390,height:844});await summary.tap();await menu.getByRole('button',{name:'截图导入',exact:true}).tap();
+ await page.getByRole('button',{name:'返回原局',exact:true}).tap();assert.equal(await summary.evaluate(node=>node===document.activeElement),true);
+ pass('Full menu stays in short viewports, closes when focus leaves, and screenshot import returns focus');
+ for(const selector of ['#exportJson','#exportSgf']) {
+  await summary.tap();const [download]=await Promise.all([page.waitForEvent('download'),page.locator(selector).tap()]);
+  const parsed=parseSessionRecord(await readFile(await download.path(),'utf8'));assert.deepEqual(parsed.session.board,(await game()).board);
+  assert.equal(await summary.evaluate(node=>node===document.activeElement),true);
+ }
+ await summary.tap();const [picker]=await Promise.all([page.waitForEvent('filechooser'),page.locator('#importRecord').tap()]);
+ await picker.setFiles([]);assert.equal(await summary.evaluate(node=>node===document.activeElement),true);
  pass('JSON and SGF downloads contain the current actual position');
  for(const latest of ['freestyle','opening']){
   const ctx=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,serviceWorkers:'block'});await ctx.route(/\/engine\.js(?:\?.*)?$/,r=>r.fulfill({contentType:'text/javascript',body:engine}));

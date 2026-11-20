@@ -201,6 +201,11 @@ function renderBoard(boardSvg, state, idPrefix) {
   if (answer && !editable) {
     const p = point(answerIndex); svg += `<circle class="answer-ring" cx="${p.x}" cy="${p.y}" r="18" data-answer="${answerIndex}"/>`;
   }
+  const cursor = state.keyboardCursor;
+  if (canInteract && Number.isInteger(cursor?.index) && cursor.index >= 0 && cursor.index < board.length) {
+    const p = point(cursor.index);
+    svg += `<rect class="keyboard-point" data-keyboard-point="${cursor.index}" data-available="${Boolean(cursor.available)}" x="${p.x - 16}" y="${p.y - 16}" width="32" height="32" rx="5" aria-hidden="true"/>`;
+  }
   // A dialog preview shares the page with the live board. Its SVG paint servers
   // need separate IDs so a hidden preview cannot shadow the live gradients.
   if (idPrefix) {
@@ -231,7 +236,7 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
       const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
         Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
-        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color])]);
+        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color]), state.keyboardCursor]);
       if (key === previousKey) return false;
       const transition = boardTransition(previousBoard, state.board, state.lastMove);
       renderBoard(boardSvg, state, idPrefix);

@@ -8,18 +8,26 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
   const $ = selector => document.querySelector(selector), menu = $("#recordMenu"), fileInput = $("#recordFile");
   const dialog = $("#recordDialog"), color = $("#importColor"), preview = createBoardView($("#recordPreview"), { idPrefix: "preview-" });
   let pending, readSerial = 0;
+  const summary = menu.querySelector("summary");
+  function closeMenu() {
+    summary.focus({ preventScroll: true });
+    menu.open = false;
+  }
   function download(format) {
     const record = sessionFromRecord(getRecord()).record();
     const text = format === "sgf" ? sessionSgf(record) : JSON.stringify(record, null, 2) + "\n";
     downloadText(text, exportName('record', format === 'sgf' ? 'sgf' : 'gomoku.json'), format === 'sgf' ? 'application/x-go-sgf' : 'application/json');
-    menu.open = false; notify(format === "sgf" && record.rule !== "freestyle" ? "SGF 已导出；完整开局操作请使用五目棋谱" : "棋谱已导出");
+    closeMenu(); notify(format === "sgf" && record.rule !== "freestyle" ? "SGF 已导出；完整开局操作请使用五目棋谱" : "棋谱已导出");
   }
   $("#exportJson").onclick = () => download("json"); $("#exportSgf").onclick = () => download("sgf");
-  $("#importRecord").onclick = () => { menu.open = false; fileInput.value = ""; fileInput.click(); };
+  $("#importRecord").onclick = () => { closeMenu(); fileInput.value = ""; fileInput.click(); };
   document.addEventListener("pointerdown", event => { if (!menu.contains(event.target)) menu.open = false; });
+  menu.addEventListener("focusout", event => {
+    if (event.relatedTarget && !menu.contains(event.relatedTarget)) menu.open = false;
+  });
   document.addEventListener("keydown", event => {
     if (event.key !== "Escape" || !menu.open || document.querySelector("dialog[open]")) return;
-    event.preventDefault(); event.stopImmediatePropagation(); menu.open = false; menu.querySelector("summary")?.focus();
+    event.preventDefault(); event.stopImmediatePropagation(); closeMenu();
   }, true);
   fileInput.onchange = async () => {
     const file = fileInput.files[0], serial = ++readSerial; if (!file) return;
@@ -44,5 +52,9 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
       notify(saved ? "棋谱已导入" : "棋谱已导入，但此局暂未保存；关闭前请导出棋谱", !saved);
     } catch (error) { notify(error.message, true); }
   };
-  dialog.addEventListener("close", () => { pending = null; onModalChange(false); menu.querySelector("summary").focus(); });
+  dialog.addEventListener("close", () => {
+    pending = null; onModalChange(false);
+    const trigger = document.body.classList.contains("simple-mode") ? $("[aria-controls='simpleQuickTools']") : summary;
+    trigger?.focus({ preventScroll: true });
+  });
 }
