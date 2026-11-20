@@ -78,6 +78,10 @@
 .opening-page .trend-line { stroke: #53765c; stroke-width: 2; }
 .opening-page .engine-metrics { border-color: var(--ui-border); }
 .opening-page .analysis-values dd { color: #425848; }
+.opening-page .analysis-values .endgame-estimate { grid-column: 1 / -1; flex-direction: row; gap: 8px; align-items: baseline; }
+.opening-page .endgame-estimate dd { white-space: normal; }
+.opening-page .endgame-estimate dd[data-state="estimated"] { color: #235a3c; font-weight: 650; }
+.opening-page .simple-status-row .simple-win-rate { line-height: 1.15; white-space: normal; text-align: center; }
 .opening-page .spectator-settings summary { cursor: pointer; color: #58705b; font-weight: 600; }
 .opening-page .spectator-settings select, .opening-page .spectator-settings button { border-color: var(--ui-border); border-radius: 7px; background: #fffdf8; }
 .opening-page .simple-status-row button, .opening-page .simple-quick-tools button { border-color: var(--ui-border); border-radius: 7px; }
@@ -180,6 +184,22 @@
 .opening-page .record-options button:not([data-ui-icon]) { padding-left:37px; }
 .opening-page .record-options button[data-ui-icon]::before { color:#607763; }
 .opening-page .record-options button:focus-visible { outline-offset:-3px; }
+.opening-page .record-options:has(.release-notes-panel:not([hidden])) { width: min(22rem, calc(100vw - 20px)); }
+.opening-page .simple-quick-tools [data-notes-toggle] { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; margin-top: 6px; }
+.opening-page [data-notes-toggle][aria-expanded="true"] { background: #e9f0e5; }
+.opening-page .release-notes-panel { border-top: 1px solid var(--ui-border); margin: 6px 0; padding: 6px; }
+.opening-page .release-notes-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.opening-page .release-notes-top p, .opening-page .release-notes-installed { color: var(--ui-ink); font-size: 12px; line-height: 1.5; margin: 4px 0; }
+.opening-page .release-notes-panel :is([data-notes-refresh], [data-app-update]) { width: auto; padding: 4px 8px; white-space: nowrap; }
+.opening-page .release-note-list { list-style: none; padding: 0; margin: 10px 0 0; }
+.opening-page .release-note-list > li { border-top: 1px solid var(--ui-border); padding: 8px 0; }
+.opening-page .release-note-list header { display: flex; gap: 8px; color: var(--ui-muted); font-size: 11px; }
+.opening-page .release-note-list header strong { color: #345d3f; }
+.opening-page .release-note-list h3 { color: var(--ui-ink); font-size: 13px; margin: 4px 0; }
+.opening-page .release-note-list ul { padding-inline-start: 1.15em; font-size: 12px; line-height: 1.55; margin: 0; }
+@media (max-height: 520px) {
+  .opening-page .simple-quick-tools .release-notes-panel p { display: block; }
+}
 @media (pointer:coarse) {
   .opening-page .record-options button { min-height:44px; }
 }

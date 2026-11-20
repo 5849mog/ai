@@ -15,6 +15,8 @@ import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
 import { setupAppUpdates, createSafeUpdateGate } from "./app-update.js";
+import { setupReleaseNotes } from "./release-notes.js";
+import { endgameEstimate, immediateEnding } from "./endgame-estimate.js";
 import { setupRecordUi } from "./record-ui.js";
 import { sessionFromRecord, loadSessionRecord } from "./session-records.js";
 import { createScheduledTask } from "./ui-scheduler.js";
@@ -39,6 +41,7 @@ let updateLaunchUntouched = true, updateLoadSafe = true;
 for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let keyboardActive = false;
+let immediate = null, emptyCount = 225;
 let forbiddenInput = null, enhancements;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
 try { showHints = localStorage.getItem("gomoku-show-hints") !== "false"; } catch {}
@@ -126,7 +129,12 @@ const workflowLabel = { copilot: "AI 代下", follow: "手动记录", duel: "AI 
 function renderAnalysis() {
   statsUpdates.cancel();
   analysisView.render(analysis, session.winner);
-  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available: ["play", "w6"].includes(session.stage), waiting: session.stage === "setup" ? "等待开局" : ["play", "w6"].includes(session.stage) ? "等待评估" : "开局完成后评估" });
+  const available = ["play", "w6"].includes(session.stage);
+  const ending = endgameEstimate({ winner: session.winner, available, immediate, point: analysis.current, emptyCount });
+  const endStatus = $("#endgameEstimate");
+  if (endStatus.textContent !== ending.text) endStatus.textContent = ending.text;
+  endStatus.dataset.state = ending.state;
+  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available, ending, waiting: session.stage === "setup" ? "等待开局" : available ? "等待评估" : "开局完成后评估" });
   const name = colorName(perspective), other = colorName(3 - perspective);
   $("#perspectiveName").textContent = `${name}棋`; $("#otherName").textContent = `${other}棋`; $("#trendLegend").textContent = `上方利于${name} · 下方利于${other}`;
   const judgement = $("#positionJudgement"); judgement.textContent = session.winner ? session.description() : !["play", "w6"].includes(session.stage)
@@ -197,8 +205,11 @@ function render() {
   if (stamp !== hintsStamp) {
     hintsStamp = stamp;
     const enabled = !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose";
-    hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage,
-      allowedMoves: enabled ? session.allowedMoves({ safe: true }) : [], enabled });
+    const allowedMoves = enabled ? session.allowedMoves({ safe: true }) : [];
+    hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage, allowedMoves, enabled });
+    emptyCount = session.board.filter(stone => !stone).length;
+    immediate = enabled && ["play", "w6"].includes(session.stage) && emptyCount <= 221
+      ? immediateEnding(session.board, session.color, session.rule, allowedMoves) : null;
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
@@ -276,7 +287,7 @@ function searchFor(token) { return async (options,context={}) => {
   const root = hints.position?.enabled && options.sideToMove === session.color && Array.from(options.board).every((value,index) => value === session.board[index]);
   if (root) hints.begin(id); else hints.job=null;
   // Hypothetical fifths and swap evaluations never enter the actual trend.
-  if (["play", "w6"].includes(session.stage) && deepRoot) analysis.begin(id, options.sideToMove);
+  if (["play", "w6"].includes(session.stage) && deepRoot && root) analysis.begin(id, options.sideToMove);
   if(adaptiveThinking && !deepRoot)analysis.cancel();
   const multiPV = root && showHints && automaticTurn() && !options.balance && (!adaptiveThinking || options.multiPV > 1) ? Math.max(HINT_COUNT, options.multiPV ?? 1) : options.multiPV;
   const result = await engine.search({ ...options, ...(multiPV ? { multiPV } : {}), requestId: id });
@@ -483,6 +494,7 @@ const updateGate = createSafeUpdateGate({
   storage: { getItem:key=>sessionStorage.getItem(key), setItem:(key,value)=>sessionStorage.setItem(key,value) },
   key: `gomoku-auto-update:${location.pathname}`, save: persist
 });
+setupReleaseNotes();
 setupAppUpdates({ autoApply: version => {
   const decision = updateGate(version); if (decision === true) updateLaunchUntouched = false; return decision;
 } });

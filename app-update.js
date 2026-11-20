@@ -1,8 +1,9 @@
 import { APP_VERSION } from "./app-release.js";
 
-function newerVersion(candidate, current) {
-  const valid = version => /^\d{4}\.\d{2}\.\d{2}\.\d+$/.test(version);
-  if (!valid(candidate) || !valid(current)) return false;
+export const isAppVersion = version => typeof version === "string" && /^\d{4}\.\d{2}\.\d{2}\.\d{1,9}$/.test(version);
+
+export function newerVersion(candidate, current) {
+  if (!isAppVersion(candidate) || !isAppVersion(current)) return false;
   const a = candidate.split(".").map(Number), b = current.split(".").map(Number);
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] > b[i];
   return false;

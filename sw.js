@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.20.2";
+const RELEASE = "2026.11.20.3";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261120-v80";
+const VERSION = SHELL_PREFIX + "261120-v81";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -11,8 +11,8 @@ const NAVIGATION_PAGES = new Set(["", "index.html", "renju.html", "about.html", 
 const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.css", "game-modes.css?v=1", "setup-ui.js", "display-modes.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
   "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "session-records.js", "favicon.svg", "about.html", "about.css", "about.css?v=5", "about.js", "about.js?v=3", "report.html", "report.css?v=1", "report.js?v=1", "report-model.js?v=1", "THIRD_PARTY.md", "LICENSE",
   "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
-CORE.push("board-layout.js", "styles.css?v=22", "game-modes.css?v=5", "opening.css?v=4", "enhancements.css?v=38", "app-update.js?v=38", "adaptive-search.js", "adaptive-opening.js", "enhancements.css?v=37", "app-update.js?v=37", "game-archive.js", "archive-ui.js", "opening-review.js", "enhancements.css?v=36", "app-update.js?v=36", "ui-scheduler.js", "app-release.js", "app-update.js", "app-update.js?v=32", "app-update.js?v=33", "app-update.js?v=34", "app-update.js?v=35", "update.html", "enhancements.css?v=32", "enhancements.css?v=33", "enhancements.css", "enhancements.css?v=1", "game-enhancements.js", "image-import-ui.js", "image-board.js", "game-review.js", "review-ui.js", "opening-book.js", "rif-opening-pool.js");
-CORE.push("assets/icons/guide.svg", "assets/icons/import.svg", "assets/icons/export.svg", "assets/icons/copy.svg", "assets/icons/eye.svg", "assets/icons/bot.svg", "assets/icons/camera.svg", "assets/icons/board.svg", "assets/icons/engine.svg", "assets/icons/layout.svg", "assets/icons/audio.svg", "assets/icons/settings.svg", "assets/icons/undo.svg", "assets/icons/restart.svg", "ui-refinement.css?v=9", "turn-hints.js", "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42");
+CORE.push("board-layout.js", "styles.css?v=22", "game-modes.css?v=5", "opening.css?v=4", "enhancements.css?v=38", "app-update.js?v=38", "adaptive-search.js", "adaptive-opening.js", "enhancements.css?v=37", "app-update.js?v=37", "game-archive.js", "archive-ui.js", "opening-review.js", "enhancements.css?v=36", "app-update.js?v=36", "ui-scheduler.js", "app-release.js", "app-update.js", "app-update.js?v=32", "app-update.js?v=33", "app-update.js?v=34", "app-update.js?v=35", "update.html", "enhancements.css?v=32", "enhancements.css?v=33", "enhancements.css", "enhancements.css?v=1", "game-enhancements.js", "release-notes.js", "endgame-estimate.js", "image-import-ui.js", "image-board.js", "game-review.js", "review-ui.js", "opening-book.js", "rif-opening-pool.js");
+CORE.push("assets/icons/guide.svg", "assets/icons/import.svg", "assets/icons/export.svg", "assets/icons/copy.svg", "assets/icons/eye.svg", "assets/icons/bot.svg", "assets/icons/camera.svg", "assets/icons/board.svg", "assets/icons/engine.svg", "assets/icons/layout.svg", "assets/icons/audio.svg", "assets/icons/settings.svg", "assets/icons/undo.svg", "assets/icons/restart.svg", "ui-refinement.css?v=10", "turn-hints.js", "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42");
 CORE.push("remote-engine.js", "remote-engine.js?v=45", "remote-engine.js?v=46", "remote-engine-ui.js", "remote-engine-ui.js?v=45", "remote-engine-ui.js?v=46", "remote-engine.css");
 CORE.push("opening.css?v=6", "enhancements.css?v=48");
 CORE.push("opening.css?v=7", "enhancements.css?v=49", "styles.css?v=23", "game-modes.css?v=6", "sound.js");
@@ -114,8 +114,8 @@ self.addEventListener("fetch", event => {
     if (path === "update.html") {
       try { const response = await fetch(event.request, { cache: "no-store" }); if (response.ok) return response; } catch { /* use offline copy */ }
     }
-    // Measurements are published data, not shell assets: never let a cached report masquerade as latest.
-    if (path.startsWith("reports/")) return fetch(event.request, { cache: "no-store" });
+    // Published content can change independently of the installed application.
+    if (path === "content/feed.json" || path.startsWith("reports/")) return fetch(event.request, { cache: "no-store" });
     if (path.startsWith(ENGINE) || path.startsWith(RENJU)) {
       const engines = await caches.open(ENGINE_CACHE);
       const cached = await engines.match(event.request) ?? await legacyEngine(event.request);
