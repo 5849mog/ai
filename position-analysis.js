@@ -23,6 +23,13 @@ export class PositionAnalysis {
     this.job = { requestId, sideToMove, moves: [...this.moves] };
   }
   cancel() { this.job = null; }
+  changePerspective(color) {
+    if (![1, 2].includes(color) || color === this.playerColor) return;
+    this.playerColor = color;
+    for (const [ply, point] of this.points) {
+      if (point.winRate !== null) this.points.set(ply, { ...point, winRate: 1 - point.winRate });
+    }
+  }
   accept({ requestId, sideToMove, stats }) {
     if (!this.job || this.job.requestId !== requestId || this.job.sideToMove !== sideToMove ||
         !sameMoves(this.moves, this.job.moves)) return false;

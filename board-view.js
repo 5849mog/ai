@@ -5,6 +5,15 @@ import { syncSvgChildren } from "./svg-view.js";
 const PAD = 46;
 const STEP = 528 / (SIZE - 1);
 const COLS = "ABCDEFGHIJKLMNO";
+const BOARD_DIRECTIONS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+
+export function boardKeyboardIndex(index, key) {
+  if (key === "Home") return Math.floor(SIZE * SIZE / 2);
+  if (!Object.hasOwn(BOARD_DIRECTIONS, key)) return null;
+  const [dx, dy] = BOARD_DIRECTIONS[key];
+  const limit = value => Math.max(0, Math.min(SIZE - 1, value));
+  return limit(Math.floor(index / SIZE) + dy) * SIZE + limit(index % SIZE + dx);
+}
 
 function point(index) {
   return {

@@ -56,6 +56,18 @@ test('legacy messages cannot falsely report the new version or offline completen
   const event = new Event('message'); event.data = { type: 'offline-ready' }; f.serviceWorker.dispatchEvent(event);
   assert.equal(f.doc.querySelector('#offlineState').textContent, before); f.dom.window.close();
 });
+test('an obsolete controller and an incomplete shell cannot trigger a reload', async () => {
+  const f = fixture(); await f.ui.initialized;
+  const status = (source, shell) => {
+    const event = new Event('message'); event.source = source;
+    event.data = { type: 'app-status', version: newerVersion, shell, offline: shell }; f.serviceWorker.dispatchEvent(event);
+  };
+  status({}, true); assert.equal(f.doc.querySelector('[data-app-update]').textContent, '检查更新');
+  status(f.serviceWorker.controller, false); assert.match(f.doc.querySelector('#offlineState').textContent, /准备离线页面/);
+  assert.equal(f.doc.querySelector('[data-app-update]').textContent, '检查更新');
+  status(f.serviceWorker.controller, true); assert.equal(f.doc.querySelector('[data-app-update]').textContent, '刷新使用新版');
+  f.dom.window.close();
+});
 test('automatic application is gated and only reloads for a newer installed version', async()=>{
  const dom=new JSDOM(updateControlMarkup()),events=new EventTarget(),registration=new EventTarget();let allowed=false,reloads=0,updates=0;
  registration.update=async()=>{updates++;};events.controller={postMessage(){}};events.register=async()=>registration;

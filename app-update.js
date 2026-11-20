@@ -38,20 +38,27 @@ export function setupAppUpdates({ container = document, serviceWorker = navigato
   }
   function askStatus() { serviceWorker.controller?.postMessage({ type: "offline-status" }); }
   if (!serviceWorker) { render(`版本 ${APP_VERSION} · 此浏览器不支持离线更新`); return; }
-  serviceWorker.addEventListener("message", ({ data }) => {
+  function stopRetry() {
+    if (retryTimer !== null) clearTimeout(retryTimer);
+    retryTimer = null;
+  }
+  serviceWorker.addEventListener("message", ({ data, source }) => {
+    if (source && source !== serviceWorker.controller) return;
     if (data?.type !== "app-status" || typeof data.version !== "string") return;
-    current = data.version; ready = newerVersion(current, APP_VERSION);
-    render();
+    if (current !== data.version) { stopRetry(); retryCount = 0; }
+    current = data.version; ready = data.shell !== false && newerVersion(current, APP_VERSION);
+    render(data.shell === false ? `页面 ${APP_VERSION} · 正在准备离线页面` : undefined);
+    const offline = container.querySelector("#offlineState");
+    if (offline) offline.textContent = data.offline ? "已缓存 · 可离线使用" : data.shell === false ? "正在准备离线页面" : "页面已缓存 · 引擎离线缓存未完成";
+    if (!ready) stopRetry();
     if (ready && autoApply) {
       const decision = autoApply(current);
-      if (decision === true) { if (retryTimer !== null) clearTimeout(retryTimer); reload(); return; }
+      if (decision === true) { stopRetry(); reload(); return; }
       if (decision === false && retryTimer === null && retryCount < 20) {
         retryCount++; retryTimer = setTimeout(() => { retryTimer = null; askStatus(); }, 3000);
       }
-      if (decision === null && retryTimer !== null) { clearTimeout(retryTimer); retryTimer = null; }
+      if (decision === null) stopRetry();
     }
-    const offline = container.querySelector("#offlineState");
-    if (offline) offline.textContent = data.offline ? "已缓存 · 可离线使用" : "页面已缓存 · 引擎离线缓存未完成";
   });
   serviceWorker.addEventListener("controllerchange", askStatus);
   function watch(worker) {

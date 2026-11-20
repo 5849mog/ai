@@ -6,7 +6,7 @@ import { adviseOpening } from "./opening-advisor.js";
 import { createOpeningBook } from "./opening-book.js";
 import { RIF_OPENINGS } from "./rif-opening-pool.js";
 import { createOpeningDialogs } from "./opening-guide.js";
-import { createBoardView } from "./board-view.js";
+import { boardKeyboardIndex, createBoardView } from "./board-view.js";
 import { GomokuEngine } from "./engine.js?v=42";
 import { PositionAnalysis } from "./position-analysis.js";
 import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
@@ -132,8 +132,11 @@ function renderAnalysis() {
   const judgement = $("#positionJudgement"); judgement.textContent = session.winner ? session.description() : !["play", "w6"].includes(session.stage)
     ? "开局尚未定色，先完成交换与选案" : judgement.textContent.replaceAll("你的", `${name}棋的`).replaceAll("你", `${name}棋`).replaceAll("AI", `${other}棋`);
   $("#positionContext").textContent = session.winner ? "对局已结束" : session.offerCount || session.stage === "choose" ? "第五手提案" : `第 ${session.moves.length} 手`;
-  $("#winRateBar").setAttribute("aria-label", analysis.current?.winRate != null ? `估算胜率：${name}棋 ${$("#playerWinRate").textContent}，${other}棋 ${$("#aiWinRate").textContent}` : "当前局势等待评估");
-  $("#positionTrend").setAttribute("aria-label", `${name}棋估算胜率走势，上方利于${name}，下方利于${other}`);
+  const rateLabel = session.winner ? `对局结果：${session.description()}` : analysis.current?.winRate != null
+    ? `估算胜率：${name}棋 ${$("#playerWinRate").textContent}，${other}棋 ${$("#aiWinRate").textContent}` : "当前局势等待评估";
+  $("#winRateBar").setAttribute("aria-label", rateLabel);
+  const rated = analysis.history.filter(point => point.winRate !== null && point.kind !== "result").length;
+  $("#positionTrend").setAttribute("aria-label", `${name}棋估算胜率走势，上方利于${name}，下方利于${other}。共 ${analysis.moves.length} 手，${rated} 个已评估局面。`);
   const info = describeSearch(stats, statsColor, perspective);
   for (const [id, value] of [["searchDepth", info.depth], ["searchScore", info.score], ["searchNodes", info.nodes], ["searchSpeed", info.speed]]) $("#" + id).textContent = value;
   $("#analysisState").textContent = busy ? "AI 分析中" : pondering ? "AI 后台分析中" : "AI 搜索信息";
@@ -374,16 +377,11 @@ function recommendFromKeyboard(event) {
 }
 svg.addEventListener("keydown", event => {
   recommendFromKeyboard(event);
-  if (!interactive()) return;
-  const shifts = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
-  if (event.key === "Home" || Object.hasOwn(shifts, event.key)) {
+  if (!interactive() || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  const next = boardKeyboardIndex(keyboard, event.key);
+  if (next !== null) {
     event.preventDefault();
-    if (event.key === "Home") keyboard = 112;
-    else {
-      const [dx, dy] = shifts[event.key];
-      const limit = value => Math.max(0, Math.min(14, value));
-      keyboard = limit(Math.floor(keyboard / 15) + dy) * 15 + limit(keyboard % 15 + dx);
-    }
+    keyboard = next;
     keyboardActive = true; pending = hover = -1; render();
   } else if (["Enter", " "].includes(event.key)) { event.preventDefault(); void place(pending >= 0 ? pending : keyboard); }
 });
@@ -410,7 +408,12 @@ $("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; re
   openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
 $("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
-$("#colorSelect").onchange = () => { cancel({ keepHints: true }); perspective = Number($("#colorSelect").value); positionChanged(true); render(); void prepare(); };
+$("#colorSelect").onchange = () => {
+  if (session.workflow !== "follow") return;
+  const color = Number($("#colorSelect").value);
+  if (![1, 2].includes(color) || perspective === color) return;
+  perspective = color; analysis.changePerspective(color); renderAnalysis(); persist();
+};
 $("#timeSelect").onchange = () => { try { localStorage.setItem("gomoku-thinking-ms", $("#timeSelect").value); } catch {} };
 $("#ponderToggle").onchange = () => { try { localStorage.setItem("gomoku-pondering", String($("#ponderToggle").checked)); } catch {} void syncPonder(); };
 setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow }), notify, onModalChange: onModal,
