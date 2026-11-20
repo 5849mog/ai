@@ -15,7 +15,11 @@
 .opening-page .brand-copy { color: #303b31; letter-spacing: .16em; }
 .opening-page .record-menu summary { border: 1px solid transparent; border-radius: 9px; transition: background-color .16s, border-color .16s; }
 .opening-page .record-menu[open] summary, .opening-page .record-menu summary:hover { border-color: var(--ui-border); background: var(--ui-surface); }
-.opening-page .record-options { min-width: 164px; max-height: min(72dvh, 620px); overflow-y: auto; overscroll-behavior: contain; border-radius: 11px; border-color: var(--ui-border); background: #fffdf8; box-shadow: 0 16px 36px #293c3024, 0 3px 8px #293c300d; }
+.opening-page .record-options {
+  min-width: 164px; max-height: min(72dvh, 620px, calc(100dvh - 72px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  overflow-y: auto; overscroll-behavior: contain; border-radius: 11px; border-color: var(--ui-border); background: #fffdf8;
+  box-shadow: 0 16px 36px #293c3024, 0 3px 8px #293c300d;
+}
 .opening-page .record-options button { min-height: 40px; padding: 9px 12px; font-size: 13px; color: var(--ui-ink); }
 .opening-page .record-options button:hover { background: #eef2e9; }
 .opening-page .board-toolbar { padding-top: 3px; }
@@ -29,6 +33,8 @@
 }
 .opening-page .board-svg .grid-line { stroke: rgba(59, 53, 39, .69); }
 .opening-page .board-svg .last-ring { stroke-width: 2.1; }
+.opening-page .board-svg .keyboard-point { fill: none; stroke: #174d36; stroke-width: 2.4; pointer-events: none; }
+.opening-page .board-svg .keyboard-point[data-available="false"] { stroke: #8c3326; stroke-dasharray: 4 3; }
 .opening-page .game-actions { gap: 7px; flex-wrap: wrap; }
 .opening-page .icon-button {
   border-color: var(--ui-border); border-radius: 9px;
@@ -82,7 +88,7 @@
 .opening-page :is(button, select, summary, a, input):focus-visible { outline: 3px solid #6b8a72; outline-offset: 2px; }
 @media (max-width: 600px) {
   .opening-page .topbar { border-bottom: 0; }
-  .opening-page .record-options { right: 0; max-height: min(70dvh, 560px); }
+  .opening-page .record-options { right: 0; }
   .opening-page .spectator-controls button { min-height: 34px; }
   .opening-page .game-actions { gap: 6px; }
 }
@@ -109,7 +115,12 @@
 /* Keep the compact panel readable at phone width and give every control a
    consistent touch target. Scrolling belongs to the panel, not the board. */
 .opening-page .simple-quick-tools { padding: 10px; max-height: min(68dvh, 420px, calc(100dvh - 120px - env(safe-area-inset-top) - env(safe-area-inset-bottom))); }
-.opening-page .quick-tools-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; color:var(--ui-ink); font-size:14px; }
+.opening-page .quick-tools-header {
+  position: sticky; top: 0; z-index: 1; background: #fffdf8;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  padding-block: 4px; margin-bottom: 6px; color: var(--ui-ink); font-size: 14px;
+}
+.opening-page .simple-quick-tools { scroll-padding-top: 44px; }
 .opening-page .quick-tools-header button { flex:0 0 auto; min-height:32px; padding:4px 10px; background:transparent; }
 .opening-page .quick-tools-label { margin:7px 0 5px; color:#68786a; font-size:11px; font-weight:600; letter-spacing:.03em; }
 .opening-page .simple-quick-tools .quick-time-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
@@ -119,6 +130,7 @@
 .opening-page .simple-quick-tools .app-update-control { margin-top:6px; padding-top:6px; border-top:1px solid var(--ui-border); }
 @media (max-width:380px) {
   .opening-page .simple-quick-tools .quick-time-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .opening-page .simple-quick-tools .quick-tools-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-height:520px) and (orientation:landscape) {
   .opening-page .simple-quick-tools { max-height:min(78dvh, 360px, calc(100dvh - 120px - env(safe-area-inset-top) - env(safe-area-inset-bottom))); }
@@ -153,6 +165,8 @@
 }
 @media (forced-colors:active) {
   .opening-page [data-ui-icon]::before { background:ButtonText; }
+  .opening-page .board-svg .keyboard-point { stroke: Highlight; }
+  .opening-page .board-svg .keyboard-point[data-available="false"] { stroke: CanvasText; }
 }
 
 /* The full menu follows the same local icon system as the compact controls. */

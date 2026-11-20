@@ -122,6 +122,9 @@ try {
   const seeded = new OpeningSession({ rule:"renju", workflow:"copilot", initialBlackSeat:1, seed:{ board, sideToMove:1 } });
   await page.evaluate(record => sessionStorage.setItem("qaOpeningFixture", JSON.stringify({ record, perspective:2 })), seeded.record()); await page.reload();
   await play(112); await action("forbidden", "cancel").tap(); assert.equal((await game()).board[112], 0);
+  await play(112); await action("forbidden", "cancel").press("Escape");
+  assert.equal(await action("forbidden", "cancel").count(), 0); assert.equal(await page.locator("body.simple-mode").count(), 1);
+  assert.equal((await game()).board[112], 0);
   await play(112); await action("forbidden", "confirm").tap(); assert.equal((await game()).winner, 2);
   await page.locator("#simpleUndoButton").tap(); await manual(); assert.equal((await game()).winner, 0);
   pass("External forbidden-move confirmation and cancellation are inline, and undo restores the position");

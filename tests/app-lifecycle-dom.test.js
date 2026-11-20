@@ -614,6 +614,7 @@ test('a fixed-time reply can be paused without undoing the human move, then cont
     const pause = [...document.querySelectorAll('#simpleStatusRow button')].find(button => button.textContent === '暂停思考');
     assert.equal(pause.hidden, false); pause.click(); await settled();
     assert.equal(pause.textContent, '继续思考');
+    for (const selector of ['#openingFlow h2', '#simpleOpeningFlow h2']) assert.equal(document.querySelector(selector).textContent, '思考已暂停');
     worker.emit({ type: 'move', requestId: reply.requestId, result: { index: 113 } }); await settled();
     assert.deepEqual(savedSession(f).moves, [112]);
     pause.click(); await settled();

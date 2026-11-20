@@ -33,7 +33,7 @@ export function setupDisplayModes({ onChange, onNewGame, onOpenSettings }) {
   });
   window.addEventListener("popstate", () => apply(fromUrl()));
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape" && simple && !document.querySelector("dialog[open]")) { event.preventDefault(); leave(); }
+    if (event.key === "Escape" && !event.defaultPrevented && simple && !document.querySelector("dialog[open]")) { event.preventDefault(); leave(); }
   });
   newGame.addEventListener("contextmenu", event => event.preventDefault());
   newGame.addEventListener("pointerdown", event => {
