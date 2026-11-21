@@ -25,10 +25,10 @@ export async function decodeScreenshot(file) {
 }
 
 export function createImageImport(root, { getPosition, applyRecord, close }) {
-  root.innerHTML = `<header class="tool-header"><h2>截图导入</h2><label class="image-picker">选择截图<input type="file" id="boardScreenshotFile" aria-label="选择截图" accept="image/png,image/jpeg,image/webp" /></label><button type="button" data-close>返回原局</button></header>
+  root.innerHTML = `<header class="tool-header"><h2>截图导入</h2><span data-import-step hidden></span><label class="image-picker">选择截图<input type="file" id="boardScreenshotFile" aria-label="选择截图" accept="image/png,image/jpeg,image/webp" /></label><button type="button" data-close>返回原局</button></header>
     ${updateControlMarkup()}
     <p class="tool-message" role="status">选择或粘贴正视的 15 × 15 棋盘截图。图片只在本机处理。</p>
-    <div class="tool-workspace" data-screenshot-drop><div class="tool-board-area"><label class="screenshot-empty" for="boardScreenshotFile"><span data-ui-icon="camera">选择或拖入截图</span></label><canvas class="import-image" hidden tabindex="0" aria-label="截图选框。方向键移动，Shift 加速，加减号缩放，Home 重置。可拖动四角调整范围。"></canvas><canvas class="import-loupe" width="144" height="144" hidden aria-label="选框角点放大预览"></canvas><canvas class="import-reference" width="580" height="580" hidden role="img" aria-label="截图中的原始棋盘"></canvas><svg class="board-svg import-board" width="580" height="580" viewBox="20 20 580 580" preserveAspectRatio="xMidYMid meet" tabindex="0" role="group" aria-label="校正识别棋盘，方向键选点，回车编辑，1 黑棋、2 白棋、0 擦除" hidden></svg></div>
+    <div class="tool-workspace" data-screenshot-drop><div class="tool-board-area"><label class="screenshot-empty" for="boardScreenshotFile"><span data-ui-icon="camera">选择或拖入截图</span></label><canvas class="import-image" hidden tabindex="0" aria-label="截图选框。方向键移动，Shift 加速，加减号缩放，Home 重置，G 切换网格，回车识别。可拖动四角调整范围。"></canvas><canvas class="import-loupe" width="144" height="144" hidden aria-label="选框角点放大预览"></canvas><canvas class="import-reference" width="580" height="580" hidden role="img" aria-label="截图中的原始棋盘"></canvas><svg class="board-svg import-board" width="580" height="580" viewBox="20 20 580 580" preserveAspectRatio="xMidYMid meet" tabindex="0" role="group" aria-label="校正识别棋盘，方向键选点，回车编辑，1 黑棋、2 白棋、0 擦除" hidden></svg></div>
     <div class="tool-panel"><div class="calibration-actions" hidden><button type="button" data-reset-frame>重置选框</button><button type="button" data-grid aria-pressed="true">网格参考：开</button><output data-frame-size></output><button type="button" data-recognize disabled>识别棋子</button></div>
       <div class="image-correction" hidden><div class="image-compare-row"><p class="image-counts"></p><button type="button" data-next-uncertain>定位疑点</button><button type="button" data-prev-uncertain>上一疑点</button><button type="button" data-compare aria-pressed="false">查看原图</button></div><div class="tool-buttons" role="group" aria-label="校正工具"><button type="button" data-color="1" aria-pressed="true">黑棋</button><button type="button" data-color="2" aria-pressed="false">白棋</button><button type="button" data-color="0" aria-pressed="false">擦除</button><button type="button" data-undo disabled>撤回</button></div>
       <details class="draft-tools"><summary>调整盘面</summary>
@@ -46,6 +46,9 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     const status = $(".tool-message"); status.textContent = text; status.dataset.state = error ? "error" : "ready";
   };
   function controls() {
+    const step = $("[data-import-step]");
+    step.hidden = !loading && !image;
+    step.textContent = loading ? "读取中" : comparing ? "原图对照" : correcting ? "核对棋子" : "校准棋盘";
     $("[data-recognize]").disabled = loading || !image || !frame;
     $("[data-confirm]").disabled = loading || !correcting || comparing;
     $("[data-compare]").disabled = loading || !correcting;
@@ -67,7 +70,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     context.drawImage(image.source ?? image, 0, 0, canvas.width, canvas.height);
     if (!frame) return;
     const { left, top, right, bottom } = frame;
-    $("[data-frame-size]").textContent = `${Math.round(right - left)} × ${Math.round(bottom - top)}`;
+    $("[data-frame-size]").textContent = `${Math.round(right - left)} × ${Math.round(bottom - top)} px`;
     context.fillStyle = "rgba(20, 24, 19, .38)";
     context.fillRect(0, 0, canvas.width, top);
     context.fillRect(0, bottom, canvas.width, canvas.height - bottom);
@@ -181,6 +184,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       initialFrame = suggestion && { left: suggestion.left * canvas.width / scanWidth, right: suggestion.right * canvas.width / scanWidth,
         top: suggestion.top * canvas.height / scanHeight, bottom: suggestion.bottom * canvas.height / scanHeight };
       calibrate(true);
+      canvas.focus({ preventScroll: true });
     } catch (error) { if (active && token === generation) message(error.message, true); }
     finally { if (active && token === generation) { loading = false; controls(); } }
   }
@@ -191,10 +195,18 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   }
   document.addEventListener("paste", paste);
   const dropZone = $("[data-screenshot-drop]");
-  dropZone.addEventListener("dragover", event => {
-    if (active && Array.from(event.dataTransfer?.types ?? []).includes("Files")) event.preventDefault();
+  const fileDrag = event => active && Array.from(event.dataTransfer?.types ?? []).includes("Files");
+  for (const type of ["dragenter", "dragover"]) dropZone.addEventListener(type, event => {
+    if (!fileDrag(event)) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    dropZone.dataset.dragActive = "true";
+  });
+  dropZone.addEventListener("dragleave", event => {
+    if (!event.relatedTarget || !dropZone.contains(event.relatedTarget)) delete dropZone.dataset.dragActive;
   });
   dropZone.addEventListener("drop", event => {
+    delete dropZone.dataset.dragActive;
     const file = event.dataTransfer?.files[0];
     if (!active || !file) return;
     event.preventDefault(); void load(file);
@@ -235,6 +247,11 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   canvas.onkeydown = event => {
     if (!frame || loading || correcting || drag || event.altKey || event.ctrlKey || event.metaKey) return;
     if (event.key === "Home") { event.preventDefault(); calibrate(true); return; }
+    if (event.key === "Enter" || event.key.toLowerCase() === "g") {
+      event.preventDefault();
+      if (!event.repeat) $(event.key === "Enter" ? "[data-recognize]" : "[data-grid]").click();
+      return;
+    }
     const direction = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
     if (["+", "=", "-"].includes(event.key)) {
       event.preventDefault();
@@ -388,6 +405,6 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       correcting = loading = false; resetComparison(); svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = initialFrame = null; autoLocated = false; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
       message("选择截图或粘贴图片。图片只在本机处理，请使用正视的 15 × 15 棋盘。");
     },
-    dispose() { active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = null; autoLocated = comparing = false; checkIndex = -1; canvas.width = canvas.height = 1; reference.hidden = true; history = []; future = []; initialCorrection = null; transforms = []; }
+    dispose() { delete dropZone.dataset.dragActive; active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = null; autoLocated = comparing = false; checkIndex = -1; canvas.width = canvas.height = 1; reference.hidden = true; history = []; future = []; initialCorrection = null; transforms = []; }
   };
 }

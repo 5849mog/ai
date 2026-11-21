@@ -174,7 +174,7 @@ function renderBoard(boardSvg, state, idPrefix) {
       const stoneTone = board[index] === 1 ? "black" : "white";
       svg += '<image class="stone-texture ' + stoneTone + '" data-stone-texture="' + index + '" href="' + stoneTexture + '" xlink:href="' + stoneTexture +
         '" x="' + (p.x - 14.3) + '" y="' + (p.y - 14.3) + '" width="28.6" height="28.6" preserveAspectRatio="none" data-view-key="texture-' + index + '"/>';
-      if (index === lastMove) svg += '<circle class="last-ring" cx="' + p.x + '" cy="' + p.y + '" r="5.3" data-view-key="last-' + index + '"/>';
+      if (index === lastMove) svg += '<circle class="last-ring" data-stone-color="' + board[index] + '" cx="' + p.x + '" cy="' + p.y + '" r="5.3" data-view-key="last-' + index + '"/>';
       if (!editable) continue;
     }
 
