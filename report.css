@@ -48,9 +48,7 @@
 .report-hero h1 em { color: var(--r-sage); font-style: normal; }
 .report-intro { max-width: 35em; margin: 38px 0 0; color: color-mix(in oklch, var(--r-paper) 67%, transparent); font-size: clamp(15px, 1.3vw, 18px); line-height: 1.95; }
 .report-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 20px 30px; margin-top: 40px; }
-.refresh-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 52px; padding: 0 22px; border: 1px solid var(--r-cinnabar); border-radius: 2px; background: var(--r-cinnabar); color: var(--r-paper); font: 14px var(--r-sans); cursor: pointer; transition: background .2s, transform .2s; }
-.refresh-button:hover:not(:disabled) { background: oklch(65% .18 35); transform: translateY(-2px); }
-.refresh-button:disabled { cursor: wait; opacity: .68; }
+.refresh-button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 52px; padding: 0 22px; font: 14px var(--r-sans); cursor: pointer; transition: background .2s, transform .2s; }
 .refresh-button svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .refresh-button.is-loading svg { animation: report-spin 1s linear infinite; }
 .raw-link { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; border-bottom: 1px solid color-mix(in oklch, var(--r-paper) 32%, transparent); font-family: var(--r-mono); font-size: 12px; text-decoration: none; }
@@ -266,7 +264,6 @@ td:nth-child(n+2) { white-space: nowrap; }
 .real-replay-controls h3 { font:500 clamp(24px,3vw,42px) var(--r-serif); margin:16px 0; }.real-replay-controls p {color:color-mix(in oklch,var(--r-paper) 72%,transparent);min-height:2em}
 .real-replay-controls input { width:100%; accent-color:var(--r-sage); margin:14px 0 22px; }.real-replay-controls > div {display:flex;gap:10px;}
 .real-replay-controls button,.replay-button { cursor:pointer; padding:10px 16px; border:1px solid color-mix(in oklch,var(--r-paper) 40%,transparent); background:transparent; color:var(--r-paper); font:inherit; }
-.real-replay-controls button:disabled { opacity:.4; cursor:default; }
 @media (max-width:800px) { .real-match-grid {grid-template-columns:1fr;} .real-replay {grid-template-columns:1fr;} .real-board-wrap {max-width:500px;margin:auto;} }
 
 .pair-color { margin:5px 0 0; font-size:12px; color:var(--r-muted); }

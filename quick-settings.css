@@ -30,12 +30,12 @@
 @keyframes quick-shade-in { from { opacity: 0; } }
 
 .simple-mode .simple-quick-tools {
-  --quick-ink: #24352a;
-  --quick-muted: #546257;
-  --quick-accent: #355642;
-  --quick-line: #dce2d7;
-  --quick-paper: #fffdf8;
-  --quick-inset: #f4f5ee;
+  --quick-ink: var(--control-ink);
+  --quick-muted: var(--control-muted);
+  --quick-accent: var(--control-primary);
+  --quick-line: var(--control-border);
+  --quick-paper: var(--control-paper);
+  --quick-inset: var(--control-surface);
   position: absolute;
   z-index: 14;
   inset-inline-end: 0;
@@ -88,7 +88,7 @@
   line-height: 1.3;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 140ms ease;
+  transition: background-color var(--control-duration) ease, border-color var(--control-duration) ease, color var(--control-duration) ease, transform 140ms ease;
 }
 .simple-quick-tools button:active:not(:disabled):not([aria-disabled="true"]) { transform: scale(.975); }
 .simple-quick-tools :is(button, select, input):focus-visible { outline-offset: 0; }

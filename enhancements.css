@@ -10,13 +10,11 @@
 .simple-notice[hidden] { display: none !important; }
 .simple-mode .simple-status-row { display: flex; flex: 0 0 28px; align-items: center; width: min(100%, 480px); gap: 6px; min-width: 0; }
 .simple-mode .simple-status-row .simple-win-rate { flex: 1 1 auto; width: auto; min-width: 0; font-size: clamp(10px, 3vw, 13px); }
-.simple-status-row > button { flex: 0 0 auto; border: 1px solid var(--line); border-radius: 5px; padding: 3px 6px; font-size: 11px; height: 28px; background: #fbf9f1; color: var(--ink); cursor: pointer; }
+.simple-status-row > button { flex: 0 0 auto; padding: 3px 6px; font-size: 11px; height: 28px; cursor: pointer; }
 .simple-quick-tools[hidden], .enhancement-workspace[hidden], .enhancement-workspace [hidden], .app-shell[hidden], .game-actions button[hidden], .record-options button[hidden], .simple-status-row button[hidden] { display: none !important; }
 .tool-buttons { display: flex; gap: 5px; flex-wrap: wrap; }
 .tool-buttons > button { flex: 1; min-width: 0; }
-.enhancement-workspace button { appearance: none; border: 1px solid var(--line); border-radius: 5px; background: #fbf9f1; color: var(--ink); cursor: pointer; min-height: 34px; padding: 5px 9px; font-size: 12px; }
-.enhancement-workspace button[aria-pressed="true"] { background: #e6edde; border-color: #78936d; color: var(--green); }
-.enhancement-workspace button:disabled { opacity: .45; cursor: default; }
+.enhancement-workspace button { appearance: none; cursor: pointer; min-height: 34px; padding: 5px 9px; font-size: 12px; }
 .simple-mode .app-shell, .opening-page.simple-mode .app-shell { gap: 8px; }
 .enhancement-workspace { height: 100dvh; width: 100%; padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); background: var(--canvas); color: var(--ink); overflow: hidden; }
 .enhancement-workspace > div { height: 100%; display: flex; flex-direction: column; gap: 6px; min-height: 0; }
@@ -35,7 +33,7 @@
 .app-update-control { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex: 0 0 auto; color: var(--muted); font: 10px/1.4 system-ui, sans-serif; }
 .app-update-control > span { min-width: 0; overflow-wrap: anywhere; }
 .enhancement-workspace .app-update-control button { flex: 0 0 auto; min-height: 28px; padding: 3px 6px; font-size: 10px; }
-.image-picker { position: relative; padding: 7px 10px; background: #faf7edf2; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); cursor: pointer; font-size: 12px; }
+.image-picker { position: relative; padding: 7px 10px; cursor: pointer; font-size: 12px; }
 .image-picker input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .tool-panel { flex: 0 0 auto; width: min(100%, 600px); align-self: center; max-height: 48%; overflow-y: auto; overscroll-behavior: contain; }
 .tool-panel p { font-size: 11px; color: var(--muted); line-height: 1.45; margin: 5px 0; }
@@ -46,7 +44,7 @@
 .tool-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 6px 0; }
 .tool-fields label { font-size: 11px; color: var(--muted); }
 .tool-fields select { display: block; width: 100%; height: 36px; color: var(--ink); border: 1px solid var(--line); border-radius: 5px; background: #fbf9f1; margin-top: 3px; }
-.enhancement-workspace .tool-primary { width: 100%; background: var(--green); color: #fffdf5; }
+.enhancement-workspace .tool-primary { width: 100%; }
 .image-correction > button + button { margin-top: 5px; width: 100%; }
 .review-navigation { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
 .review-navigation strong { font-size: 12px; font-weight: 500; text-align: center; }
@@ -112,9 +110,6 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 .trend-current { transform-box: fill-box; transform-origin: center; animation: trendPointIn 360ms cubic-bezier(.2,.8,.3,1); }
 .trend-halo { transform-box: fill-box; transform-origin: center; animation: trendHalo 2.8s ease-in-out infinite; }
 .game-notice:not([hidden]), .simple-notice:not([hidden]) { animation: noticeArrive 240ms ease-out; }
-.icon-button svg { transition: transform 220ms cubic-bezier(.2,.7,.25,1); }
-.icon-button:hover:not(:disabled) svg { transform: translateY(-1px); }
-.icon-button:active:not(:disabled) svg { transform: translateY(1px) scale(.96); }
 @keyframes lastMoveBreathe { 0%, 100% { opacity: .78; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.16); } }
 @keyframes previewArrive { from { opacity: 0; transform: scale(.72); } to { opacity: .3; transform: scale(1); } }
 @keyframes pendingSettle { from { opacity: .15; transform: translateY(-5px) scale(1.08); } to { opacity: .62; transform: translateY(0) scale(1); } }
@@ -171,9 +166,8 @@ html[data-game-phase="error"] .state-indicator { background: var(--accent); }
 .review-jumps select { max-width:100%; padding:5px; }
 
 .spectator-controls { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
-.spectator-controls button { border:1px solid var(--line); border-radius:5px; padding:5px 9px; background:#fbf9f1; color:var(--ink); font:inherit; font-size:12px; cursor:pointer; }
+.spectator-controls button { padding:5px 9px; font:inherit; font-size:12px; cursor:pointer; }
 .spectator-controls button[hidden] { display:none; }
-.spectator-controls button[aria-pressed="true"] { border-color:var(--accent, #a84032); }
 .simple-mode .spectator-controls { display:none; }
 .board-bottom { flex-direction: column; }
 

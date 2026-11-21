@@ -54,10 +54,12 @@ try{
  stage='new';await page.evaluate(async()=>{await(await navigator.serviceWorker.getRegistration()).update();});
  await page.waitForFunction(async ({cache, version})=>{const c=await caches.open(cache);return Boolean(await c.match(new URL('session-records.js',location.href).href))&&document.querySelector('[data-app-version]')?.textContent.includes(`缓存 ${version}`);},{cache:newCache,version:APP_VERSION},{timeout:60000});
  await page.locator('[aria-controls="simpleQuickTools"]').tap();
+ const toolsTab=page.locator('#simpleQuickTools [data-quick-tab="tools"]');
+ if(await toolsTab.isVisible())await toolsTab.tap();
  await page.waitForFunction(()=>document.querySelector('#simpleQuickTools [data-app-update]')?.textContent==='刷新使用新版');
  await Promise.all([page.waitForNavigation({waitUntil:'domcontentloaded'}),page.locator('#simpleQuickTools [data-app-update]').click()]);await ready(2);
  assert.equal(await page.locator('#simpleUndoButton').count(),1);assert.equal(await page.locator('#simpleColorLabel').textContent(),'对局');
- const cached=await page.evaluate(async name=>{const c=await caches.open(name);return Promise.all(['index.html','renju.html','opening-app.js','session-records.js','display-modes.js'].map(async path=>({path,text:await(await c.match(new URL(path,location.href).href)).text()})));},newCache);
+ const cached=await page.evaluate(async name=>{const c=await caches.open(name);return Promise.all(['index.html','renju.html','opening-app.js','session-records.js','display-modes.js','button-theme.css'].map(async path=>({path,text:await(await c.match(new URL(path,location.href).href)).text()})));},newCache);
  for(const f of cached)assert.equal(f.text,await readFile(path.join(root,f.path),'utf8'));
  assert.equal(await page.evaluate(async name=>Boolean(await(await caches.open(name)).match(new URL('app.js',location.href).href)),newCache),false);
  pass('User update control loads one complete interface with the old two stones preserved');
