@@ -38,17 +38,17 @@ function createNotesView(root) {
         <button type="button" data-notes-next aria-disabled="true">较旧 ›</button>
       </nav>
       <p class="release-notes-position" data-notes-position hidden></p>
-      <div class="release-notes-body" tabindex="0" role="region" aria-label="版本内容" aria-keyshortcuts="[ ]">
+      <div class="release-notes-body" tabindex="0" role="region" aria-label="版本内容" aria-keyshortcuts="[ ] Home End">
         <div class="release-notes-filter" hidden>
           <button type="button" data-notes-filter aria-expanded="false" aria-controls="${panelId}-filters">查找改动</button>
           <div id="${panelId}-filters" data-notes-filter-fields hidden>
-            <label>版本或关键词 <input type="search" data-notes-search maxlength="80"></label>
+            <label>版本或关键词 <input type="search" data-notes-search maxlength="80" enterkeyhint="search" autocomplete="off"></label>
             <label><input type="checkbox" data-notes-newer>只看比当前更新的版本</label>
             <output data-notes-matches></output>
             <button type="button" data-notes-clear hidden>清除筛选</button>
           </div>
         </div>
-        <p data-notes-empty hidden>没有匹配的更新。</p>
+        <p data-notes-empty hidden>没有匹配的更新。可修改关键词或清除筛选。</p>
         <article class="release-note-entry" aria-live="polite" hidden></article>
         <p class="release-notes-installed">安装版本 ${APP_VERSION} <time data-notes-checked hidden></time></p>
         ${surface === "full" ? updateControlMarkup() : ""}
@@ -91,7 +91,7 @@ function createNotesView(root) {
     toggle, panel, close, status: find("[data-notes-state]"), checked: find("[data-notes-checked]"),
     entry: find("article"), body: find(".release-notes-body"), refresh: find("[data-notes-refresh]"),
     nav: find("nav"), prev: find("[data-notes-prev]"), next: find("[data-notes-next]"), version: find("[data-notes-version]"),
-    filter: find(".release-notes-filter"), filterLabel,
+    filter: find(".release-notes-filter"), filterLabel, fields,
     search: find("[data-notes-search]"), newer: find("[data-notes-newer]"),
     position: find("[data-notes-position]"), matches: find("[data-notes-matches]"),
     clear: find("[data-notes-clear]"), empty: find("[data-notes-empty]")
@@ -107,6 +107,11 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
     if (!active) return;
     event.preventDefault();
     event.stopPropagation();
+    if (active.fields.contains(container.activeElement)) {
+      active.filterLabel.focus({ preventScroll: true });
+      active.filterLabel.click();
+      return;
+    }
     active.close(true);
   }, true);
   if (storage === undefined) {
@@ -131,20 +136,22 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
   let status = "", query = "", newerOnly = false, busy = false;
   let selectedVersion = null, matches = [], position = 0, renderedMatches = "", renderedEntry = null;
   const formattedTime = new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  const normalized = text => text.normalize("NFKC").toLowerCase().trim();
   function render(nextStatus = status, nextBusy = busy) {
     status = nextStatus;
     busy = nextBusy;
-    const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const words = normalized(query).split(/\s+/).filter(Boolean);
     matches = (feed?.releases ?? []).filter(entry => {
-      const content = [entry.version, entry.title, ...entry.changes].join(" ").toLowerCase();
+      const content = normalized([entry.version, entry.title, ...entry.changes].join(" "));
       return (!newerOnly || newerVersion(entry.version, APP_VERSION)) && words.every(word => content.includes(word));
     });
     position = Math.max(0, matches.findIndex(entry => entry.version === selectedVersion));
-    const entry = matches[position], matchKey = matches.map(item => item.version).join(","), filtered = Boolean(query || newerOnly);
+    const entry = matches[position], matchKey = matches.map(item => item.version).join(","), filtered = Boolean(words.length || newerOnly);
     const changedPage = renderedEntry?.version !== entry?.version;
     for (const view of views) {
       if (view.status.textContent !== status) view.status.textContent = status;
-      view.refresh.disabled = busy;
+      view.refresh.setAttribute("aria-disabled", String(busy));
+      view.refresh.textContent = busy ? "刷新中" : "刷新";
       view.filter.hidden = !feed;
       if (view.search.value !== query) view.search.value = query;
       view.newer.checked = newerOnly;
@@ -163,7 +170,7 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
         view.checked.textContent = `上次云端检查 ${formattedTime.format(checked)}`;
       }
       if (renderedMatches !== matchKey) view.version.replaceChildren(...matches.map(item => {
-        const option = element("option", item.version);
+        const option = element("option", item.version + (item.version === APP_VERSION ? " · 当前" : ""));
         option.value = item.version;
         return option;
       }));
@@ -172,7 +179,7 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
         view.prev.setAttribute("aria-disabled", String(position === 0));
         view.next.setAttribute("aria-disabled", String(position === matches.length - 1));
       }
-      if (changedPage) view.body.scrollTop = 0;
+      if (changedPage && !view.fields.contains(container.activeElement)) view.body.scrollTop = 0;
       if (renderedEntry === entry) continue;
       view.entry.replaceChildren();
       if (entry) {
@@ -226,9 +233,11 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
     view.next.onclick = () => stepVersion(1);
     view.body.addEventListener("keydown", event => {
       if (event.target !== view.body || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      if (event.key !== "[" && event.key !== "]") return;
+      const index = event.key === "Home" ? 0 : event.key === "End" ? matches.length - 1
+        : event.key === "[" ? position - 1 : event.key === "]" ? position + 1 : -1;
+      if (!["Home", "End", "[", "]"].includes(event.key) || !matches.length) return;
       event.preventDefault();
-      stepVersion(event.key === "[" ? -1 : 1);
+      if (matches[index]) selectVersion(matches[index].version);
     });
     view.search.oninput = () => { query = view.search.value; selectedVersion = null; render(); };
     view.newer.onchange = () => { newerOnly = view.newer.checked; selectedVersion = null; render(); };

@@ -128,11 +128,11 @@ test("image calibration frame can be dragged and resized with pointer input", as
   const { ui, canvas } = await imageDraft(), initial = { ...lastImportFrame };
   assert.ok(initial.right - initial.left > 500);
   canvas.onpointerdown({ pointerId: 1, button: 0, clientX: 320, clientY: 330, preventDefault() {} });
-  canvas.onpointermove({ pointerId: 1, clientX: 340, clientY: 345 }); canvas.onpointerup({ pointerId: 1 });
+  canvas.onpointermove({ pointerId: 1, clientX: 340, clientY: 345 }); canvas.onpointerup({ type: "pointerup", pointerId: 1 });
   assert.equal(lastImportFrame.left, initial.left + 20); assert.equal(lastImportFrame.top, initial.top + 15);
   const moved = { ...lastImportFrame };
   canvas.onpointerdown({ pointerId: 2, button: 0, clientX: moved.left, clientY: moved.top, preventDefault() {} });
-  canvas.onpointermove({ pointerId: 2, clientX: moved.left - 20, clientY: moved.top - 25 }); canvas.onpointerup({ pointerId: 2 });
+  canvas.onpointermove({ pointerId: 2, clientX: moved.left - 20, clientY: moved.top - 25 }); canvas.onpointerup({ type: "pointerup", pointerId: 2 });
   assert.equal(lastImportFrame.left, moved.left - 20); assert.equal(lastImportFrame.top, moved.top - 25);
   assert.equal(lastImportFrame.right, moved.right); assert.equal(lastImportFrame.bottom, moved.bottom);
   ui.dispose();

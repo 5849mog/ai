@@ -97,6 +97,12 @@ test("live win-rate refinements preserve the curve and current-point animation n
     const history = [{ ply: 1, winRate: .5 }, { ply: 2, winRate: .6 }];
     const analysis = { history, moves: [112, 113], playerColor: 1, current: history[1] };
     view.render(analysis, 0);
+    const plot = root.querySelector(".trend-plot"), detail = root.querySelector("#trendDetail");
+    const key = value => plot.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: value, bubbles: true, cancelable: true }));
+    plot.focus(); assert.match(detail.textContent, /第 2 手 · I8 · 黑 60%/);
+    key("ArrowLeft"); assert.match(detail.textContent, /第 1 手 · H8 · 黑 50%/);
+    key("End"); assert.match(detail.textContent, /第 2 手/);
+    key("Escape"); assert.equal(detail.hidden, true);
     const stable = [...root.querySelectorAll(".trend-line, .trend-area, .trend-halo, .trend-current")];
     const beforeY = root.querySelector(".trend-current").getAttribute("cy");
     const observer = new dom.window.MutationObserver(() => {});

@@ -69,6 +69,7 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
         if (key === "theme") input.value = settings.theme;
         else input.checked = settings[key];
         input.disabled = key === "farCoordinates" && !settings.coordinates;
+        if (key === "farCoordinates") input.parentElement.title = input.disabled ? "先开启棋盘坐标" : "";
       }
     }
     onChange?.(settings);
@@ -78,7 +79,11 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
     apply();
   }
   for (const view of views) {
-    view.reset.onclick = () => { settings = defaultBoardAppearance(); save(); };
+    view.reset.onclick = () => {
+      const focused = doc.activeElement === view.reset;
+      settings = defaultBoardAppearance(); save();
+      if (focused) view.fields[0].focus({ preventScroll: true });
+    };
     for (const field of view.fields) field.onchange = () => {
       const key = field.dataset.appearance;
       settings = { ...settings, [key]: key === "theme" ? field.value : field.checked };

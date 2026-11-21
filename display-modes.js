@@ -81,7 +81,8 @@ export function setupDisplayModes({ onChange, onNewGame, onOpenSettings }) {
     get simple() { return simple; },
     render({ playerColor, winner, state, text, busy }) {
       label.textContent = "新局";
-      if (simple) document.querySelector("#simpleLive").textContent = text;
+      const live = document.querySelector("#simpleLive");
+      if (simple && live.textContent !== text) live.textContent = text;
       document.querySelector("#boardSvg").setAttribute("aria-busy", String(busy));
     }
   };

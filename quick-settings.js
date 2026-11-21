@@ -43,6 +43,9 @@ export function createQuickSettings(document, status) {
             <p id="quickTimeNote">推荐落点固定搜索 1 秒</p>
           </section>
           <div class="quick-game-controls">
+            <label class="quick-perspective" data-quick-perspective hidden>分析视角
+              <select aria-label="分析视角"><option value="1">看黑棋</option><option value="2">看白棋</option></select>
+            </label>
             <div class="quick-switches" role="group" aria-label="对局辅助">
               <button class="quick-switch" type="button" data-hints data-ui-icon="eye" role="switch" aria-checked="true">棋盘提示${TRACK}</button>
               <button class="quick-switch" type="button" data-ponder data-ui-icon="engine" role="switch" aria-checked="true">后台思考${TRACK}</button>
@@ -60,6 +63,7 @@ export function createQuickSettings(document, status) {
       <section class="quick-page quick-page-tools" id="quick-page-tools" role="tabpanel" aria-labelledby="quick-tab-tools" hidden>
         <div class="quick-tools-actions" aria-label="棋局工具">
           <button type="button" data-image data-ui-icon="camera">截图导入</button>
+          <button type="button" data-quick-import data-ui-icon="import">导入棋谱</button>
           <button type="button" data-quick-setup data-ui-icon="board">自定义摆局</button>
           <button type="button" data-quick-save data-ui-icon="export">保存棋盘图</button>
           <button type="button" data-archive data-ui-icon="guide">最近对局</button>
@@ -109,7 +113,7 @@ export function createQuickSettings(document, status) {
   for (const [index, tab] of tabs.entries()) {
     tab.onclick = () => switchTab(index);
     tab.onkeydown = event => {
-      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       let next;
       if (event.key === "Home") next = 0;
       else if (event.key === "End") next = tabs.length - 1;
@@ -134,8 +138,7 @@ export function createQuickSettings(document, status) {
     panel.hidden = scrim.hidden = false;
     panel.inert = false;
     toggle.setAttribute("aria-expanded", "true");
-    scrollArea.scrollTop = 0;
-    scroll.fill(0);
+    scrollArea.scrollTop = scroll[selected];
     fit();
     animation = animate(tucked, rest, { duration: 220, easing: "cubic-bezier(.2,.8,.25,1)" });
     closeButton.focus({ preventScroll: true });
@@ -143,6 +146,7 @@ export function createQuickSettings(document, status) {
   function close({ restoreFocus = true, immediate = false } = {}) {
     if (!opened && (panel.hidden || !immediate)) return;
     const focusedInside = Boolean(document.activeElement && panel.contains(document.activeElement));
+    if (opened) scroll[selected] = scrollArea.scrollTop;
     opened = false;
     delete status.dataset.quickOpen;
     toggle.setAttribute("aria-expanded", "false");
@@ -164,6 +168,13 @@ export function createQuickSettings(document, status) {
   scrim.onclick = () => close();
   panel.addEventListener("focusout", event => {
     if (opened && event.relatedTarget && event.relatedTarget !== toggle && !panel.contains(event.relatedTarget)) close({ restoreFocus: false });
+  });
+  panel.addEventListener("keydown", event => {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.key !== "PageUp" && event.key !== "PageDown") return;
+    if (!event.target.closest(".quick-tabs, .quick-tools-header")) return;
+    event.preventDefault();
+    scrollArea.scrollBy({ top: (event.key === "PageDown" ? 1 : -1) * scrollArea.clientHeight });
   });
   window?.addEventListener("resize", fit);
   window?.visualViewport?.addEventListener("resize", fit);

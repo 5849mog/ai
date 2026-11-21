@@ -15,17 +15,21 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   transform.innerHTML = boardTransformMarkup();
   const message = document.querySelector("#setupMessage"), tools = [...dialog.querySelectorAll("[data-setup-tool]")];
   const draft = new Uint8Array(CELL_COUNT), history = [], future = [];
-  let original, enteredSide, enteredActor;
+  let original, enteredSide, enteredActor, started = false, draftRevision = 0, validation = { revision: -1, side: "", error: "" };
   let tool = BLACK, keyboardIndex = 112, hoverIndex = -1, keyboardActive = false, copilot = false, follow = false, alternating = false;
 
   function render() {
-    let error = "";
-    try { validatePosition(draft, Number(side.value), { allowSetup: true }); }
-    catch (problem) { error = problem.message === "棋局已经结束" ? "已有五子相连，请调整后再开始。" : problem.message; }
+    if (validation.revision !== draftRevision || validation.side !== side.value) {
+      let error = "";
+      try { validatePosition(draft, Number(side.value), { allowSetup: true }); }
+      catch (problem) { error = problem.message === "棋局已经结束" ? "已有五子相连，请调整后再开始。" : problem.message; }
+      validation = { revision: draftRevision, side: side.value, error };
+    }
+    const { error } = validation;
     start.disabled = Boolean(error);
-    message.textContent = error || (follow ? "开始后双方仍由你手动录入，AI 不会自动落子。" : copilot
-      ? "开始后 AI 会替你下；若下一手轮到对手，请把对手的实战落子录入。"
-      : "开始后将替换当前对局；摆好的棋子会作为起始局面保留。");
+    const color = side.value === "1" ? "黑棋" : "白棋";
+    const summary = error || `下一手：${color} · ${follow ? "手动录入" : actor.selectedOptions[0].textContent}。`;
+    if (message.textContent !== summary) message.textContent = summary;
     message.dataset.state = error ? "error" : "ready";
     document.querySelector("#setupBlackCount").textContent = draft.filter(value => value === BLACK).length;
     document.querySelector("#setupWhiteCount").textContent = draft.filter(value => value === WHITE).length;
@@ -35,7 +39,8 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     redo.disabled = future.length === 0;
     alternate.setAttribute("aria-pressed", String(alternating)); alternate.textContent = `交替摆子：${alternating ? "开" : "关"}`;
     for (const button of tools) button.setAttribute("aria-pressed", String(Number(button.dataset.setupTool) === tool));
-    svg.setAttribute("aria-label", `自定义棋盘，当前${tool === 0 ? "擦除棋子" : tool === BLACK ? "摆黑棋" : "摆白棋"}。${keyboardActive ? `已选 ${coordinate(keyboardIndex)}。` : ""}方向键选点，回车编辑，0 擦除、1 黑棋、2 白棋、Z 撤回、Y 重做。`);
+    const stone = draft[keyboardIndex], point = stone ? stone === BLACK ? "黑棋" : "白棋" : "空点";
+    svg.setAttribute("aria-label", `自定义棋盘，当前${tool === 0 ? "擦除棋子" : tool === BLACK ? "摆黑棋" : "摆白棋"}。${keyboardActive ? `已选 ${coordinate(keyboardIndex)} · ${point}。` : ""}方向键选点，回车编辑，0 擦除、1 黑棋、2 白棋、Z 撤回、Y 重做。`);
     view.render({ board: draft, lastMove: -1, pendingIndex: -1, hoverIndex: tool ? hoverIndex : -1,
       keyboardCursor: keyboardActive ? { index: keyboardIndex, available: draft[keyboardIndex] !== tool } : null,
       playerColor: tool || BLACK, canInteract: true, editable: true });
@@ -50,11 +55,12 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   }
   function restoreDraft(saved) {
     draft.set(saved.board); side.value = saved.side; actor.value = saved.actor; tool = saved.tool; alternating = saved.alternating;
+    draftRevision++;
     keyboardIndex = saved.index; hoverIndex = -1; enteredSide = saved.side; enteredActor = saved.actor;
   }
   function edit(index) {
     if (!dialog.open || !validIndex(index) || draft[index] === tool) return false;
-    push(index); draft[index] = tool;
+    push(index); draft[index] = tool; draftRevision++;
     if (alternating && tool) tool = 3 - tool;
     keyboardIndex = index; render(); return true;
   }
@@ -68,7 +74,7 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     follow = current.workflow === "follow"; actor.parentElement.hidden = follow;
     actor.querySelector('[value="player"]').textContent = copilot ? "我录入对手棋" : "我来走";
     actor.querySelector('[value="ai"]').textContent = copilot ? "AI 替我落子" : "AI 来走";
-    draft.set(current.board); history.length = future.length = 0; tool = BLACK; alternating = keyboardActive = false; hoverIndex = -1; keyboardIndex = 112;
+    draft.set(current.board); draftRevision++; started = false; history.length = future.length = 0; tool = BLACK; alternating = keyboardActive = false; hoverIndex = -1; keyboardIndex = current.lastMove >= 0 ? current.lastMove : 112;
     side.value = String(current.currentColor);
     actor.value = current.currentColor === current.playerColor ? (copilot ? "ai" : "player") : (copilot ? "player" : "ai");
     original = snapshot(); enteredSide = original.side; enteredActor = original.actor; transform.selectedIndex = 0; dialog.querySelector(".draft-tools").open = false;
@@ -81,24 +87,29 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   alternate.addEventListener("click", () => { alternating = !alternating; render(); });
   undo.addEventListener("click", () => {
     if (!history.length) return;
+    const focused = document.activeElement === undo;
     future.push(snapshot()); restoreDraft(history.pop()); render();
+    if (focused && undo.disabled) svg.focus({ preventScroll: true });
   });
   redo.addEventListener("click", () => {
     if (!future.length) return;
+    const focused = document.activeElement === redo;
     history.push(snapshot()); restoreDraft(future.pop()); render();
+    if (focused && redo.disabled) svg.focus({ preventScroll: true });
   });
   clear.addEventListener("click", () => {
-    if (draft.some(Boolean)) { push(); draft.fill(0); hoverIndex = -1; render(); }
+    if (draft.some(Boolean)) { push(); draft.fill(0); draftRevision++; hoverIndex = -1; render(); }
+    if (clear.disabled && document.activeElement === clear) svg.focus({ preventScroll: true });
   });
-  restore.addEventListener("click", () => { push(); restoreDraft(original); render(); });
+  restore.addEventListener("click", () => { push(); restoreDraft(original); render(); svg.focus({ preventScroll: true }); });
   applyTransform.addEventListener("click", () => {
     const action = transform.value, next = transformBoard(draft, action);
-    if (next.every((color, index) => color === draft[index])) {
+    if (action !== "swap" && next.every((color, index) => color === draft[index])) {
       message.textContent = "这个变换没有改变棋子位置或颜色。";
       return;
     }
     push();
-    draft.set(next);
+    draft.set(next); draftRevision++;
     if (action === "swap") enteredSide = side.value = String(BLACK + WHITE - Number(side.value));
     keyboardIndex = transformedIndex(keyboardIndex, action); hoverIndex = -1; render();
   });
@@ -109,9 +120,10 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   });
   svg.addEventListener("pointermove", event => {
     if (event.pointerType !== "mouse") return;
-    const index = selected(event); hoverIndex = validIndex(index) ? index : -1; render();
+    const index = selected(event), next = validIndex(index) && draft[index] !== tool ? index : -1;
+    if (next !== hoverIndex) { hoverIndex = next; render(); }
   });
-  svg.addEventListener("pointerleave", () => { hoverIndex = -1; render(); });
+  svg.addEventListener("pointerleave", () => { if (hoverIndex !== -1) { hoverIndex = -1; render(); } });
   svg.addEventListener("focusout", event => {
     if (keyboardActive && !svg.contains(event.relatedTarget)) { keyboardActive = false; render(); }
   });
@@ -130,13 +142,14 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
       validatePosition(draft, sideToMove, { allowSetup: true });
       const playerColor = follow ? getPosition().playerColor || sideToMove : actor.value === "player" ? (copilot ? 3 - sideToMove : sideToMove) : (copilot ? sideToMove : 3 - sideToMove);
       const saved = applyRecord(createRecord([], playerColor, { board: draft, sideToMove }));
+      started = true;
       dialog.close();
       notify(saved ? "已从自定义局面开始对弈" : "局面已开始，但暂未保存；关闭前请导出棋谱", !saved);
     } catch (error) { message.textContent = error.message; message.dataset.state = "error"; }
   });
   dialog.addEventListener("close", () => {
     history.length = future.length = 0; onModalChange(false);
-    const trigger = document.body.classList.contains("simple-mode") ? "[aria-controls='simpleQuickTools']" : "#recordMenu summary";
+    const trigger = started ? "#boardSvg" : document.body.classList.contains("simple-mode") ? "[aria-controls='simpleQuickTools']" : "#recordMenu summary";
     document.querySelector(trigger)?.focus({ preventScroll: true });
   });
 }

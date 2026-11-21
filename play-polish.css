@@ -4,6 +4,8 @@
 .opening-page [data-play-state="paused"] { --play-marker: #8a6726; --play-marker-halo: #9b73262d; }
 .opening-page [data-play-state="error"] { --play-marker: #9d4938; --play-marker-halo: #9d49382b; }
 .opening-page [data-play-state="finished"] { --play-marker: #665285; --play-marker-halo: #66528525; }
+.opening-page [data-play-state="loading"] { --play-marker: #557088; --play-marker-halo: #5570882a; }
+.opening-page [data-play-state="interval"] { --play-marker: #746a52; --play-marker-halo: #746a5225; }
 
 .opening-page .game-state .state-indicator {
   background: var(--play-marker);
@@ -31,6 +33,7 @@
   background: var(--control-surface);
   line-height: 1.25;
 }
+.opening-page .search-clock .rule-chip { white-space: nowrap; }
 .opening-page :is(#recommendButton, #simpleRecommendButton)[data-board-confirm] {
   --button-color: #fff;
   --button-fill: var(--control-primary);
@@ -69,16 +72,6 @@
   border-radius: 5px;
   background: var(--control-surface);
 }
-@media (max-width: 430px) and (max-height: 660px) and (orientation: portrait) {
-  .opening-page:not(.simple-mode) .game-sidebar {
-    max-height: 43dvh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-  }
-  .opening-page:not(.simple-mode) .game-sidebar > * { flex-shrink: 0; }
-}
-
 .appearance-group { min-width: 0; margin: 0 0 6px; padding: 0; border: 0; }
 .appearance-group legend {
   padding: 0 1px;
@@ -88,6 +81,143 @@
   font-weight: 650;
 }
 .appearance-group .appearance-options { margin-block-end: 2px; }
+.appearance-options label:has(input:disabled) { opacity: .57; }
+.appearance-options label:has(input:focus-visible) {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 1px;
+}
+
+#boardCursorStatus:not(:empty) {
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: 50%;
+  inset-block-end: 4px;
+  transform: translateX(-50%);
+  max-inline-size: calc(100% - 12px);
+  padding: 2px 9px;
+  border: 1px solid var(--control-border);
+  border-radius: 8px;
+  background: var(--control-paper);
+  color: var(--control-ink);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.trend-plot:focus-visible {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.trend-plot:has(#trendDetail:not([hidden]))::after {
+  content: "";
+  position: absolute;
+  inset-block: 2px 18px;
+  inset-inline-start: var(--trend-inspect-x);
+  border-inline-start: 1px dashed var(--control-focus);
+  pointer-events: none;
+}
+#trendDetail:not([hidden]) {
+  position: absolute;
+  z-index: 1;
+  inset: 3px 4px auto auto;
+  max-inline-size: calc(100% - 8px);
+  overflow: hidden;
+  padding: 2px 5px;
+  border: 1px solid var(--control-border);
+  border-radius: 5px;
+  background: var(--control-paper);
+  color: var(--control-ink);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.trend-plot:has(#trendDetail:not([hidden])) .trend-current { stroke: var(--control-paper); stroke-width: 1; }
+.quick-perspective:not([hidden]) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px 1px;
+  color: var(--control-muted);
+  font-size: 12px;
+}
+.quick-perspective select {
+  min-block-size: 33px;
+  max-inline-size: 100%;
+  padding: 3px 6px;
+  border: 1px solid var(--control-border);
+  border-radius: 7px;
+  color: var(--control-ink);
+  background: var(--control-paper);
+}
+.mode-footer .import-warning:empty { display: none; }
+.image-picker:focus-within { outline: 2px solid var(--control-focus); outline-offset: 2px; }
+.image-compare-row [data-accept-point] {
+  --button-fill: var(--control-pressed);
+  --button-border: var(--control-selected-border);
+  --button-color: var(--control-ink);
+}
+.image-correction .tool-fields label:has(select:disabled) { opacity: .6; }
+.enhancement-workspace .image-counts { font-variant-numeric: tabular-nums; }
+@media (max-width: 660px) and (max-height: 750px) and (orientation: portrait) {
+  .opening-page:not(.simple-mode) .game-sidebar {
+    max-block-size: 46dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .opening-page:not(.simple-mode) .game-sidebar > * { flex-shrink: 0; }
+  .opening-page:not(.simple-mode) .board-bottom {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--canvas);
+  }
+}
+@media (min-width: 601px) and (max-height: 520px) and (orientation: landscape) {
+  .opening-page:not(.simple-mode) .game-sidebar {
+    min-block-size: 0;
+    justify-content: safe center;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .opening-page:not(.simple-mode) .game-sidebar > * { flex-shrink: 0; }
+  .opening-page:not(.simple-mode) .board-bottom {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--canvas);
+  }
+}
+@media (max-width: 430px) {
+  [data-screenshot-drop] .image-compare-row button:not([hidden]) {
+    flex: 1 1 34%;
+  }
+  #boardCursorStatus:not(:empty) { font-size: 10px; }
+  .opening-page #trendLegend { font-size: 10px; }
+}
+@media (max-width: 365px) {
+  .opening-page .search-clock .workflow-chip { display: none; }
+  .opening-page #openingFlow[data-play-state="preview"] h2 { display: none; }
+}
+@media (max-width: 430px) and (max-height: 660px) and (orientation: portrait) {
+  .opening-page:not(.simple-mode) .game-sidebar { max-block-size: 43dvh; }
+}
+@media (pointer: coarse) {
+  .opening-page .record-options :is(.appearance-theme, .appearance-options) label { min-block-size: 34px; }
+  [data-screenshot-drop] .calibration-actions button, .image-compare-row button { min-block-size: 40px; }
+}
+@media (forced-colors: active) {
+  #boardCursorStatus:not(:empty), #trendDetail:not([hidden]) { border-color: CanvasText; }
+  .trend-plot:has(#trendDetail:not([hidden]))::after { border-color: Highlight; }
+  .image-picker:focus-within, .trend-plot:focus-visible { outline-color: Highlight; }
+}
 
 [data-import-step] {
   padding: 3px 7px;
@@ -117,6 +247,7 @@
   --button-color: #fff;
   --button-hover: var(--control-primary-hover);
   order: 2;
+  grid-column: 1 / -1;
 }
 [data-screenshot-drop][data-drag-active] .screenshot-empty {
   border-style: solid;

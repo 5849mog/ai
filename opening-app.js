@@ -67,7 +67,7 @@ const statsUpdates = createScheduledTask(renderAnalysis, 100);
 const analysisUpdates = createScheduledTask(persist, 500);
 function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
-  $("#simpleLive").textContent = message; motion.announce(); warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
+  motion.announce(); warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
 }
 try {
   const loaded = loadSessionRecord(localStorage, STORAGE), saved = loaded.saved;
@@ -98,6 +98,7 @@ function positionChanged(reset = false, automaticResult = null) {
   else analysis.setPosition(session.moves, perspective, { reset, positionKey: key });
   analysis.finish(session.winner);
   lastAdaptive=automaticResult?.adaptive??null;stats = null; pending = hover = -1; advice = null; persist();
+  if (reset) keyboard = 112;
 }
 positionChanged(true);
 if (restoredAnalysis) { analysis.load({ getItem: () => JSON.stringify(restoredAnalysis) }); analysis.finish(session.winner); persist(); }
@@ -181,20 +182,45 @@ function playState() {
   if (paused) return "paused";
   if (pending >= 0) return "preview";
   if (state === "error" || forbiddenInput) return "error";
-  if (busy || (automaticTurn() && selfPlayTimer === null)) return "thinking";
+  if (selfPlayTimer !== null) return "interval";
+  if (automaticTurn() && state === "loading" && !busy) return "loading";
+  if (busy || automaticTurn()) return "thinking";
   return "play";
 }
-function renderFlow(previewText) {
-  const selfPlayText = state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中`;
-  const flow = selfPlay && !session.winner && session.stage !== "setup" ? { title: paused ? "AI 对决已暂停" : selfPlayText, note: "双方由同一引擎轮流操作，可随时暂停或结束接管。", actions: [] } : openingFlow(session, { busy, state, advice, forbidden: forbiddenInput });
+function pointDescription(index) {
+  const stone = session.board[index];
+  if (stone) return `${coordinate(index)} · ${colorName(stone)}棋${index === session.lastMove ? " · 最近一手" : ""}`;
+  const candidate = session.candidates.indexOf(index);
+  if (candidate >= 0) return `${coordinate(index)} · 候选 A${candidate + 1}`;
+  if (!interactive()) return `${coordinate(index)} · 空点`;
+  if (!session.canPoint(index)) return `${coordinate(index)} · 当前不可选`;
+  const forbidden = moveVerdict(session.board, index, session.color, session.rule).forbidden;
+  return `${coordinate(index)} · ${forbidden ? `黑棋${forbidden}禁手` : "可选空点"}`;
+}
+function spectatorStatus() {
+  if (paused) return "AI 对决已暂停";
+  if (state === "error") return "AI 对决已停止 · 请重试或结束接管";
+  if (state === "loading" && !busy) return "正在载入 AI 引擎";
+  if (selfPlayTimer !== null) return "AI 对决 · 等待下一步";
+  if (session.decision || session.offerCount || session.stage === "choose") return "AI 对决 · 正在处理开局";
+  return `AI 对决 · ${colorName(session.color)}棋思考中`;
+}
+function renderFlow(previewText, watching) {
+  const flow = watching ? { title: spectatorStatus(), note: "双方由同一引擎轮流操作，可随时暂停或结束接管。", actions: [] }
+    : openingFlow(session, { busy, state, advice, forbidden: forbiddenInput });
   if (paused && !selfPlay) {
     flow.title = "思考已暂停";
     flow.note = "点「继续思考」恢复当前回合。";
-  } else if (previewText) flow.title = previewText;
+  } else if (previewText) {
+    flow.title = previewText;
+    flow.note = "再点同一点，或点「确认」提交。可点其他交点更换预选。";
+  } else if (flow.note.includes("触屏再点一次确认") && appearance?.touchConfirm === false) {
+    flow.note = "点击交点落子，触屏单点即可确认。";
+  }
   for (const [root, hidden] of [[$("#openingFlow"), false], [$("#simpleOpeningFlow"), !display?.simple]]) {
     root.hidden = hidden;
     root.dataset.playState = playState();
-    const key = JSON.stringify({ flow, busy, manual: manualTurn() });
+    const key = JSON.stringify({ flow, stage: session.stage, busy, manual: manualTurn() });
     if (root.dataset.contentKey === key) continue;
     root.dataset.contentKey = key; root.dataset.stage = session.stage;
     root.dataset.actions = String(flow.actions.length); root.title = flow.note;
@@ -213,6 +239,21 @@ function renderFlow(previewText) {
     if (focused && !hidden) (nextFocus ?? svg).focus({ preventScroll: true });
   }
 }
+function renderBoard(requestedMotion = "auto") {
+  const keyboardCursor = keyboardActive ? { index: keyboard, available: interactive() && session.canPoint(keyboard) } : null;
+  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: appearance?.stillBoard ? "none" : requestedMotion,
+    keyboardCursor, coordinates: appearance?.coordinates, farCoordinates: appearance?.farCoordinates,
+    moveLabels: appearance?.moveNumbers && (!["rif", "taraguchi10"].includes(session.rule) || session.moves.length > 6)
+      ? session.moves.slice(-8).map((index, offset, recent) => ({ index, number: session.moves.length - recent.length + offset + 1 })) : [],
+    moveHints: showHints ? hints.points : [],
+    overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
+    answerIndex: session.events.at(-1)?.automatic && ["stone","select"].includes(session.events.at(-1)?.type) ? session.lastMove : -1,
+    recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
+  if (boardChanged) decorate();
+  const pointLabel = keyboardCursor ? pointDescription(keyboard) : "";
+  const readout = $("#boardCursorStatus");
+  if (readout.textContent !== pointLabel) readout.textContent = pointLabel;
+}
 function render() {
   const stamp = JSON.stringify([Array.from(session.board), session.color, session.rule, session.stage, session.winner]);
   if (stamp !== hintsStamp) {
@@ -227,20 +268,22 @@ function render() {
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
   const previewText = pending >= 0 ? `再点一次确认 · ${coordinate(pending)}` : "";
-  const keyboardCursor = keyboardActive && interactive() ? { index: keyboard, available: session.canPoint(keyboard) } : null;
-  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: appearance?.stillBoard ? "none" : requestedBoardMotion,
-    keyboardCursor, coordinates: appearance?.coordinates, farCoordinates: appearance?.farCoordinates,
-    moveLabels: appearance?.moveNumbers && (!["rif", "taraguchi10"].includes(session.rule) || session.moves.length > 6)
-      ? session.moves.slice(-8).map((index, offset, recent) => ({ index, number: session.moves.length - recent.length + offset + 1 })) : [],
-    moveHints: showHints ? hints.points : [],
-    overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
-    answerIndex: session.events.at(-1)?.automatic && ["stone","select"].includes(session.events.at(-1)?.type) ? session.lastMove : -1,
-    recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
-  if (boardChanged) decorate();
-  const text = paused ? "思考已暂停 · 可继续或悔棋" : selfPlay && !session.winner && session.stage !== "setup" ? state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中` : busy ? deepPhase || (automaticTurn() ? "AI 思考中" : "正在分析当前操作…") : previewText || session.description();
-  $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
-  $("#stateIndicator").parentElement.dataset.playState = playState();
-  $("#searchClock").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
+  renderBoard(requestedBoardMotion);
+  const status = playState();
+  const watching = selfPlay && !session.winner && session.stage !== "setup";
+  const text = paused ? "思考已暂停 · 可继续或悔棋"
+    : status === "loading" ? "正在载入 AI 引擎"
+    : watching ? spectatorStatus()
+    : busy ? deepPhase || (automaticTurn() ? `AI 正在下${colorName(session.color)}棋` : "正在分析当前操作…")
+    : previewText || session.description();
+  const title = text + (!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner ? ` · ${(lastAdaptive ?? advice.adaptive).status}` : "");
+  if ($("#stateText").textContent !== title) $("#stateText").textContent = title;
+  $("#stateText").title = title; $("#stateIndicator").className = `state-indicator${busy || status === "loading" ? " thinking" : session.winner ? " finished" : ""}`;
+  $("#stateIndicator").parentElement.dataset.playState = status;
+  const rule = $("#searchClock .rule-chip"), flow = $("#searchClock .workflow-chip");
+  if (rule.textContent !== RULES[session.rule]) rule.textContent = RULES[session.rule];
+  const workflow = `${workflowLabel[session.workflow]} · `;
+  if (flow.textContent !== workflow) flow.textContent = workflow;
   const last = session.lastMove >= 0 ? ` · 最近落子 ${coordinate(session.lastMove)}` : "";
   $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}${last}`;
   const first = session.events[0], forcedOnly = session.events.length === 1 && !session.options.seed && ["rif", "taraguchi10"].includes(session.rule) && first?.type === "stone" && first.index === 112 && first.automatic;
@@ -270,23 +313,30 @@ function render() {
   $("#recommendationLegend").hidden = !advice; $("#secondRecommendation").hidden = (advice?.points?.length ?? 0) < 2 || session.offerCount || session.stage === "choose";
   $("#recommendationNote").textContent = advice?.choice ? `建议${({ swap: "交换", keep: "保持", ten: "十打" })[advice.choice]}` : advice && session.offerCount ? "候选建议" : advice && session.stage === "choose" ? "绿圈首选" : "";
   $("#recommendationLegend .first").hidden = !advice?.points || Boolean(session.offerCount) || session.stage === "choose";
+  const normalAdvice = !session.offerCount && session.stage !== "choose" ? advice?.points ?? [] : [];
+  for (const [rank, key] of [...$("#recommendationLegend").querySelectorAll(".recommendation-key")].entries()) {
+    const index = normalAdvice[rank];
+    const label = rank === 0 ? "首选" : "次选";
+    const text = index === undefined ? label : `${label} ${coordinate(index)}`;
+    if (key.lastChild.textContent !== text) key.lastChild.textContent = text;
+  }
   for (const selector of [".time-control", ".ponder-control"]) $(selector).hidden = session.decision;
   $(".color-control").hidden = session.decision || session.workflow !== "follow";
   $(".game-settings").dataset.controls = session.workflow === "follow" ? "3" : "2";
   $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
   $("#timeSelect").disabled = busy && !selfPlay; $("#ponderToggle").disabled = busy;
-  svg.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Home End PageUp PageDown Enter R Z P");
-  const cursorLabel = keyboardCursor ? `当前 ${coordinate(keyboardCursor.index)}${keyboardCursor.available ? "" : "，此处不可选"}。` : "";
-  svg.setAttribute("aria-label", `15 乘 15 连珠棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}${last ? `最近落子 ${coordinate(session.lastMove)}。` : ""}${cursorLabel}方向键选点，回车确认。`);
-  svg.setAttribute("aria-disabled", String(!interactive())); Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
+  svg.setAttribute("aria-label", `15 乘 15 ${RULES[session.rule]}棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}${last ? `最近落子 ${coordinate(session.lastMove)}。` : ""}方向键选点${interactive() ? "，回车确认" : ""}。`);
+  svg.setAttribute("aria-disabled", String(!interactive()));
+  Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
   display?.render({ playerColor: session.playerColor, winner: session.winner, state, text, busy });
   if (display?.simple) {
     $("#simpleColorLabel").textContent = "对局"; $("#simpleColor small").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
     $("#simpleColor").setAttribute("aria-label", `对局设置：${RULES[session.rule]}，${workflowLabel[session.workflow]}`);
     $("#simpleRecommendLabel").textContent = busy && automatic ? "AI 落子中" : recommendLabel;
-    $("#simpleRecommendNote").textContent = confirming ? coordinate(pending) : recommending ? "正在分析" : busy ? "请稍候" : advice ? "关闭建议标记" : "AI 落点建议";
+    $("#simpleRecommendNote").textContent = confirming ? coordinate(pending) : recommending ? "正在分析" : busy ? "请稍候"
+      : normalAdvice.length ? normalAdvice.slice(0, 2).map(coordinate).join(" · ") : advice ? "关闭建议标记" : "AI 落点建议";
   }
-  renderFlow(previewText);
+  renderFlow(previewText, watching);
   renderAnalysis();
   enhancements?.render();
   boardFacts?.render();
@@ -369,7 +419,7 @@ async function recommend({automatic=false}={}) {
     if (suggestion.result && ["play", "w6"].includes(session.stage)) analysis.accept({ requestId, sideToMove: session.color, stats: suggestion.result });
     persist(); notify(suggestion.note);
   } catch (error) { if (error.name !== "AbortError" && token === serial) notify(error.message, true); }
-  finally { if (token === serial) { busy = false;adaptiveThinking=false;deepPhase=""; render();if(advice && !engine.ready)void prepare(); } }
+  finally { if (token === serial) { busy = false;adaptiveThinking=false;deepPhase=""; render();if(advice && !engine.ready)void prepare(); else void syncPonder(); } }
 }
 function handoff() {
   if (!manualTurn() || session.workflow !== "copilot" || session.stage !== "play" || session.copilotReady) return;
@@ -384,7 +434,9 @@ async function place(index) {
   }
   const verdict = moveVerdict(session.board, index, session.color, session.rule);
   if (!session.offerCount && session.stage !== "choose" && verdict.forbidden) {
-    cancel(); forbiddenInput = { index, reason: verdict.forbidden }; render(); return;
+    cancel(); forbiddenInput = { index, reason: verdict.forbidden }; render();
+    (display?.simple ? $("#simpleOpeningFlow") : $("#openingFlow")).querySelector('[data-value="cancel"]')?.focus({ preventScroll: true });
+    return;
   }
   cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
@@ -394,13 +446,14 @@ function restoreArchived(entry) {
   const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);paused=false;selfPlay=false;cancel();boardMotion="reset";session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);placeForcedCenter();render();if(!modal)void prepare();return true;
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
+svg.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Home End PageUp PageDown [ ] Enter Space 1 2 N B R Z P");
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
 svg.addEventListener("pointerdown", event => {
   pointerType = event.pointerType;
   if (pointerType === "mouse") boardContact = null;
   else if (event.isPrimary === false) { if (boardContact) boardContact.gesture = true; }
   else boardContact = { id: event.pointerId, x: event.clientX, y: event.clientY, gesture: false };
-  if (keyboardActive) { keyboardActive = false; render(); }
+  if (keyboardActive) { keyboardActive = false; renderBoard(); boardFacts?.render(); }
 });
 svg.addEventListener("pointermove", event => {
   if (event.pointerType !== "mouse") {
@@ -409,18 +462,17 @@ svg.addEventListener("pointermove", event => {
   }
   if (!interactive()) return;
   const index = indexAt(event), next = session.canPoint(index) ? index : -1;
-  if (hover !== next) { hover = next; render(); }
+  if (hover !== next) { hover = next; renderBoard(); }
 });
 svg.addEventListener("pointercancel", event => { if (boardContact?.id === event.pointerId) boardContact.gesture = true; });
-svg.addEventListener("pointerleave", () => { hover = -1; render(); });
+svg.addEventListener("pointerleave", () => { if (hover !== -1) { hover = -1; renderBoard(); } });
 svg.addEventListener("focusout", event => {
-  if (keyboardActive && !svg.contains(event.relatedTarget)) { keyboardActive = false; render(); }
+  if (keyboardActive && !svg.contains(event.relatedTarget)) { keyboardActive = false; renderBoard(); boardFacts?.render(); }
 });
 svg.addEventListener("click", event => {
   if (event.detail !== 0 && (event.pointerType || pointerType) !== "mouse" && boardContact?.gesture) return;
   if (!interactive()) return; const index = indexAt(event);
   if (!session.canPoint(index)) {
-    if (pending >= 0) { pending = -1; render(); }
     void place(index); return;
   }
   if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && appearance?.touchConfirm !== false && pending !== index) { pending = index; hover = -1; render(); } else void place(index);
@@ -435,13 +487,27 @@ function recommendFromKeyboard(event) {
 }
 svg.addEventListener("keydown", event => {
   recommendFromKeyboard(event);
-  if (!interactive() || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (selfPlay && paused && event.key === "ArrowRight") return;
+  const key = event.key.toLowerCase();
+  if (interactive() && ["1", "2", "n", "b"].includes(key)) {
+    const points = session.stage === "choose" ? session.candidates : advice?.points;
+    if (!points?.length) return;
+    const current = keyboardActive ? points.indexOf(keyboard) : -1;
+    const rank = key === "1" ? 0 : key === "2" ? 1 : key === "n" ? (current + 1) % points.length
+      : current < 0 ? points.length - 1 : (current + points.length - 1) % points.length;
+    const index = points[rank];
+    if (index !== undefined) {
+      event.preventDefault(); keyboard = index; keyboardActive = true; pending = hover = -1; render();
+    }
+    return;
+  }
   const next = event.key === "End" && session.lastMove >= 0 ? session.lastMove : boardKeyboardIndex(keyboard, event.key);
   if (next !== null) {
     event.preventDefault();
     keyboard = next;
     keyboardActive = true; pending = hover = -1; render();
-  } else if (["Enter", " "].includes(event.key)) { event.preventDefault(); if (!event.repeat) void place(pending >= 0 ? pending : keyboard); }
+  } else if (interactive() && ["Enter", " "].includes(event.key)) { event.preventDefault(); if (!event.repeat) void place(pending >= 0 ? pending : keyboard); }
 });
 svg.addEventListener("keydown", event => {
   if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
@@ -459,7 +525,8 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
   else if (action === "retry") { cancel(); render(); void prepare(); }
   else if (action === "forbidden" && forbiddenInput) {
     const { index } = forbiddenInput; cancel();
-    if (value === "confirm") commit({ type: "stone", index }); else render();
+    if (value === "confirm") commit({ type: "stone", index });
+    else { keyboard = index; render(); svg.focus({ preventScroll: true }); }
     void prepare();
   }
 });
@@ -472,7 +539,8 @@ $("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; re
   else if (forcedOpeningMove(session)) session.apply({type:"stone",index:112},{automatic:true});
   openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
-$("#restartButton").onclick = () => newGame(); $("#retryButton").onclick = () => { cancel(); render(); void prepare(); };
+$("#restartButton").onclick = () => newGame();
+$("#retryButton").onclick = () => { cancel(); render(); svg.focus({ preventScroll: true }); void prepare(); };
 $("#colorSelect").onchange = () => {
   if (session.workflow !== "follow") return;
   const color = Number($("#colorSelect").value);
@@ -481,13 +549,13 @@ $("#colorSelect").onchange = () => {
 };
 $("#timeSelect").onchange = () => { try { localStorage.setItem("gomoku-thinking-ms", $("#timeSelect").value); } catch {} };
 $("#ponderToggle").onchange = () => { try { localStorage.setItem("gomoku-pondering", String($("#ponderToggle").checked)); } catch {} void syncPonder(); };
-setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow }), notify, onModalChange: onModal,
+setupCustomUi({ getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, lastMove: session.lastMove }), notify, onModalChange: onModal,
   applyRecord: record => { newGame({ rule: session.rule, workflow: session.workflow, initialBlackSeat: record.playerColor === 1 ? 0 : 1, seed: record.setup }); return persist(); }
 });
 document.addEventListener("keydown", event => {
   if (event.key !== "Escape" || event.defaultPrevented || document.querySelector("dialog[open]")) return;
   if (forbiddenInput) {
-    event.preventDefault(); forbiddenInput = null; render(); void prepare();
+    event.preventDefault(); keyboard = forbiddenInput.index; forbiddenInput = null; render(); svg.focus({ preventScroll: true }); void prepare();
   } else if (pending >= 0) {
     event.preventDefault(); pending = -1; render();
   }
@@ -508,7 +576,7 @@ function pauseThinking() { if(!canPauseThinking())return;cancel({ keepHints: tru
 function resumeThinking() { paused=false;render();void prepare(); }
 function stepThinking() { if(!selfPlay || !paused || session.winner || modal)return;singleStep=true;paused=false;render();void prepare(); }
 document.addEventListener("keydown", event => {
-  if(!selfPlay || modal || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target?.closest?.("input,select,textarea,button,[contenteditable=true]"))return;
+  if(event.defaultPrevented || !selfPlay || modal || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target?.closest?.("input,select,textarea,button,a,summary,[contenteditable], [data-release-notes], [role=tablist]"))return;
   if(event.key===" "){event.preventDefault();if(paused)resumeThinking();else pauseThinking();}
   else if(event.key==="ArrowRight" && paused){event.preventDefault();stepThinking();}
 });
