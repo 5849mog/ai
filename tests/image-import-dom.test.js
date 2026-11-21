@@ -108,6 +108,14 @@ test("finds uncertain points in order and restores their focus when a correction
   assert.equal($('[data-check-focus]').getAttribute('data-check-focus'), '1');
   $('[data-compare]').click(); assert.equal($('[data-next-uncertain]').disabled, true);
   $('[data-compare]').click(); assert.equal($('[data-check-focus]').getAttribute('data-check-focus'), '1');
+  $('[data-accept-point]').click(); assert.match($('.image-counts').textContent, /黑 0 · 白 0 · 待检查 224/);
+  $('[data-undo]').click(); assert.match($('.image-counts').textContent, /待检查 225/);
+  const side = $('[data-side]'); side.value = "2"; side.onchange();
+  const actor = $('[data-actor]'); const original = actor.value;
+  actor.value = original === "ai" ? "player" : "ai"; actor.onchange();
+  $('[data-undo]').click(); assert.equal(actor.value, original); assert.equal(side.value, "2");
+  $('[data-undo]').click(); assert.equal(side.value, "1");
+  $('[data-redo]').click(); assert.equal(side.value, "2");
   assert.equal(applied(), 0); ui.dispose(); dom.window.close();
 });
 
@@ -132,7 +140,7 @@ test("a real phone screenshot opens with a proposed grid, remains editable and r
   const boardCanvas = root.querySelector('.import-image');
   boardCanvas.onpointerdown({ pointerId: 1, button: 0, clientX: proposed.left, clientY: proposed.top });
   boardCanvas.onpointermove({ pointerId: 1, clientX: proposed.left + 12, clientY: proposed.top + 10 });
-  boardCanvas.onpointerup({ pointerId: 1 });
+  boardCanvas.onpointerup({ type: "pointerup", pointerId: 1 });
   assert.notDeepEqual(frame(), proposed);
   root.querySelector('[data-reset-frame]').click(); assert.deepEqual(frame(), proposed);
   root.querySelector('[data-recognize]').click();
@@ -150,12 +158,18 @@ test("touch resize shows a loupe, ignores a second finger, clamps bounds, and re
   canvas.onpointermove({ pointerId: 2, clientX: 620, clientY: 630 }); assert.deepEqual(frame(), before);
   canvas.onpointermove({ pointerId: 1, clientX: -100, clientY: -100 });
   assert.equal(frame().left, 0); assert.equal(frame().top, 0);
-  canvas.onpointercancel({ pointerId: 1 }); assert.equal($('.import-loupe').hidden, true);
-  const resized = frame(); $('[data-recognize]').click(); $('[data-recalibrate]').click(); assert.deepEqual(frame(), resized);
-  $('[data-reset-frame]').click(); assert.deepEqual(frame(), before);
+  canvas.onpointercancel({ type: "pointercancel", pointerId: 1 }); assert.equal($('.import-loupe').hidden, true);
+  assert.deepEqual(frame(), before); assert.equal($('[data-undo-frame]').disabled, true);
+  canvas.onkeydown(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", cancelable: true }));
+  const adjusted = frame();
+  assert.equal(adjusted.left, before.left + 1);
+  $('[data-recognize]').click(); $('[data-recalibrate]').click(); assert.deepEqual(frame(), adjusted);
+  $('[data-undo-frame]').click(); assert.deepEqual(frame(), before);
   canvas.onpointerdown({ pointerId: 3, button: 0, clientX: 320, clientY: 330 });
-  canvas.onpointermove({ pointerId: 3, clientX: 3000, clientY: 3000 }); canvas.onlostpointercapture({ pointerId: 3 });
+  canvas.onpointermove({ pointerId: 3, clientX: 3000, clientY: 3000 }); canvas.onpointerup({ type: "pointerup", pointerId: 3 });
   assert.equal(frame().right, canvas.width - 1); assert.equal(frame().bottom, canvas.height - 1);
+  $('[data-reset-frame]').click(); assert.deepEqual(frame(), before);
+  $('[data-undo-frame]').click(); assert.equal(frame().right, canvas.width - 1);
   ui.dispose(); dom.window.close();
 });
 

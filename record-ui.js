@@ -7,10 +7,10 @@ import { RULES } from "./opening-session.js";
 export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange }) {
   const $ = selector => document.querySelector(selector), menu = $("#recordMenu"), fileInput = $("#recordFile");
   const dialog = $("#recordDialog"), color = $("#importColor"), preview = createBoardView($("#recordPreview"), { idPrefix: "preview-" });
-  let pending, readSerial = 0;
+  let pending, readSerial = 0, imported = false;
   const summary = menu.querySelector("summary");
-  function closeMenu() {
-    summary.focus({ preventScroll: true });
+  function closeMenu(trigger = summary) {
+    trigger?.focus({ preventScroll: true });
     menu.open = false;
   }
   function download(format) {
@@ -20,7 +20,10 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
     closeMenu(); notify(format === "sgf" && record.rule !== "freestyle" ? "SGF 已导出；完整开局操作请使用五目棋谱" : "棋谱已导出");
   }
   $("#exportJson").onclick = () => download("json"); $("#exportSgf").onclick = () => download("sgf");
-  $("#importRecord").onclick = () => { closeMenu(); fileInput.value = ""; fileInput.click(); };
+  $("#importRecord").onclick = () => {
+    closeMenu(document.body.classList.contains("simple-mode") ? $("[aria-controls='simpleQuickTools']") : summary);
+    fileInput.value = ""; fileInput.click();
+  };
   document.addEventListener("pointerdown", event => { if (!menu.contains(event.target)) menu.open = false; });
   menu.addEventListener("focusout", event => {
     if (event.relatedTarget && !menu.contains(event.relatedTarget)) menu.open = false;
@@ -34,11 +37,12 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
     try {
       if (file.size > MAX_RECORD_BYTES) throw Error("棋谱文件过大，最多支持 1 MiB");
       const parsed = parseSessionRecord(await file.text(), sessionFromRecord(getRecord()).playerColor || 1);
-      if (serial !== readSerial) return; pending = parsed;
+      if (serial !== readSerial) return; pending = parsed; imported = false;
       const game = parsed.session;
       color.parentElement.hidden = !parsed.legacy; color.value = String(game.playerColor || 1);
       preview.render({ board: game.board, lastMove: game.lastMove, pendingIndex: -1, hoverIndex: -1, canInteract: false });
-      $("#importSummary").textContent = `${RULES[game.rule]} · ${game.moves.length} 手 · ${game.description()}`;
+      const stones = game.board.reduce((count, color) => count + Number(Boolean(color)), 0);
+      $("#importSummary").textContent = `${RULES[game.rule]} · ${game.moves.length} 手${stones !== game.moves.length ? ` · 盘面 ${stones} 子` : ""} · ${game.description()}`;
       $("#importNotices").textContent = parsed.notices.join(" ");
       onModalChange(true); dialog.showModal();
     } catch (error) { if (serial === readSerial) notify(error.message, true); }
@@ -48,13 +52,13 @@ export function setupRecordUi({ getRecord, applyRecord, notify, onModalChange })
     if (!pending) return;
     try {
       const record = pending.legacy ? sessionFromRecord(createRecord(pending.legacy.moves, Number(color.value), pending.legacy.setup)).record() : pending.session.record();
-      const saved = applyRecord(record); dialog.close();
+      const saved = applyRecord(record); imported = true; dialog.close();
       notify(saved ? "棋谱已导入" : "棋谱已导入，但此局暂未保存；关闭前请导出棋谱", !saved);
     } catch (error) { notify(error.message, true); }
   };
   dialog.addEventListener("close", () => {
     pending = null; onModalChange(false);
-    const trigger = document.body.classList.contains("simple-mode") ? $("[aria-controls='simpleQuickTools']") : summary;
+    const trigger = imported ? $("#boardSvg") : document.body.classList.contains("simple-mode") ? $("[aria-controls='simpleQuickTools']") : summary;
     trigger?.focus({ preventScroll: true });
   });
 }

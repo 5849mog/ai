@@ -54,11 +54,11 @@ try{
  await page.getByRole('button',{name:'确认落子',exact:true}).tap();
  await page.waitForFunction(()=>document.querySelectorAll('#boardSvg [data-stone]').length===2);
  await board.press('Home');assert.equal(await cursor.getAttribute('data-available'),'false');
- assert.match(await board.getAttribute('aria-label'),/H8，此处不可选/);
+ assert.match(await page.locator('#boardCursorStatus').textContent(),/H8 · 黑棋/);
  await board.locator('[data-index="97"]').tap();await preview.waitFor();
  const stone=await board.locator('[data-stone="112"]').boundingBox();
- await page.touchscreen.tap(stone.x+stone.width/2,stone.y+stone.height/2);assert.equal(await preview.count(),0);
- await board.locator('[data-index="97"]').tap();await preview.waitFor();assert.equal((await game()).moves.length,2);
+ await page.touchscreen.tap(stone.x+stone.width/2,stone.y+stone.height/2);assert.equal(await preview.count(),1);
+ assert.equal((await game()).moves.length,2);
  await page.keyboard.press('Escape');assert.equal(await preview.count(),0);
  pass('Touch previews identify the point and can confirm or cancel from the toolbar; board keyboard cursor, Home and R work');
  const current=await record();

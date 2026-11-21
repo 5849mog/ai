@@ -35,18 +35,21 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
   panel.querySelector("[data-quick-setup]").onclick = () => { collapse({ immediate: true }); $("#openSetup").click(); };
+  panel.querySelector("[data-quick-import]").onclick = () => { collapse({ immediate: true }); $("#importRecord").click(); };
   panel.querySelector("[data-full-view]").onclick = () => { collapse({ immediate: true }); exitSimple?.(); };
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
   let active = null, recordKey = null, opening = false, currentReview=true;
-  function close({ resume = true } = {}) {
+  function close({ resume = true, imported = false, saved = false } = {}) {
     if (!active) return;
     const previous = active; active = null;
     if (previous === "image") image.dispose(); else if(previous==="review") review.dispose();else history.dispose();
     workspace.hidden = true; imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; shell.hidden = false;
     if (resume) onWorkspace(false);
-    const trigger = previous === "image" && !document.body.classList.contains("simple-mode") ? $("#recordMenu summary") : toggle;
+    const trigger = imported ? $("#boardSvg")
+      : previous === "image" && !document.body.classList.contains("simple-mode") ? $("#recordMenu summary") : toggle;
     trigger?.focus({ preventScroll: true });
+    if (imported) notify?.(saved ? "已从截图局面开始对弈" : "截图局面已开始，暂未保存，请导出棋谱", !saved);
   }
   const image = createImageImport(imageRoot, { getPosition, applyRecord, close });
   const review = createReviewUi(reviewRoot, { search, cancelSearch, close, newGame: () => { close(); newGame(); }, branch: record => {
@@ -65,11 +68,18 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     const record = structuredClone(archivedRecord??getRecord()); recordKey = JSON.stringify(record);currentReview=!archivedRecord;
     collapse({ restoreFocus: false, immediate: true }); active = kind; opening = true; onWorkspace(true); opening = false;
     shell.hidden = true; workspace.hidden = false; imageRoot.hidden = kind !== "image"; reviewRoot.hidden = kind !== "review";archiveRoot.hidden=kind!=="archive"; workspace.focus();
-    if (kind === "image") image.open(); else if(kind==="review")void review.open(record);else history.open();
+    if (kind === "image") { image.open(); imageRoot.querySelector("input[type=file]")?.focus({ preventScroll: true }); }
+    else if(kind==="review")void review.open(record);else history.open();
     $("#recordMenu").open = false;
   }
   const times = [...panel.querySelectorAll("[data-time]")], timeSelect = $("#timeSelect"), ponderInput = $("#ponderToggle");
   const ponder = panel.querySelector("[data-ponder]"), soundButton = panel.querySelector("[data-sound]");
+  const perspectiveField = panel.querySelector("[data-quick-perspective]"), perspective = perspectiveField.querySelector("select"), colorSelect = $("#colorSelect");
+  perspective.onchange = () => {
+    if (!colorSelect) return;
+    colorSelect.value = perspective.value;
+    colorSelect.dispatchEvent(new Event("change"));
+  };
   function setTime(value) {
     if (timeSelect.disabled || timeSelect.value === value) return;
     timeSelect.value = value;
@@ -78,13 +88,13 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   for (const [index, button] of times.entries()) {
     button.onclick = () => setTime(button.dataset.time);
     button.onkeydown = event => {
-      if (timeSelect.disabled || event.altKey || event.ctrlKey || event.metaKey) return;
-      let direction;
-      if (["ArrowRight", "ArrowDown"].includes(event.key)) direction = 1;
-      else if (["ArrowLeft", "ArrowUp"].includes(event.key)) direction = -1;
-      else return;
+      if (timeSelect.disabled || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      const direction = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+      const nextIndex = event.key === "Home" ? 0 : event.key === "End" ? times.length - 1
+        : Object.hasOwn(direction, event.key) ? (index + direction[event.key] + times.length) % times.length : -1;
+      if (nextIndex < 0) return;
       event.preventDefault();
-      const next = times[(index + direction + times.length) % times.length];
+      const next = times[nextIndex];
       setTime(next.dataset.time);
       next.focus({ preventScroll: true });
     };
@@ -123,8 +133,16 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   fullHints.dataset.uiIcon = "eye"; fullSelf.dataset.uiIcon = "bot";
   quickHints.onclick = () => toggleHints?.();
   fullHints.onclick = () => { toggleHints?.(); $("#recordMenu").open = false; };
-  quickSelf.onclick = () => { toggleSelfPlay?.(); collapse(); };
-  fullSelf.onclick = () => { toggleSelfPlay?.(); $("#recordMenu").open = false; };
+  quickSelf.onclick = () => {
+    const position = getPosition();
+    toggleSelfPlay?.(); collapse();
+    notify?.(position.selfPlay ? "已结束 AI 接管" : "已开启 AI 自战，可随时暂停");
+  };
+  fullSelf.onclick = () => {
+    const position = getPosition();
+    toggleSelfPlay?.(); $("#recordMenu").open = false;
+    notify?.(position.selfPlay ? "已结束 AI 接管" : "已开启 AI 自战，可随时暂停");
+  };
   const spectatorControls=document.createElement("div"); spectatorControls.className="spectator-controls"; spectatorControls.append(fullHints,fullSelf); $(".game-actions").after(spectatorControls);
   const makeSpectatorPanel=()=>{
     const details=document.createElement("details");details.className="spectator-settings";details.hidden=true;
@@ -157,6 +175,8 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   let lastPreferences = "";
   function render() {
     const position = getPosition(), controls=getControlState?.();
+    perspectiveField.hidden = position.workflow !== "follow" || !colorSelect || Boolean(colorSelect.closest("label")?.hidden);
+    if (colorSelect && perspective.value !== colorSelect.value) perspective.value = colorSelect.value;
     fullHints.hidden = quickHints.hidden = !controls;
     const hintsLabel = controls?.showHints ? "隐藏棋盘提示" : "显示棋盘提示";
     if (fullHints.textContent !== hintsLabel) fullHints.textContent = hintsLabel;
@@ -164,13 +184,20 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     for(const b of [quickSelf,fullSelf]) { b.hidden=!controls || (!controls.canSelfPlay && !controls.selfPlay); const label=controls?.selfPlay?"结束 AI 接管":"AI 接管我方"; if (b.textContent!==label) b.textContent=label; b.setAttribute("aria-pressed", String(Boolean(controls?.selfPlay))); }
     for(const area of [fullSpectator,quickSpectator]) {
       area.hidden=!position.selfPlay;
+      if (area.hidden) area.open = false;
       for(const input of area.querySelectorAll("[data-spectator]")) { const value=spectatorSettings?.[input.dataset.spectator]??(input.dataset.spectator==="delay"?"0":"shared"); if(input.value!==value)input.value=value; }
+      area.querySelector("[data-reset-spectator]").disabled = [...area.querySelectorAll("[data-spectator]")].every(input => input.selectedIndex === 0);
     }
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
     for (const [pause, step] of [[pauseEntry, simpleStep], [fullPause, fullStep]]) {
+      const focused = document.activeElement;
       pause.hidden = position.paused ? !resumeSearch : !position.canPause || !pauseSearch;
-      pause.textContent = position.paused ? "继续思考" : "暂停思考";
+      const label = position.paused ? "继续思考" : "暂停思考";
+      if (pause.textContent !== label) pause.textContent = label;
       step.hidden = !(position.selfPlay && position.paused && stepSelfPlay);
+      if (focused === pause && pause.hidden || focused === step && step.hidden) {
+        (pause.hidden ? $("#boardSvg") : pause)?.focus({ preventScroll: true });
+      }
     }
     syncNotice();
     for (const b of [reviewEntry, resultButton]) b.hidden = !position.winner;
@@ -197,6 +224,6 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     if (active === "review" && currentReview && !opening && (!position.winner || JSON.stringify(getRecord()) !== recordKey)) close();
   }
   document.addEventListener("keydown", event => { if (event.key !== "Escape") return; if (active) { event.preventDefault(); event.stopImmediatePropagation(); close(); } else if (quick.opened) { event.preventDefault(); event.stopImmediatePropagation(); collapse(); toggle.focus(); } }, true);
-  timeSelect.addEventListener("change", render); ponderInput.addEventListener("change", render);
+  timeSelect.addEventListener("change", render); ponderInput.addEventListener("change", render); colorSelect?.addEventListener("change", render);
   render(); return { render, close, get active() { return active; } };
 }

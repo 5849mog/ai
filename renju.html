@@ -50,10 +50,10 @@
           <div class="board-toolbar">
             <div class="game-state" role="status"><span class="state-indicator thinking" id="stateIndicator"></span><strong id="stateText">正在准备 AI</strong></div>
             <button class="retry-button" id="retryButton" type="button" hidden>重试</button>
-            <span class="search-clock" id="searchClock">你执黑 · 无禁手</span>
+            <span class="search-clock" id="searchClock"><span class="workflow-chip"></span><span class="rule-chip">无禁手</span></span>
           </div>
           <div class="board-wrap"><div class="board-frame">
-            <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg>
+            <svg id="boardSvg" class="board-svg" viewBox="20 20 580 580" role="group" tabindex="0" aria-label="15 乘 15 五子棋棋盘"></svg><output id="boardCursorStatus" aria-live="polite"></output>
           </div><section class="opening-flow" id="simpleOpeningFlow" data-board-dock aria-label="本局操作" hidden></section></div>
           <aside class="game-sidebar" aria-label="对局操作与分析">
             <div class="board-bottom">
@@ -77,7 +77,9 @@
                 <div class="trend-heading"><span>胜率走势</span><span><span id="trendLegend">上方利于黑 · 下方利于白</span></span></div>
                 <div class="trend-chart">
                   <div class="trend-y-axis" aria-hidden="true"><span>100</span><span>50</span><span>0</span></div>
-                  <div class="trend-plot">
+                  <div class="trend-plot" role="group" aria-label="胜率走势读数">
+                    <span class="visually-hidden" id="trendInstructions">左右方向键浏览已评估的手数，Home 和 End 跳到两端，Escape 关闭读数。</span>
+                    <output id="trendDetail" hidden></output>
                     <svg class="position-trend" id="positionTrend" viewBox="25 0 325 74" preserveAspectRatio="none" role="img" aria-label="你的估算胜率走势">
                       <defs><linearGradient id="trendWash" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#586e57" stop-opacity=".16"/><stop offset=".5" stop-color="#586e57" stop-opacity=".02"/><stop offset="1" stop-color="#a84032" stop-opacity=".12"/></linearGradient></defs>
                       <path class="trend-guide" d="M25 6H350 M25 68H350"/><path class="trend-balance" d="M25 37H350"/>

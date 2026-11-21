@@ -8,7 +8,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
       <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 替我下 · 外部对局</option><option value="follow">手动记录双方</option><option value="duel">与 AI 对弈</option></select></label>
       <p class="mode-description" id="modeDescription">附身模式在棋盘旁逐阶段确认本局角色。己方的开局与应手由 AI 自动给出，对手的操作由你录入。</p>
     </div>
-    <footer class="mode-footer"><p class="import-warning">开始将替换本页当前对局，可先从菜单导出记录。</p><button type="button" class="confirm-mode" id="startMode">开始新局</button></footer></dialog>
+    <footer class="mode-footer"><p class="import-warning" id="modeReplacement"></p><button type="button" class="confirm-mode" id="startMode">开始新局</button></footer></dialog>
     <dialog class="opening-modal opening-guide" id="guideDialog" aria-labelledby="guideTitle">
     <header><div><h2 id="guideTitle">连珠手帖</h2><p>规则 · 开局 · AI 附身</p></div><button type="button" data-close>返回棋盘</button></header>
     <p class="guide-lead">对手操作，你录入。<br>轮到你，AI 直接出棋。</p>
@@ -30,7 +30,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     <li>十打路线：这一节点不交换。黑方在全盘任意合法空点提出十个不对称等价的第五手；白方选一个，再在任意空点下白棋第六子。</li><li>之后正常交替，执行黑棋禁手。每次交换都按交换后的执色决定谁落下一子。</li></ol>
     <h3>黑棋禁手</h3><ul><li><strong>长连：</strong>连续六个或更多黑子。</li><li><strong>四四：</strong>一手形成两个四。一个活四的两个获胜端点只算一个四。</li><li><strong>三三：</strong>一手形成两个真活三，须能经合法落子变为两端可获胜的活四。被白子、边界或后续禁手阻断的假三不算。</li></ul>
     <p>同一手已在某方向形成恰好五连，黑棋获胜优先。手动记录可录入外部实际禁手，提示原因并确认后判白胜；AI 推荐和自动落子避开禁手。</p>
-    <h3>棋盘键盘操作</h3><p>棋盘取得焦点后，方向键逐格选点，Page Up 和 Page Down 每次移动五行，[ 和 ] 跳到本行两端。Home 回天元，End 跳到最后一手，回车确认，Z 悔棋，R 开关推荐，P 暂停或继续 AI。摆局和截图校正也支持方向键、跳格及 Z 撤回，用 0、1、2 切换擦除、黑棋和白棋。</p>
+    <h3>棋盘键盘操作</h3><p>棋盘取得焦点后，方向键逐格查看，Page Up 和 Page Down 每次移动五行，[ 和 ] 跳到本行两端。Home 回天元，End 跳到最后一手，1 和 2 定位前两个建议或候选，N 和 B 顺序或反向浏览，回车确认，Z 悔棋，R 开关推荐，P 暂停或继续 AI。摆局和截图校正支持跳格、Z 撤回和 Y 重做，用 0、1、2 切换擦除、黑棋和白棋。截图选框可用 Z 撤回调整，校正时用 N、B 跳转疑点，C 保留该点，V 对照原图。</p>
     <h3>推荐背后与边界</h3><p>落子使用 Rapfi 连珠专用黑白神经网络与搜索。五手两打前三子使用平衡搜索；换色建议比较两种执色；候选提案按黑棋搜索排序并去除对称等价；选案逐点从白棋角度比较。推荐总搜索预算 1 秒，加载、模型计算和调度可能另需时间。</p>
     <p>引擎原生支持连珠落子与禁手，开局流程由本页管理，没有专用的交换与十打博弈搜索。在本页与 AI 对弈时，AI 使用普通路线，不会主动选十打；AI 替我下和手动记录方式可按外部实战录入十打，并分析候选。胜率是固定执色后的局面估计，尚可换色时不显示；它不是对特定对手的实战胜率，不能承诺接管后必胜。</p>
     <p>自定义局面无法倒推之前是否曾下禁手。SGF 保留实子与规则说明，完整换色、候选过程请导出五目 JSON，在本页导入；旧无禁手 JSON 与 SGF 也可在本页导入。简洁界面中，开局、换色、候选选择、禁手确认与错误重试都在棋盘旁完成；「悔棋」直接撤回，「推荐」可看额外建议，在「更多」中点「完整界面」返回。</p>
@@ -39,6 +39,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   const modes = document.querySelector("#modeDialog"), guide = document.querySelector("#guideDialog");
   const rule = document.querySelector("#ruleMode"), workflow = document.querySelector("#workflowMode");
   const preset = document.querySelector("#modePreset");
+  let started = false;
   const workflowNames = { copilot: "AI 替我下", follow: "手动记谱", duel: "与 AI 对弈" };
   for (const group of workflow.options) {
     const options = document.createElement("optgroup");
@@ -55,13 +56,18 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     dialog.querySelector("[data-close]").onclick = () => dialog.close();
     dialog.addEventListener("close", () => {
       onModal(false);
-      const trigger = document.body.classList.contains("simple-mode") ? "#simpleColor" : "#recordMenu > summary";
-      document.querySelector(trigger)?.focus({ preventScroll: true });
+      const trigger = started && dialog === modes ? "#boardSvg" : document.body.classList.contains("simple-mode") ? "#simpleColor" : "#recordMenu > summary";
+      const opening = started && dialog === modes ? document.querySelector(document.body.classList.contains("simple-mode") ? "#simpleOpeningFlow" : "#openingFlow") : null;
+      (opening?.querySelector("button:not(:disabled)") ?? document.querySelector(trigger))?.focus({ preventScroll: true });
     });
   }
   const open = dialog => { document.querySelector("#recordMenu").open = false; onModal(true); dialog.showModal(); };
   function openModes() {
-    const session = getSession(); rule.value = session.rule; workflow.value = session.workflow; workflow.dispatchEvent(new Event("change")); open(modes);
+    const session = getSession(); started = false;
+    rule.value = session.rule; workflow.value = session.workflow; workflow.dispatchEvent(new Event("change"));
+    const hasPosition = session.moves.length || session.options?.seed?.board?.some(Boolean);
+    document.querySelector("#modeReplacement").textContent = hasPosition ? "开始新局会离开当前棋局。" : "";
+    open(modes); preset.focus({ preventScroll: true });
   }
   document.querySelector("#openModes").onclick = openModes;
   const syncModeCopy = () => {
@@ -80,7 +86,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   };
   workflow.onchange = syncModeCopy;
   rule.addEventListener("change", syncModeCopy);
-  document.querySelector("#startMode").onclick = () => { onNew({ rule: rule.value, workflow: workflow.value, initialBlackSeat: null }); modes.close(); };
+  document.querySelector("#startMode").onclick = () => { onNew({ rule: rule.value, workflow: workflow.value, initialBlackSeat: null }); started = true; modes.close(); };
   document.querySelector("#openGuide").onclick = () => open(guide);
   return { openModes, openGuide: () => open(guide) };
 }
