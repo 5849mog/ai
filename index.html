@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./game-modes.css?v=7" />
     <link rel="stylesheet" href="./opening.css?v=7" />
     <link rel="stylesheet" href="./enhancements.css?v=58" />
-    <link rel="stylesheet" href="./ui-refinement.css?v=10" />
+    <link rel="stylesheet" href="./ui-refinement.css?v=11" />
   </head>
   <body class="opening-page" data-default-rule="freestyle" data-default-workflow="duel">
     <div class="app-shell">
@@ -32,6 +32,7 @@
               <button type="button" id="enterSimpleMode" data-ui-icon="layout">简洁界面</button>
               <button type="button" id="openRemoteEngine" data-ui-icon="engine">电脑引擎</button>
               <div data-release-notes="full"></div>
+              <div data-board-appearance></div><div data-board-facts></div>
               <hr />
               <button type="button" id="importRecord" data-ui-icon="import">导入棋谱</button>
               <button type="button" id="exportJson" data-ui-icon="export">导出五目文件</button>
@@ -61,7 +62,7 @@
             <div class="game-settings">
               <section class="opening-flow" id="openingFlow" aria-label="本局操作"></section>
               <label class="color-control" for="colorSelect" title="只记录棋局可切换分析视角，不改变双方实际执色"><span id="perspectiveLabel">分析视角</span><select id="colorSelect"><option value="1">看黑棋</option><option value="2">看白棋</option></select></label>
-              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="100">最多 0.1 秒</option><option value="500">最多 0.5 秒</option><option value="1000">最多 1 秒</option><option value="5000">最多 5 秒</option><option value="10000" selected>最多 10 秒</option><option value="adaptive">深思 · 自适应 0～6 秒</option></select></label>
+              <label class="time-control" for="timeSelect"><span>每步思考</span><select id="timeSelect"><option value="100">最多 0.1 秒</option><option value="500">最多 0.5 秒</option><option value="1000">最多 1 秒</option><option value="2000">最多 2 秒</option><option value="3000">最多 3 秒</option><option value="5000">最多 5 秒</option><option value="6000">最多 6 秒</option><option value="10000" selected>最多 10 秒</option><option value="adaptive">深思 · 自适应 0～6 秒</option></select></label>
               <label class="ponder-control" title="玩家回合继续分析；关闭后节省设备算力"><input id="ponderToggle" type="checkbox" checked /><span>后台思考</span></label>
             </div>
             <div class="engine-analysis" aria-label="AI 搜索信息，评分正数利于当前视角">
@@ -123,6 +124,10 @@
         <div class="setup-panel">
           <div class="setup-counts"><span><i class="setup-dot black" aria-hidden="true"></i>黑 <strong id="setupBlackCount">0</strong></span><span><i class="setup-dot white" aria-hidden="true"></i>白 <strong id="setupWhiteCount">0</strong></span><button type="button" id="setupAlternate" aria-pressed="false" title="成功摆下黑棋或白棋后，自动切换颜色">交替摆子：关</button><button type="button" id="clearSetup">清空</button></div>
           <div class="setup-tools" role="group" aria-label="摆局工具"><button type="button" data-setup-tool="1" aria-pressed="true"><i class="setup-dot black" aria-hidden="true"></i>黑棋</button><button type="button" data-setup-tool="2" aria-pressed="false"><i class="setup-dot white" aria-hidden="true"></i>白棋</button><button type="button" data-setup-tool="0" aria-pressed="false">擦除</button><button type="button" id="undoSetup" disabled>撤回</button></div>
+          <details class="draft-tools"><summary>调整盘面</summary>
+            <label>变换盘面<select id="setupTransform"></select></label><button type="button" id="applySetupTransform">应用</button>
+            <button type="button" id="restoreSetup">恢复进入时的局面</button><button type="button" id="redoSetup" disabled>重做</button>
+          </details>
           <div class="setup-turn"><label for="setupSide">下一手棋色<select id="setupSide"><option value="1">黑棋</option><option value="2">白棋</option></select></label><label for="setupActor">这一手谁走<select id="setupActor"><option value="player">我来走</option><option value="ai">AI 来走</option></select></label></div>
           <p id="setupMessage" class="setup-message" role="status">开始后将替换当前对局；摆好的棋子会作为起始局面保留。</p>
           <button class="icon-button icon-button-primary" type="button" id="startSetup">开始对弈 <span aria-hidden="true">→</span></button>

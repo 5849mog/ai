@@ -3,6 +3,7 @@ import { isAppVersion, newerVersion, updateControlMarkup } from "./app-update.js
 
 const FEED_URL = new URL("./content/feed.json", import.meta.url);
 const STORAGE_KEY = `gomoku-release-notes:${FEED_URL.pathname}:v1`;
+const CHECKED_KEY = `${STORAGE_KEY}:checked`;
 const MAX_TEXT = 16_384;
 const MAX_RELEASES = 12;
 
@@ -32,7 +33,10 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
     root.innerHTML = `<button type="button" data-notes-toggle data-ui-icon="guide" aria-expanded="false" aria-controls="${panelId}">最近更新</button>
       <section class="release-notes-panel" id="${panelId}" aria-label="最近更新" hidden>
         <div class="release-notes-top"><p data-notes-state role="status"></p><button type="button" data-notes-refresh>刷新日志</button></div>
-        <p class="release-notes-installed">当前版本 ${APP_VERSION}</p>
+        <p class="release-notes-installed">当前版本 ${APP_VERSION} <time data-notes-checked hidden></time></p>
+        <div class="release-notes-filter"><label>查找改动 <input type="search" data-notes-search maxlength="80" placeholder="版本或关键词"></label>
+        <label><input type="checkbox" data-notes-newer>只看比当前更新的版本</label></div>
+        <p data-notes-empty hidden>没有匹配的更新。</p>
         <ol class="release-note-list"></ol>
         ${surface === "full" ? updateControlMarkup() : ""}
       </section>`;
@@ -41,11 +45,23 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
       panel.hidden = !panel.hidden;
       toggle.setAttribute("aria-expanded", String(!panel.hidden));
     };
-    return { status: panel.querySelector("[data-notes-state]"), list: panel.querySelector("ol"), refresh: panel.querySelector("[data-notes-refresh]") };
+    return {
+      toggle, status: panel.querySelector("[data-notes-state]"), checked: panel.querySelector("[data-notes-checked]"),
+      list: panel.querySelector("ol"), refresh: panel.querySelector("[data-notes-refresh]"),
+      search: panel.querySelector("[data-notes-search]"), newer: panel.querySelector("[data-notes-newer]"),
+      empty: panel.querySelector("[data-notes-empty]")
+    };
   });
   if (!views.length) return;
   if (storage === undefined) {
     try { storage = container.defaultView?.localStorage; } catch { /* Storage can be disabled by the browser. */ }
+  }
+  function loadChecked() {
+    try {
+      const saved = Number(storage?.getItem(CHECKED_KEY));
+      if (Number.isFinite(saved) && saved > 0 && saved <= Date.now()) return saved;
+    } catch { /* Saved timestamps are optional. */ }
+    return 0;
   }
   function loadSaved() {
     try { return parseReleaseFeed(storage?.getItem(STORAGE_KEY)); } catch { return null; }
@@ -55,13 +71,33 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
     if (text) node.textContent = text;
     return node;
   };
-  let feed = loadSaved(), inFlight = null, rendered = null;
-  function render(status, busy) {
+  let feed = loadSaved(), checked = feed ? loadChecked() : 0, inFlight = null, rendered = null;
+  let status = "", query = "", newerOnly = false, busy = false;
+  const formattedTime = new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  function render(nextStatus = status, nextBusy = busy) {
+    status = nextStatus;
+    busy = nextBusy;
+    const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const items = (feed?.releases ?? []).filter(entry => {
+      const content = [entry.version, entry.title, ...entry.changes].join(" ").toLowerCase();
+      return (!newerOnly || newerVersion(entry.version, APP_VERSION)) && words.every(word => content.includes(word));
+    });
+    const signature = JSON.stringify([feed?.revision, query, newerOnly]);
     for (const view of views) {
-      view.status.textContent = status;
+      if (view.status.textContent !== status) view.status.textContent = status;
       view.refresh.disabled = busy;
-      if (rendered === feed) continue;
-      view.list.replaceChildren(...(feed?.releases ?? []).map(entry => {
+      view.search.disabled = view.newer.disabled = !feed;
+      if (view.search.value !== query) view.search.value = query;
+      view.newer.checked = newerOnly;
+      view.toggle.textContent = feed && newerVersion(feed.releases[0].version, APP_VERSION) ? "最近更新 · 有新版" : "最近更新";
+      view.empty.hidden = !feed || items.length > 0;
+      view.checked.hidden = !checked;
+      if (checked) {
+        view.checked.dateTime = new Date(checked).toISOString();
+        view.checked.textContent = `上次云端检查 ${formattedTime.format(checked)}`;
+      }
+      if (rendered === signature) continue;
+      view.list.replaceChildren(...items.map(entry => {
         const item = element("li"), header = element("header");
         header.append(element("span", entry.version));
         if (entry.version === APP_VERSION) header.append(element("strong", "当前版本"));
@@ -72,7 +108,7 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
         return item;
       }));
     }
-    rendered = feed;
+    rendered = signature;
   }
   function refresh() {
     if (inFlight) return inFlight;
@@ -91,6 +127,8 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
           feed = incoming;
           try { storage?.setItem(STORAGE_KEY, JSON.stringify(feed)); } catch { /* The online panel still works without storage. */ }
         }
+        checked = Date.now();
+        try { storage?.setItem(CHECKED_KEY, String(checked)); } catch { /* Keep the time for this page. */ }
         render("已取得云端日志", false);
       } catch {
         render(feed ? "暂时无法刷新，显示上次保存的日志" : "暂时读不到更新日志，可稍后重试", false);
@@ -101,7 +139,19 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
     });
     return inFlight;
   }
-  for (const view of views) view.refresh.onclick = refresh;
+  for (const view of views) {
+    view.refresh.onclick = refresh;
+    view.search.oninput = () => { query = view.search.value; render(); };
+    view.newer.onchange = () => { newerOnly = view.newer.checked; render(); };
+  }
+  container.defaultView?.addEventListener("storage", event => {
+    if (event.key !== STORAGE_KEY && event.key !== CHECKED_KEY) return;
+    const saved = loadSaved();
+    if (!saved || saved.revision < (feed?.revision ?? 0)) return;
+    if (saved.revision > (feed?.revision ?? 0)) feed = saved;
+    checked = Math.max(checked, loadChecked());
+    render(busy ? status : "显示已保存的日志");
+  });
   container.defaultView?.addEventListener("online", refresh);
   void refresh();
   return { refresh };
