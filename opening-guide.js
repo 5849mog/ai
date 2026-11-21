@@ -2,11 +2,13 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   const mount = document.createElement("div");
   mount.innerHTML = `<dialog class="opening-modal" id="modeDialog" aria-labelledby="modeTitle">
     <header><div><h2 id="modeTitle">对局设置</h2><p>规则与对局方式，开始新局后生效。</p></div><button type="button" data-close>返回棋盘</button></header>
-    <label class="mode-field">常用组合<select id="modePreset"></select></label>
-    <label class="mode-field">棋局规则<select id="ruleMode"><option value="freestyle">无禁手</option><option value="renju">禁手 · 自由开局</option><option value="rif">五手两打</option><option value="taraguchi10">塔拉山口-10</option></select></label>
-    <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 替我下 · 外部对局</option><option value="follow">手动记录双方</option><option value="duel">与 AI 对弈</option></select></label>
-    <p class="mode-description" id="modeDescription">附身模式在棋盘旁逐阶段确认本局角色。己方的开局与应手由 AI 自动给出，对手的操作由你录入。</p>
-    <p class="import-warning">开始将替换本页当前对局；可先从菜单导出记录。</p><button type="button" class="confirm-mode" id="startMode">开始新局</button></dialog>
+    <div class="mode-body">
+      <label class="mode-field mode-preset">常用组合<select id="modePreset"></select></label>
+      <label class="mode-field">棋局规则<select id="ruleMode"><option value="freestyle">无禁手</option><option value="renju">禁手 · 自由开局</option><option value="rif">五手两打</option><option value="taraguchi10">塔拉山口-10</option></select></label>
+      <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 替我下 · 外部对局</option><option value="follow">手动记录双方</option><option value="duel">与 AI 对弈</option></select></label>
+      <p class="mode-description" id="modeDescription">附身模式在棋盘旁逐阶段确认本局角色。己方的开局与应手由 AI 自动给出，对手的操作由你录入。</p>
+    </div>
+    <footer class="mode-footer"><p class="import-warning">开始将替换本页当前对局，可先从菜单导出记录。</p><button type="button" class="confirm-mode" id="startMode">开始新局</button></footer></dialog>
     <dialog class="opening-modal opening-guide" id="guideDialog" aria-labelledby="guideTitle">
     <header><div><h2 id="guideTitle">连珠手帖</h2><p>规则 · 开局 · AI 附身</p></div><button type="button" data-close>返回棋盘</button></header>
     <p class="guide-lead">对手操作，你录入。<br>轮到你，AI 直接出棋。</p>
