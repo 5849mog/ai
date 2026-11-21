@@ -5,10 +5,12 @@ import { syncSvgChildren } from "./svg-view.js";
 const PAD = 46;
 const STEP = 528 / (SIZE - 1);
 const COLS = "ABCDEFGHIJKLMNO";
-const BOARD_DIRECTIONS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+const BOARD_DIRECTIONS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1], PageUp: [0, -5], PageDown: [0, 5] };
 
 export function boardKeyboardIndex(index, key) {
   if (key === "Home") return Math.floor(SIZE * SIZE / 2);
+  if (key === "[") return Math.floor(index / SIZE) * SIZE;
+  if (key === "]") return Math.floor(index / SIZE) * SIZE + SIZE - 1;
   if (!Object.hasOwn(BOARD_DIRECTIONS, key)) return null;
   const [dx, dy] = BOARD_DIRECTIONS[key];
   const limit = value => Math.max(0, Math.min(SIZE - 1, value));
@@ -138,6 +140,13 @@ function renderBoard(boardSvg, state, idPrefix) {
     svg += '<line class="grid-line" x1="' + p + '" y1="' + PAD + '" x2="' + p + '" y2="' + (PAD + (SIZE - 1) * STEP) + '"/>';
     svg += '<line class="grid-line" x1="' + PAD + '" y1="' + p + '" x2="' + (PAD + (SIZE - 1) * STEP) + '" y2="' + p + '"/>';
   }
+  if (state.coordinates) {
+    for (let i = 0; i < SIZE; i++) {
+      const p = PAD + i * STEP;
+      svg += `<text class="board-coordinate" x="${p}" y="34">${COLS[i]}</text><text class="board-coordinate" x="35" y="${p}">${SIZE - i}</text>`;
+      if (state.farCoordinates) svg += `<text class="board-coordinate" x="${p}" y="585">${COLS[i]}</text><text class="board-coordinate" x="585" y="${p}">${SIZE - i}</text>`;
+    }
+  }
   for (const x of [3, 7, 11]) {
     for (const y of [3, 7, 11]) {
       const p = point(y * SIZE + x);
@@ -210,6 +219,11 @@ function renderBoard(boardSvg, state, idPrefix) {
   if (answer && !editable) {
     const p = point(answerIndex); svg += `<circle class="answer-ring" cx="${p.x}" cy="${p.y}" r="18" data-answer="${answerIndex}"/>`;
   }
+  for (const { index, number } of state.moveLabels ?? []) {
+    if (!board[index]) continue;
+    const p = point(index);
+    svg += `<text class="board-move-number" data-number-color="${board[index]}" x="${p.x}" y="${p.y + 1}" aria-hidden="true">${number}</text>`;
+  }
   const cursor = state.keyboardCursor;
   if (canInteract && Number.isInteger(cursor?.index) && cursor.index >= 0 && cursor.index < board.length) {
     const p = point(cursor.index);
@@ -245,7 +259,7 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
       const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
         Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
-        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color]), state.keyboardCursor]);
+        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color]), state.keyboardCursor, state.coordinates, state.farCoordinates, state.moveLabels]);
       if (key === previousKey) return false;
       const transition = boardTransition(previousBoard, state.board, state.lastMove);
       renderBoard(boardSvg, state, idPrefix);

@@ -29,7 +29,7 @@ export function createGameMotion({ root, board, status, frame, notice }) {
           { opacity: 1, transform: "translateY(0)" }
         ], { duration: 260, easing: "cubic-bezier(.2,.75,.25,1)" });
       }
-      if (snapshot.winner && !previousWinner && !reduced()) {
+      if (snapshot.winner && !previousWinner && !reduced() && board.dataset.stillBoard !== "true") {
         frame.animate?.([{ opacity: .82 }, { opacity: 1 }], { duration: 720, easing: "ease-out" });
       }
       previousText = text; previousWinner = snapshot.winner || 0;

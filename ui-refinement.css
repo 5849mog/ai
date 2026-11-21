@@ -206,3 +206,52 @@
 @media (forced-colors:active) {
   .opening-page .record-options button[data-ui-icon]::before { background:ButtonText; }
 }
+
+/* Board preferences apply only to the live SVG. */
+.opening-page [data-board-appearance] { margin-block: 4px; }
+[data-open-appearance] { cursor: pointer; color: var(--ui-ink); }
+.opening-page .record-options:has(.board-appearance:not([hidden])) { width: min(23rem, calc(100vw - 20px)); }
+.board-appearance:not([hidden]) { padding: 8px; background: #f5f5ed; border-radius: 8px; }
+.appearance-theme { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block: 6px; }
+.appearance-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; margin-bottom: 5px; }
+.appearance-options label { display: flex; align-items: center; gap: 5px; min-height: 32px; font-size: 12px; color: var(--ui-ink); }
+.appearance-options input { accent-color: #41644a; }
+.opening-page #boardSvg[data-theme="paper"] .board-surface { fill: #f2eedf; }
+.opening-page #boardSvg[data-theme="slate"] .board-surface { fill: #c9d1c6; }
+#boardSvg:is([data-theme="paper"], [data-theme="slate"]) .wood-texture { display: none; }
+#boardSvg[data-star-points="false"] .star-point,
+#boardSvg[data-last-marker="false"] .last-ring,
+#boardSvg[data-answer-marker="false"] .answer-ring,
+#boardSvg[data-aim-guides="false"] .aim-guides,
+#boardSvg[data-textured-stones="false"] .stone-texture,
+#boardSvg[data-winning-line="false"] :is(.winning-connector, .winning-ring) { display: none; }
+#boardSvg[data-contrast="true"] .grid-line { stroke: #3a3427; stroke-width: 1.75; }
+#boardSvg[data-large-markers="true"] :is(.turn-hint-number, .recommendation-number) { font-size: 14px; font-weight: 750; }
+.board-coordinate, .board-move-number { text-anchor: middle; dominant-baseline: central; pointer-events: none; font: 650 10px system-ui, sans-serif; }
+.board-coordinate { fill: #4e4836; font-size: 12px; }
+.board-move-number { fill: #383727; font-size: 11px; }
+.board-move-number[data-number-color="1"] { fill: #fffbec; }
+#boardSvg[data-move-numbers="true"] .last-ring { r: 12; opacity: .7; animation: none; }
+
+.opening-page :is([data-board-appearance], [data-board-facts]) > button { min-height: 36px; }
+.opening-page .record-options:has(.board-facts:not([hidden])) { width: min(23rem, calc(100vw - 20px)); }
+.board-facts:not([hidden]) { margin-top: 4px; padding: 8px; border: 1px solid var(--ui-border); border-radius: 8px; }
+.board-facts dl { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 12px; margin: 0 0 8px; }
+.board-facts dt { color: var(--ui-ink); font-weight: 650; }
+.board-facts dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.simple-mode.simple-rate-off #simpleWinRate { display: none; }
+.draft-tools { margin-block: 4px; }
+.draft-tools summary { cursor: pointer; }
+.draft-tools label { display: inline-flex; align-items: center; gap: 6px; }
+.draft-tools :is(select, button) { min-height: 35px; margin-block: 3px; max-width: 100%; }
+[data-frame-size] { font-variant-numeric: tabular-nums; font-size: 12px; color: #4d6351; }
+.release-notes-filter { display: grid; gap: 5px; }
+.release-notes-filter label { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.release-notes-filter input[type="search"] { min-width: 0; width: 100%; padding: 5px; border: 1px solid var(--ui-border); border-radius: 6px; }
+[data-notes-checked]:not([hidden]) { display: block; }
+#boardSvg[data-still-board="true"] :is(.stone-impact, .removed-stone) { display: none; }
+#boardSvg[data-still-board="true"] :is(.last-ring, .turn-hint, .winning-connector, .winning-ring, .hover-stone, .pending-stone, .pending-ring, .aim-guides line, .recommendation-marker, .opening-proposal, .answer-ring),
+.board-frame:has(#boardSvg[data-still-board="true"])::after { animation: none; }
+#boardSvg[data-still-board="true"] .winning-connector { stroke-dashoffset: 0; }
+.opening-page .board-frame:has(#boardSvg[data-theme="paper"]) { background: #dfd9ca; border-color: #b2a891; box-shadow: inset 0 1px #f4efe0, 0 2px #bdb29d, 0 12px 32px #51483624; }
+.opening-page .board-frame:has(#boardSvg[data-theme="slate"]) { background: #aebcaf; border-color: #899b8e; box-shadow: inset 0 1px #e1eadf, 0 2px #899b8e, 0 12px 32px #35483924; }

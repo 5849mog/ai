@@ -1,4 +1,5 @@
 import { BLACK, WHITE, CELL_COUNT, validIndex, validatePosition } from "./game-rules.js";
+import { boardTransformMarkup, transformBoard, transformedIndex } from "./board-transform.js";
 import { createRecord } from "./game-record.js";
 import { boardKeyboardIndex, coordinate, createBoardView } from "./board-view.js";
 
@@ -9,9 +10,12 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   const view = createBoardView(svg, { idPrefix: "setup-" });
   const side = document.querySelector("#setupSide"), actor = document.querySelector("#setupActor");
   const start = document.querySelector("#startSetup"), undo = document.querySelector("#undoSetup"), alternate = document.querySelector("#setupAlternate");
-  const clear = document.querySelector("#clearSetup");
+  const clear = document.querySelector("#clearSetup"), restore = document.querySelector("#restoreSetup"), redo = document.querySelector("#redoSetup");
+  const transform = document.querySelector("#setupTransform"), applyTransform = document.querySelector("#applySetupTransform");
+  transform.innerHTML = boardTransformMarkup();
   const message = document.querySelector("#setupMessage"), tools = [...dialog.querySelectorAll("[data-setup-tool]")];
-  const draft = new Uint8Array(CELL_COUNT), history = [];
+  const draft = new Uint8Array(CELL_COUNT), history = [], future = [];
+  let original, enteredSide, enteredActor;
   let tool = BLACK, keyboardIndex = 112, hoverIndex = -1, keyboardActive = false, copilot = false, follow = false, alternating = false;
 
   function render() {
@@ -26,17 +30,31 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     document.querySelector("#setupBlackCount").textContent = draft.filter(value => value === BLACK).length;
     document.querySelector("#setupWhiteCount").textContent = draft.filter(value => value === WHITE).length;
     undo.disabled = history.length === 0;
-    clear.disabled = !draft.some(Boolean);
+    clear.disabled = applyTransform.disabled = !draft.some(Boolean);
+    restore.disabled = draft.every((color, index) => color === original.board[index]) && side.value === original.side && actor.value === original.actor;
+    redo.disabled = future.length === 0;
     alternate.setAttribute("aria-pressed", String(alternating)); alternate.textContent = `交替摆子：${alternating ? "开" : "关"}`;
     for (const button of tools) button.setAttribute("aria-pressed", String(Number(button.dataset.setupTool) === tool));
-    svg.setAttribute("aria-label", `自定义棋盘，当前${tool === 0 ? "擦除棋子" : tool === BLACK ? "摆黑棋" : "摆白棋"}。${keyboardActive ? `已选 ${coordinate(keyboardIndex)}。` : ""}方向键选点，回车编辑，0 擦除、1 黑棋、2 白棋。`);
+    svg.setAttribute("aria-label", `自定义棋盘，当前${tool === 0 ? "擦除棋子" : tool === BLACK ? "摆黑棋" : "摆白棋"}。${keyboardActive ? `已选 ${coordinate(keyboardIndex)}。` : ""}方向键选点，回车编辑，0 擦除、1 黑棋、2 白棋、Z 撤回、Y 重做。`);
     view.render({ board: draft, lastMove: -1, pendingIndex: -1, hoverIndex: tool ? hoverIndex : -1,
       keyboardCursor: keyboardActive ? { index: keyboardIndex, available: draft[keyboardIndex] !== tool } : null,
       playerColor: tool || BLACK, canInteract: true, editable: true });
   }
+  function snapshot() {
+    return { board: draft.slice(), side: side.value, actor: actor.value, tool, alternating, index: keyboardIndex };
+  }
+  function push(index = keyboardIndex, fields = {}) {
+    if (history.length === CELL_COUNT) history.shift();
+    history.push({ ...snapshot(), index, ...fields });
+    future.length = 0;
+  }
+  function restoreDraft(saved) {
+    draft.set(saved.board); side.value = saved.side; actor.value = saved.actor; tool = saved.tool; alternating = saved.alternating;
+    keyboardIndex = saved.index; hoverIndex = -1; enteredSide = saved.side; enteredActor = saved.actor;
+  }
   function edit(index) {
     if (!dialog.open || !validIndex(index) || draft[index] === tool) return false;
-    history.push({ board: draft.slice(), placedTool: alternating && tool ? tool : null, index }); draft[index] = tool;
+    push(index); draft[index] = tool;
     if (alternating && tool) tool = 3 - tool;
     keyboardIndex = index; render(); return true;
   }
@@ -50,25 +68,39 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     follow = current.workflow === "follow"; actor.parentElement.hidden = follow;
     actor.querySelector('[value="player"]').textContent = copilot ? "我录入对手棋" : "我来走";
     actor.querySelector('[value="ai"]').textContent = copilot ? "AI 替我落子" : "AI 来走";
-    draft.set(current.board); history.length = 0; tool = BLACK; alternating = keyboardActive = false; hoverIndex = -1; keyboardIndex = 112;
+    draft.set(current.board); history.length = future.length = 0; tool = BLACK; alternating = keyboardActive = false; hoverIndex = -1; keyboardIndex = 112;
     side.value = String(current.currentColor);
     actor.value = current.currentColor === current.playerColor ? (copilot ? "ai" : "player") : (copilot ? "player" : "ai");
+    original = snapshot(); enteredSide = original.side; enteredActor = original.actor; transform.selectedIndex = 0; dialog.querySelector(".draft-tools").open = false;
     document.querySelector("#recordMenu").open = false;
     onModalChange(true); render(); dialog.showModal();
   });
   for (const button of tools) button.addEventListener("click", () => { tool = Number(button.dataset.setupTool); render(); });
-  side.addEventListener("change", render);
-  actor.addEventListener("change", render);
+  side.addEventListener("change", () => { push(keyboardIndex, { side: enteredSide }); enteredSide = side.value; render(); });
+  actor.addEventListener("change", () => { push(keyboardIndex, { actor: enteredActor }); enteredActor = actor.value; render(); });
   alternate.addEventListener("click", () => { alternating = !alternating; render(); });
   undo.addEventListener("click", () => {
-    const saved = history.pop(); if (!saved) return;
-    draft.set(saved.board);
-    if (alternating && saved.placedTool && tool === 3 - saved.placedTool) tool = saved.placedTool;
-    if (saved.index != null) keyboardIndex = saved.index;
-    render();
+    if (!history.length) return;
+    future.push(snapshot()); restoreDraft(history.pop()); render();
+  });
+  redo.addEventListener("click", () => {
+    if (!future.length) return;
+    history.push(snapshot()); restoreDraft(future.pop()); render();
   });
   clear.addEventListener("click", () => {
-    if (draft.some(Boolean)) { history.push({ board: draft.slice() }); draft.fill(0); hoverIndex = -1; render(); }
+    if (draft.some(Boolean)) { push(); draft.fill(0); hoverIndex = -1; render(); }
+  });
+  restore.addEventListener("click", () => { push(); restoreDraft(original); render(); });
+  applyTransform.addEventListener("click", () => {
+    const action = transform.value, next = transformBoard(draft, action);
+    if (next.every((color, index) => color === draft[index])) {
+      message.textContent = "这个变换没有改变棋子位置或颜色。";
+      return;
+    }
+    push();
+    draft.set(next);
+    if (action === "swap") enteredSide = side.value = String(BLACK + WHITE - Number(side.value));
+    keyboardIndex = transformedIndex(keyboardIndex, action); hoverIndex = -1; render();
   });
   document.querySelector("#cancelSetup").addEventListener("click", () => dialog.close());
   svg.addEventListener("click", event => {
@@ -87,7 +119,9 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const next = boardKeyboardIndex(keyboardIndex, event.key);
     if (next !== null) { event.preventDefault(); keyboardIndex = next; keyboardActive = true; hoverIndex = -1; render(); }
-    else if (event.key === "Enter" || event.key === " ") { event.preventDefault(); keyboardActive = true; if (!edit(keyboardIndex)) render(); }
+    else if (["Enter", " "].includes(event.key)) { event.preventDefault(); if (!event.repeat) { keyboardActive = true; if (!edit(keyboardIndex)) render(); } }
+    else if (event.key.toLowerCase() === "z" && !event.repeat && !undo.disabled) { event.preventDefault(); undo.click(); }
+    else if (event.key.toLowerCase() === "y" && !event.repeat && !redo.disabled) { event.preventDefault(); redo.click(); }
     else if (["0", "1", "2"].includes(event.key)) { event.preventDefault(); tool = Number(event.key); render(); }
   });
   start.addEventListener("click", () => {
@@ -101,7 +135,7 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
     } catch (error) { message.textContent = error.message; message.dataset.state = "error"; }
   });
   dialog.addEventListener("close", () => {
-    history.length = 0; onModalChange(false);
+    history.length = future.length = 0; onModalChange(false);
     const trigger = document.body.classList.contains("simple-mode") ? "[aria-controls='simpleQuickTools']" : "#recordMenu summary";
     document.querySelector(trigger)?.focus({ preventScroll: true });
   });

@@ -15,6 +15,9 @@ import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
 import { setupGameEnhancements } from "./game-enhancements.js";
 import { setupAppUpdates, createSafeUpdateGate } from "./app-update.js";
+import { THINKING_VALUES, SPECTATOR_DELAYS } from "./thinking-options.js";
+import { setupBoardFacts } from "./board-facts.js";
+import { setupBoardAppearance } from "./board-preferences.js";
 import { setupReleaseNotes } from "./release-notes.js";
 import { endgameEstimate, immediateEnding } from "./endgame-estimate.js";
 import { setupRecordUi } from "./record-ui.js";
@@ -40,9 +43,9 @@ let busy = false, modal = false, advice = null, stats = null, statsColor = 1, po
 let updateLaunchUntouched = true, updateLoadSafe = true;
 for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
-let keyboardActive = false;
+let keyboardActive = false, appearance;
 let immediate = null, emptyCount = 225;
-let forbiddenInput = null, enhancements;
+let forbiddenInput = null, enhancements, boardFacts;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
 try { showHints = localStorage.getItem("gomoku-show-hints") !== "false"; } catch {}
 const automaticTurn = () => isAutomaticTurn(session) || (selfPlay && session.workflow === "duel" && !session.winner && session.stage !== "setup");
@@ -50,7 +53,7 @@ const canPauseThinking = () => !modal && !paused && !session.winner && state !==
   && (selfPlay || adaptiveThinking || automaticTurn());
 let selfPlayTimer=null, singleStep=false;
 const spectator={ black:"shared", white:"shared", delay:"0" };
-const spectatorOptions={black:["shared","100","500","1000","5000","10000"],white:["shared","100","500","1000","5000","10000"],delay:["0","500","1000","2000"]};
+const spectatorOptions = { black: ["shared", ...THINKING_VALUES], white: ["shared", ...THINKING_VALUES], delay: SPECTATOR_DELAYS.map(([value]) => String(value)) };
 try {
   const saved=JSON.parse(localStorage.getItem("gomoku-spectator-settings") || "{}");
   for(const key of Object.keys(spectator)) if(spectatorOptions[key].includes(saved?.[key])) spectator[key]=saved[key];
@@ -75,7 +78,7 @@ try {
   }
   if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
   if (loaded.error) { updateLoadSafe = false; notify(loaded.error, true); }
-  const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (["100", "500", "1000", "5000", "10000", ADAPTIVE_MODE].includes(time)) $("#timeSelect").value = time;
+  const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (THINKING_VALUES.includes(time)) $("#timeSelect").value = time;
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
 } catch { updateLoadSafe = false; notify("上次连珠记录无法恢复，已开始新局；原无禁手记录不受影响", true); }
 function persist() {
@@ -215,8 +218,10 @@ function render() {
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
   const previewText = pending >= 0 ? `再点一次确认 · ${coordinate(pending)}` : "";
   const keyboardCursor = keyboardActive && interactive() ? { index: keyboard, available: session.canPoint(keyboard) } : null;
-  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: requestedBoardMotion,
-    keyboardCursor,
+  const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: appearance?.stillBoard ? "none" : requestedBoardMotion,
+    keyboardCursor, coordinates: appearance?.coordinates, farCoordinates: appearance?.farCoordinates,
+    moveLabels: appearance?.moveNumbers && (!["rif", "taraguchi10"].includes(session.rule) || session.moves.length > 6)
+      ? session.moves.slice(-8).map((index, offset, recent) => ({ index, number: session.moves.length - recent.length + offset + 1 })) : [],
     moveHints: showHints ? hints.points : [],
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && ["stone","select"].includes(session.events.at(-1)?.type) ? session.lastMove : -1,
@@ -225,7 +230,8 @@ function render() {
   const text = paused ? "思考已暂停 · 可继续或悔棋" : selfPlay && !session.winner && session.stage !== "setup" ? state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中` : busy ? deepPhase || (automaticTurn() ? "AI 思考中" : "正在分析当前操作…") : previewText || session.description();
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
   $("#searchClock").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
-  $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}`;
+  const last = session.lastMove >= 0 ? ` · 最近落子 ${coordinate(session.lastMove)}` : "";
+  $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}${last}`;
   const first = session.events[0], forcedOnly = session.events.length === 1 && !session.options.seed && ["rif", "taraguchi10"].includes(session.rule) && first?.type === "stone" && first.index === 112 && first.automatic;
   $("#undoButton").disabled = pending < 0 && (forcedOnly || !session.events.length || session.workflow === "duel" && !session.actors.includes(0)); $("#retryButton").hidden = state !== "error";
   $("#simpleUndoButton").disabled = $("#undoButton").disabled;
@@ -248,8 +254,9 @@ function render() {
   $(".game-settings").dataset.controls = session.workflow === "follow" ? "3" : "2";
   $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
   $("#timeSelect").disabled = busy && !selfPlay; $("#ponderToggle").disabled = busy;
+  svg.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Home End PageUp PageDown Enter R Z P");
   const cursorLabel = keyboardCursor ? `当前 ${coordinate(keyboardCursor.index)}${keyboardCursor.available ? "" : "，此处不可选"}。` : "";
-  svg.setAttribute("aria-label", `15 乘 15 连珠棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}${cursorLabel}方向键选点，回车确认。`);
+  svg.setAttribute("aria-label", `15 乘 15 连珠棋盘。${text}。${session.width < 15 ? `限中央 ${session.width} 乘 ${session.width}。` : ""}${last ? `最近落子 ${coordinate(session.lastMove)}。` : ""}${cursorLabel}方向键选点，回车确认。`);
   svg.setAttribute("aria-disabled", String(!interactive())); Object.assign(svg.dataset, { stage: session.stage, rule: session.rule, workflow: session.workflow });
   display?.render({ playerColor: session.playerColor, winner: session.winner, state, text, busy });
   if (display?.simple) {
@@ -261,6 +268,7 @@ function render() {
   renderFlow(previewText);
   renderAnalysis();
   enhancements?.render();
+  boardFacts?.render();
   motion.render({ text, busy, paused, winner: session.winner, currentColor: session.color, state });
 }
 async function syncPonder() {
@@ -378,7 +386,7 @@ svg.addEventListener("click", event => {
     if (pending >= 0) { pending = -1; render(); }
     void place(index); return;
   }
-  if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && pending !== index) { pending = index; hover = -1; render(); } else void place(index);
+  if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && appearance?.touchConfirm !== false && pending !== index) { pending = index; hover = -1; render(); } else void place(index);
 });
 function recommendFromKeyboard(event) {
   if (event.key.toLowerCase() !== "r" || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
@@ -389,12 +397,18 @@ function recommendFromKeyboard(event) {
 svg.addEventListener("keydown", event => {
   recommendFromKeyboard(event);
   if (!interactive() || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-  const next = boardKeyboardIndex(keyboard, event.key);
+  const next = event.key === "End" && session.lastMove >= 0 ? session.lastMove : boardKeyboardIndex(keyboard, event.key);
   if (next !== null) {
     event.preventDefault();
     keyboard = next;
     keyboardActive = true; pending = hover = -1; render();
-  } else if (["Enter", " "].includes(event.key)) { event.preventDefault(); void place(pending >= 0 ? pending : keyboard); }
+  } else if (["Enter", " "].includes(event.key)) { event.preventDefault(); if (!event.repeat) void place(pending >= 0 ? pending : keyboard); }
+});
+svg.addEventListener("keydown", event => {
+  if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  const key = event.key.toLowerCase();
+  if (key === "z" && !$("#undoButton").disabled) { event.preventDefault(); $("#undoButton").click(); }
+  if (key === "p" && (paused || canPauseThinking())) { event.preventDefault(); if (paused) resumeThinking(); else pauseThinking(); }
 });
 for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventListener("click", event => {
   const button = event.target.closest("[data-flow-action]"); if (!button || button.disabled) return;
@@ -494,6 +508,14 @@ const updateGate = createSafeUpdateGate({
   storage: { getItem:key=>sessionStorage.getItem(key), setItem:(key,value)=>sessionStorage.setItem(key,value) },
   key: `gomoku-auto-update:${location.pathname}`, save: persist
 });
+boardFacts = setupBoardFacts({ getSession: () => session, getCursor: () => pending >= 0 ? pending : keyboardActive ? keyboard : -1,
+  workflowLabel, getHints: () => hints.position, navigator: window.navigator, notify });
+setupBoardAppearance({ document, board: svg, storage: localStorage, onChange: settings => {
+  appearance = settings;
+  document.body.classList.toggle("simple-rate-off", !settings.simpleRate);
+  if (!settings.touchConfirm) pending = -1;
+  render();
+} });
 setupReleaseNotes();
 setupAppUpdates({ autoApply: version => {
   const decision = updateGate(version); if (decision === true) updateLaunchUntouched = false; return decision;
