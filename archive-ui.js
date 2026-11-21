@@ -41,14 +41,14 @@ export function createArchiveUi(root,{archive,close,resume,review,exportRecord,e
       card.className="archive-card";card.dataset.archiveId=entry.id;
       const choose=document.createElement('label'),checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selected.has(entry.id);checkbox.setAttribute('aria-label',`选择对局 ${entry.name||archiveTitle(entry)}`);checkbox.onchange=()=>{checkbox.checked?selected.add(entry.id):selected.delete(entry.id);root.querySelector('[data-selected-count]').textContent=`已选 ${selected.size} 局（跨筛选保留）`;for(const selector of ['[data-clear-selected]','[data-favorite-selected]','[data-unfavorite-selected]','[data-export-selected]'])root.querySelector(selector).disabled=!selected.size;};choose.className='archive-choice';choose.append(checkbox,document.createTextNode('选择'));title.textContent=(entry.name?`${entry.name} · `:"")+archiveTitle(entry);
       detail.textContent=new Date(entry.updatedAt).toLocaleString("zh-CN")+(entry.meta?.mode==="adaptive"?" · 自适应深思 0～6 秒":entry.meta?.timeMs?` · 每步最多 ${entry.meta.timeMs/1000} 秒`:"");
-      const button=(text,run)=>{const b=document.createElement("button");b.type="button";b.textContent=text;b.onclick=()=>{try {run();}catch(error){status=error.message;renderNotice();}};actions.append(b);};
+      const button=(text,run,tone)=>{const b=document.createElement("button");b.type="button";b.textContent=text;if(tone)b.dataset.buttonTone=tone;b.onclick=()=>{try {run();}catch(error){status=error.message;renderNotice();}};actions.append(b);};
       if(!entry.winner) button("继续这局",()=>resume(entry));
       button("复盘",()=>review(entry.record));
       button("导出棋谱",()=>exportRecord(entry.record));
       button("导出 SGF",()=>{exportRecord(entry.record,'sgf');status=entry.rule==='freestyle'?"SGF 已导出。":"SGF 记录落子；完整开局操作请导出五目棋谱。";renderNotice();});
       if(exportImage) {const b=document.createElement("button");b.type="button";b.textContent="保存棋盘图";b.onclick=async()=>{b.disabled=true;try{await exportImage(entry.record);status="棋盘图已导出。";}catch(error){status=`图片导出失败：${error.message}`;}finally{b.disabled=false;renderNotice();}};actions.append(b);}
       button(entry.favorite?"取消收藏":"收藏",()=>{status=archive.favorite(entry.id)?"":"未能保存收藏，请检查设备存储。";render();});
-      button("删除",()=>{if(archive.remove(entry.id)){removed=entry;status="已删除一局。";}else status="删除未成功，原记录仍保留。";render();});
+      button("删除",()=>{if(archive.remove(entry.id)){removed=entry;status="已删除一局。";}else status="删除未成功，原记录仍保留。";render();},"caution");
       const edit=document.createElement("details"),summary=document.createElement("summary"),name=document.createElement("input"),note=document.createElement("textarea"),save=document.createElement("button");
       summary.textContent="名称与备注";name.placeholder="为这局取个名字";name.setAttribute("aria-label","对局名称");name.maxLength=40;name.value=entry.name??"";
       note.placeholder="记录思路或下次想尝试的变化";note.setAttribute("aria-label","对局备注");note.maxLength=500;note.value=entry.note??"";

@@ -7,8 +7,9 @@
     <meta name="theme-color" content="#101612" />
     <title>关于五目 · 每一层，都有来处</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=23" />
-    <link rel="stylesheet" href="./about.css?v=5" />
+    <link rel="stylesheet" href="./styles.css?v=24" />
+    <link rel="stylesheet" href="./about.css?v=6" />
+    <link rel="stylesheet" href="./button-theme.css" />
     <script src="./about.js?v=3" defer></script>
   </head>
   <body class="about-page">
@@ -16,7 +17,7 @@
     <header class="about-header">
       <a class="about-brand" href="./" aria-label="五目，回到棋盘"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
       <nav class="about-nav" aria-label="关于页章节"><a href="#engine" data-chapter-link="engine"><span>01</span>推演</a><a href="#recommendation" data-chapter-link="recommendation"><span>02</span>推荐</a><a href="#sources" data-chapter-link="sources"><span>03</span>来源星图</a><a href="#license" data-chapter-link="license"><span>04</span>许可</a></nav>
-      <a class="back-link" href="./"><span>回到棋盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a>
+      <a class="back-link" data-ui-button="secondary" href="./"><span>回到棋盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a>
       <span class="reading-progress" aria-hidden="true"><i></i></span>
     </header>
 
@@ -27,7 +28,7 @@
           <p class="hero-kicker"><span>WUMU / OPEN BY DESIGN</span><span>关于与开源许可</span></p>
           <h1 id="heroTitle">每一层，<br /><em>都有来处。</em></h1>
           <p class="hero-lead">一盘棋，在你的设备里思考。<br />从一次落子，到一行源码，皆可见、可查、可延续。</p>
-          <div class="hero-actions"><a class="primary-link" href="#sources">探索来源星图<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6" /></svg></a><a class="report-link" href="./report.html" aria-label="查看云端引擎测试报告"><span><i aria-hidden="true"></i>查看测试报告</span><small>CLOUD DATA</small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a><a class="source-link" href="https://github.com/5849mog/ai">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a></div>
+          <div class="hero-actions"><a class="primary-link" data-ui-button="primary" href="#sources">探索来源星图<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6" /></svg></a><a class="report-link" data-ui-button="secondary" href="./report.html" aria-label="查看云端引擎测试报告"><span><i aria-hidden="true"></i>查看测试报告</span><small>CLOUD DATA</small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a><a class="source-link" href="https://github.com/5849mog/ai">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a></div>
         </div>
 
         <figure class="hero-visual" aria-label="棋盘化为开源星图，黑白棋子沿轨道相连">
@@ -186,7 +187,7 @@
         <div class="closing-orbit" aria-hidden="true"><i></i><i></i><span></span><span></span></div>
         <p class="section-label">THE NEXT MOVE IS YOURS.</p>
         <h2 id="closingTitle">开放，让下一手<br />拥有更多可能。</h2>
-        <a class="return-button" href="./">回到棋盘<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+        <a class="return-button" data-ui-button="primary" href="./">回到棋盘<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </section>
     </main>
     <footer class="about-footer"><a class="footer-brand" href="./">五目 <span>/ GOMOKU STUDIO</span></a><p>认真对弈，自在落子。</p><a href="https://github.com/5849mog/ai">开源项目<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></footer>

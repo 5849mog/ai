@@ -1,0 +1,175 @@
+:root {
+  --control-ink: #24352a;
+  --control-muted: #546257;
+  --control-paper: #fffdf8;
+  --control-surface: #f4f5ee;
+  --control-border: #dce2d7;
+  --control-hover: #eaf0e6;
+  --control-pressed: #e1eadf;
+  --control-selected-hover: #d8e5d8;
+  --control-selected-border: #a1b7a4;
+  --control-primary: #355642;
+  --control-primary-hover: #2c4938;
+  --control-primary-pressed: #253e31;
+  --control-focus: #54735b;
+  --control-radius: 10px;
+  --control-duration: 150ms;
+  --control-press-scale: .978;
+}
+
+/* The report and About keep their own page palettes. Their dark surfaces
+   derive button contrast from these local values. */
+.about-page,
+.report-page :is(.report-header, .report-hero, .real-replay, .dark-table) {
+  --control-ink: #eef4eb;
+  --control-muted: #c2d0c2;
+  --control-surface: #29382f;
+  --control-border: #46584b;
+  --control-hover: #33463a;
+  --control-pressed: #3c5042;
+  --control-selected-hover: #465f4d;
+  --control-selected-border: #819e86;
+  --control-primary: #dce9db;
+  --control-primary-hover: #c9dec9;
+  --control-primary-pressed: #b9cfba;
+  --control-primary-ink: #233a2c;
+  --control-focus: #a4c1a7;
+}
+
+:is(.opening-page, .about-page, .report-page, .update-page)
+  :is(button, .image-picker, .record-menu > summary, a[data-ui-button]):where(:not(.simple-quick-tools *)) {
+  color: var(--button-color, var(--control-ink));
+  background: var(--button-fill, var(--control-surface));
+  border: 1px solid var(--button-border, var(--control-border));
+  border-radius: var(--control-radius);
+  box-shadow: none;
+  font-weight: var(--button-weight, 600);
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--control-duration) ease, border-color var(--control-duration) ease,
+    color var(--control-duration) ease, scale var(--control-duration) ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:is(.opening-page, .about-page, .report-page, .update-page)
+  :is(button, .record-menu > summary, a[data-ui-button]):where(:not(.simple-quick-tools *)):focus-visible,
+.opening-page .image-picker:has(input:focus-visible) {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+
+.opening-page :where(.record-options button:not(.release-notes-panel *)) {
+  --button-fill: transparent;
+  --button-border: transparent;
+  --button-hover: var(--control-hover);
+  --button-pressed: var(--control-pressed);
+}
+
+:is(.opening-page, .about-page, .report-page, .update-page)
+  :is(button[aria-pressed="true"], button[aria-expanded="true"], button[data-suggested="true"], .record-menu[open] > summary):where(:not(.simple-quick-tools *)) {
+  --button-fill: var(--control-pressed);
+  --button-border: var(--control-selected-border);
+  --button-hover: var(--control-selected-hover);
+}
+
+:is(.opening-page, .about-page, .report-page, .update-page)
+  :is(.icon-button-primary, .confirm-import, .confirm-mode, .tool-primary, [data-ui-button="primary"]):where(:not(.simple-quick-tools *)) {
+  --button-color: var(--control-primary-ink, #fff);
+  --button-fill: var(--control-primary);
+  --button-border: var(--control-primary);
+  --button-hover: var(--control-primary-hover);
+  --button-pressed: var(--control-primary-pressed);
+  --button-weight: 650;
+}
+
+.opening-page :is(#clearSetup, [data-flow-action="forbidden"][data-value="confirm"], [data-button-tone="caution"]) {
+  --button-color: #774337;
+  --button-fill: #faf0e9;
+  --button-border: #e7d2c9;
+  --button-hover: #f3e5de;
+  --button-pressed: #ead9cf;
+}
+
+.opening-page :is(.game-actions, .simple-controls) .icon-button,
+.opening-page .record-menu > summary { border-radius: calc(var(--control-radius) + 2px); }
+.opening-page .record-menu > summary[aria-label] { color: var(--control-ink); }
+.opening-page :is(.simple-controls, .game-actions) .icon-button svg { width: 16px; height: 16px; }
+.opening-page .simple-controls .icon-button small { opacity: .82; }
+.opening-page :is(.setup-header, .opening-modal header, .tool-header) > button { padding-inline: 12px; }
+.opening-page :is(.time-control select, .color-control select, .ponder-control, .mode-field select, .setup-turn select, .import-color select) {
+  border-color: var(--control-border);
+  border-radius: var(--control-radius);
+  background: var(--control-paper);
+  box-shadow: none;
+}
+.opening-page .ponder-control input:checked { border-color: var(--control-primary); background: var(--control-primary); }
+.opening-page .image-picker { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; }
+.opening-page .record-options button:focus-visible { outline-offset: -3px; }
+.opening-page :is(.draft-tools, .spectator-settings, .review-jumps, .archive-edit, .archive-preview) > summary {
+  border-radius: 6px;
+  text-underline-offset: 3px;
+}
+.opening-page :is(.draft-tools, .spectator-settings, .review-jumps, .archive-edit, .archive-preview) > summary:hover { text-decoration: underline; }
+
+.about-page .source-node {
+  --button-fill: transparent;
+  --button-border: transparent;
+}
+.about-page .source-node[aria-pressed="true"] { --button-fill: var(--control-surface); --button-border: var(--control-selected-border); }
+:is(.about-page, .report-page) :is(.back-link, .report-back, .report-link, .raw-link)[data-ui-button] { padding-inline: 12px; }
+.update-page a[data-ui-button] { display: inline-flex; align-items: center; min-height: 42px; padding: 6px 12px; }
+.update-page nav { flex-wrap: wrap; }
+@media (hover: hover) {
+  :is(.opening-page, .about-page, .report-page, .update-page)
+    :is(button, .image-picker, .record-menu > summary, a[data-ui-button]):where(:not(.simple-quick-tools *, :disabled, [aria-disabled="true"], :active)):hover {
+    background-color: var(--button-hover, var(--control-hover));
+  }
+}
+
+:is(.opening-page, .about-page, .report-page, .update-page)
+  :is(button, .image-picker, .record-menu > summary, a[data-ui-button]):where(:not(.simple-quick-tools *, :disabled, [aria-disabled="true"])):active {
+  background-color: var(--button-pressed, var(--control-pressed));
+  scale: var(--control-press-scale);
+}
+
+:is(.opening-page, .about-page, .report-page, .update-page)
+  button:where(:not(.simple-quick-tools *)):is(:disabled, [aria-disabled="true"]) { opacity: .50; cursor: default; }
+
+@media (max-height: 440px) and (orientation: landscape) {
+  .opening-page .image-picker { min-height: 30px; }
+}
+
+@media (pointer: coarse) and (min-height: 500px) {
+  .opening-page :is(.tool-header > button, .tool-header .image-picker, .tool-primary, .dialog-actions button) { min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --control-press-scale: 1; }
+  :is(.opening-page, .about-page, .report-page, .update-page)
+    :is(button, .image-picker, .record-menu > summary, a[data-ui-button]):where(:not(.simple-quick-tools *)) {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  :is(.opening-page, .about-page, .report-page, .update-page)
+    :is(button, .image-picker, .record-menu > summary, a[data-ui-button]):where(:not(.simple-quick-tools *)) {
+    --button-fill: ButtonFace;
+    --button-border: ButtonText;
+    --button-color: ButtonText;
+    --button-hover: ButtonFace;
+    --button-pressed: ButtonFace;
+    forced-color-adjust: none;
+  }
+  :is(.opening-page, .about-page, .report-page, .update-page)
+    :is(.icon-button-primary, .confirm-import, .confirm-mode, .tool-primary, [data-ui-button="primary"], button[aria-pressed="true"], button[aria-expanded="true"], button[data-suggested="true"], .record-menu[open] > summary):where(:not(.simple-quick-tools *)) {
+    --button-fill: Highlight;
+    --button-border: Highlight;
+    --button-color: HighlightText;
+    --button-hover: Highlight;
+    --button-pressed: Highlight;
+  }
+  .opening-page button[data-ui-icon]::before { background: currentColor; }
+  :is(.opening-page, .about-page, .report-page, .update-page) { --control-focus: Highlight; }
+}

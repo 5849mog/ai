@@ -100,7 +100,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   panel.querySelector("[data-archive]").onclick=()=>open("archive");
   const fullImage = document.createElement("button"); fullImage.type = "button"; fullImage.dataset.uiIcon="camera"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
-  const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
+  const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.dataset.uiIcon="guide";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
   const saveImage = async () => { try {
     const position=getPosition(), blob=await boardImageBlob({board:Array.from(position.board),lastMove:position.lastMove,candidates:[...(position.candidates??[])]});
     downloadBlob(blob,exportName('board','png')); notify?.('棋盘图片已导出');
