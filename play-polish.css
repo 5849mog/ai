@@ -1,0 +1,191 @@
+.opening-page [data-play-state] { --play-marker: #507058; --play-marker-halo: #50705823; }
+.opening-page [data-play-state="thinking"] { --play-marker: #446688; --play-marker-halo: #44668828; }
+.opening-page [data-play-state="preview"] { --play-marker: #2c675d; --play-marker-halo: #2c675d2b; }
+.opening-page [data-play-state="paused"] { --play-marker: #8a6726; --play-marker-halo: #9b73262d; }
+.opening-page [data-play-state="error"] { --play-marker: #9d4938; --play-marker-halo: #9d49382b; }
+.opening-page [data-play-state="finished"] { --play-marker: #665285; --play-marker-halo: #66528525; }
+
+.opening-page .game-state .state-indicator {
+  background: var(--play-marker);
+  box-shadow: 0 0 0 3px var(--play-marker-halo);
+}
+.opening-page .game-state .state-indicator.thinking::before { border-color: var(--play-marker-halo); }
+.opening-page .game-state .state-indicator.thinking::after { border-top-color: var(--play-marker); border-right-color: var(--play-marker-halo); }
+.opening-page #simpleOpeningFlow h2::before {
+  content: "";
+  display: inline-block;
+  vertical-align: .1em;
+  width: 6px;
+  height: 6px;
+  margin-inline: 3px 8px;
+  border-radius: 50%;
+  background: var(--play-marker);
+  box-shadow: 0 0 0 2px var(--play-marker-halo);
+}
+.opening-page .search-clock {
+  min-width: 0;
+  padding: 2px 7px;
+  border: 1px solid var(--control-border);
+  border-radius: 99px;
+  color: var(--control-muted);
+  background: var(--control-surface);
+  line-height: 1.25;
+}
+.opening-page :is(#recommendButton, #simpleRecommendButton)[data-board-confirm] {
+  --button-color: #fff;
+  --button-fill: var(--control-primary);
+  --button-border: var(--control-primary);
+  --button-hover: var(--control-primary-hover);
+  --button-pressed: var(--control-primary-pressed);
+}
+.opening-page :is(#recommendButton, #simpleRecommendButton)[data-board-confirm] span,
+.opening-page :is(#undoButton, #simpleUndoButton) span { white-space: nowrap; }
+.opening-page :is(.game-actions, .simple-controls):has([data-board-confirm]) :is(#restartButton, #simpleRestart) {
+  --button-color: var(--control-ink);
+  --button-fill: var(--control-surface);
+  --button-border: var(--control-border);
+  --button-hover: var(--control-hover);
+  --button-pressed: var(--control-pressed);
+}
+.opening-page #analysisState[data-searching] {
+  color: #244d66;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: #95b2c4;
+  text-underline-offset: 3px;
+}
+.opening-page .analysis-values dd {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.opening-page .analysis-values .endgame-estimate dd { text-align: start; }
+.opening-page #endgameEstimate[data-state="estimated"] {
+  width: fit-content;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #e4eee2;
+}
+.opening-page .position-analysis[data-state="waiting"] .position-trend {
+  border-radius: 5px;
+  background: var(--control-surface);
+}
+@media (max-width: 430px) and (max-height: 660px) and (orientation: portrait) {
+  .opening-page:not(.simple-mode) .game-sidebar {
+    max-height: 43dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .opening-page:not(.simple-mode) .game-sidebar > * { flex-shrink: 0; }
+}
+
+.appearance-group { min-width: 0; margin: 0 0 6px; padding: 0; border: 0; }
+.appearance-group legend {
+  padding: 0 1px;
+  margin: 1px 0 4px;
+  color: var(--control-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+.appearance-group .appearance-options { margin-block-end: 2px; }
+
+[data-import-step] {
+  padding: 3px 7px;
+  border-radius: 7px;
+  background: var(--control-surface);
+  color: var(--control-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+[data-frame-size] {
+  order: 1;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: var(--control-surface);
+  white-space: nowrap;
+  color: var(--control-muted);
+}
+[data-screenshot-drop] .calibration-actions:not([hidden]) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+[data-screenshot-drop] .calibration-actions button { width: 100%; }
+[data-screenshot-drop] .calibration-actions [data-recognize] {
+  --button-fill: var(--control-primary);
+  --button-border: var(--control-primary);
+  --button-color: #fff;
+  --button-hover: var(--control-primary-hover);
+  order: 2;
+}
+[data-screenshot-drop][data-drag-active] .screenshot-empty {
+  border-style: solid;
+  border-color: var(--control-focus);
+  background: var(--control-pressed);
+}
+[data-screenshot-drop][data-drag-active] :is(.import-image, .import-board, .import-reference) {
+  outline: 2px solid var(--control-focus);
+  outline-offset: 2px;
+}
+@media (max-width: 425px) {
+  .tool-header:has([data-import-step]:not([hidden])) [data-import-step] { order: 1; }
+  .opening-page #simpleRecommendButton[data-board-confirm] > span,
+  .opening-page #simpleUndoButton[aria-label="取消预选"] > span { font-size: min(3.4vw, 14px); }
+}
+
+.opening-page .release-notes-panel .release-notes-position:not([hidden]) {
+  margin: 4px 5px 1px;
+  color: var(--control-muted);
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+[data-notes-matches]:not(:empty) {
+  display: inline-block;
+  margin-inline: 3px 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--control-muted);
+}
+
+/* Markers use their own contrast against the stones and stay legible at small sizes. */
+@media (forced-colors: none) {
+  .opening-page #boardSvg .last-ring[data-stone-color="1"] { stroke: #f1d694; }
+  .opening-page #boardSvg .last-ring[data-stone-color="2"] { stroke: #79543c; }
+  .opening-page #boardSvg .answer-ring { stroke: #326151; stroke-width: 1.9; vector-effect: non-scaling-stroke; }
+  .opening-page #boardSvg .pending-ring { stroke: #206456; stroke-width: 2.3; }
+  .opening-page #boardSvg .keyboard-point[data-available="true"] {
+    stroke: #125645;
+    vector-effect: non-scaling-stroke;
+  }
+  .opening-page #boardSvg .opening-proposal text {
+    paint-order: stroke;
+    stroke: #fffaf0;
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+}
+.opening-page #simpleOpeningFlow:not([data-actions="0"]) {
+  box-shadow: 0 1px 3px #22312714, 0 8px 20px #22312723;
+}
+.opening-page .import-loupe {
+  border-radius: 10px;
+  border-color: #3d594a;
+  box-shadow: 0 2px 5px #1d2e2630, 0 10px 24px #1d2e2640;
+}
+@media (forced-colors: active) {
+  .opening-page :is(.game-actions, .simple-controls):has([data-board-confirm]) :is(#restartButton, #simpleRestart) {
+    --button-color: ButtonText;
+    --button-fill: ButtonFace;
+    --button-border: ButtonText;
+    --button-hover: ButtonFace;
+    --button-pressed: ButtonFace;
+  }
+  .opening-page :is(#recommendButton, #simpleRecommendButton)[data-board-confirm] {
+    --button-color: HighlightText;
+    --button-fill: Highlight;
+    --button-border: Highlight;
+    --button-hover: Highlight;
+    --button-pressed: Highlight;
+  }
+  .opening-page #simpleOpeningFlow h2::before { background: CanvasText; }
+}

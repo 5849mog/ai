@@ -51,7 +51,14 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     }
     preset.append(options);
   }
-  for (const dialog of [modes, guide]) { dialog.querySelector("[data-close]").onclick = () => dialog.close(); dialog.addEventListener("close", () => onModal(false)); }
+  for (const dialog of [modes, guide]) {
+    dialog.querySelector("[data-close]").onclick = () => dialog.close();
+    dialog.addEventListener("close", () => {
+      onModal(false);
+      const trigger = document.body.classList.contains("simple-mode") ? "#simpleColor" : "#recordMenu > summary";
+      document.querySelector(trigger)?.focus({ preventScroll: true });
+    });
+  }
   const open = dialog => { document.querySelector("#recordMenu").open = false; onModal(true); dialog.showModal(); };
   function openModes() {
     const session = getSession(); rule.value = session.rule; workflow.value = session.workflow; workflow.dispatchEvent(new Event("change")); open(modes);

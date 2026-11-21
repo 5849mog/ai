@@ -37,12 +37,14 @@ function createNotesView(root) {
         <button type="button" data-notes-prev aria-disabled="true">‹ 较新</button><select data-notes-version aria-label="选择版本"></select>
         <button type="button" data-notes-next aria-disabled="true">较旧 ›</button>
       </nav>
-      <div class="release-notes-body" tabindex="0" role="region" aria-label="版本内容">
+      <p class="release-notes-position" data-notes-position hidden></p>
+      <div class="release-notes-body" tabindex="0" role="region" aria-label="版本内容" aria-keyshortcuts="[ ]">
         <div class="release-notes-filter" hidden>
           <button type="button" data-notes-filter aria-expanded="false" aria-controls="${panelId}-filters">查找改动</button>
           <div id="${panelId}-filters" data-notes-filter-fields hidden>
             <label>版本或关键词 <input type="search" data-notes-search maxlength="80"></label>
             <label><input type="checkbox" data-notes-newer>只看比当前更新的版本</label>
+            <output data-notes-matches></output>
             <button type="button" data-notes-clear hidden>清除筛选</button>
           </div>
         </div>
@@ -79,6 +81,7 @@ function createNotesView(root) {
   filterLabel.onclick = () => {
     fields.hidden = !fields.hidden;
     filterLabel.setAttribute("aria-expanded", String(!fields.hidden));
+    if (!fields.hidden) find("[data-notes-search]").focus();
   };
   const Observer = root.ownerDocument.defaultView?.MutationObserver;
   if (owner && Observer) new Observer(() => {
@@ -90,6 +93,7 @@ function createNotesView(root) {
     nav: find("nav"), prev: find("[data-notes-prev]"), next: find("[data-notes-next]"), version: find("[data-notes-version]"),
     filter: find(".release-notes-filter"), filterLabel,
     search: find("[data-notes-search]"), newer: find("[data-notes-newer]"),
+    position: find("[data-notes-position]"), matches: find("[data-notes-matches]"),
     clear: find("[data-notes-clear]"), empty: find("[data-notes-empty]")
   };
 }
@@ -149,6 +153,9 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
       view.toggle.textContent = feed && newerVersion(feed.releases[0].version, APP_VERSION) ? "最近更新 · 有新版" : "最近更新";
       view.empty.hidden = !feed || matches.length > 0;
       view.nav.hidden = !entry;
+      view.position.hidden = !entry;
+      if (entry) view.position.textContent = `第 ${position + 1} / ${matches.length} 版`;
+      view.matches.textContent = filtered ? `找到 ${matches.length} 个版本` : "";
       view.entry.hidden = !entry;
       view.checked.hidden = !checked;
       if (checked) {
@@ -217,6 +224,12 @@ export function setupReleaseNotes({ container = document, storage, fetchFeed = g
     view.version.onchange = () => selectVersion(view.version.value);
     view.prev.onclick = () => stepVersion(-1);
     view.next.onclick = () => stepVersion(1);
+    view.body.addEventListener("keydown", event => {
+      if (event.target !== view.body || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key !== "[" && event.key !== "]") return;
+      event.preventDefault();
+      stepVersion(event.key === "[" ? -1 : 1);
+    });
     view.search.oninput = () => { query = view.search.value; selectedVersion = null; render(); };
     view.newer.onchange = () => { newerOnly = view.newer.checked; selectedVersion = null; render(); };
     view.clear.onclick = () => { query = ""; newerOnly = false; selectedVersion = null; render(); view.search.focus(); };

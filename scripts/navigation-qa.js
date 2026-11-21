@@ -47,7 +47,12 @@ try{
  await page.keyboard.press('Escape');assert.equal(await preview.count(),0);
  assert.doesNotMatch(await page.locator('#simpleOpeningFlow h2').textContent(),/再点一次确认/);
  assert.equal(await page.locator('body.simple-mode').count(),1);
- await tap(112);await page.waitForFunction(()=>document.querySelectorAll('#boardSvg [data-stone]').length===2);
+ await board.locator('[data-index="112"]').tap();await preview.waitFor();
+ await page.getByRole('button',{name:'取消预选',exact:true}).tap();
+ assert.equal(await preview.count(),0);assert.equal(await board.locator('[data-stone]').count(),0);
+ await board.locator('[data-index="112"]').tap();await preview.waitFor();
+ await page.getByRole('button',{name:'确认落子',exact:true}).tap();
+ await page.waitForFunction(()=>document.querySelectorAll('#boardSvg [data-stone]').length===2);
  await board.press('Home');assert.equal(await cursor.getAttribute('data-available'),'false');
  assert.match(await board.getAttribute('aria-label'),/H8，此处不可选/);
  await board.locator('[data-index="97"]').tap();await preview.waitFor();
@@ -55,7 +60,7 @@ try{
  await page.touchscreen.tap(stone.x+stone.width/2,stone.y+stone.height/2);assert.equal(await preview.count(),0);
  await board.locator('[data-index="97"]').tap();await preview.waitFor();assert.equal((await game()).moves.length,2);
  await page.keyboard.press('Escape');assert.equal(await preview.count(),0);
- pass('Touch previews identify the point and cancel safely; board keyboard cursor, Home and R work');
+ pass('Touch previews identify the point and can confirm or cancel from the toolbar; board keyboard cursor, Home and R work');
  const current=await record();
  await page.locator('#simpleColor').tap();await page.locator('#ruleMode').selectOption('taraguchi10');await page.locator('#workflowMode').selectOption('follow');await page.locator('#modeDialog [data-close]').tap();
  assert.deepEqual(await record(),current);pass('Home enters the complete simple view directly; settings are an isolated draft');

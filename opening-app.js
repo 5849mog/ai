@@ -43,7 +43,7 @@ let busy = false, modal = false, advice = null, stats = null, statsColor = 1, po
 let updateLaunchUntouched = true, updateLoadSafe = true;
 for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
-let keyboardActive = false, appearance;
+let keyboardActive = false, appearance, boardContact;
 let immediate = null, emptyCount = 225;
 let forbiddenInput = null, enhancements, boardFacts;
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
@@ -150,6 +150,7 @@ function renderAnalysis() {
   $("#positionTrend").setAttribute("aria-label", `${name}棋估算胜率走势，上方利于${name}，下方利于${other}。共 ${analysis.moves.length} 手，${rated} 个已评估局面。`);
   const info = describeSearch(stats, statsColor, perspective);
   for (const [id, value] of [["searchDepth", info.depth], ["searchScore", info.score], ["searchNodes", info.nodes], ["searchSpeed", info.speed]]) $("#" + id).textContent = value;
+  $("#analysisState").toggleAttribute("data-searching", busy || pondering);
   $("#analysisState").textContent = busy ? "AI 分析中" : pondering ? "AI 后台分析中" : "AI 搜索信息";
   $(".analysis-heading span:last-child").textContent = `正值利于${name}棋`;
 }
@@ -175,6 +176,14 @@ function decorate() {
     text.textContent = mark.label === "5" && selected ? selected.label : mark.label; svg.append(text);
   }
 }
+function playState() {
+  if (session.winner) return "finished";
+  if (paused) return "paused";
+  if (pending >= 0) return "preview";
+  if (state === "error" || forbiddenInput) return "error";
+  if (busy || (automaticTurn() && selfPlayTimer === null)) return "thinking";
+  return "play";
+}
 function renderFlow(previewText) {
   const selfPlayText = state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中`;
   const flow = selfPlay && !session.winner && session.stage !== "setup" ? { title: paused ? "AI 对决已暂停" : selfPlayText, note: "双方由同一引擎轮流操作，可随时暂停或结束接管。", actions: [] } : openingFlow(session, { busy, state, advice, forbidden: forbiddenInput });
@@ -184,6 +193,7 @@ function renderFlow(previewText) {
   } else if (previewText) flow.title = previewText;
   for (const [root, hidden] of [[$("#openingFlow"), false], [$("#simpleOpeningFlow"), !display?.simple]]) {
     root.hidden = hidden;
+    root.dataset.playState = playState();
     const key = JSON.stringify({ flow, busy, manual: manualTurn() });
     if (root.dataset.contentKey === key) continue;
     root.dataset.contentKey = key; root.dataset.stage = session.stage;
@@ -229,6 +239,7 @@ function render() {
   if (boardChanged) decorate();
   const text = paused ? "思考已暂停 · 可继续或悔棋" : selfPlay && !session.winner && session.stage !== "setup" ? state === "error" ? "AI 对决已停止 · 请重试或结束接管" : selfPlayTimer !== null ? "AI 对决 · 等待下一步" : session.decision || session.offerCount || session.stage === "choose" ? "AI 对决 · 正在处理开局" : `AI 对决 · ${colorName(session.color)}棋思考中` : busy ? deepPhase || (automaticTurn() ? "AI 思考中" : "正在分析当前操作…") : previewText || session.description();
   $("#stateText").textContent = text+(!busy && !paused && (lastAdaptive || advice?.adaptive) && !session.winner?` · ${(lastAdaptive??advice.adaptive).status}`:""); $("#stateText").title = text; $("#stateIndicator").className = `state-indicator${busy ? " thinking" : session.winner ? " finished" : ""}`;
+  $("#stateIndicator").parentElement.dataset.playState = playState();
   $("#searchClock").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
   const last = session.lastMove >= 0 ? ` · 最近落子 ${coordinate(session.lastMove)}` : "";
   $("#searchClock").title = `${workflowLabel[session.workflow]} · ${RULES[session.rule]} · ${session.playerColor ? `我方当前执${colorName(session.playerColor)}` : "开局角色待选"}${last}`;
@@ -238,13 +249,23 @@ function render() {
   const automatic = automaticTurn(), canRecommend = !automatic && !paused && !modal && !session.winner
     && session.stage !== "setup" && !forbiddenInput && !(session.workflow === "copilot" && session.decision);
   const recommending = canRecommend && busy;
-  const recommendLabel = recommending ? "取消推荐" : advice ? "收起推荐" : "推荐";
+  const confirming = pending >= 0 && interactive();
+  const recommendLabel = confirming ? "确认落子" : recommending ? "取消推荐" : advice ? "收起推荐" : "推荐";
   for (const button of [$("#recommendButton"), $("#simpleRecommendButton")]) {
-    button.disabled = !canRecommend || (!advice && !busy && state !== "ready");
-    button.setAttribute("aria-pressed", String(Boolean(advice) || recommending));
+    button.disabled = !confirming && (!canRecommend || (!advice && !busy && state !== "ready"));
+    button.toggleAttribute("data-board-confirm", confirming);
+    if (confirming) button.removeAttribute("aria-pressed");
+    else button.setAttribute("aria-pressed", String(Boolean(advice) || recommending));
     button.setAttribute("aria-label", recommendLabel);
-    button.title = recommending || advice ? recommendLabel : "分析开局动作或落点（最多 1 秒搜索）";
+    button.title = confirming ? `确认 ${coordinate(pending)}` : recommending || advice ? recommendLabel : "分析开局动作或落点（最多 1 秒搜索）";
   }
+  const undoLabel = confirming ? "取消预选" : "悔棋";
+  for (const button of [$("#undoButton"), $("#simpleUndoButton")]) {
+    button.querySelector("span").textContent = undoLabel;
+    button.setAttribute("aria-label", undoLabel);
+    button.title = confirming ? "清除当前触屏落点" : "撤回上次操作，包含换色与候选";
+  }
+  $("#simpleUndoButton small").textContent = confirming ? "保留原局面" : "撤回上次操作";
   $("#recommendButton span").textContent = recommendLabel;
   $("#recommendationLegend").hidden = !advice; $("#secondRecommendation").hidden = (advice?.points?.length ?? 0) < 2 || session.offerCount || session.stage === "choose";
   $("#recommendationNote").textContent = advice?.choice ? `建议${({ swap: "交换", keep: "保持", ten: "十打" })[advice.choice]}` : advice && session.offerCount ? "候选建议" : advice && session.stage === "choose" ? "绿圈首选" : "";
@@ -263,7 +284,7 @@ function render() {
     $("#simpleColorLabel").textContent = "对局"; $("#simpleColor small").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
     $("#simpleColor").setAttribute("aria-label", `对局设置：${RULES[session.rule]}，${workflowLabel[session.workflow]}`);
     $("#simpleRecommendLabel").textContent = busy && automatic ? "AI 落子中" : recommendLabel;
-    $("#simpleRecommendNote").textContent = recommending ? "正在分析" : busy ? "请稍候" : advice ? "关闭建议标记" : "AI 落点建议";
+    $("#simpleRecommendNote").textContent = confirming ? coordinate(pending) : recommending ? "正在分析" : busy ? "请稍候" : advice ? "关闭建议标记" : "AI 落点建议";
   }
   renderFlow(previewText);
   renderAnalysis();
@@ -374,13 +395,29 @@ function restoreArchived(entry) {
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
-svg.addEventListener("pointerdown", event => { pointerType = event.pointerType; if (keyboardActive) { keyboardActive = false; render(); } });
-svg.addEventListener("pointermove", event => { if (event.pointerType !== "mouse" || !interactive()) return; const i = indexAt(event), next = session.canPoint(i) ? i : -1; if (hover !== next) { hover = next; render(); } });
+svg.addEventListener("pointerdown", event => {
+  pointerType = event.pointerType;
+  if (pointerType === "mouse") boardContact = null;
+  else if (event.isPrimary === false) { if (boardContact) boardContact.gesture = true; }
+  else boardContact = { id: event.pointerId, x: event.clientX, y: event.clientY, gesture: false };
+  if (keyboardActive) { keyboardActive = false; render(); }
+});
+svg.addEventListener("pointermove", event => {
+  if (event.pointerType !== "mouse") {
+    if (boardContact?.id === event.pointerId && Math.hypot(event.clientX - boardContact.x, event.clientY - boardContact.y) > 12) boardContact.gesture = true;
+    return;
+  }
+  if (!interactive()) return;
+  const index = indexAt(event), next = session.canPoint(index) ? index : -1;
+  if (hover !== next) { hover = next; render(); }
+});
+svg.addEventListener("pointercancel", event => { if (boardContact?.id === event.pointerId) boardContact.gesture = true; });
 svg.addEventListener("pointerleave", () => { hover = -1; render(); });
 svg.addEventListener("focusout", event => {
   if (keyboardActive && !svg.contains(event.relatedTarget)) { keyboardActive = false; render(); }
 });
 svg.addEventListener("click", event => {
+  if (event.detail !== 0 && (event.pointerType || pointerType) !== "mouse" && boardContact?.gesture) return;
   if (!interactive()) return; const index = indexAt(event);
   if (!session.canPoint(index)) {
     if (pending >= 0) { pending = -1; render(); }
@@ -392,7 +429,9 @@ function recommendFromKeyboard(event) {
   if (event.key.toLowerCase() !== "r" || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
   const button = $(display?.simple ? "#simpleRecommendButton" : "#recommendButton");
   if (button.disabled) return;
-  event.preventDefault(); button.click();
+  event.preventDefault();
+  if (pending >= 0) void recommend();
+  else button.click();
 }
 svg.addEventListener("keydown", event => {
   recommendFromKeyboard(event);
@@ -424,8 +463,9 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
     void prepare();
   }
 });
-$("#recommendButton").onclick = recommend;
-$("#simpleRecommendButton").onclick = recommend;
+for (const button of [$("#recommendButton"), $("#simpleRecommendButton")]) {
+  button.onclick = () => pending >= 0 ? void place(pending) : void recommend();
+}
 $("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; render(); return; } if (!session.events.length) return; paused=false;selfPlay=false;cancel(); boardMotion="undo"; const plan = openingBook.snapshot(session); session = session.undo();
   // A system-placed mandatory center is not a separate decision to undo.
   if (forcedOpeningMove(session) && session.events.at(-1)?.type === "start") session = session.undo();

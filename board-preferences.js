@@ -16,6 +16,13 @@ const switches = {
   simpleRate: ["简洁界面显示胜率", true]
 };
 
+const appearanceGroups = [
+  ["坐标与手数", ["coordinates", "farCoordinates", "moveNumbers"]],
+  ["落子提示", ["lastMarker", "answerMarker", "aimGuides", "winningLine", "largeMarkers"]],
+  ["棋盘外观", ["starPoints", "texturedStones", "contrast"]],
+  ["操作与显示", ["stillBoard", "touchConfirm", "simpleRate"]]
+];
+
 export function defaultBoardAppearance() {
   return { theme: "wood", ...Object.fromEntries(Object.entries(switches).map(([key, [, value]]) => [key, value])) };
 }
@@ -38,8 +45,8 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
     mount.innerHTML = `${inline ? "" : `<button type="button" data-open-appearance data-ui-icon="board" aria-expanded="false" aria-controls="${id}">棋盘显示</button>`}
       <section class="board-appearance" id="${id}" aria-label="棋盘显示"${inline ? "" : " hidden"}>
       <label class="appearance-theme">棋盘主题 <select data-appearance="theme"><option value="wood">原木</option><option value="paper">浅纸</option><option value="slate">青灰</option></select></label>
-      <div class="appearance-options">${Object.entries(switches).map(([key, [label]]) =>
-        `<label><input type="checkbox" data-appearance="${key}">${label}</label>`).join("")}</div>
+      ${appearanceGroups.map(([title, keys]) => `<fieldset class="appearance-group"><legend>${title}</legend>
+        <div class="appearance-options">${keys.map(key => `<label><input type="checkbox" data-appearance="${key}">${switches[key][0]}</label>`).join("")}</div></fieldset>`).join("")}
       <button type="button" data-reset-appearance>恢复默认</button></section>`;
     const toggle = mount.querySelector("[data-open-appearance]"), panel = mount.querySelector("section");
     if (toggle) toggle.onclick = () => {
