@@ -543,7 +543,7 @@ for (const timeMs of [100,500]) test('fast '+timeMs+'ms settings restore and dri
     await f.load();
     assert.equal(document.querySelector('#timeSelect').value,String(timeMs));
     const toggle=document.querySelector('[aria-controls="simpleQuickTools"]'); toggle.click();
-    const option=document.querySelector('[data-time="'+timeMs+'"]'); assert.ok(option); assert.equal(option.getAttribute('aria-pressed'),'true');
+    const option=document.querySelector('[data-time="'+timeMs+'"]'); assert.ok(option); assert.equal(option.getAttribute('aria-checked'),'true');
     option.click(); assert.equal(localStorage.getItem('gomoku-thinking-ms'),String(timeMs));
     const entry=[...document.querySelectorAll('button')].find(b=>b.textContent==='AI 接管我方'&&!b.hidden); entry.click(); await settled();
     const worker=f.workers.at(-1); let job=worker.searches.at(-1);

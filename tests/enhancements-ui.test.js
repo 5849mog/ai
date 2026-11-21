@@ -70,16 +70,17 @@ function environment() {
 const finished = () => createRecord([0, 15, 1, 16, 2, 17, 3, 18, 4], 1);
 const byText = (root, text) => root.querySelectorAll("button").find(b => b.textContent === text);
 
-test("inline time and pondering controls reuse existing change handlers, collapse after selection, honor busy state", () => {
+test("inline time and pondering controls reuse existing change handlers, stay open for successive adjustments, and honor busy state", () => {
   const { doc } = environment(); let timeChanges = 0, ponderChanges = 0;
   doc.querySelector("#timeSelect").addEventListener("change", () => timeChanges++);
   doc.querySelector("#ponderToggle").addEventListener("change", () => ponderChanges++);
   setupGameEnhancements({ getPosition: () => ({ winner: 0 }), getRecord: () => createRecord([], 1), onWorkspace() {}, applyRecord() {}, cancelSearch() {}, newGame() {} });
   const toggle = doc.querySelector("[aria-controls=simpleQuickTools]"), panel = doc.querySelector("#simpleQuickTools");
   toggle.click(); assert.equal(panel.hidden, false); doc.querySelector("[data-time=1000]").click();
-  assert.equal(doc.querySelector("#timeSelect").value, "1000"); assert.equal(timeChanges, 1); assert.equal(panel.hidden, true);
-  toggle.click(); doc.querySelector("[data-ponder]").click(); assert.equal(ponderChanges, 1); assert.equal(doc.querySelector("#ponderToggle").checked, false); assert.equal(panel.hidden, true);
-  doc.querySelector("#timeSelect").disabled = true; toggle.click(); doc.querySelector("[data-time=5000]").click(); assert.equal(timeChanges, 1);
+  assert.equal(doc.querySelector("#timeSelect").value, "1000"); assert.equal(timeChanges, 1); assert.equal(panel.hidden, false);
+  doc.querySelector("[data-ponder]").click(); assert.equal(ponderChanges, 1); assert.equal(doc.querySelector("#ponderToggle").checked, false); assert.equal(panel.hidden, false);
+  doc.querySelector("#timeSelect").disabled = true; doc.querySelector("[data-time=5000]").click(); assert.equal(timeChanges, 1);
+  assert.equal(panel.querySelector("[data-time=1000]").getAttribute("aria-checked"), "true");
 });
 
 test("review entry only exists in terminal window; New cancels a pending analysis and no late response reopens it", async () => {
@@ -161,7 +162,7 @@ test("sound controls share one opt-in state and preview only after enabling", ()
   const sound = { get enabled() { return enabled; }, setEnabled(value) { enabled = value; return enabled; }, playStone() { previews += 1; } };
   setupGameEnhancements({ sound, getPosition: () => ({ winner: 0 }), getRecord: () => createRecord([], 1), onWorkspace() {}, applyRecord() {}, cancelSearch() {}, newGame() {} });
   const button = doc.querySelector("[data-sound]"); button.click();
-  assert.equal(enabled, true); assert.equal(previews, 1); assert.equal(button.getAttribute("aria-pressed"), "true");
+  assert.equal(enabled, true); assert.equal(previews, 1); assert.equal(button.getAttribute("aria-checked"), "true");
   button.click(); assert.equal(enabled, false); assert.equal(previews, 1);
 });
 
@@ -175,10 +176,12 @@ test("quick settings keep the close action at the header and prioritize live gam
   const toggle=doc.querySelector('[aria-controls=simpleQuickTools]'), panel=doc.querySelector('#simpleQuickTools');
   toggle.click(); assert.equal(panel.hidden,false);
   assert.ok(panel.querySelector('.quick-tools-header').querySelector('[data-collapse]'));
-  const actions=panel.querySelector('.quick-tools-actions').querySelectorAll('button');
-  assert.equal(actions[0].textContent,'隐藏棋盘提示');assert.equal(actions[1].textContent,'AI 接管我方');
-  actions[0].click();assert.equal(hintClicks,1);assert.equal(panel.hidden,true);
-  toggle.click();actions[1].click();assert.equal(selfClicks,1);assert.equal(panel.hidden,true);
+  const hints=panel.querySelector('[data-hints]'),takeover=panel.querySelector('[data-takeover]');
+  assert.equal(hints.getAttribute('aria-checked'),'true');assert.equal(takeover.textContent,'AI 接管我方');
+  hints.click();assert.equal(hintClicks,1);assert.equal(panel.hidden,false);
+  panel.querySelector('[data-quick-tab=tools]').click();assert.equal(panel.querySelector('#quick-page-game').hidden,true);
+  assert.equal(panel.querySelector('#quick-page-tools').hidden,false);
+  panel.querySelector('[data-quick-tab=game]').click();takeover.click();assert.equal(selfClicks,1);assert.equal(panel.hidden,true);
   toggle.click();panel.querySelector('[data-collapse]').click();assert.equal(panel.hidden,true);
 });
 
@@ -187,11 +190,11 @@ test("game control icons remain decorative while button labels and actions stay 
  setupGameEnhancements({getPosition:()=>({winner:0}),getRecord:()=>createRecord([],1),onWorkspace(){},applyRecord(){},cancelSearch(){},newGame(){},
   sound:{get enabled(){return soundEnabled;},setEnabled(v){soundEnabled=v;return v;},playStone(){}},
   getControlState:()=>({showHints:true,selfPlay:false,canSelfPlay:true}),toggleHints:()=>toggles++});
- const panel=doc.querySelector('#simpleQuickTools'), hint=byText(panel,'隐藏棋盘提示'),camera=panel.querySelector('[data-image]');
+ const panel=doc.querySelector('#simpleQuickTools'), hint=panel.querySelector('[data-hints]'),camera=panel.querySelector('[data-image]');
  assert.equal(hint.dataset.uiIcon,'eye');assert.equal(camera.dataset.uiIcon,'camera');
- assert.equal(byText(panel,'自定义摆局').dataset.uiIcon,'board');
- assert.equal(byText(panel,'电脑引擎').dataset.uiIcon,'engine');
- assert.equal(byText(panel,'完整界面').dataset.uiIcon,'layout');
+ assert.equal(panel.querySelector('[data-quick-setup]').dataset.uiIcon,'board');
+ assert.equal(panel.querySelector('[data-remote-menu]').dataset.uiIcon,'engine');
+ assert.equal(panel.querySelector('[data-full-view]').dataset.uiIcon,'layout');
  assert.equal(panel.querySelector('[data-sound]').dataset.uiIcon,'audio');
  hint.click();assert.equal(toggles,1);
 });
