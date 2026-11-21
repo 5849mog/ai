@@ -22,8 +22,8 @@
       <header class="topbar">
         <span class="brand" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></span>
         <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
-          <span class="recommendation-key first"><i aria-hidden="true">1</i>首选</span>
-          <span class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</span>
+          <button type="button" class="recommendation-key first"><i aria-hidden="true">1</i>首选</button>
+          <button type="button" class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</button>
           <span class="recommendation-note" id="recommendationNote"></span>
         </div>
         <div class="header-tools">
@@ -49,6 +49,7 @@
         <section class="board-card" aria-label="五子棋对弈">
           <div class="board-toolbar">
             <div class="game-state" role="status"><span class="state-indicator thinking" id="stateIndicator"></span><strong id="stateText">正在准备 AI</strong></div>
+            <span id="matchTurn" hidden></span><span class="match-timer" data-turn-time hidden></span>
             <button class="retry-button" id="retryButton" type="button" hidden>重试</button>
             <span class="search-clock" id="searchClock"><span class="workflow-chip"></span><span class="rule-chip">无禁手</span></span>
           </div>

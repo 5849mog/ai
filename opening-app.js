@@ -8,8 +8,9 @@ import { RIF_OPENINGS } from "./rif-opening-pool.js";
 import { createOpeningDialogs } from "./opening-guide.js";
 import { boardKeyboardIndex, createBoardView } from "./board-view.js";
 import { GomokuEngine } from "./engine.js?v=42";
-import { PositionAnalysis } from "./position-analysis.js";
+import { PositionAnalysis, describePosition } from "./position-analysis.js";
 import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
+import { setupMatchInspector } from "./match-inspector.js";
 import { describeSearch } from "./search-info.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
@@ -19,7 +20,7 @@ import { THINKING_VALUES, SPECTATOR_DELAYS } from "./thinking-options.js";
 import { setupBoardFacts } from "./board-facts.js";
 import { setupBoardAppearance } from "./board-preferences.js";
 import { setupReleaseNotes } from "./release-notes.js";
-import { endgameEstimate, immediateEnding } from "./endgame-estimate.js";
+import { endgameEstimate, immediateEnding, tacticalPosition, explainMove } from "./endgame-estimate.js";
 import { setupRecordUi } from "./record-ui.js";
 import { sessionFromRecord, loadSessionRecord } from "./session-records.js";
 import { createScheduledTask } from "./ui-scheduler.js";
@@ -44,8 +45,9 @@ let updateLaunchUntouched = true, updateLoadSafe = true;
 for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let keyboardActive = false, appearance, boardContact;
-let immediate = null, emptyCount = 225;
-let forbiddenInput = null, enhancements, boardFacts;
+let immediate = null, emptyCount = 225, tactics = null, note = null;
+let forbiddenInput = null, enhancements, boardFacts, inspector, backgroundPosition, restartRequested = false;
+let searchStarted = null, turnTimer = null, pauseReason = "";
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
 try { showHints = localStorage.getItem("gomoku-show-hints") !== "false"; } catch {}
 const automaticTurn = () => isAutomaticTurn(session) || (selfPlay && session.workflow === "duel" && !session.winner && session.stage !== "setup");
@@ -76,7 +78,15 @@ try {
     const backup = createGameArchive({ storage: localStorage, page: "legacy-migration" });
     for (const record of loaded.backups) if (JSON.stringify(record) !== JSON.stringify(saved?.record) && !backup.list().some(entry => JSON.stringify(entry.record) === JSON.stringify(record))) { backup.begin(); backup.capture(record); }
   }
-  if (saved) { session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan); perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis; }
+  if (saved) {
+    session = replaySession(saved.record); openingBook.restore(session, saved.openingPlan);
+    perspective = [1, 2].includes(saved.perspective) ? saved.perspective : 1; restoredAnalysis = saved.analysis;
+    if (!session.winner && session.stage !== "setup") {
+      selfPlay = session.workflow === "duel" && saved.runState === "spectator";
+      paused = selfPlay || saved.runState === "paused" && (isAutomaticTurn(session) || session.workflow === "copilot" && session.decision);
+      if (paused) pauseReason = "已恢复上次棋局";
+    }
+  }
   if (loaded.error) { updateLoadSafe = false; notify(loaded.error, true); }
   const storedTime=localStorage.getItem("gomoku-thinking-ms"), time=storedTime==="30000"?ADAPTIVE_MODE:storedTime; if (THINKING_VALUES.includes(time)) $("#timeSelect").value = time;
   $("#ponderToggle").checked = localStorage.getItem("gomoku-pondering") !== "false";
@@ -86,6 +96,7 @@ function persist() {
   if(archiveReady)archiveCurrent();
   try {
     localStorage.setItem(STORAGE, JSON.stringify({ unified: true, record: session.record(), perspective, openingPlan: openingBook.snapshot(session),
+      ...(selfPlay || paused ? { runState: selfPlay ? "spectator" : "paused" } : {}),
       analysis: { version: 1, playerColor: analysis.playerColor, positionKey: analysis.positionKey, moves: analysis.moves, points: analysis.history } })); saveFailed = false; return true;
   } catch { if (!saveFailed) notify("此局暂未保存，请从菜单导出完整记录", true); saveFailed = true; return false; }
 }
@@ -118,6 +129,7 @@ const engine = new GomokuEngine({ rule: session.rule,
   }
 });
 function cancel({ keepHints = false } = {}) {
+  searchStarted = null;
   cancelSelfPlayTimer(); singleStep=false; hints.cancel({ keepPoints: keepHints }); hintUpdates.cancel();
   statsUpdates.cancel();
   serial++; requestId++; busy = false;adaptiveThinking=false;deepPhase=""; advice = null; forbiddenInput = null; pending = hover = -1; analysis.cancel(); engine.stopPonder();
@@ -136,13 +148,19 @@ function renderAnalysis() {
   const available = ["play", "w6"].includes(session.stage);
   const ending = endgameEstimate({ winner: session.winner, available, immediate, point: analysis.current, emptyCount });
   const endStatus = $("#endgameEstimate");
-  if (endStatus.textContent !== ending.text) endStatus.textContent = ending.text;
+  const endingText = ending.source === "board" ? `${ending.text} · 棋盘确认` : ending.source === "engine" ? `${ending.text} · 引擎推演` : ending.text;
+  if (endStatus.textContent !== endingText) endStatus.textContent = endingText;
   endStatus.dataset.state = ending.state;
-  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available, ending, waiting: session.stage === "setup" ? "等待开局" : available ? "等待评估" : "开局完成后评估" });
+  endStatus.title = ending.source === "engine" ? "按当前搜索路线估计，后续落子会重新推演" : "";
+  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available, ending, tactical: note?.text,
+    waiting: session.stage === "setup" ? "等待开局" : available ? "等待评估" : "开局完成后评估" });
   const name = colorName(perspective), other = colorName(3 - perspective);
   $("#perspectiveName").textContent = `${name}棋`; $("#otherName").textContent = `${other}棋`; $("#trendLegend").textContent = `上方利于${name} · 下方利于${other}`;
-  const judgement = $("#positionJudgement"); judgement.textContent = session.winner ? session.description() : !["play", "w6"].includes(session.stage)
-    ? "开局尚未定色，先完成交换与选案" : judgement.textContent.replaceAll("你的", `${name}棋的`).replaceAll("你", `${name}棋`).replaceAll("AI", `${other}棋`);
+  const judgement = $("#positionJudgement");
+  const summary = session.winner ? session.description() : !available ? "开局尚未定色，先完成交换与选案"
+    : note?.text || describePosition(analysis.current, perspective).replaceAll("你的", `${name}棋的`).replaceAll("你", `${name}棋`).replaceAll("AI", `${other}棋`);
+  if (judgement.textContent !== summary) judgement.textContent = summary;
+  judgement.dataset.tone = note?.tone || "";
   $("#positionContext").textContent = session.winner ? "对局已结束" : session.offerCount || session.stage === "choose" ? "第五手提案" : `第 ${session.moves.length} 手`;
   const rateLabel = session.winner ? `对局结果：${session.description()}` : analysis.current?.winRate != null
     ? `估算胜率：${name}棋 ${$("#playerWinRate").textContent}，${other}棋 ${$("#aiWinRate").textContent}` : "当前局势等待评估";
@@ -154,6 +172,33 @@ function renderAnalysis() {
   $("#analysisState").toggleAttribute("data-searching", busy || pondering);
   $("#analysisState").textContent = busy ? "AI 分析中" : pondering ? "AI 后台分析中" : "AI 搜索信息";
   $(".analysis-heading span:last-child").textContent = `正值利于${name}棋`;
+  const lastEvent = session.events.at(-1);
+  const mirrored = session.workflow === "copilot" && lastEvent?.automatic
+    && ["stone", "select"].includes(lastEvent.type) && session.lastMove >= 0;
+  const compact = session.winner || note ? summary : ending.short ? `余 ${ending.short} · ${ending.source === "board" ? "棋盘确认" : "引擎推演"}`
+    : mirrored ? `照搬 AI 落点 · ${coordinate(session.lastMove)}`
+    : analysis.current?.winRate != null && available ? $("#simpleWinRate").textContent : "胜率待评估";
+  inspector?.render(compact, note?.tone);
+}
+function timingText() {
+  if (searchStarted === null || !busy || document.hidden) return "";
+  const elapsed = Math.floor((performance.now() - searchStarted) / 1000);
+  return elapsed >= 1 ? `${elapsed} 秒` : "";
+}
+function renderTimers() {
+  const time = timingText();
+  for (const element of document.querySelectorAll("[data-turn-time]")) {
+    element.hidden = !time;
+    if (element.textContent !== time) element.textContent = time;
+  }
+}
+function syncTurnTimer() {
+  renderTimers();
+  if (busy && !document.hidden) {
+    if (turnTimer === null) turnTimer = setInterval(renderTimers, 500);
+  } else if (turnTimer !== null) {
+    clearInterval(turnTimer); turnTimer = null;
+  }
 }
 function node(name, attributes) {
   const element = document.createElementNS("http://www.w3.org/2000/svg", name); for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value); return element;
@@ -208,7 +253,11 @@ function spectatorStatus() {
 function renderFlow(previewText, watching) {
   const flow = watching ? { title: spectatorStatus(), note: "双方由同一引擎轮流操作，可随时暂停或结束接管。", actions: [] }
     : openingFlow(session, { busy, state, advice, forbidden: forbiddenInput });
-  if (paused && !selfPlay) {
+  if (restartRequested && !forbiddenInput) {
+    flow.title = "现在开始新局？";
+    flow.note = "当前棋局会让位给下一局。";
+    flow.actions = [{ action: "restart", value: "cancel", label: "继续本局" }, { action: "restart", value: "confirm", label: "确认开新局" }];
+  } else if (paused && !selfPlay) {
     flow.title = "思考已暂停";
     flow.note = "点「继续思考」恢复当前回合。";
   } else if (previewText) {
@@ -220,6 +269,7 @@ function renderFlow(previewText, watching) {
   for (const [root, hidden] of [[$("#openingFlow"), false], [$("#simpleOpeningFlow"), !display?.simple]]) {
     root.hidden = hidden;
     root.dataset.playState = playState();
+    root.toggleAttribute("data-restart", restartRequested);
     const key = JSON.stringify({ flow, stage: session.stage, busy, manual: manualTurn() });
     if (root.dataset.contentKey === key) continue;
     root.dataset.contentKey = key; root.dataset.stage = session.stage;
@@ -232,6 +282,7 @@ function renderFlow(previewText, watching) {
       const button = document.createElement("button"); button.type = "button"; button.textContent = action.label;
       Object.assign(button.dataset, { flowAction: action.action, value: action.value, suggested: String(action.suggested) });
       if (action.action === "decision") button.dataset.choice = action.value;
+      if (action.action === "restart" && action.value === "cancel") button.dataset.restartChoice = "";
       button.disabled = ["decision", "select", "handoff"].includes(action.action) && !manualTurn(); actions.append(button);
       if (!button.disabled && focused?.dataset.flowAction === action.action && focused.dataset.value === action.value) nextFocus = button;
     }
@@ -262,16 +313,28 @@ function render() {
     const allowedMoves = enabled ? session.allowedMoves({ safe: true }) : [];
     hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage, allowedMoves, enabled });
     emptyCount = session.board.filter(stone => !stone).length;
-    immediate = enabled && ["play", "w6"].includes(session.stage) && emptyCount <= 221
-      ? immediateEnding(session.board, session.color, session.rule, allowedMoves) : null;
+    tactics = enabled && ["play", "w6"].includes(session.stage) && emptyCount <= 221
+      ? tacticalPosition(session.board, session.color, session.rule, allowedMoves) : null;
+    immediate = tactics?.wins.length ? { plies: 1, winner: session.color }
+      : tactics && emptyCount === 1 ? immediateEnding(session.board, session.color, session.rule, allowedMoves) : null;
+    note = null;
+    if (tactics?.wins.length) {
+      note = { tone: "attack", text: `可一手取胜 · ${tactics.wins.slice(0, 3).map(coordinate).join("、")}${tactics.wins.length > 3 ? " 等" : ""}` };
+    } else if (tactics?.threats.length) {
+      const threat = tactics.threats[0];
+      note = tactics.threats.length === 1 && allowedMoves.includes(threat)
+        ? { tone: "defend", text: `先防守 · ${coordinate(threat)}` }
+        : { tone: "risk", text: tactics.threats.length > 1 ? `对方有 ${tactics.threats.length} 个一手胜点` : `对方胜点 ${coordinate(threat)} · 当前不能封堵` };
+    }
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
   const previewText = pending >= 0 ? `再点一次确认 · ${coordinate(pending)}` : "";
   renderBoard(requestedBoardMotion);
   const status = playState();
+  document.body.dataset.matchState = status;
   const watching = selfPlay && !session.winner && session.stage !== "setup";
-  const text = paused ? "思考已暂停 · 可继续或悔棋"
+  const text = paused ? `${pauseReason || "思考已暂停"} · 待下${colorName(session.color)}棋`
     : status === "loading" ? "正在载入 AI 引擎"
     : watching ? spectatorStatus()
     : busy ? deepPhase || (automaticTurn() ? `AI 正在下${colorName(session.color)}棋` : "正在分析当前操作…")
@@ -280,6 +343,12 @@ function render() {
   if ($("#stateText").textContent !== title) $("#stateText").textContent = title;
   $("#stateText").title = title; $("#stateIndicator").className = `state-indicator${busy || status === "loading" ? " thinking" : session.winner ? " finished" : ""}`;
   $("#stateIndicator").parentElement.dataset.playState = status;
+  const turn = $("#matchTurn");
+  if (turn) {
+    turn.hidden = session.winner || ["setup", "choose"].includes(session.stage) || session.decision || session.offerCount > 0;
+    turn.dataset.color = String(session.color);
+    turn.textContent = `${colorName(session.color)}棋`;
+  }
   const rule = $("#searchClock .rule-chip"), flow = $("#searchClock .workflow-chip");
   if (rule.textContent !== RULES[session.rule]) rule.textContent = RULES[session.rule];
   const workflow = `${workflowLabel[session.workflow]} · `;
@@ -295,7 +364,7 @@ function render() {
   const confirming = pending >= 0 && interactive();
   const recommendLabel = confirming ? "确认落子" : recommending ? "取消推荐" : advice ? "收起推荐" : "推荐";
   for (const button of [$("#recommendButton"), $("#simpleRecommendButton")]) {
-    button.disabled = !confirming && (!canRecommend || (!advice && !busy && state !== "ready"));
+    button.disabled = !confirming && (!canRecommend || (!advice && !busy && state !== "ready" && !tactics?.wins.length));
     button.toggleAttribute("data-board-confirm", confirming);
     if (confirming) button.removeAttribute("aria-pressed");
     else button.setAttribute("aria-pressed", String(Boolean(advice) || recommending));
@@ -318,7 +387,12 @@ function render() {
     const index = normalAdvice[rank];
     const label = rank === 0 ? "首选" : "次选";
     const text = index === undefined ? label : `${label} ${coordinate(index)}`;
-    if (key.lastChild.textContent !== text) key.lastChild.textContent = text;
+    const reason = index === undefined ? "" : advice?.reasons?.[rank];
+    const description = reason ? `${text} · ${reason}` : text;
+    if (key.lastChild.textContent !== description) key.lastChild.textContent = description;
+    if (index === undefined) delete key.dataset.previewPoint;
+    else key.dataset.previewPoint = String(index);
+    key.disabled = index === undefined || !interactive();
   }
   for (const selector of [".time-control", ".ponder-control"]) $(selector).hidden = session.decision;
   $(".color-control").hidden = session.decision || session.workflow !== "follow";
@@ -334,13 +408,15 @@ function render() {
     $("#simpleColor").setAttribute("aria-label", `对局设置：${RULES[session.rule]}，${workflowLabel[session.workflow]}`);
     $("#simpleRecommendLabel").textContent = busy && automatic ? "AI 落子中" : recommendLabel;
     $("#simpleRecommendNote").textContent = confirming ? coordinate(pending) : recommending ? "正在分析" : busy ? "请稍候"
-      : normalAdvice.length ? normalAdvice.slice(0, 2).map(coordinate).join(" · ") : advice ? "关闭建议标记" : "AI 落点建议";
+      : normalAdvice.length ? [coordinate(normalAdvice[0]), advice.reasons?.[0] || normalAdvice.slice(1, 2).map(coordinate)[0]].filter(Boolean).join(" · ")
+      : advice ? "关闭建议标记" : "AI 落点建议";
   }
   renderFlow(previewText, watching);
   renderAnalysis();
   enhancements?.render();
   boardFacts?.render();
   motion.render({ text, busy, paused, winner: session.winner, currentColor: session.color, state });
+  syncTurnTimer();
 }
 async function syncPonder() {
   if (busy || modal || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked || paused || document.hidden || advice || automaticTurn()) { engine.stopPonder(); return; }
@@ -352,6 +428,7 @@ async function syncPonder() {
 }
 async function prepare() {
   const token = serial; if (paused || modal || forbiddenInput || session.winner || session.stage === "setup") return;
+  if (selfPlay && document.hidden) return;
   try {
     if (automaticTurn() && openingBook.plan(session)) { await autoPlay(); return; }
     await engine.init(); if (token !== serial || modal) return;
@@ -373,6 +450,7 @@ function searchFor(token) { return async (options,context={}) => {
   if (token !== serial || modal) throw new DOMException("操作已取消", "AbortError"); return result;
 }; }
 function commit(event, automatic = false, result = null) {
+  if (!automatic) restartRequested = false;
   boardMotion = ["stone","select"].includes(event.type) ? "move" : "auto";
   const continuation = automatic && event.type === "stone" && ["play", "w6"].includes(session.stage) ? result : null;
   if(continuation?.adaptive)analysis.begin(requestId,session.color);
@@ -391,6 +469,7 @@ async function autoPlay() {
   const settings={isCancelled:()=>token!==serial || modal || paused,cancelSearch:()=>engine.cancel(),onProgress:phase=>{deepPhase=phase;render();}};
   let delayNext=false;
   try { while (token === serial && !modal && automaticTurn()) {
+    searchStarted = performance.now();
     const actorColor=session.actor===session.blackSeat?1:2;
     const chosen=selfPlay ? spectator[actorColor===1?"black":"white"] : "shared";
     const budget=chosen==="shared"?$("#timeSelect").value:chosen;
@@ -405,27 +484,35 @@ async function autoPlay() {
     if (session.decision) commit({ type: "decision", choice: suggestion.choice }, true);
     else if (session.offerCount) for (const index of suggestion.points) commit({ type: "offer", index }, true);
     else commit({ type: session.stage === "choose" ? "select" : "stone", index: suggestion.points[0] }, true, suggestion.result);
-    if(singleStep && selfPlay && !session.winner) { singleStep=false; paused=true; break; }
+    if(singleStep && selfPlay && !session.winner) { singleStep=false; paused=true; pauseReason="已完成一步"; break; }
     if(selfPlay && !session.winner && Number(spectator.delay)>0) { delayNext=true; break; }
   } } catch (error) { if (error.name !== "AbortError" && token === serial) { state = "error"; notify(`AI 未完成操作：${error.message}。可重试或悔棋。`, true); } }
-  finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;adaptiveThinking=false;deepPhase=""; if(state !== "error" && delayNext && !paused && selfPlay) selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); render(); if(state !== "error" && selfPlayTimer===null) {if(reinit && !paused)void prepare();else void syncPonder();} } }
+  finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;searchStarted = null;adaptiveThinking=false;deepPhase=""; if(state !== "error" && delayNext && !paused && selfPlay) selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); render(); if(state !== "error" && selfPlayTimer===null) {if(reinit && !paused)void prepare();else void syncPonder();} } }
 }
 async function recommend({automatic=false}={}) {
   if (busy || advice) { cancel({ keepHints: true }); render(); void prepare(); return; }
-  if (!manualTurn() || state !== "ready") return;
-  const token = serial; busy = true;adaptiveThinking=automatic && $("#timeSelect").value===ADAPTIVE_MODE;engine.stopPonder(); pending = hover = -1; render();
+  if (!manualTurn()) return;
+  if (tactics?.wins.length && !automatic) {
+    const points = tactics.wins.slice(0, 2); engine.stopPonder();
+    advice = { points, reasons: points.map(() => "落下即胜") };
+    pending = hover = -1; render(); return;
+  }
+  if (state !== "ready") return;
+  const token = serial; busy = true;searchStarted = performance.now();adaptiveThinking=automatic && $("#timeSelect").value===ADAPTIVE_MODE;engine.stopPonder(); pending = hover = -1; render();
   try { const suggestion = adaptiveThinking?await adviseAdaptiveOpening(session,searchFor(token),{isCancelled:()=>token!==serial || modal || paused,cancelSearch:()=>engine.cancel(),onProgress:phase=>{deepPhase=phase;render();}}):await adviseOpening(session, searchFor(token), 1000);
-    if (token !== serial) return;if(suggestion.adaptive && !engine.ready)state="idle"; advice = suggestion;
+    if (token !== serial) return;
+    if(suggestion.adaptive && !engine.ready)state="idle";
+    advice = { ...suggestion, reasons: suggestion.points?.slice(0, 2).map(index => explainMove(session.board, index, session.color, session.rule, tactics)) };
     if (suggestion.result && ["play", "w6"].includes(session.stage)) analysis.accept({ requestId, sideToMove: session.color, stats: suggestion.result });
     persist(); notify(suggestion.note);
   } catch (error) { if (error.name !== "AbortError" && token === serial) notify(error.message, true); }
-  finally { if (token === serial) { busy = false;adaptiveThinking=false;deepPhase=""; render();if(advice && !engine.ready)void prepare(); else void syncPonder(); } }
+  finally { if (token === serial) { busy = false;searchStarted = null;adaptiveThinking=false;deepPhase=""; render();if(advice && !engine.ready)void prepare(); else void syncPonder(); } }
 }
 function handoff() {
   if (!manualTurn() || session.workflow !== "copilot" || session.stage !== "play" || session.copilotReady) return;
   cancel(); commit({ type: "handoff" }); void prepare();
 }
-function onModal(open) { if (open) cancel(); modal = open; if(!open)configureRule();render(); if (!open) void prepare(); }
+function onModal(open) { if (open) { restartRequested = false; inspector?.dismiss(false); cancel(); } modal = open; if(!open)configureRule();render(); if (!open) void prepare(); }
 async function place(index) {
   if (!interactive()) return;
   if (!session.canPoint(index)) {
@@ -441,11 +528,24 @@ async function place(index) {
   cancel(); commit({ type: session.offerCount ? "offer" : session.stage === "choose" ? "select" : "stone", index }); void prepare();
 }
 function decision(choice) { if (!manualTurn() || !session.decision) return; cancel(); commit({ type: "decision", choice }); void prepare(); }
-function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();paused=false;selfPlay=false;cancel(); boardMotion="reset"; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); placeForcedCenter(); render(); if(!modal)void prepare(); }
+function newGame(options = { ...session.options, seed: null, initialBlackSeat: null }) { const next=new OpeningSession(options);archiveCurrent();archive.begin();restartRequested=false;paused=false;selfPlay=false;cancel(); boardMotion="reset"; session = next; configureRule(); perspective = session.playerColor || 1; positionChanged(true); placeForcedCenter(); render(); if(!modal)void prepare(); }
+function requestNewGame() {
+  const established = session.moves.length >= 10 || session.options.seed?.board.some(Boolean) && session.moves.length > 0;
+  if (session.winner || !established) { newGame(); return; }
+  restartRequested = !restartRequested;
+  render();
+  if (restartRequested) $(display?.simple ? "#simpleOpeningFlow [data-restart-choice]" : "#openingFlow [data-restart-choice]")?.focus({ preventScroll: true });
+}
 function restoreArchived(entry) {
-  const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);paused=false;selfPlay=false;cancel();boardMotion="reset";session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);placeForcedCenter();render();if(!modal)void prepare();return true;
+  const next=sessionFromRecord(entry.record);archiveCurrent();archive.use(entry.id);restartRequested=false;paused=false;selfPlay=false;cancel();boardMotion="reset";session=next;openingBook.restore(session,entry.meta?.openingPlan);configureRule();perspective=session.playerColor||1;positionChanged(true);placeForcedCenter();render();if(!modal)void prepare();return true;
 }
 const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame, onModal });
+$("#recommendationLegend").addEventListener("click", event => {
+  const button = event.target.closest("[data-preview-point]");
+  const index = Number(button?.dataset.previewPoint);
+  if (!button || !interactive() || !session.canPoint(index)) return;
+  pending = index; hover = -1; render();
+});
 svg.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Home End PageUp PageDown [ ] Enter Space 1 2 N B R Z P");
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
 svg.addEventListener("pointerdown", event => {
@@ -522,6 +622,10 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
   else if (action === "decision") decision(value);
   else if (action === "select") void place(Number(value));
   else if (action === "handoff") handoff();
+  else if (action === "restart") {
+    if (value === "confirm") newGame();
+    else { restartRequested = false; render(); $(display?.simple ? "#simpleRestart" : "#restartButton").focus({ preventScroll: true }); }
+  }
   else if (action === "retry") { cancel(); render(); void prepare(); }
   else if (action === "forbidden" && forbiddenInput) {
     const { index } = forbiddenInput; cancel();
@@ -539,7 +643,7 @@ $("#undoButton").onclick = () => { if (pending >= 0 && !busy) { pending = -1; re
   else if (forcedOpeningMove(session)) session.apply({type:"stone",index:112},{automatic:true});
   openingBook.restore(session, plan); positionChanged(); render(); void prepare(); };
 $("#simpleUndoButton").onclick = () => $("#undoButton").click();
-$("#restartButton").onclick = () => newGame();
+$("#restartButton").onclick = requestNewGame;
 $("#retryButton").onclick = () => { cancel(); render(); svg.focus({ preventScroll: true }); void prepare(); };
 $("#colorSelect").onchange = () => {
   if (session.workflow !== "follow") return;
@@ -560,20 +664,37 @@ document.addEventListener("keydown", event => {
     event.preventDefault(); pending = -1; render();
   }
 });
-display = setupDisplayModes({ onNewGame: () => newGame(), onChange: () => { pending = hover = -1; render(); }, onOpenSettings: dialogs.openModes });
+display = setupDisplayModes({ onNewGame: requestNewGame, onChange: () => { pending = hover = -1; inspector?.layout(); render(); }, onOpenSettings: dialogs.openModes });
 $("#simpleColor").addEventListener("keydown", recommendFromKeyboard);
 setupRecordUi({ getRecord: () => session.record(), notify, onModalChange: onModal,
   applyRecord: record => { restoreArchived({ record }); return persist(); }
 });
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    if(selfPlay && !paused && !session.winner){cancel();paused=true;render();notify("切到后台，AI 对决已暂停");}
-    persist();
+function saveForBackground() {
+  backgroundPosition ??= { game: session, events: session.events.length, watching: selfPlay && !paused };
+  hover = -1;
+  if (boardContact) boardContact.gesture = true;
+  if (selfPlay && !paused && !session.winner) {
+    cancel({ keepHints: true }); paused = true; pauseReason = "切到后台已暂停";
   }
+  render(); persist();
+}
+function returnToGame() {
+  const checkpoint = backgroundPosition; backgroundPosition = null;
+  if (!checkpoint || checkpoint.game !== session || modal) return;
+  if (checkpoint.watching && paused) notify(`AI 自战已暂停，待下${colorName(session.color)}棋。可继续或单步。`);
+  else if (checkpoint.events !== session.events.length) {
+    notify(session.winner ? session.description() : session.lastMove >= 0 ? `对局已更新 · 最近落子 ${coordinate(session.lastMove)}` : session.description());
+  }
+  render();
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) saveForBackground(); else returnToGame();
   void syncPonder();
-}); window.addEventListener("pagehide", persist);
-function pauseThinking() { if(!canPauseThinking())return;cancel({ keepHints: true });paused=true;persist();render(); }
-function resumeThinking() { paused=false;render();void prepare(); }
+});
+window.addEventListener("pagehide", saveForBackground);
+window.addEventListener("pageshow", event => { if (event.persisted && !document.hidden) { returnToGame(); void syncPonder(); } });
+function pauseThinking() { if(!canPauseThinking())return;cancel({ keepHints: true });paused=true;pauseReason="思考已暂停";persist();render(); }
+function resumeThinking() { paused=false;pauseReason="";persist();render();void prepare(); }
 function stepThinking() { if(!selfPlay || !paused || session.winner || modal)return;singleStep=true;paused=false;render();void prepare(); }
 document.addEventListener("keydown", event => {
   if(event.defaultPrevented || !selfPlay || modal || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target?.closest?.("input,select,textarea,button,a,summary,[contenteditable], [data-release-notes], [role=tablist]"))return;
@@ -593,7 +714,7 @@ enhancements = setupGameEnhancements({
   toggleHints: () => { showHints=!showHints; try { localStorage.setItem("gomoku-show-hints", String(showHints)); } catch {} engine.stopPonder(); render(); void syncPonder(); },
   toggleSelfPlay: () => {
     if (session.workflow !== "duel" || session.stage === "setup" || session.winner) return;
-    selfPlay=!selfPlay; paused=false; cancel(); render(); void prepare();
+    selfPlay=!selfPlay; paused=false; pauseReason=""; cancel(); persist(); render(); void prepare();
   },
   getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,canPause:canPauseThinking(),paused,selfPlay,ruleLabel: RULES[session.rule] }),
   getRecord: () => session.record(),
@@ -611,6 +732,7 @@ enhancements = setupGameEnhancements({
     return engine.search({ ...options, requestId: ++requestId });
   }
 });
+inspector = setupMatchInspector();
 const updateGate = createSafeUpdateGate({
   state: () => ({ untouched:updateLaunchUntouched, loadSafe:updateLoadSafe, hidden:document.hidden, modal, busy, pending:pending>=0, forbidden:Boolean(forbiddenInput) }),
   storage: { getItem:key=>sessionStorage.getItem(key), setItem:(key,value)=>sessionStorage.setItem(key,value) },

@@ -111,6 +111,8 @@ test("finds uncertain points in order and restores their focus when a correction
   $('[data-accept-point]').click(); assert.match($('.image-counts').textContent, /黑 0 · 白 0 · 待检查 224/);
   $('[data-undo]').click(); assert.match($('.image-counts').textContent, /待检查 225/);
   const side = $('[data-side]'); side.value = "2"; side.onchange();
+  $('[data-recalibrate]').click(); assert.equal($('[data-recognize]').textContent, "继续校正");
+  $('[data-recognize]').click(); assert.equal(side.value, "2"); assert.equal($('[data-undo]').disabled, false);
   const actor = $('[data-actor]'); const original = actor.value;
   actor.value = original === "ai" ? "player" : "ai"; actor.onchange();
   $('[data-undo]').click(); assert.equal(actor.value, original); assert.equal(side.value, "2");

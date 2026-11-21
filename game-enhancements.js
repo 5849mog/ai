@@ -18,6 +18,8 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   retryEntry.onclick = () => $("#retryButton").click();
   const pauseEntry = document.createElement("button"); pauseEntry.type = "button"; status.append(pauseEntry);
   const simpleStep = document.createElement("button"); simpleStep.type = "button"; status.append(simpleStep);
+  const timer = document.createElement("span"); timer.dataset.turnTime = ""; timer.className = "match-timer"; timer.hidden = true; status.append(timer);
+  const simpleEnd = document.createElement("button"); simpleEnd.type = "button"; simpleEnd.textContent = "退出自战"; status.append(simpleEnd);
   const quick = createQuickSettings(document, status), { panel, toggle, close: collapse } = quick;
   const notice = document.createElement("div"); notice.className = "simple-notice"; notice.hidden = true; notice.setAttribute("role", "status"); status.after(notice);
   const sourceNotice = $("#gameNotice");
@@ -111,12 +113,35 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const fullImage = document.createElement("button"); fullImage.type = "button"; fullImage.dataset.uiIcon="camera"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
   const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.dataset.uiIcon="guide";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
+  function snapshotImage() {
+    const position = getPosition();
+    return boardImageBlob({ board: Array.from(position.board), lastMove: position.lastMove, candidates: [...(position.candidates ?? [])] });
+  }
   const saveImage = async () => { try {
-    const position=getPosition(), blob=await boardImageBlob({board:Array.from(position.board),lastMove:position.lastMove,candidates:[...(position.candidates??[])]});
+    const blob=await snapshotImage();
     downloadBlob(blob,exportName('board','png')); notify?.('棋盘图片已导出');
   } catch(error) { notify?.(`保存图片失败：${error.message}`,true); } };
   panel.querySelector('[data-quick-save]').onclick = () => { collapse(); void saveImage(); };
   const fullBoardImage=document.createElement('button');fullBoardImage.type='button';fullBoardImage.dataset.uiIcon='camera';fullBoardImage.textContent='保存棋盘图';fullBoardImage.onclick=()=>{ $("#recordMenu").open=false;void saveImage(); };$(".record-options").append(fullBoardImage);
+  const fullCopy = document.createElement("button"); fullCopy.type = "button"; fullCopy.dataset.uiIcon = "copy"; fullCopy.textContent = "复制棋盘图";
+  $(".record-options").append(fullCopy);
+  const simpleCopy = panel.querySelector("[data-copy-board]");
+  const canCopyImage = typeof globalThis.ClipboardItem === "function" && typeof navigator.clipboard?.write === "function";
+  fullCopy.hidden = simpleCopy.hidden = !canCopyImage;
+  async function copyImage() {
+    try {
+      const image = snapshotImage();
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ "image/png": image })]);
+        notify?.("棋盘图已复制");
+      } catch {
+        downloadBlob(await image, exportName("board", "png"));
+        notify?.("无法写入剪贴板，已保存棋盘图");
+      }
+    } catch (error) { notify?.(`无法生成棋盘图：${error.message}`, true); }
+  }
+  fullCopy.onclick = () => { $("#recordMenu").open = false; void copyImage(); };
+  simpleCopy.onclick = () => { collapse(); void copyImage(); };
   const copyRecord = async format => { try {
     if (!navigator.clipboard?.writeText) throw new Error('当前浏览器不支持复制，请使用文件导出');
     const record=getRecord(), text=format==='sgf'?sessionSgf(record):JSON.stringify(record,null,2);
@@ -167,6 +192,18 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const fullPause = document.createElement("button"), fullStep = document.createElement("button");
   for (const button of [fullPause, fullStep]) { button.type = "button"; button.className = "icon-button"; }
   $(".game-actions").append(fullPause, fullStep);
+  const fullEnd = document.createElement("button");
+  fullEnd.type = "button"; fullEnd.className = "icon-button"; fullEnd.textContent = "退出自战";
+  $(".game-actions").append(fullEnd);
+  for (const end of [fullEnd, simpleEnd]) {
+    end.hidden = true;
+    end.onclick = () => {
+      if (!getPosition().selfPlay) return;
+      toggleSelfPlay?.();
+      $("#boardSvg")?.focus({ preventScroll: true });
+      notify?.("已退出自战，恢复原对弈方式");
+    };
+  }
   for (const [pause, step] of [[pauseEntry, simpleStep], [fullPause, fullStep]]) {
     pause.onclick = () => getPosition().paused ? resumeSearch?.() : pauseSearch?.();
     step.setAttribute("data-step", ""); step.textContent = "下一步";
@@ -189,6 +226,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
       area.querySelector("[data-reset-spectator]").disabled = [...area.querySelectorAll("[data-spectator]")].every(input => input.selectedIndex === 0);
     }
     retryEntry.hidden = position.state !== "error" || Boolean(position.winner);
+    fullEnd.hidden = simpleEnd.hidden = !position.selfPlay;
     for (const [pause, step] of [[pauseEntry, simpleStep], [fullPause, fullStep]]) {
       const focused = document.activeElement;
       pause.hidden = position.paused ? !resumeSearch : !position.canPause || !pauseSearch;
