@@ -148,6 +148,19 @@ try{
  await page.setViewportSize({width:390,height:844});await summary.tap();await menu.getByRole('button',{name:'截图导入',exact:true}).tap();
  await page.getByRole('button',{name:'返回原局',exact:true}).tap();assert.equal(await summary.evaluate(node=>node===document.activeElement),true);
  pass('Full menu stays in short viewports, closes when focus leaves, and screenshot import returns focus');
+ for(const [width,height,minSide] of [[320,568,290],[820,1180,740]]) {
+  await page.setViewportSize({width,height});await settle();
+  const before=await board.boundingBox(), saved=await record();
+  assert.ok(before.width>=minSide);
+  await page.getByRole('button',{name:'局势与设置',exact:true}).tap();await settle();
+  assert.deepEqual(await board.boundingBox(),before);
+  assert.equal(await page.locator('#positionAnalysis').isVisible(),true);
+  await page.touchscreen.tap(before.x+before.width*.75,before.y+12);
+  assert.equal(await page.locator('#matchInspector').isVisible(),false);
+  assert.equal(await preview.count(),0);assert.deepEqual(await record(),saved);
+ }
+ pass('The compact full view keeps a large board on short phones and portrait tablets; closing analysis does not play a move');
+ await page.setViewportSize({width:390,height:844});
  for(const selector of ['#exportJson','#exportSgf']) {
   await summary.tap();const [download]=await Promise.all([page.waitForEvent('download'),page.locator(selector).tap()]);
   const parsed=parseSessionRecord(await readFile(await download.path(),'utf8'));assert.deepEqual(parsed.session.board,(await game()).board);

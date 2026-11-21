@@ -66,6 +66,7 @@ export function createQuickSettings(document, status) {
           <button type="button" data-quick-import data-ui-icon="import">导入棋谱</button>
           <button type="button" data-quick-setup data-ui-icon="board">自定义摆局</button>
           <button type="button" data-quick-save data-ui-icon="export">保存棋盘图</button>
+          <button type="button" data-copy-board data-ui-icon="copy">复制棋盘图</button>
           <button type="button" data-archive data-ui-icon="guide">最近对局</button>
         </div>
         <div class="quick-tools-links">

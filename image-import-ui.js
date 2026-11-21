@@ -41,7 +41,8 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   const $ = selector => root.querySelector(selector), canvas = $(".import-image"), loupe = $(".import-loupe"), reference = $(".import-reference"), svg = $("svg"), context = canvas.getContext("2d", { willReadFrequently: true });
   const view = createBoardView(svg, { idPrefix: "image-import-" });
   let image = null, frame = null, initialFrame = null, autoLocated = false, drag = null, board = new Uint8Array(225), uncertain = new Set(), checkIndex = -1, keyboardIndex = 112, keyboardActive = false, tool = 1, history = [], generation = 0, active = false, loading = false, correcting = false, comparing = false, grid = true;
-  let initialCorrection, future = [], transforms = [], frameHistory = [], editedSide = "", editedActor = "";
+  let initialCorrection, recognizedFrame, future = [], transforms = [], frameHistory = [], editedSide = "", editedActor = "";
+  const compareMedia = root.ownerDocument?.defaultView?.matchMedia?.("(min-width: 850px) and (min-height: 480px)");
   const frameKeys = ["left", "right", "top", "bottom"];
   const sameFrame = (a, b) => a && b && frameKeys.every(edge => a[edge] === b[edge]);
   const message = (text, error = false) => {
@@ -53,6 +54,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     step.textContent = loading ? "读取中" : comparing ? "原图对照" : correcting ? "核对棋子" : "校准棋盘";
     root.setAttribute("aria-busy", String(loading));
     $("[data-recognize]").disabled = loading || !image || !frame;
+    $("[data-recognize]").textContent = sameFrame(frame, recognizedFrame) ? "继续校正" : "识别棋子";
     $("[data-confirm]").disabled = loading || !correcting || comparing;
     $("[data-compare]").disabled = loading || !correcting;
     $("[data-prev-uncertain]").disabled = $("[data-next-uncertain]").disabled = loading || !correcting || comparing || !uncertain.size;
@@ -84,6 +86,11 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     const frameSize = `${Math.round((right - left) * image.width / canvas.width)} × ${Math.round((bottom - top) * image.height / canvas.height)} px`;
     const output = $("[data-frame-size]");
     if (output.textContent !== frameSize) output.textContent = frameSize;
+    const ratio = (right - left) / (bottom - top);
+    const adjustFrame = ratio < .7 || ratio > 1.4;
+    output.toggleAttribute("data-adjust-frame", adjustFrame);
+    output.title = adjustFrame ? "选框应接近正方形" : "";
+    $("[data-recognize]").textContent = sameFrame(frame, recognizedFrame) ? "继续校正" : "识别棋子";
     $("[data-reset-frame]").disabled = loading || sameFrame(frame, initialFrame ?? defaultFrame());
     context.fillStyle = "rgba(20, 24, 19, .38)";
     context.fillRect(0, 0, canvas.width, top);
@@ -146,6 +153,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   }
   function resetComparison() {
     comparing = false; reference.hidden = true;
+    delete root.dataset.compareSideBySide;
     $("[data-compare]").setAttribute("aria-pressed", "false");
     $("[data-compare]").textContent = "查看原图";
   }
@@ -166,6 +174,15 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     }
     zoom.drawImage(image.source ?? image, 26 - frame.left * sx, 26 - frame.top * sy, canvas.width * sx, canvas.height * sy);
     if (transforms.length) zoom.restore();
+  }
+  function showCorrection() {
+    correcting = true;
+    canvas.hidden = loupe.hidden = true;
+    svg.toggleAttribute("hidden", false);
+    $(".calibration-actions").hidden = true;
+    $(".image-correction").hidden = false;
+    renderBoard();
+    svg.focus({ preventScroll: true });
   }
   function calibrate(resetFrame = false) {
     if (image && (resetFrame || !frame)) frame = { ...(initialFrame ?? defaultFrame()) };
@@ -192,7 +209,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
         scanContext.drawImage(bitmap.source ?? bitmap, 0, 0, scanWidth, scanHeight);
         suggestion = findBoardGrid(scanContext.getImageData(0, 0, scanWidth, scanHeight));
       } catch { /* retain manual crop */ }
-      image?.close(); image = bitmap; frameHistory = [];
+      image?.close(); image = bitmap; frameHistory = []; recognizedFrame = null; initialCorrection = null;
       const scale = Math.min(1, 1800 / Math.max(image.width, image.height));
       canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale);
       autoLocated = Boolean(suggestion);
@@ -300,20 +317,21 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   svg.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Home Enter 0 1 2 B C N V Y Z");
   $("[data-recognize]").onclick = () => {
     if (loading || !image || !frame) return;
+    if (sameFrame(frame, recognizedFrame) && initialCorrection) {
+      showCorrection(); message("已回到上次校正，棋子、疑点和撤回记录都已保留。"); return;
+    }
     try {
       const rectangle = boardRectangle({ x: frame.left, y: frame.top }, { x: frame.right, y: frame.bottom }, canvas.width, canvas.height);
       // Markers are instructions only; they must not enter recognition pixels.
       context.drawImage(image.source ?? image, 0, 0, canvas.width, canvas.height);
       const recognized = recognizeBoard(context.getImageData(0, 0, canvas.width, canvas.height), rectangle);
       board = recognized.board; uncertain = new Set(recognized.uncertain); checkIndex = -1; keyboardIndex = 112; keyboardActive = false; history = []; future = []; transforms = [];
+      recognizedFrame = { ...frame };
       initialCorrection = snapshot(); editedSide = initialCorrection.side; editedActor = initialCorrection.actor;
       $(".draft-tools").open = false; $("[data-image-transform]").selectedIndex = 0;
       selectTool(1);
-      renderBoard(); correcting = true; canvas.hidden = loupe.hidden = true;
-      // SVGElement has no HTMLElement.hidden reflection: change the attribute itself.
-      svg.toggleAttribute("hidden", false); $(".calibration-actions").hidden = true; $(".image-correction").hidden = false; controls();
+      showCorrection();
       message("逐点核对黑白棋，橙框优先检查。选择黑棋、白棋或擦除后点击棋盘校正；核对完成再确认。");
-      svg.focus({ preventScroll: true });
     } catch (error) { message(error.message, true); draw(); }
   };
   for (const button of root.querySelectorAll("[data-recalibrate]")) button.onclick = () => { if (!loading) { calibrate(); canvas.focus({ preventScroll: true }); } };
@@ -331,15 +349,23 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   $("[data-grid]").onclick = () => {
     grid = !grid; $("[data-grid]").setAttribute("aria-pressed", String(grid)); $("[data-grid]").textContent = `网格参考：${grid ? "开" : "关"}`; draw();
   };
+  function layoutComparison() {
+    const split = comparing && Boolean(compareMedia?.matches);
+    reference.hidden = !comparing;
+    svg.toggleAttribute("hidden", comparing && !split);
+    root.toggleAttribute("data-compare-side-by-side", split);
+  }
+  compareMedia?.addEventListener?.("change", layoutComparison);
   $("[data-compare]").onclick = () => {
     if (!correcting || loading || !image || !frame) return;
     try {
       if (!comparing) drawReference();
       comparing = !comparing;
-      reference.hidden = !comparing; svg.toggleAttribute("hidden", comparing);
+      layoutComparison();
       $("[data-compare]").setAttribute("aria-pressed", String(comparing));
       $("[data-compare]").textContent = comparing ? "返回识别结果" : "查看原图";
-      message(comparing ? "正在查看截图原图。点击「返回识别结果」或按 V 继续校正。" : "逐点核对黑白棋，橙框优先检查。选择黑棋、白棋或擦除后点击棋盘校正；核对完成再确认。");
+      message(comparing && compareMedia?.matches ? "左边是识别结果，右边是原图。对照后返回继续校正。"
+        : comparing ? "正在查看截图原图。点击「返回识别结果」或按 V 继续校正。" : "逐点核对黑白棋，橙框优先检查。选择黑棋、白棋或擦除后点击棋盘校正；核对完成再确认。");
       controls();
     } catch { message("暂时无法显示原图，识别结果仍然保留。", true); }
   };
@@ -476,6 +502,6 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
       correcting = loading = false; resetComparison(); svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = initialFrame = null; autoLocated = false; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
       message("选择截图或粘贴图片。图片只在本机处理，请使用正视的 15 × 15 棋盘。");
     },
-    dispose() { delete dropZone.dataset.dragActive; active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = null; autoLocated = comparing = false; checkIndex = -1; canvas.width = canvas.height = 1; reference.hidden = true; history = []; future = []; initialCorrection = null; transforms = []; frameHistory = []; }
+    dispose() { delete dropZone.dataset.dragActive; active = false; generation++; image?.close(); image = null; frame = initialFrame = drag = recognizedFrame = null; autoLocated = comparing = false; checkIndex = -1; canvas.width = canvas.height = 1; reference.hidden = true; history = []; future = []; initialCorrection = null; transforms = []; frameHistory = []; delete root.dataset.compareSideBySide; }
   };
 }

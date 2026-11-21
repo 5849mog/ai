@@ -19,16 +19,16 @@ const positionPercent = (point, winner) => {
   return !winner && !point.forcedColor ? Math.min(99, Math.max(1, percent)) : percent;
 };
 
-export function renderSimpleWinRate(root, analysis, winner, { available = true, waiting = "等待评估", ending } = {}) {
+export function renderSimpleWinRate(root, analysis, winner, { available = true, waiting = "等待评估", ending, tactical } = {}) {
   const percent = available ? positionPercent(analysis.current, winner) : null;
   const black = analysis.playerColor === 1 ? percent : percent == null ? null : 100 - percent;
   const text = winner ? winner === 3 ? "和棋" : `${winner === 1 ? "黑" : "白"}胜`
     : percent == null ? waiting : `黑 ${black}% · 白 ${100 - black}%`;
   const label = winner ? `结果 · ${text}` : `胜率 · ${text}`;
-  const display = ending?.short ? `${label}｜余 ${ending.short}` : label;
+  const display = tactical || (ending?.short ? `${label}｜余 ${ending.short}` : label);
   if (root.textContent !== display) root.textContent = display;
   const description = winner ? `对局结果：${text}` : `AI 估算胜率：${text}`;
-  root.setAttribute("aria-label", ending?.short ? `${description}。终局推演：${ending.text}` : description);
+  root.setAttribute("aria-label", [tactical, description, ending?.short ? `终局推演：${ending.text}` : ""].filter(Boolean).join("。"));
   root.title = ending?.short ? `终局推演：${ending.text}` : "";
   root.dataset.state = winner ? "finished" : percent == null ? "waiting" : "rated";
 }
