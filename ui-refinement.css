@@ -184,21 +184,42 @@
 .opening-page .record-options button:not([data-ui-icon]) { padding-left:37px; }
 .opening-page .record-options button[data-ui-icon]::before { color:#607763; }
 .opening-page .record-options button:focus-visible { outline-offset:-3px; }
-.opening-page .record-options:has(.release-notes-panel:not([hidden])) { width: min(22rem, calc(100vw - 20px)); }
 .opening-page .simple-quick-tools [data-notes-toggle] { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; margin-top: 6px; }
-.opening-page [data-notes-toggle][aria-expanded="true"] { background: #e9f0e5; }
-.opening-page .release-notes-panel { border-top: 1px solid var(--ui-border); margin: 6px 0; padding: 6px; }
-.opening-page .release-notes-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.opening-page .release-notes-top p, .opening-page .release-notes-installed { color: var(--ui-ink); font-size: 12px; line-height: 1.5; margin: 4px 0; }
-.opening-page .release-notes-panel :is([data-notes-refresh], [data-app-update]) { width: auto; padding: 4px 8px; white-space: nowrap; }
-.opening-page .release-note-list { list-style: none; padding: 0; margin: 10px 0 0; }
-.opening-page .release-note-list > li { border-top: 1px solid var(--ui-border); padding: 8px 0; }
-.opening-page .release-note-list header { display: flex; gap: 8px; color: var(--ui-muted); font-size: 11px; }
-.opening-page .release-note-list header strong { color: #345d3f; }
-.opening-page .release-note-list h3 { color: var(--ui-ink); font-size: 13px; margin: 4px 0; }
-.opening-page .release-note-list ul { padding-inline-start: 1.15em; font-size: 12px; line-height: 1.55; margin: 0; }
-@media (max-height: 520px) {
-  .opening-page .simple-quick-tools .release-notes-panel p { display: block; }
+.opening-page :is(.record-options, .simple-quick-tools):has(> [data-notes-open]) { height: 25rem; overflow: hidden; }
+.opening-page .record-options:has(> [data-notes-open]) { width: min(24rem, calc(100vw - 20px)); }
+.opening-page :is(.record-options, .simple-quick-tools):has(> [data-notes-open]) > :not([data-notes-open]),
+.opening-page [data-notes-open] > [data-notes-toggle] { display: none; }
+.opening-page [data-notes-open] { height: 100%; }
+.opening-page .release-notes-panel:not([hidden]) { display: flex; flex-direction: column; height: 100%; color: var(--ui-ink); }
+.release-notes-top, .release-notes-nav:not([hidden]) { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 6px; }
+.release-notes-top h2 { margin: 0; font-size: 15px; text-align: center; }
+.release-notes-nav { padding: 6px 0; border-bottom: 1px solid var(--ui-border); }
+.opening-page .release-notes-panel button:not([data-ui-icon]) { width: auto; min-height: 34px; padding: 4px 8px; white-space: nowrap; }
+.opening-page .release-notes-panel button[aria-disabled="true"] { opacity: .46; cursor: default; }
+.release-notes-nav select { width: 100%; min-height: 34px; border: 1px solid var(--ui-border); border-radius: 6px; background: #fffdf8; color: inherit; font: inherit; font-size: 13px; }
+.release-notes-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 5px; overflow-wrap: anywhere; }
+.release-notes-body:focus-visible { outline: 2px solid #6b8a72; outline-offset: -2px; }
+.release-note-entry { margin-block: 10px 14px; }
+.release-note-entry header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 8px; }
+.release-note-entry header span { color: #345d3f; font-size: 11px; font-weight: 650; }
+.release-note-entry h3 { margin: 0; color: var(--ui-ink); font-size: 15px; }
+.release-note-entry ul { padding-inline-start: 1.3em; margin: 8px 0 0; font-size: 13px; line-height: 1.55; }
+.release-note-entry li + li { margin-top: 4px; }
+.opening-page .release-notes-panel p:not([hidden]) { display: block; margin: 0; font-size: 12px; line-height: 1.4; }
+.opening-page .release-notes-panel :is(.release-notes-installed, .release-notes-status) { color: #4f6251; }
+.opening-page .release-notes-panel .release-notes-status { padding: 5px; border-top: 1px solid var(--ui-border); }
+.release-notes-filter { font-size: 12px; }
+.opening-page .release-notes-filter [data-notes-filter] { border: 1px solid var(--ui-border); border-radius: 6px; background: #f5f5ed; }
+.release-notes-filter label { display: flex; align-items: center; gap: 6px; margin-block: 5px; }
+.release-notes-filter input[type="search"] { flex: 1; min-width: 0; min-height: 32px; padding: 4px 6px; border: 1px solid var(--ui-border); border-radius: 6px; }
+.release-notes-filter + [data-notes-empty]:not([hidden]) { padding-block: 10px; }
+[data-notes-checked]:not([hidden]) { display: block; }
+@media (pointer: coarse) {
+  .opening-page .release-notes-panel button:not([data-ui-icon]), .release-notes-nav select { min-height: 40px; }
+}
+@media (max-height: 430px) {
+  .opening-page .release-notes-panel button:not([data-ui-icon]), .release-notes-nav select { min-height: 32px; }
+  .release-notes-nav { padding-block: 3px; }
 }
 @media (pointer:coarse) {
   .opening-page .record-options button { min-height:44px; }
@@ -245,10 +266,6 @@
 .draft-tools label { display: inline-flex; align-items: center; gap: 6px; }
 .draft-tools :is(select, button) { min-height: 35px; margin-block: 3px; max-width: 100%; }
 [data-frame-size] { font-variant-numeric: tabular-nums; font-size: 12px; color: #4d6351; }
-.release-notes-filter { display: grid; gap: 5px; }
-.release-notes-filter label { display: flex; align-items: center; gap: 6px; font-size: 12px; }
-.release-notes-filter input[type="search"] { min-width: 0; width: 100%; padding: 5px; border: 1px solid var(--ui-border); border-radius: 6px; }
-[data-notes-checked]:not([hidden]) { display: block; }
 #boardSvg[data-still-board="true"] :is(.stone-impact, .removed-stone) { display: none; }
 #boardSvg[data-still-board="true"] :is(.last-ring, .turn-hint, .winning-connector, .winning-ring, .hover-stone, .pending-stone, .pending-ring, .aim-guides line, .recommendation-marker, .opening-proposal, .answer-ring),
 .board-frame:has(#boardSvg[data-still-board="true"])::after { animation: none; }
