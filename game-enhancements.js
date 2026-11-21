@@ -1,7 +1,7 @@
 import { createImageImport } from "./image-import-ui.js";
 import { createReviewUi } from "./review-ui.js";
-import { THINKING_OPTIONS, SPECTATOR_DELAYS, spectatorBudgets } from "./thinking-options.js";
-import { updateControlMarkup } from "./app-update.js";
+import { SPECTATOR_DELAYS, spectatorBudgets } from "./thinking-options.js";
+import { createQuickSettings } from "./quick-settings.js";
 import { createArchiveUi } from "./archive-ui.js";
 import { boardImageBlob } from "./board-image.js";
 import { sessionSgf, sessionFromRecord } from "./session-records.js";
@@ -18,34 +18,27 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   retryEntry.onclick = () => $("#retryButton").click();
   const pauseEntry = document.createElement("button"); pauseEntry.type = "button"; status.append(pauseEntry);
   const simpleStep = document.createElement("button"); simpleStep.type = "button"; status.append(simpleStep);
-  const toggle = document.createElement("button"); toggle.type = "button"; toggle.textContent = "更多"; toggle.dataset.uiIcon="settings"; toggle.setAttribute("aria-label", "更多对局设置"); toggle.setAttribute("aria-expanded", "false"); toggle.setAttribute("aria-controls", "simpleQuickTools"); status.append(toggle);
-  const panel = document.createElement("div"); panel.id = "simpleQuickTools"; panel.className = "simple-quick-tools"; panel.hidden = true; status.after(panel);
+  const quick = createQuickSettings(document, status), { panel, toggle, close: collapse } = quick;
   const notice = document.createElement("div"); notice.className = "simple-notice"; notice.hidden = true; notice.setAttribute("role", "status"); status.after(notice);
   const sourceNotice = $("#gameNotice");
   function syncNotice() {
-    notice.hidden = !sourceNotice || sourceNotice.hidden || !sourceNotice.textContent;
-    notice.textContent = notice.hidden ? "" : sourceNotice.textContent;
+    const hidden = !sourceNotice || sourceNotice.hidden || !sourceNotice.textContent;
+    const text = hidden ? "" : sourceNotice.textContent;
+    if (notice.hidden !== hidden || notice.textContent !== text) {
+      notice.hidden = hidden;
+      notice.textContent = text;
+      quick.fit();
+    }
     notice.classList.toggle("error", Boolean(sourceNotice?.classList.contains("error")));
   }
   if (sourceNotice && typeof MutationObserver === "function") new MutationObserver(syncNotice).observe(sourceNotice,
     { attributes: true, attributeFilter: ["hidden", "class"], childList: true, characterData: true, subtree: true });
-  panel.innerHTML = `<div class="quick-tools-header"><strong>快捷设置</strong><button type="button" data-collapse aria-label="收起快捷设置">收起</button></div><div class="quick-tools-label">每步思考与开关</div><div class="tool-buttons quick-time-grid" role="group" aria-label="每步思考时间">${THINKING_OPTIONS.map(([value, label]) => `<button type="button" data-time="${value}">${label}</button>`).join("")}<button type="button" data-ponder aria-pressed="true">后台思考</button><button type="button" data-sound aria-pressed="false">声效关</button></div><div class="quick-tools-label">对局工具</div><div class="quick-tools-actions"><button type="button" data-image>截图导入</button><button type="button" data-archive>最近对局</button></div><p>思考时间用于自动落子；推荐固定为 1 秒。</p><div data-board-appearance></div><div data-board-facts></div><div data-release-notes="simple"></div>${updateControlMarkup()}`;
   const workspace = document.createElement("section"); workspace.className = "enhancement-workspace"; workspace.hidden = true;
-  const remoteEntry = document.createElement("button"); remoteEntry.type = "button"; remoteEntry.dataset.remoteMenu = ""; remoteEntry.dataset.uiIcon="engine"; remoteEntry.textContent = "电脑引擎";
-  panel.querySelector(".quick-tools-actions").append(remoteEntry);
-  const setupEntry = document.createElement("button"); setupEntry.type = "button"; setupEntry.dataset.uiIcon="board"; setupEntry.textContent = "自定义摆局";
-  setupEntry.onclick = () => { collapse(); $("#openSetup").click(); }; remoteEntry.before(setupEntry);
-  const fullEntry = document.createElement("button"); fullEntry.type = "button"; fullEntry.textContent = "完整界面"; fullEntry.dataset.uiIcon="layout"; fullEntry.dataset.fullView = "";
-  fullEntry.onclick = () => { collapse(); exitSimple?.(); }; panel.querySelector(".quick-tools-actions").append(fullEntry);
+  panel.querySelector("[data-quick-setup]").onclick = () => { collapse({ immediate: true }); $("#openSetup").click(); };
+  panel.querySelector("[data-full-view]").onclick = () => { collapse({ immediate: true }); exitSimple?.(); };
   workspace.setAttribute("aria-label", "对局工具"); workspace.tabIndex = -1; document.body.append(workspace);
   const imageRoot = document.createElement("div"), reviewRoot = document.createElement("div"), archiveRoot=document.createElement("div"); imageRoot.hidden = reviewRoot.hidden = archiveRoot.hidden = true; workspace.append(imageRoot, reviewRoot,archiveRoot);
   let active = null, recordKey = null, opening = false, currentReview=true;
-  function collapse({ restoreFocus = true } = {}) {
-    if (panel.hidden) return;
-    const focusedInside = Boolean(document.activeElement && panel.contains(document.activeElement));
-    panel.hidden = true; toggle.setAttribute("aria-expanded", "false");
-    if (restoreFocus && focusedInside) toggle.focus();
-  }
   function close({ resume = true } = {}) {
     if (!active) return;
     const previous = active; active = null;
@@ -70,30 +63,40 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   function open(kind, archivedRecord=null) {
     if (active || kind === "review" && !archivedRecord && !getPosition().winner) return;
     const record = structuredClone(archivedRecord??getRecord()); recordKey = JSON.stringify(record);currentReview=!archivedRecord;
-    collapse({ restoreFocus: false }); active = kind; opening = true; onWorkspace(true); opening = false;
+    collapse({ restoreFocus: false, immediate: true }); active = kind; opening = true; onWorkspace(true); opening = false;
     shell.hidden = true; workspace.hidden = false; imageRoot.hidden = kind !== "image"; reviewRoot.hidden = kind !== "review";archiveRoot.hidden=kind!=="archive"; workspace.focus();
     if (kind === "image") image.open(); else if(kind==="review")void review.open(record);else history.open();
     $("#recordMenu").open = false;
   }
-  const closeQuick = panel.querySelector("[data-collapse]");
-  toggle.onclick = event => {
-    if (!panel.hidden) { collapse(); return; }
-    panel.hidden = false; panel.scrollTop = 0; toggle.setAttribute("aria-expanded", "true");
-    if (event.detail === 0) closeQuick.focus();
+  const times = [...panel.querySelectorAll("[data-time]")], timeSelect = $("#timeSelect"), ponderInput = $("#ponderToggle");
+  const ponder = panel.querySelector("[data-ponder]"), soundButton = panel.querySelector("[data-sound]");
+  function setTime(value) {
+    if (timeSelect.disabled || timeSelect.value === value) return;
+    timeSelect.value = value;
+    timeSelect.dispatchEvent(new Event("change"));
+  }
+  for (const [index, button] of times.entries()) {
+    button.onclick = () => setTime(button.dataset.time);
+    button.onkeydown = event => {
+      if (timeSelect.disabled || event.altKey || event.ctrlKey || event.metaKey) return;
+      let direction;
+      if (["ArrowRight", "ArrowDown"].includes(event.key)) direction = 1;
+      else if (["ArrowLeft", "ArrowUp"].includes(event.key)) direction = -1;
+      else return;
+      event.preventDefault();
+      const next = times[(index + direction + times.length) % times.length];
+      setTime(next.dataset.time);
+      next.focus({ preventScroll: true });
+    };
+  }
+  ponder.onclick = () => {
+    if (ponderInput.disabled) return;
+    ponderInput.checked = !ponderInput.checked;
+    ponderInput.dispatchEvent(new Event("change"));
   };
-  closeQuick.onclick = () => collapse();
-  panel.addEventListener("focusout", event => {
-    if (event.relatedTarget && !panel.contains(event.relatedTarget) && event.relatedTarget !== toggle) collapse({ restoreFocus: false });
-  });
-  for (const button of panel.querySelectorAll("[data-time]")) button.onclick = () => {
-    const select = $("#timeSelect"); if (select.disabled) return;
-    select.value = button.dataset.time; select.dispatchEvent(new Event("change")); collapse(); render();
-  };
-  panel.querySelector("[data-ponder]").onclick = () => { const input = $("#ponderToggle"); if (input.disabled) return; input.checked = !input.checked; input.dispatchEvent(new Event("change")); collapse(); render(); };
-  const soundButton = panel.querySelector("[data-sound]"); soundButton.dataset.uiIcon="audio";
   function toggleSound() { if (!sound) return; const enabled = sound.setEnabled(!sound.enabled); if (enabled) sound.playStone(); render(); }
-  soundButton.hidden = !sound; soundButton.onclick = () => { toggleSound(); collapse(); };
-  panel.querySelector("[data-image]").dataset.uiIcon="camera"; panel.querySelector("[data-image]").onclick = () => open("image"); reviewEntry.onclick = () => open("review");
+  soundButton.hidden = !sound; soundButton.onclick = toggleSound;
+  panel.querySelector("[data-image]").onclick = () => open("image"); reviewEntry.onclick = () => open("review");
   panel.querySelector("[data-archive]").onclick=()=>open("archive");
   const fullImage = document.createElement("button"); fullImage.type = "button"; fullImage.dataset.uiIcon="camera"; $(".record-options").append(fullImage);
   fullImage.textContent = "截图导入"; fullImage.onclick = () => open("image");
@@ -102,7 +105,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     const position=getPosition(), blob=await boardImageBlob({board:Array.from(position.board),lastMove:position.lastMove,candidates:[...(position.candidates??[])]});
     downloadBlob(blob,exportName('board','png')); notify?.('棋盘图片已导出');
   } catch(error) { notify?.(`保存图片失败：${error.message}`,true); } };
-  const quickImage=document.createElement('button');quickImage.type='button';quickImage.textContent='保存棋盘图';quickImage.onclick=()=>{collapse();void saveImage();};panel.querySelector('.quick-tools-actions').append(quickImage);
+  panel.querySelector('[data-quick-save]').onclick = () => { collapse(); void saveImage(); };
   const fullBoardImage=document.createElement('button');fullBoardImage.type='button';fullBoardImage.dataset.uiIcon='camera';fullBoardImage.textContent='保存棋盘图';fullBoardImage.onclick=()=>{ $("#recordMenu").open=false;void saveImage(); };$(".record-options").append(fullBoardImage);
   const copyRecord = async format => { try {
     if (!navigator.clipboard?.writeText) throw new Error('当前浏览器不支持复制，请使用文件导出');
@@ -112,15 +115,16 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   for(const format of ['sgf','json']) {
     const label=format==='sgf'?'复制 SGF':'复制五目棋谱';
     const full=document.createElement('button');full.type='button';full.dataset.uiIcon='copy';full.textContent=label;full.onclick=()=>{$('#recordMenu').open=false;void copyRecord(format);};$('.record-options').append(full);
-    const quick=document.createElement('button');quick.type='button';quick.textContent=label;quick.onclick=()=>{collapse();void copyRecord(format);};panel.querySelector('.quick-tools-actions').append(quick);
+    panel.querySelector(`[data-quick-copy=${format}]`).onclick = () => { collapse(); void copyRecord(format); };
   }
-  const quickHints=document.createElement("button"),quickSelf=document.createElement("button"),fullHints=document.createElement("button"),fullSelf=document.createElement("button");
-  for(const button of [quickHints,fullHints]) button.dataset.uiIcon="eye";
-  for(const button of [quickSelf,fullSelf]) button.dataset.uiIcon="bot";
-  for(const button of [quickHints,quickSelf,fullHints,fullSelf]) button.type="button";
-  quickHints.onclick=()=>{toggleHints?.();collapse();}; fullHints.onclick=()=>{toggleHints?.();$("#recordMenu").open=false;};
-  quickSelf.onclick=()=>{toggleSelfPlay?.();collapse();}; fullSelf.onclick=()=>{toggleSelfPlay?.();$("#recordMenu").open=false;};
-  panel.querySelector("[data-image]").before(quickHints); panel.querySelector("[data-image]").before(quickSelf);
+  const quickHints = panel.querySelector("[data-hints]"), quickSelf = panel.querySelector("[data-takeover]");
+  const fullHints = document.createElement("button"), fullSelf = document.createElement("button");
+  fullHints.type = fullSelf.type = "button";
+  fullHints.dataset.uiIcon = "eye"; fullSelf.dataset.uiIcon = "bot";
+  quickHints.onclick = () => toggleHints?.();
+  fullHints.onclick = () => { toggleHints?.(); $("#recordMenu").open = false; };
+  quickSelf.onclick = () => { toggleSelfPlay?.(); collapse(); };
+  fullSelf.onclick = () => { toggleSelfPlay?.(); $("#recordMenu").open = false; };
   const spectatorControls=document.createElement("div"); spectatorControls.className="spectator-controls"; spectatorControls.append(fullHints,fullSelf); $(".game-actions").after(spectatorControls);
   const makeSpectatorPanel=()=>{
     const details=document.createElement("details");details.className="spectator-settings";details.hidden=true;
@@ -138,7 +142,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     return details;
   };
   const fullSpectator=makeSpectatorPanel(),quickSpectator=makeSpectatorPanel();
-  spectatorControls.after(fullSpectator);panel.querySelector(".quick-tools-actions").after(quickSpectator);
+  spectatorControls.after(fullSpectator); panel.querySelector("[data-quick-spectator]").append(quickSpectator);
   const fullSound=document.createElement("button");fullSound.type="button";fullSound.dataset.uiIcon="audio";fullSound.hidden=!sound;fullSound.onclick=toggleSound;$(".record-options").append(fullSound);
   // Put the full-mode postgame entry beside New as well as in the menu.
   const resultButton = document.createElement("button"); resultButton.type = "button"; resultButton.className = "icon-button"; resultButton.textContent = "复盘"; resultButton.hidden = true; resultButton.onclick = () => open("review"); $(".game-actions").append(resultButton);
@@ -150,10 +154,14 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     step.setAttribute("data-step", ""); step.textContent = "下一步";
     step.onclick = () => { if (document.activeElement === step) pause.focus(); stepSelfPlay?.(); };
   }
+  let lastPreferences = "";
   function render() {
     const position = getPosition(), controls=getControlState?.();
-    for(const b of [quickHints,fullHints]) { b.hidden=!controls; b.textContent=controls?.showHints?"隐藏棋盘提示":"显示棋盘提示"; b.setAttribute("aria-pressed", String(!controls?.showHints)); }
-    for(const b of [quickSelf,fullSelf]) { b.hidden=!controls || (!controls.canSelfPlay && !controls.selfPlay); b.textContent=controls?.selfPlay?"结束 AI 接管":"AI 接管我方"; b.setAttribute("aria-pressed", String(Boolean(controls?.selfPlay))); }
+    fullHints.hidden = quickHints.hidden = !controls;
+    const hintsLabel = controls?.showHints ? "隐藏棋盘提示" : "显示棋盘提示";
+    if (fullHints.textContent !== hintsLabel) fullHints.textContent = hintsLabel;
+    fullHints.setAttribute("aria-pressed", String(!controls?.showHints));
+    for(const b of [quickSelf,fullSelf]) { b.hidden=!controls || (!controls.canSelfPlay && !controls.selfPlay); const label=controls?.selfPlay?"结束 AI 接管":"AI 接管我方"; if (b.textContent!==label) b.textContent=label; b.setAttribute("aria-pressed", String(Boolean(controls?.selfPlay))); }
     for(const area of [fullSpectator,quickSpectator]) {
       area.hidden=!position.selfPlay;
       for(const input of area.querySelectorAll("[data-spectator]")) { const value=spectatorSettings?.[input.dataset.spectator]??(input.dataset.spectator==="delay"?"0":"shared"); if(input.value!==value)input.value=value; }
@@ -166,19 +174,29 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
     }
     syncNotice();
     for (const b of [reviewEntry, resultButton]) b.hidden = !position.winner;
-    const time = $("#timeSelect"), ponder = $("#ponderToggle");
-    toggle.title = time.value === "adaptive" ? "自适应深思 0～6 秒" : `每步最多 ${Number(time.value) / 1000} 秒`;
-    for (const b of panel.querySelectorAll("[data-time]")) { b.disabled = time.disabled; b.setAttribute("aria-pressed", String(b.dataset.time === time.value)); }
-    const p = panel.querySelector("[data-ponder]"); p.disabled = ponder.disabled; p.setAttribute("aria-pressed", String(ponder.checked)); p.textContent = `后台${ponder.checked ? "开" : "关"}`;
-    soundButton.setAttribute("aria-pressed", String(Boolean(sound?.enabled))); soundButton.textContent = `声效${sound?.enabled ? "开" : "关"}`;
-    fullSound.setAttribute("aria-pressed", String(Boolean(sound?.enabled))); fullSound.textContent = `声效：${sound?.enabled ? "开" : "关"}`;
-    if (!document.body.classList.contains("simple-mode")) collapse({ restoreFocus: false });
+    const preferences = JSON.stringify([timeSelect.value, timeSelect.disabled, ponderInput.checked, ponderInput.disabled, controls?.showHints, sound?.enabled]);
+    if (preferences !== lastPreferences) {
+      lastPreferences = preferences;
+      toggle.title = timeSelect.value === "adaptive" ? "自适应深思 0～6 秒" : `每步最多 ${Number(timeSelect.value) / 1000} 秒`;
+      for (const button of times) {
+        const selected = button.dataset.time === timeSelect.value;
+        button.disabled = timeSelect.disabled;
+        button.setAttribute("aria-checked", String(selected));
+        button.tabIndex = selected && !timeSelect.disabled ? 0 : -1;
+      }
+      ponder.disabled = ponderInput.disabled;
+      ponder.setAttribute("aria-checked", String(ponderInput.checked));
+      quickHints.setAttribute("aria-checked", String(Boolean(controls?.showHints)));
+      soundButton.setAttribute("aria-checked", String(Boolean(sound?.enabled)));
+      fullSound.setAttribute("aria-pressed", String(Boolean(sound?.enabled)));
+      fullSound.textContent = `声效：${sound?.enabled ? "开" : "关"}`;
+    }
+    if (!document.body.classList.contains("simple-mode")) collapse({ restoreFocus: false, immediate: true });
     // Undo, import and New invalidate a terminal review immediately. Applying a
     // screenshot is allowed to finish its own close without reentrant disposal.
     if (active === "review" && currentReview && !opening && (!position.winner || JSON.stringify(getRecord()) !== recordKey)) close();
   }
-  document.addEventListener("pointerdown", event => { if (!panel.hidden && !panel.contains(event.target) && !toggle.contains(event.target)) collapse({ restoreFocus: false }); });
-  document.addEventListener("keydown", event => { if (event.key !== "Escape") return; if (active) { event.preventDefault(); event.stopImmediatePropagation(); close(); } else if (!panel.hidden) { event.preventDefault(); event.stopImmediatePropagation(); collapse(); toggle.focus(); } }, true);
-  $("#timeSelect").addEventListener("change", render); $("#ponderToggle").addEventListener("change", render);
+  document.addEventListener("keydown", event => { if (event.key !== "Escape") return; if (active) { event.preventDefault(); event.stopImmediatePropagation(); close(); } else if (quick.opened) { event.preventDefault(); event.stopImmediatePropagation(); collapse(); toggle.focus(); } }, true);
+  timeSelect.addEventListener("change", render); ponderInput.addEventListener("change", render);
   render(); return { render, close, get active() { return active; } };
 }

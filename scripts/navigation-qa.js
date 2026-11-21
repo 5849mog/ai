@@ -25,6 +25,9 @@ page.on('pageerror',e=>errors.push(e.message));
 const record=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gomoku-opening:/ai/:v1')).record);
 const game=async()=>replaySession(await record());
 const flow=(action,value)=>page.locator(`#simpleOpeningFlow [data-flow-action="${action}"]${value===undefined?'':`[data-value="${value}"]`}`);
+const quick=page.locator('[aria-controls="simpleQuickTools"]'), panel=page.locator('#simpleQuickTools');
+const tab=key=>panel.locator(`[data-quick-tab="${key}"]`);
+async function openTools() { await quick.tap(); await tab('tools').tap(); }
 const settle=()=>page.evaluate(()=>new Promise(resolve=>{let n=0;const f=()=>++n===5?resolve():requestAnimationFrame(f);requestAnimationFrame(f);}));
 async function tap(index){const p=page.locator(`#boardSvg [data-index="${index}"]`);await p.tap();await p.tap();}
 async function settings(rule,workflow){await page.locator('#simpleColor').tap();await page.locator('#ruleMode').selectOption(rule);await page.locator('#workflowMode').selectOption(workflow);await page.locator('#startMode').tap();await flow('start').first().waitFor();}
@@ -71,9 +74,8 @@ try{
  const partial=new OpeningSession({rule:'rif',workflow:'follow',initialBlackSeat:0});for(const index of [112,97,96])partial.apply({type:'stone',index});partial.apply({type:'decision',choice:'keep'});partial.apply({type:'stone',index:0});partial.apply({type:'offer',index:1});
  const beforeImport=await record();await importFile('opening.json',JSON.stringify(partial.record()));assert.deepEqual(await record(),beforeImport);await page.locator('#cancelImport').tap();assert.deepEqual(await record(),beforeImport);
  await importFile('opening.json',JSON.stringify(partial.record()));await page.locator('#confirmImport').tap();assert.deepEqual(await record(),partial.record());pass('Formal JSON import previews before confirmation and preserves partial proposals');
- await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.getByRole('button',{name:'自定义摆局',exact:true}).tap();assert.equal(await page.locator('#setupActor').isVisible(),false);await page.locator('#cancelSetup').tap();assert.deepEqual(await record(),partial.record());
- const quick=page.locator('[aria-controls="simpleQuickTools"]');
- await quick.tap();await page.getByRole('button',{name:'自定义摆局',exact:true}).tap();
+ await openTools();await page.getByRole('button',{name:'自定义摆局',exact:true}).tap();assert.equal(await page.locator('#setupActor').isVisible(),false);await page.locator('#cancelSetup').tap();assert.deepEqual(await record(),partial.record());
+ await openTools();await page.getByRole('button',{name:'自定义摆局',exact:true}).tap();
  const setup=page.locator('#setupBoard');
  await setup.press('Home');await setup.press('2');await setup.press('Enter');
  assert.equal(await setup.locator('[data-keyboard-point="112"]').count(),1);assert.match(await setup.getAttribute('aria-label'),/摆白棋.*H8/);
@@ -81,7 +83,7 @@ try{
  await page.locator('#cancelSetup').tap();assert.equal(await quick.evaluate(button=>button===document.activeElement),true);
  assert.deepEqual(await record(),partial.record());
  const screenshot=await board.screenshot();
- await quick.tap();await page.locator('[data-image]').tap();
+ await openTools();await panel.locator('[data-image]').tap();
  await page.locator('.image-picker input[accept^="image/"]').setInputFiles({name:'board.png',mimeType:'',buffer:screenshot});
  const frame=page.locator('.import-image'), correction=page.locator('.import-board');
  await frame.waitFor();await frame.press('Shift+ArrowLeft');await frame.press('Home');
@@ -90,32 +92,50 @@ try{
  await page.locator('[data-recalibrate]').tap();assert.equal(await frame.evaluate(node=>node===document.activeElement),true);
  await page.getByRole('button',{name:'返回原局',exact:true}).tap();assert.deepEqual(await record(),partial.record());
  pass('Setup and screenshot calibration support keyboard editing and restore focus without replacing the board');
- await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.locator('[data-image]').tap();assert.equal(await page.locator('[data-actor]').isVisible(),false);await page.getByRole('button',{name:'返回原局',exact:true}).tap();assert.deepEqual(await record(),partial.record());
+ await openTools();await panel.locator('[data-image]').tap();assert.equal(await page.locator('[data-actor]').isVisible(),false);await page.getByRole('button',{name:'返回原局',exact:true}).tap();assert.deepEqual(await record(),partial.record());
  assert.equal(await page.locator('[aria-controls="simpleQuickTools"]').evaluate(node=>node===document.activeElement),true);
  pass('Manual recording offers no misleading AI actor in custom setup or image import');
+ await page.locator('.simple-notice').waitFor({state:'hidden'});
  for(const [width,height]of [[260,420],[320,240],[390,844],[844,390],[820,1180],[1440,900]]){
   await page.setViewportSize({width,height});await settle();const before=await page.locator('.board-frame').first().boundingBox();
   await page.locator('[aria-controls="simpleQuickTools"]').tap();await settle();const after=await page.locator('.board-frame').first().boundingBox();assert.deepEqual(after,before);
   const b=await page.locator('#simpleQuickTools').boundingBox();assert.ok(b.x>=0&&b.y>=0&&b.x+b.width<=width+.5&&b.y+b.height<=height+.5);if(width===390)await page.screenshot({path:'.cache/navigation/more.png'});
   if(width<=380){
-   const columns=await page.locator('.quick-tools-actions').evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length);assert.equal(columns,2);
-   await page.locator('#simpleQuickTools').evaluate(node=>{node.scrollTop=node.scrollHeight;});
+   await tab('tools').tap();const columns=await page.locator('.quick-tools-actions').evaluate(node=>getComputedStyle(node).gridTemplateColumns.split(' ').length);assert.equal(columns,2);
+   await panel.locator('.quick-tools-body').evaluate(node=>{node.scrollTop=node.scrollHeight;});
    const close=await page.locator('#simpleQuickTools [data-collapse]').boundingBox();assert.ok(close.y>=b.y&&close.y+close.height<=b.y+b.height);
   }
-  await page.keyboard.press('Escape');assert.equal(await page.locator('#simpleQuickTools').isVisible(),false);assert.ok(await page.locator('body').evaluate(n=>n.classList.contains('simple-mode')));
+  await page.keyboard.press('Escape');await panel.waitFor({state:'hidden'});assert.ok(await page.locator('body').evaluate(n=>n.classList.contains('simple-mode')));
   report.layouts.push({width,height,boardSide:before.width,morePreservesBoard:true});
  }
  pass('More overlays temporarily without resizing the board; Escape closes one level at a time');
- const more=page.locator('[aria-controls="simpleQuickTools"]'),closeQuick=page.locator('#simpleQuickTools [data-collapse]');
+ const more=quick,closeQuick=panel.locator('[data-collapse]');
  await more.focus();await page.keyboard.press('Enter');assert.equal(await closeQuick.evaluate(button=>button===document.activeElement),true);
  await page.keyboard.press('Enter');assert.equal(await more.getAttribute('aria-expanded'),'false');assert.equal(await more.evaluate(button=>button===document.activeElement),true);
  await more.press('Enter');await page.locator('#simpleRestart').focus();assert.equal(await more.getAttribute('aria-expanded'),'false');
  pass('Quick settings move keyboard focus on open, restore it on close, and dismiss when focus moves away');
- await page.setViewportSize({width:390,height:844});const unchanged=await record();await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.locator('[data-full-view]').tap();await page.waitForFunction(()=>!document.body.classList.contains('simple-mode'));assert.deepEqual(await record(),unchanged);
+ await page.setViewportSize({width:390,height:844});await quick.tap();await tab('game').tap();
+ await panel.locator('[data-time="3000"]').tap();assert.equal(await panel.locator('[data-time="3000"]').getAttribute('aria-checked'),'true');
+ await panel.locator('[data-time="3000"]').press('ArrowRight');assert.equal(await panel.locator('[data-time="5000"]').getAttribute('aria-checked'),'true');
+ await panel.locator('[data-hints]').tap();await panel.locator('[data-ponder]').tap();
+ assert.equal(await quick.getAttribute('aria-expanded'),'true');
+ await tab('game').press('ArrowRight');await panel.locator('[data-appearance="coordinates"]').check();
+ assert.equal(await board.getAttribute('data-coordinates'),'true');
+ await tab('board').press('End');assert.equal(await tab('tools').getAttribute('aria-selected'),'true');
+ const openNotes=panel.locator('[data-notes-toggle]');await openNotes.tap();
+ assert.equal(await panel.locator('.release-notes-panel').isVisible(),true);
+ await page.keyboard.press('Escape');assert.equal(await openNotes.evaluate(node=>document.activeElement===node),true);
+ assert.equal(await quick.getAttribute('aria-expanded'),'true');
+ const unchangedByDismiss=await record(), rect=await board.boundingBox();
+ await page.touchscreen.tap(rect.x+rect.width/2,rect.y+6);
+ await panel.waitFor({state:'hidden'});assert.deepEqual(await record(),unchangedByDismiss);
+ assert.equal(await board.locator('.pending-stone').count(),0);
+ pass('Tabs, switches and radio keys update in-place; the notes reader returns to tools and outside taps cannot place stones');
+ await page.setViewportSize({width:390,height:844});const unchanged=await record();await openTools();await panel.locator('[data-full-view]').tap();await page.waitForFunction(()=>!document.body.classList.contains('simple-mode'));assert.deepEqual(await record(),unchanged);
  await page.locator('#recordMenu summary').tap();await page.locator('#enterSimpleMode').tap();assert.deepEqual(await record(),unchanged);pass('Explicit full/simple controls preserve the exact game');
  const old=createRecord([112,97],1);await importFile('old.json',JSON.stringify(old));assert.ok(await page.locator('#importColor').isVisible());await page.locator('#confirmImport').tap();assert.deepEqual((await game()).moves,old.moves);assert.equal((await game()).workflow,'duel');
  await importFile('old.sgf',exportSgf(old));await page.locator('#confirmImport').tap();assert.deepEqual((await game()).moves,old.moves);pass('Old freestyle JSON and SGF remain importable in the same interface');
- await page.locator('[aria-controls="simpleQuickTools"]').tap();await page.locator('[data-full-view]').tap();await page.waitForFunction(()=>!document.body.classList.contains('simple-mode'));
+ await openTools();await panel.locator('[data-full-view]').tap();await page.waitForFunction(()=>!document.body.classList.contains('simple-mode'));
  const menu=page.locator('#recordMenu'),summary=menu.locator('summary');
  await page.setViewportSize({width:320,height:240});await summary.press('Enter');
  const menuBounds=await menu.locator('.record-options').boundingBox();assert.ok(menuBounds.y+menuBounds.height<=240.5);

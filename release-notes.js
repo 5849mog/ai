@@ -56,7 +56,8 @@ function createNotesView(root) {
   const find = selector => root.querySelector(selector);
   const toggle = find("[data-notes-toggle]"), panel = find("section"), back = find("[data-notes-back]");
   const filterLabel = find("[data-notes-filter]"), fields = find("[data-notes-filter-fields]");
-  const menu = root.closest(".record-options, .simple-quick-tools"), owner = menu?.closest("#recordMenu") ?? menu;
+  const menu = root.closest(".record-options, .quick-tools-body");
+  const owner = root.closest("#recordMenu, .simple-quick-tools") ?? menu;
   let originalScroll = 0;
   function close(restoreFocus = false) {
     if (panel.hidden) return;

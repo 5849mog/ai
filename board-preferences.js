@@ -34,16 +34,18 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
   let settings = readBoardAppearance(storage);
   const views = [...doc.querySelectorAll("[data-board-appearance]")].map((mount, index) => {
     const id = `boardAppearance-${index}`;
-    mount.innerHTML = `<button type="button" data-open-appearance data-ui-icon="board" aria-expanded="false" aria-controls="${id}">棋盘显示</button><section class="board-appearance" id="${id}" aria-label="棋盘显示" hidden>
+    const inline = mount.dataset.boardAppearance === "inline";
+    mount.innerHTML = `${inline ? "" : `<button type="button" data-open-appearance data-ui-icon="board" aria-expanded="false" aria-controls="${id}">棋盘显示</button>`}
+      <section class="board-appearance" id="${id}" aria-label="棋盘显示"${inline ? "" : " hidden"}>
       <label class="appearance-theme">棋盘主题 <select data-appearance="theme"><option value="wood">原木</option><option value="paper">浅纸</option><option value="slate">青灰</option></select></label>
       <div class="appearance-options">${Object.entries(switches).map(([key, [label]]) =>
         `<label><input type="checkbox" data-appearance="${key}">${label}</label>`).join("")}</div>
       <button type="button" data-reset-appearance>恢复默认</button></section>`;
     const toggle = mount.querySelector("[data-open-appearance]"), panel = mount.querySelector("section");
-    toggle.onclick = () => {
+    if (toggle) toggle.onclick = () => {
       panel.hidden = !panel.hidden;
       toggle.setAttribute("aria-expanded", String(!panel.hidden));
-      const menu = mount.closest(".record-options, .simple-quick-tools");
+      const menu = mount.closest(".record-options");
       if (!panel.hidden && menu && panel.getBoundingClientRect().bottom > menu.getBoundingClientRect().bottom) {
         menu.scrollTop += Math.max(0, toggle.getBoundingClientRect().top - menu.getBoundingClientRect().top - 6);
       }
