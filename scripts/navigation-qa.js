@@ -35,8 +35,22 @@ async function importFile(name,text){await page.locator('#recordFile').setInputF
 try{
  await mkdir('.cache/navigation',{recursive:true});
  await page.goto(base);await page.waitForFunction(()=>document.querySelector('#boardSvg').getAttribute('aria-disabled')==='false');
+ const selectionMode=selector=>page.locator(selector).evaluate(node=>getComputedStyle(node).userSelect);
+ assert.equal(await selectionMode('#stateText'),'none');
+ assert.equal(await selectionMode('#restartButton span'),'none');
+ await page.locator('#recordMenu > summary').tap();await page.locator('#openGuide').tap();
+ assert.equal(await selectionMode('#guideDialog .guide-lead'),'text');
+ assert.equal(await selectionMode('#guideDialog [data-close]'),'none');
+ await page.locator('#guideDialog [data-close]').tap();
+ await page.locator('#recordMenu > summary').tap();await page.locator('[data-share-position]').tap();
+ const linkField=page.locator('.position-link-dialog input');
+ await linkField.selectText();
+ assert.ok(await linkField.evaluate(node=>node.selectionStart===0&&node.selectionEnd===node.value.length&&node.value.includes('#position=')));
+ await page.locator('.position-link-dialog [data-dismiss]').tap();
+ pass('Play chrome avoids accidental selection while guide text and the read-only share link can be copied');
  assert.equal(await page.locator('.mode-link').count(),0);await page.locator('#recordMenu summary').tap();await page.locator('#enterSimpleMode').tap();
  assert.deepEqual(await page.locator('#simpleControls > button > span:first-of-type').allTextContents(),['新局','对局','悔棋','推荐']);
+ assert.equal(await selectionMode('#simpleRestart span'),'none');
  const board=page.locator('#boardSvg'),cursor=board.locator('[data-keyboard-point]'),preview=board.locator('.pending-stone');
  await board.press('ArrowLeft');assert.equal(await cursor.getAttribute('data-keyboard-point'),'111');
  await board.press('Home');assert.equal(await cursor.getAttribute('data-keyboard-point'),'112');

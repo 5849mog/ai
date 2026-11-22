@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.22.8";
+const RELEASE = "2026.11.22.9";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261122-v97";
+const VERSION = SHELL_PREFIX + "261122-v98";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -14,7 +14,7 @@ const CORE = [
   // UI styles, about, report and recovery entry points.
   "favicon.svg", "styles.css?v=26", "game-modes.css?v=8", "opening.css?v=8",
   "enhancements.css?v=60", "ui-refinement.css?v=14", "quick-settings.css?v=2",
-  "button-theme.css", "surface-theme.css", "play-polish.css", "remote-engine.css",
+  "button-theme.css", "surface-theme.css", "play-polish.css?v=1", "remote-engine.css",
   "about.css?v=7", "about.js?v=4", "report.css?v=3", "report.js?v=2", "real-game-model.js",
   "app-release.js", "app-update.js", "app-update.js?v=38", "release-notes.js", "wordmark.js", "wordmark-trust.js",
 
