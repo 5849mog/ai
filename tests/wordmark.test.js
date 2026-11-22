@@ -2,41 +2,71 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { loadWordmark, openWordmark, sealWordmark, WORDMARK_URL } from "../wordmark.js";
+import { WORDMARK_TRUST } from "../wordmark-trust.js";
 
-const envelope = await readFile(WORDMARK_URL, "utf8");
+const published = await readFile(WORDMARK_URL, "utf8");
 
-test("the published wordmark carries authenticated vector outlines instead of text", async () => {
-  assert.match(envelope, /^WM1\.[A-Za-z0-9+/]+=*\n$/);
-  const glyphs = await openWordmark(envelope);
-  assert.equal(glyphs.width, 2200);
-  assert.equal(glyphs.height, 1000);
-  assert.ok(glyphs.path.split("Z").length > 4);
-  assert.deepEqual(await openWordmark(await sealWordmark(glyphs)), glyphs);
+async function signer(minimumRevision = 1) {
+  const keys = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+  const publicKey = Buffer.from(await crypto.subtle.exportKey("spki", keys.publicKey)).toString("base64");
+  return { privateKey: keys.privateKey, trust: { publicKey, minimumRevision } };
+}
 
-  const altered = envelope.split("");
-  altered[30] = altered[30] === "A" ? "B" : "A";
-  await assert.rejects(openWordmark(altered.join("")));
-  await assert.rejects(openWordmark(await sealWordmark({ ...glyphs, path: "<html>" })));
+function memory(initial) {
+  let saved = initial;
+  return { getItem: () => saved, setItem: (_key, value) => { saved = value; } };
+}
+
+test("production outlines verify with the pinned public key and reject tampering or a different key", async () => {
+  assert.match(published, /^WM2\.[1-9][0-9]{0,8}\.[A-Za-z0-9+/]+=*\.[A-Za-z0-9+/]{86}==\n$/);
+  const { outline, revision } = await openWordmark(published);
+  assert.ok(revision >= WORDMARK_TRUST.minimumRevision);
+  assert.equal(outline.width, 2200);
+  assert.equal(outline.height, 1000);
+  assert.ok(outline.path.split("Z").length > 4);
+  const [magic, edition, sealed, signature] = published.trim().split(".");
+  const change = text => (text.startsWith("A") ? "B" : "A") + text.slice(1);
+  await assert.rejects(openWordmark([magic, edition, change(sealed), signature].join(".")), /Invalid wordmark signature/);
+  await assert.rejects(openWordmark([magic, String(revision + 1), sealed, signature].join(".")), /Invalid wordmark signature/);
+  await assert.rejects(openWordmark([magic, edition, sealed, change(signature)].join(".")), /Invalid wordmark signature/);
+  const forged = await signer();
+  await assert.rejects(openWordmark(await sealWordmark(outline, 500, forged.privateKey)), /Invalid wordmark signature/);
+  await assert.rejects(openWordmark("WM1." + sealed), /Invalid signed wordmark envelope/);
 });
 
-test("every load requests the live asset and broken updates leave the last known good ciphertext intact", async () => {
-  let lastSaved;
-  const storage = { getItem: () => lastSaved, setItem: (_key, value) => { lastSaved = value; } };
-  const good = await loadWordmark({ storage, request: async (url, options) => {
+test("only an increasing signed revision replaces an authenticated offline copy", async () => {
+  const { outline } = await openWordmark(published);
+  const { privateKey, trust } = await signer(2);
+  const old = await sealWordmark(outline, 1, privateKey);
+  const first = await sealWordmark(outline, 2, privateKey);
+  const updated = { ...outline, path: "M0 0H2200V1000H0Z" };
+  const next = await sealWordmark(updated, 3, privateKey);
+  const conflicting = await sealWordmark(outline, 3, privateKey);
+  const differentSigner = await signer();
+  const forged = await sealWordmark(outline, 4, differentSigner.privateKey);
+  const storage = memory();
+  const load = (request, target = storage) => loadWordmark({ trust, storage: target, request });
+  const fetches = async (url, options) => {
     assert.equal(url.href, WORDMARK_URL.href);
     assert.equal(options.cache, "no-store");
-    return new Response(envelope);
-  } });
-  assert.equal(lastSaved, envelope);
-  assert.deepEqual(good, await openWordmark(envelope));
-
-  for (const request of [
-    async () => new Response("corrupt"),
+    assert.equal(options.redirect, "error");
+    return new Response(first);
+  };
+  assert.equal(await load(async () => new Response(old)), null);
+  assert.deepEqual(await load(fetches), outline);
+  assert.deepEqual(await load(async () => new Response(next)), updated);
+  const badResponses = [
+    async () => new Response(first),
+    async () => new Response(conflicting),
+    async () => new Response(forged),
+    async () => new Response("A".repeat(10000)),
     async () => new Response("", { status: 404 }),
     async () => { throw new Error("offline"); }
-  ]) {
-    assert.deepEqual(await loadWordmark({ storage, request }), good);
-    assert.equal(lastSaved, envelope);
+  ];
+  for (const request of badResponses) {
+    assert.deepEqual(await load(request), updated);
+    assert.equal(storage.getItem(), next);
   }
-  assert.equal(await loadWordmark({ request: async () => new Response("corrupt") }), null);
+  assert.equal(await load(badResponses.at(-1), memory(forged)), null);
+  await assert.rejects(openWordmark(await sealWordmark({ ...outline, path: "<html>" }, 4, privateKey), trust), /Invalid wordmark contours/);
 });
