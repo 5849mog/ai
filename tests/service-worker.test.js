@@ -6,7 +6,7 @@ import { APP_VERSION } from '../app-release.js';
 
 const source = await readFile(new URL('../sw.js', import.meta.url), 'utf8');
 const base = 'https://example.com/ai/', key = x => typeof x === 'string' ? x : x.url;
-function fixture({ engineError = false, enginePutError = false } = {}) {
+function fixture({ engineError = false, enginePutError = false, scope = base } = {}) {
   const handlers = {}, stores = new Map(), messages = [], network = [];
   let claimed = false, skipped = false;
   const caches = { keys: async () => [...stores.keys()], delete: async name => stores.delete(name), open: async name => {
@@ -24,13 +24,13 @@ function fixture({ engineError = false, enginePutError = false } = {}) {
     return new Response('fresh:' + url);
   }
   const client = { postMessage: data => messages.push(data) };
-  const context = vm.createContext({ URL, Request, Response, caches, fetch: fetcher, self: { location: { href: base + 'sw.js' }, addEventListener: (type, fn) => { handlers[type] = fn; },
+  const context = vm.createContext({ URL, Request, Response, caches, fetch: fetcher, self: { location: { href: scope + 'sw.js' }, addEventListener: (type, fn) => { handlers[type] = fn; },
     skipWaiting: async () => { skipped = true; }, clients: { claim: async () => { claimed = true; }, matchAll: async () => [client] } } });
   vm.runInContext(source, context);
   const constants = vm.runInContext('({ PREFIX, SHELL_PREFIX, SHELL_MARKER, VERSION, ENGINE_CACHE, RELEASE, CORE, ENGINE, RENJU })', context);
   async function dispatch(type, extra = {}) { let pending; handlers[type]({ ...extra, waitUntil: p => { pending = p; } }); await pending; }
   async function request(path, { mode } = {}) {
-    let pending; const req = new Request(new URL(path, base));
+    let pending; const req = new Request(new URL(path, scope));
     if (mode) Object.defineProperty(req, 'mode', { value: mode });
     handlers.fetch({ request: req, respondWith: p => { pending = p; } }); return await pending;
   }
@@ -56,6 +56,22 @@ test('the app shell includes each static URL used by the current pages, modules 
       if (resource !== 'sw.js') assert.ok(cached.has(resource), `${path} references uncached ${resource}`);
     }
   }
+});
+test('the renamed site reads the previous immutable model cache without duplicating or downloading weights', async () => {
+  const f = fixture({ engineError: true, scope: 'https://example.com/gomoku-studio/' });
+  const name = 'gomoku-rapfi:/ai/:engine-250615';
+  const old = await f.caches.open(name);
+  for (const prefix of [f.ENGINE, f.RENJU]) {
+    await old.put(base + prefix + 'manifest.json', Response.json({ files: { 'model.bin': {} } }));
+    await old.put(base + prefix + 'model.bin', new Response('old model'));
+  }
+  await f.dispatch('install');
+  await f.dispatch('message', { data: { type: 'offline-status' }, source: f.client });
+  assert.equal(f.messages.at(-1).offline, true);
+  assert.equal(f.stores.get(f.ENGINE_CACHE).size, 1);
+  assert.equal(await (await f.request(f.ENGINE + 'model.bin')).text(), 'old model');
+  assert.equal(f.network.some(entry => entry.url.includes('/engine/')), false);
+  assert.ok(f.stores.has(name));
 });
 test('shell installation and activation complete even when every model download fails', async () => {
   const f = fixture({ engineError: true }); await f.dispatch('install');

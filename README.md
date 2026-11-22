@@ -2,7 +2,7 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
-[Play online](https://5849mog.github.io/ai/) · [Compact board](https://5849mog.github.io/ai/?view=simple) · [About & credits](https://5849mog.github.io/ai/about.html) · [Match data](https://5849mog.github.io/ai/report.html)
+[Play online](https://5849mog.github.io/gomoku-studio/) · [Compact board](https://5849mog.github.io/gomoku-studio/?view=simple) · [About & credits](https://5849mog.github.io/gomoku-studio/about.html) · [Match data](https://5849mog.github.io/gomoku-studio/report.html)
 
 Gomoku Studio is an open-source Gomoku and Renju board for phones, tablets, and desktops. Play against Rapfi, share a board with someone next to you, or enter a game played elsewhere and analyze it in your browser. The web app is hosted on GitHub Pages and runs the engine locally by default.
 
@@ -33,14 +33,18 @@ On touchscreens, tap an intersection to preview the move, then tap it again to p
 - **Local storage.** Recent games and preferences live in the current browser. Export a backup from Recent games to keep a separate copy. After the app and engine finish caching, you can reload and play offline.
 - **Optional desktop engine.** You can use Rapfi running on your own computer for search. See the [desktop engine guide in Chinese](remote/README.md).
 
-The [match report](https://5849mog.github.io/ai/report.html) compares 1-, 5-, and 10-second settings in complete, color-swapped self-play games. It identifies the opponents and sample sizes. The in-game probability is the engine's position estimate. The [raw game records](reports/real-games-latest.json) contain the moves and timings behind the report.
+The [match report](https://5849mog.github.io/gomoku-studio/report.html) compares 1-, 5-, and 10-second settings in complete, color-swapped self-play games. It identifies the opponents and sample sizes. The in-game probability is the engine's position estimate. The [raw game records](reports/real-games-latest.json) contain the moves and timings behind the report.
+
+## Moving from the old address
+
+The published board now lives at `/gomoku-studio/`. Open it in the same browser and profile to recover games and settings from `/ai/`. A game already played at the new address takes priority, and the apps merge recent games up to the existing 50-game limit. You can [download a backup from the old address](https://5849mog.github.io/ai/backup.html) to recover any additional games. Old bookmarks and shared positions continue through the compatibility pages.
 
 ## Develop locally
 
 Use Node.js 24 LTS. GitHub Pages serves the static files in this repository. npm is used for local development and verification.
 
 ```sh
-git clone https://github.com/5849mog/ai.git gomoku-studio
+git clone https://github.com/5849mog/gomoku-studio.git gomoku-studio
 cd gomoku-studio
 npm ci
 npm run dev
@@ -70,7 +74,7 @@ npm run test:upgrade
 
 Set `CHROME_PATH` to use an existing Chromium installation. The upgrade test accepts `GOMOKU_UPGRADE_FROM` to start from a specific commit. For an app release, update the app and service worker versions, bump the shell cache generation, and add the entry to `content/feed.json`. For a release-notes-only change, update the feed and increment its revision.
 
-The [Chinese documentation](README.zh-CN.md) also covers the engine API, reproducible engine builds, and benchmark commands. Bug reports are welcome in [Issues](https://github.com/5849mog/ai/issues). Include the browser, the selected rules and mode, and the steps needed to see the problem.
+The [Chinese documentation](README.zh-CN.md) also covers the engine API, reproducible engine builds, and benchmark commands. Bug reports are welcome in [Issues](https://github.com/5849mog/gomoku-studio/issues). Include the browser, the selected rules and mode, and the steps needed to see the problem.
 
 ## License
 

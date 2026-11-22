@@ -20,7 +20,7 @@ for(const channel of channels){
   if(process.argv.includes('--candidate'))await context.route('**/remote-engine.js*',async route=>route.fulfill({contentType:'text/javascript',body:await readFile(join(root,'remote-engine.js'),'utf8')}));
   const page=await context.newPage();
   page.on('response',async response=>{if(response.request().method()==='GET'&&new URL(response.url()).pathname==='/gomoku')try{for(const message of await response.json())if(message.type==='error')console.error('Remote engine: '+message.message);}catch{}});
-  await page.goto('https://5849mog.github.io/ai/?computer-launch='+APP_VERSION+'#computer='+encodeURIComponent(JSON.stringify({url,token})));
+  await page.goto('https://5849mog.github.io/gomoku-studio/?computer-launch='+APP_VERSION+'#computer='+encodeURIComponent(JSON.stringify({url,token})));
   if(!process.argv.includes('--candidate')){
    const actual=await page.evaluate(async()=>{const r=await fetch('./remote-engine.js?v=46',{cache:'reload'});return r.text();});
    assert.equal(actual.replace(/\r\n/g,'\n'),(await readFile(join(root,'remote-engine.js'),'utf8')).replace(/\r\n/g,'\n'));
@@ -35,7 +35,7 @@ for(const channel of channels){
   await page.locator('[data-index="0"]').tap();await page.locator('[data-index="0"]').tap();await page.locator('#undoButton').click();await ready();
   await page.waitForTimeout(1500);assert.equal(await page.locator('#boardSvg [data-stone]').count(),2);
   await page.locator('#undoButton').click();await ready();assert.equal(await page.locator('#boardSvg [data-stone]').count(),0);
-  await page.goto('https://5849mog.github.io/ai/tests/engine-harness.html');
+  await page.goto('https://5849mog.github.io/gomoku-studio/tests/engine-harness.html');
   const result=await page.evaluate(async()=>{const{GomokuEngine}=await import('../engine.js');const engine=new GomokuEngine({rule:'rif'});const board=Array(225).fill(0);board[112]=1;const before=JSON.stringify(board);try{const result=await engine.search({board,sideToMove:2,timeMs:1000,multiPV:3,requestId:1});if(JSON.stringify(board)!==before)throw Error('Input changed');return result;}finally{engine.dispose();}});
   assert.equal(result.threads,15);assert.equal(result.memoryMiB,256);assert.match(result.weight,/renju/);assert.ok(result.recommendations.length>0);
   const record={channel,browser:browser.version(),publicTunnel:url,publicTransport:'authenticated HTTP long polling',nativeThreads:15,memoryMiB:256,budgetMs:1000,answerWallMs,touchAndGameAndUndoAndRenjuPassed:true,undoDuringThinkingPassed:true,computerExistingProxyUsed:Boolean(proxy),unusedBrowserModelsBlocked:false,actualPhysicalPhoneTested:false,liveRelease:!process.argv.includes('--candidate')};results.push(record);console.log(JSON.stringify(record));await context.close();

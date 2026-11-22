@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.22.4";
+const RELEASE = "2026.11.22.5";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261122-v93";
+const VERSION = SHELL_PREFIX + "261122-v94";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -38,7 +38,7 @@ const CORE = [
   "game-enhancements.js", "game-record.js", "game-review.js", "image-board.js",
   "image-grid.js", "image-import-ui.js", "opening-review.js", "partial-review.js",
   "position-link-ui.js", "position-link.js", "record-ui.js", "review-branch.js",
-  "review-ui.js", "session-records.js", "setup-ui.js",
+  "review-ui.js", "session-records.js", "setup-ui.js", "site-storage.js",
 
   // Visual assets and offline license notices.
   "assets/board-wood.svg", "assets/brand-serif.ttf", "assets/paper-fiber.svg",
@@ -51,6 +51,7 @@ const CORE = [
 ];
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
+const OLD_ENGINE_CACHE = "gomoku-rapfi:/ai/:engine-250615";
 
 async function populateShell(cache) {
   await cache.addAll(CORE.map(path => new Request(url(path), { cache: "reload" })));
@@ -87,19 +88,29 @@ async function legacyEngine(request) {
     }
   }
 }
+async function previousSiteEngine(request) {
+  if (BASE.pathname !== "/gomoku-studio/") return;
+  const path = new URL(typeof request === "string" ? request : request.url).pathname.slice(BASE.pathname.length);
+  if (!path.startsWith(ENGINE) && !path.startsWith(RENJU)) return;
+  const oldRequest = new URL("/ai/" + path, BASE).href;
+  if ((await caches.keys()).includes(OLD_ENGINE_CACHE)) {
+    return (await caches.open(OLD_ENGINE_CACHE)).match(oldRequest);
+  }
+}
 async function warmEngines() {
   const cache = await caches.open(ENGINE_CACHE);
   if (await cache.match(OFFLINE_MARKER)) return;
   async function ensure(path) {
     const request = url(path);
-    if (await cache.match(request)) return;
+    const cached = await cache.match(request) ?? await previousSiteEngine(request);
+    if (cached?.ok) return cached;
     const response = await legacyEngine(request) ?? await fetch(request, { cache: "no-store" });
     if (!response.ok) throw new Error("Engine cache incomplete");
-    await cache.put(request, response);
+    await cache.put(request, response.clone());
+    return response;
   }
   for (const base of [ENGINE, RENJU]) {
-    await ensure(base + "manifest.json");
-    const manifest = await (await cache.match(url(base + "manifest.json"))).json();
+    const manifest = await (await ensure(base + "manifest.json")).json();
     const paths = Object.keys(manifest.files).map(name => base + name);
     for (let i = 0; i < paths.length; i += 3) await Promise.all(paths.slice(i, i + 3).map(ensure));
   }
@@ -145,7 +156,7 @@ self.addEventListener("fetch", event => {
     if (path === "content/feed.json" || path.startsWith("reports/")) return fetch(event.request, { cache: "no-store" });
     if (path.startsWith(ENGINE) || path.startsWith(RENJU)) {
       const engines = await caches.open(ENGINE_CACHE);
-      const cached = await engines.match(event.request) ?? await legacyEngine(event.request);
+      const cached = await engines.match(event.request) ?? await previousSiteEngine(event.request) ?? await legacyEngine(event.request);
       if (cached) return cached;
       const response = await fetch(event.request);
       if (response.ok) {
