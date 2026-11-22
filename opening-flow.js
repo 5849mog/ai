@@ -1,4 +1,4 @@
-import { colorName, coordinate } from "./opening-session.js";
+import { colorName, coordinate, isLocalMatch } from "./opening-session.js";
 
 // This is the external player's seat, not the color currently being placed.
 // RIF's tentative Black places B-W-B, even though one stone is white.
@@ -21,6 +21,11 @@ export function openingFlow(session, { busy = false, state = "ready", advice = n
     return { title: `黑棋${forbidden.reason}禁手`, note: "若是外部实际落子可确认；否则返回重新录入。", actions };
   }
   if (session.stage === "setup") {
+    if (isLocalMatch(session)) {
+      const first = session.rule === "rif" ? "摆前三子" : "先执黑";
+      add("start", 0, `甲方${first}`); add("start", 1, `乙方${first}`);
+      return { title: "选择先手", note: "双方共用这块棋盘，按棋盘旁提示轮流操作。", actions };
+    }
     if (session.rule === "rif") {
       add("start", 0, "我摆前三子 · 暂执黑"); add("start", 1, session.workflow === "duel" ? "AI 摆前三子 · 我暂执白" : "对方摆前三子 · 我暂执白");
       return { title: "这局谁摆前三子？", note: "同一人按黑 → 白 → 黑摆三子；之后另一方有换色权。", actions };
@@ -32,6 +37,16 @@ export function openingFlow(session, { busy = false, state = "ready", advice = n
     return { title: "这局你最开始执什么色？", note, actions };
   }
   if (session.winner) return { title: session.description(), note: "点「新局」重新选择本局角色，或点「悔棋」撤回。", actions };
+  if (isLocalMatch(session) && session.stage !== "choose") {
+    const side = session.actor === 0 ? "甲方" : "乙方";
+    if (session.decision) {
+      add("decision", "keep", "保持执色");
+      add("decision", "swap", "交换黑白");
+      if (session.stage === "route4") add("decision", "ten", "提出十打");
+    }
+    return { title: session.description(), note: session.decision ? `由${side}选择，换色后按新的执色继续。`
+      : session.offerCount ? `${side}在棋盘上依次提案，候选选定前不算落子。` : "双方按提示轮流落子。", actions };
+  }
   if (state === "error") return { title: "AI 暂未完成操作", note: "当前局面已保留；可以重试、悔棋或重新开局。", actions };
   const copilot = session.workflow === "copilot", duel = session.workflow === "duel", mine = session.actor === 0;
   const side = session.playerColor ? `你执${colorName(session.playerColor)}` : "待选执色";
@@ -53,7 +68,7 @@ export function openingFlow(session, { busy = false, state = "ready", advice = n
     note: "候选按 A1、A2…标记，选定前不算实子；只需点外部候选的位置。", actions };
   if (session.stage === "choose") {
     if ((!copilot || !mine) && session.candidates.length <= 2) session.candidates.forEach((index, i) => add("select", index, `A${i + 1} · ${coordinate(index)}`));
-    return { title: copilot && mine ? "AI 正在选择候选并生成白棋第 6 手…" : duel && !mine ? "AI 正在选择第五手候选…" : copilot ? "对方选中了哪个候选？" : "选定第五手候选",
+    return { title: isLocalMatch(session) ? `${session.actor === 0 ? "甲" : "乙"}方选定第五手` : copilot && mine ? "AI 正在选择候选并生成白棋第 6 手…" : duel && !mine ? "AI 正在选择第五手候选…" : copilot ? "对方选中了哪个候选？" : "选定第五手候选",
       note: "点击候选标记或对应按钮，未选中的候选自动移除。", actions };
   }
   if (copilot && session.rule === "rif" && ["b1", "w2", "b3"].includes(session.stage)) return {

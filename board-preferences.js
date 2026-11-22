@@ -13,15 +13,18 @@ const switches = {
   contrast: ["加深棋盘线", false],
   stillBoard: ["关闭棋盘动效", false],
   touchConfirm: ["触屏二次确认", true],
+  touchLoupe: ["触屏瞄准放大镜", false],
+  reversed: ["翻转棋盘 180°", false],
   tacticalNotes: ["显示战术提示", true],
+  tacticalMap: ["棋盘标出攻守点", false],
   simpleRate: ["简洁界面显示胜率", true]
 };
 
 const appearanceGroups = [
-  ["坐标与手数", ["coordinates", "farCoordinates", "moveNumbers"]],
-  ["落子提示", ["lastMarker", "answerMarker", "aimGuides", "winningLine", "largeMarkers"]],
+  ["坐标与手数", ["coordinates", "farCoordinates", "moveNumbers", "reversed"]],
+  ["落子提示", ["lastMarker", "answerMarker", "aimGuides", "winningLine", "largeMarkers", "tacticalMap"]],
   ["棋盘外观", ["starPoints", "texturedStones", "contrast"]],
-  ["操作与显示", ["stillBoard", "touchConfirm", "tacticalNotes", "simpleRate"]]
+  ["操作与显示", ["stillBoard", "touchConfirm", "touchLoupe", "tacticalNotes", "simpleRate"]]
 ];
 const presets = {
   plain: { theme: "paper", starPoints: true, texturedStones: false, contrast: true, stillBoard: true },

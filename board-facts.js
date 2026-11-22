@@ -1,4 +1,4 @@
-import { colorName, coordinate, RULES } from "./opening-session.js";
+import { colorName, coordinate, isLocalMatch, RULES } from "./opening-session.js";
 import { BLACK, CELL_COUNT, WHITE } from "./game-rules.js";
 
 export function describeBoard({ session, cursor, workflow, allowed }) {
@@ -12,7 +12,7 @@ export function describeBoard({ session, cursor, workflow, allowed }) {
     ["规则", RULES[session.rule]],
     ["方式", workflow],
     ["当前阶段", session.description()],
-    ["我方执色", session.playerColor ? `${colorName(session.playerColor)}棋` : "待定"],
+    [isLocalMatch(session) ? "甲方执色" : "我方执色", session.playerColor ? `${colorName(session.playerColor)}棋` : "待定"],
     ["下一着", session.winner ? "已结束" : session.stage === "choose" ? "白方选案" : session.offerCount ? "黑方提案" : session.decision || session.stage === "setup" ? "等待选择" : `${colorName(session.color)}棋`],
     ["最近落子", move(session.lastMove)],
     ["上一着", move(session.moves.at(-2) ?? -1)],

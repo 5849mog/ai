@@ -71,7 +71,7 @@ export function setupCustomUi({ getPosition, applyRecord, onModalChange, notify 
   document.querySelector("#openSetup").addEventListener("click", () => {
     const current = getPosition();
     copilot = current.workflow === "copilot";
-    follow = current.workflow === "follow"; actor.parentElement.hidden = follow;
+    follow = ["follow", "local"].includes(current.workflow); actor.parentElement.hidden = follow;
     actor.querySelector('[value="player"]').textContent = copilot ? "我录入对手棋" : "我来走";
     actor.querySelector('[value="ai"]').textContent = copilot ? "AI 替我落子" : "AI 来走";
     draft.set(current.board); draftRevision++; started = false; history.length = future.length = 0; tool = BLACK; alternating = keyboardActive = false; hoverIndex = -1; keyboardIndex = current.lastMove >= 0 ? current.lastMove : 112;

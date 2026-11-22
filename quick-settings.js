@@ -63,6 +63,7 @@ export function createQuickSettings(document, status) {
       <section class="quick-page quick-page-tools" id="quick-page-tools" role="tabpanel" aria-labelledby="quick-tab-tools" hidden>
         <div class="quick-tools-actions" aria-label="棋局工具">
           <button type="button" data-image data-ui-icon="camera">截图导入</button>
+          <button type="button" data-quick-share data-ui-icon="export">分享棋局</button>
           <button type="button" data-quick-import data-ui-icon="import">导入棋谱</button>
           <button type="button" data-quick-setup data-ui-icon="board">自定义摆局</button>
           <button type="button" data-quick-save data-ui-icon="export">保存棋盘图</button>
