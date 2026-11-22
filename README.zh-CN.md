@@ -183,7 +183,9 @@ node scripts/real-game-report.js reports/real-games-1v5.json reports/real-games-
 
 每手写入检查点，中断后用相同参数附加 `--resume`；报告生成器检查源码与引擎哈希、执色配对、时间预算与每手合法性。页面在打开、手动刷新和重新可见时读取同源 JSON，报告数据不会被 Service Worker 缓存。早期的 [固定局面与配对基线](reports/strength-baseline-v1.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [后台思考报告](reports/ponder-benchmark.md) 保留为历史资料。
 
-页首字标从 `content/wordmark.wm` 加载，经 Web Crypto 验证和解密后画到 Canvas。安装 Python 的 FontTools 后，可运行 `node scripts/build-wordmark.js` 重新生成字形文件。浏览器所需的密钥派生材料随源码公开。
+浏览器取回 `content/wordmark.wm` 后，先用 `wordmark-trust.js` 中固定的公钥验证 ECDSA P-256 签名，再用 AES-GCM 解密并绘制。已有更新的已签名字标时，会拒绝较旧的响应。密文解密材料公开。防篡改依赖页面本身的验签代码和公钥可信。
+
+发布新字标时，安装 Python 的 FontTools，在本机运行 `node scripts/build-wordmark.js <private-key.pem> <revision>`，版本号需递增。私钥应保存在仓库外。首个生产签名使用的临时私钥已销毁。下一次更新请生成自己保管的 EC P-256 私钥，在上述命令的私钥路径前加入 `--rotate`，将新公钥和字形文件一并提交，并更新页面缓存版本。以后用同一把私钥签名时，只需更新字形文件。
 
 ## 开源许可
 

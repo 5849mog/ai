@@ -1,7 +1,28 @@
 import { execFileSync } from "node:child_process";
-import { writeFile } from "node:fs/promises";
+import { createPrivateKey, createPublicKey } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { sealWordmark, WORDMARK_URL } from "../wordmark.js";
+import { openWordmark, sealWordmark, WORDMARK_URL } from "../wordmark.js";
+import { WORDMARK_TRUST } from "../wordmark-trust.js";
+
+const args = process.argv.slice(2);
+const rotate = args[0] === "--rotate";
+const [keyPath, revisionText] = rotate ? args.slice(1) : args;
+const revision = Number(revisionText);
+if (!keyPath || !/^[1-9][0-9]{0,8}$/.test(revisionText ?? "")) {
+  throw new Error("Usage: node scripts/build-wordmark.js [--rotate] <private-key.pem> <revision>");
+}
+const privateKey = createPrivateKey(await readFile(keyPath));
+const publicKey = createPublicKey(privateKey).export({ format: "der", type: "spki" }).toString("base64");
+if (!rotate && publicKey !== WORDMARK_TRUST.publicKey) throw new Error("Signing key does not match the pinned wordmark key");
+
+const current = await readFile(WORDMARK_URL, "utf8").then(text => openWordmark(text)).catch(() => null);
+if (revision <= Math.max(WORDMARK_TRUST.minimumRevision, current?.revision ?? 0)) {
+  throw new Error("Wordmark revision must be greater than the current revision");
+}
+const trust = rotate ? { publicKey, minimumRevision: revision } : WORDMARK_TRUST;
+const signingKey = await crypto.subtle.importKey("pkcs8", privateKey.export({ format: "der", type: "pkcs8" }),
+  { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
 
 // FontTools extracts only the visible outlines of the two source glyphs.
 const extractContours = `
@@ -20,4 +41,11 @@ with TTFont(sys.argv[1]) as font:
 `;
 const font = fileURLToPath(new URL("../assets/brand-serif.ttf", import.meta.url));
 const vector = JSON.parse(execFileSync(process.env.PYTHON || "python", ["-c", extractContours, font], { encoding: "utf8" }));
-await writeFile(WORDMARK_URL, await sealWordmark(vector));
+const envelope = await sealWordmark(vector, revision, signingKey);
+await openWordmark(envelope, trust);
+if (rotate) {
+  await writeFile(new URL("../wordmark-trust.js", import.meta.url),
+    "// Trust anchor shipped with the page shell. Only the public key is published.\n" +
+    "export const WORDMARK_TRUST = " + JSON.stringify(trust, null, 2) + ";\n");
+}
+await writeFile(WORDMARK_URL, envelope);

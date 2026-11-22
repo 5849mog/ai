@@ -76,7 +76,9 @@ Set `CHROME_PATH` to use an existing Chromium installation. The upgrade test acc
 
 The [Chinese documentation](README.zh-CN.md) also covers the engine API, reproducible engine builds, and benchmark commands. Bug reports are welcome in [Issues](https://github.com/5849mog/gomoku-studio/issues). Include the browser, the selected rules and mode, and the steps needed to see the problem.
 
-The header wordmark is loaded from `content/wordmark.wm`, authenticated and decrypted with Web Crypto, then drawn on Canvas. To regenerate it from the bundled Noto Serif SC subset, install Python FontTools and run `node scripts/build-wordmark.js`. The derivation material is public because every browser can render the mark.
+The browser fetches `content/wordmark.wm`. It requires a valid ECDSA P-256 signature from the public key pinned in `wordmark-trust.js` before AES-GCM decryption and Canvas rendering. When a newer signed copy is stored locally, the browser keeps it over older responses. The encryption material is public. The signature protects the outline file as long as the page's verification code and pinned key are trusted.
+
+To publish a new outline, install Python FontTools and sign offline with `node scripts/build-wordmark.js <private-key.pem> <revision>`. Use a higher revision and keep the signing key outside this repository. The first production signature used a temporary key that was discarded. For the next update, generate an EC P-256 key you control and run the same command with `--rotate` before the key path. Commit the new trust anchor and payload together, and bump the app shell version to distribute the new public key. Future updates signed by that key need only the new payload.
 
 ## License
 
