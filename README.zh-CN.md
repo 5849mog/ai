@@ -2,7 +2,7 @@
 
 [English](README.md) · **简体中文**
 
-[在线打开](https://5849mog.github.io/ai/) · [简洁界面](https://5849mog.github.io/ai/?view=simple) · [关于与开源许可](https://5849mog.github.io/ai/about.zh-CN.html)
+[在线打开](https://5849mog.github.io/gomoku-studio/) · [简洁界面](https://5849mog.github.io/gomoku-studio/?view=simple) · [关于与开源许可](https://5849mog.github.io/gomoku-studio/about.zh-CN.html)
 
 手机、平板和电脑共用一套棋局流程。首页和旧 `renju.html` 地址恢复同一局；完整 / 简洁只改变显示，不改变规则、执色、对局方式或存档。
 
@@ -62,9 +62,13 @@
 
 默认在本机浏览器计算，不需要服务器。可选「电脑引擎」把计算交给自己电脑上的原生多线程 Rapfi。手机扫码使用免费临时通道，电脑须开机联网；通道约 60 分钟更新地址后需重新扫码。配置与访问边界见 [电脑服务说明](remote/README.md)。
 
-静态托管支持 GitHub Pages 的 `/ai/` 子目录；Service Worker 需要 HTTPS 或 localhost。页面显示「已缓存 · 可离线使用」后，可断网刷新并对弈。打开时和回到前台会检查更新；若本次启动后尚未操作、没有未确认工作且棋局保存成功，新版本准备好后自动刷新。已经操作时保留页面，可在「更多 → 检查更新」手动应用，或下次打开时更新；`update.html` 是独立恢复入口。首次从旧版升级可能仍需手动刷新一次。
+静态托管支持 GitHub Pages 的 `/gomoku-studio/` 子目录；Service Worker 需要 HTTPS 或 localhost。页面显示「已缓存 · 可离线使用」后，可断网刷新并对弈。打开时和回到前台会检查更新；若本次启动后尚未操作、没有未确认工作且棋局保存成功，新版本准备好后自动刷新。已经操作时保留页面，可在「更多 → 检查更新」手动应用，或下次打开时更新；`update.html` 是独立恢复入口。首次从旧版升级可能仍需手动刷新一次。
 
 浏览器优先使用 SIMD；无跨源隔离时使用完整单线程 NNUE，有共享内存及隔离条件时最多 4 线程。开发服务器提供 COOP / COEP 响应头。WASM MIME 类型应为 `application/wasm`，权重和材质均在本站。搜索哈希预算为 256 MiB，完整进程还需容纳模型和 Worker。
+
+## 从旧网址迁移
+
+请在同一浏览器、同一用户配置下打开 `/gomoku-studio/`，旧 `/ai/` 的棋局和设置会自动恢复。若新网址已下过棋，保留新网址的当前对局，旧棋局会合并至「最近对局」，上限仍为 50 局。更多旧棋局可从[旧网址备份页](https://5849mog.github.io/ai/backup.html)下载。旧书签与分享链接会经兼容页转到新网址。
 
 ## 开发与验证
 

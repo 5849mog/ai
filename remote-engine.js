@@ -1,5 +1,8 @@
+import { migrateDesktopSession } from "./site-storage.js";
+
 const KEY = `gomoku-remote:${new URL("./", import.meta.url).pathname}:v1`;
 const CLIENT_KEY = KEY + ":client";
+try { migrateDesktopSession(globalThis.sessionStorage); } catch { /* Desktop preferences are optional. */ }
 const changed = detail => { if (typeof window !== "undefined") window.dispatchEvent(new window.CustomEvent("gomoku-remote-state", { detail })); };
 
 export function remoteAddress(value) {

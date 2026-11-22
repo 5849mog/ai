@@ -14,7 +14,7 @@ export function publicAddress(text) {
 }
 export function phoneLink(url, token) {
   if (!publicAddress(url) || publicAddress(url) !== url || typeof token !== "string" || !/^[a-f0-9]{64}$/.test(token)) throw Error("Invalid phone pairing");
-  return `https://5849mog.github.io/ai/?computer-launch=${APP_VERSION}#computer=` + encodeURIComponent(JSON.stringify({ url, token }));
+  return `https://5849mog.github.io/gomoku-studio/?computer-launch=${APP_VERSION}#computer=` + encodeURIComponent(JSON.stringify({ url, token }));
 }
 export function tunnelArguments(data, gatewayPort, region) {
   if (!Number.isInteger(gatewayPort) || gatewayPort < 1 || gatewayPort > 65535) throw Error("Invalid gateway port");

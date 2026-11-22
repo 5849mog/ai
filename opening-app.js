@@ -33,6 +33,10 @@ import { APP_VERSION } from "./app-release.js";
 import { TurnHints, HINT_COUNT, HINT_SLICE_MS } from "./turn-hints.js";
 import { createSoundFeedback } from "./sound.js";
 import { createGameMotion } from "./game-motion.js";
+import { migratePublishedStorage } from "./site-storage.js";
+let siteMigration = null;
+try { siteMigration = migratePublishedStorage(localStorage); }
+catch { siteMigration = "storage-failed"; }
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
 const loupe = createBoardLoupe(svg);
 const motion = createGameMotion({ root: document.documentElement, board: svg, status: $("#stateText"), frame: svg.closest(".board-frame"), notice: $("#gameNotice") });
@@ -75,6 +79,8 @@ function notify(message, error = false) {
   clearTimeout(warningTimer); $("#gameNotice").textContent = message; $("#gameNotice").classList.toggle("error", error); $("#gameNotice").hidden = false;
   motion.announce(); warningTimer = setTimeout(() => { $("#gameNotice").hidden = true; }, error ? 7000 : 4500);
 }
+if (siteMigration === "archive-full") notify("最近对局已满，其余记录可在旧网址备份页下载。");
+if (siteMigration === "storage-failed") notify("旧棋局暂时无法转入新网址，可从旧网址备份页下载。", true);
 try {
   const loaded = loadSessionRecord(localStorage, STORAGE), saved = loaded.saved;
   migratedFrom = loaded.sourceRecord;

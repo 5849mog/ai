@@ -11,6 +11,7 @@ test("phone links use a verified free endpoint and keep the engine key in a frag
   assert.equal(publicAddress("banner\n" + url + "\n"), url);
   const link = new URL(phoneLink(url, token));
   assert.equal(link.origin, "https://5849mog.github.io"); assert.ok(!link.search.includes(token));
+  assert.equal(link.pathname, "/gomoku-studio/");
   assert.equal(link.searchParams.get("computer-launch"), APP_VERSION);
   assert.deepEqual(JSON.parse(decodeURIComponent(link.hash.slice(10))), { url, token });
   for (const address of [url + "/extra", "http://abc.run.pinggy-free.link", "https://bad.example"]) assert.throws(() => phoneLink(address, token));
