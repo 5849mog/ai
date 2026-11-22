@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { endgameEstimate, immediateEnding, tacticalPosition, explainMove } from "../endgame-estimate.js";
+import { endgameEstimate, immediateEnding, tacticalPosition, explainMove, forcedReplyEnding } from "../endgame-estimate.js";
 import { PositionAnalysis } from "../position-analysis.js";
 
 test("terminal estimates follow the current principal variation and never follow its old count onto another board", () => {
@@ -28,10 +28,14 @@ test("live tactical labels distinguish a legal win, a needed block, and two rema
   for (const index of [111,112,113,114]) board[index] = 2;
   let summary = tacticalPosition(board, 1, "freestyle", allowed);
   assert.deepEqual(summary, { wins: [], threats: [110, 115] });
+  assert.deepEqual(forcedReplyEnding(summary, 1, "freestyle"), { plies: 2, winner: 2 });
+  assert.equal(forcedReplyEnding(summary, 1, "renju"), null);
+  assert.equal(forcedReplyEnding({ ...summary, wins: [100] }, 1, "freestyle"), null);
   assert.equal(explainMove(board, 110, 1, "freestyle", summary), "对手仍有胜点");
   board[110] = 1;
   summary = tacticalPosition(board, 1, "freestyle", allowed);
   assert.deepEqual(summary.threats, [115]);
+  assert.equal(forcedReplyEnding(summary, 1, "freestyle"), null);
   assert.equal(explainMove(board, 115, 1, "freestyle", summary), "挡下一手即胜点");
   assert.equal(explainMove(board, 85, 1, "freestyle", summary), "未挡对手胜点");
   const wins = tacticalPosition(board, 2, "freestyle", allowed);

@@ -20,7 +20,7 @@ import { THINKING_VALUES, SPECTATOR_DELAYS } from "./thinking-options.js";
 import { setupBoardFacts } from "./board-facts.js";
 import { setupBoardAppearance } from "./board-preferences.js";
 import { setupReleaseNotes } from "./release-notes.js";
-import { endgameEstimate, immediateEnding, tacticalPosition, explainMove } from "./endgame-estimate.js";
+import { endgameEstimate, immediateEnding, tacticalPosition, explainMove, forcedReplyEnding } from "./endgame-estimate.js";
 import { setupRecordUi } from "./record-ui.js";
 import { sessionFromRecord, loadSessionRecord } from "./session-records.js";
 import { createScheduledTask } from "./ui-scheduler.js";
@@ -45,7 +45,8 @@ let updateLaunchUntouched = true, updateLoadSafe = true;
 for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let keyboardActive = false, appearance, boardContact;
-let immediate = null, emptyCount = 225, tactics = null, note = null;
+let immediate = null, emptyCount = 225, tactics = null, note = null, defense = -1;
+const previewReasons = new Map();
 let forbiddenInput = null, enhancements, boardFacts, inspector, backgroundPosition, restartRequested = false;
 let searchStarted = null, turnTimer = null, pauseReason = "";
 let paused=false, adaptiveThinking=false, deepPhase="", lastAdaptive=null, deepRoot=true, boardMotion="auto", selfPlay=false, showHints=true;
@@ -147,20 +148,22 @@ function renderAnalysis() {
   analysisView.render(analysis, session.winner);
   const available = ["play", "w6"].includes(session.stage);
   const ending = endgameEstimate({ winner: session.winner, available, immediate, point: analysis.current, emptyCount });
+  const tactical = appearance?.tacticalNotes === false ? null : note;
+  const shortTactical = tactical?.tone === "risk" && immediate?.plies === 2 ? `${ending.text} · ${tactical.text}` : tactical?.text;
   const endStatus = $("#endgameEstimate");
   const endingText = ending.source === "board" ? `${ending.text} · 棋盘确认` : ending.source === "engine" ? `${ending.text} · 引擎推演` : ending.text;
   if (endStatus.textContent !== endingText) endStatus.textContent = endingText;
   endStatus.dataset.state = ending.state;
   endStatus.title = ending.source === "engine" ? "按当前搜索路线估计，后续落子会重新推演" : "";
-  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available, ending, tactical: note?.text,
+  renderSimpleWinRate($("#simpleWinRate"), analysis, session.winner, { available, ending, tactical: shortTactical,
     waiting: session.stage === "setup" ? "等待开局" : available ? "等待评估" : "开局完成后评估" });
   const name = colorName(perspective), other = colorName(3 - perspective);
   $("#perspectiveName").textContent = `${name}棋`; $("#otherName").textContent = `${other}棋`; $("#trendLegend").textContent = `上方利于${name} · 下方利于${other}`;
   const judgement = $("#positionJudgement");
   const summary = session.winner ? session.description() : !available ? "开局尚未定色，先完成交换与选案"
-    : note?.text || describePosition(analysis.current, perspective).replaceAll("你的", `${name}棋的`).replaceAll("你", `${name}棋`).replaceAll("AI", `${other}棋`);
+    : tactical?.text || describePosition(analysis.current, perspective).replaceAll("你的", `${name}棋的`).replaceAll("你", `${name}棋`).replaceAll("AI", `${other}棋`);
   if (judgement.textContent !== summary) judgement.textContent = summary;
-  judgement.dataset.tone = note?.tone || "";
+  judgement.dataset.tone = tactical?.tone || "";
   $("#positionContext").textContent = session.winner ? "对局已结束" : session.offerCount || session.stage === "choose" ? "第五手提案" : `第 ${session.moves.length} 手`;
   const rateLabel = session.winner ? `对局结果：${session.description()}` : analysis.current?.winRate != null
     ? `估算胜率：${name}棋 ${$("#playerWinRate").textContent}，${other}棋 ${$("#aiWinRate").textContent}` : "当前局势等待评估";
@@ -175,10 +178,10 @@ function renderAnalysis() {
   const lastEvent = session.events.at(-1);
   const mirrored = session.workflow === "copilot" && lastEvent?.automatic
     && ["stone", "select"].includes(lastEvent.type) && session.lastMove >= 0;
-  const compact = session.winner || note ? summary : ending.short ? `余 ${ending.short} · ${ending.source === "board" ? "棋盘确认" : "引擎推演"}`
+  const compact = session.winner ? summary : shortTactical || (ending.short ? `余 ${ending.short} · ${ending.source === "board" ? "棋盘确认" : "引擎推演"}`
     : mirrored ? `照搬 AI 落点 · ${coordinate(session.lastMove)}`
-    : analysis.current?.winRate != null && available ? $("#simpleWinRate").textContent : "胜率待评估";
-  inspector?.render(compact, note?.tone);
+    : analysis.current?.winRate != null && available ? $("#simpleWinRate").textContent : "胜率待评估");
+  inspector?.render(compact, tactical?.tone);
 }
 function timingText() {
   if (searchStarted === null || !busy || document.hidden) return "";
@@ -253,7 +256,11 @@ function spectatorStatus() {
 function renderFlow(previewText, watching) {
   const flow = watching ? { title: spectatorStatus(), note: "双方由同一引擎轮流操作，可随时暂停或结束接管。", actions: [] }
     : openingFlow(session, { busy, state, advice, forbidden: forbiddenInput });
-  if (restartRequested && !forbiddenInput) {
+  const quickRematch = session.winner && session.workflow === "duel" && ["freestyle", "renju"].includes(session.rule) && session.playerColor;
+  if (quickRematch && !watching) {
+    flow.note = "保留当前规则，换个执色再下一局。";
+    flow.actions = [{ action: "rematch", value: String(session.playerColor === 1 ? 1 : 0), label: `换执${colorName(3 - session.playerColor)}再来` }];
+  } else if (restartRequested && !forbiddenInput) {
     flow.title = "现在开始新局？";
     flow.note = "当前棋局会让位给下一局。";
     flow.actions = [{ action: "restart", value: "cancel", label: "继续本局" }, { action: "restart", value: "confirm", label: "确认开新局" }];
@@ -262,7 +269,12 @@ function renderFlow(previewText, watching) {
     flow.note = "点「继续思考」恢复当前回合。";
   } else if (previewText) {
     flow.title = previewText;
-    flow.note = "再点同一点，或点「确认」提交。可点其他交点更换预选。";
+    flow.note = previewReason() || "再点同一点，或点「确认」提交。可点其他交点更换预选。";
+  } else if (!flow.actions.length && !automaticTurn() && !busy && !paused && !session.winner && advice?.points?.length && ["play", "w6"].includes(session.stage)) {
+    flow.title = "推荐落点";
+    flow.note = advice.reasons?.filter(Boolean).join(" · ") || "点坐标预选，确认后落子。";
+    flow.actions = advice.points.slice(0, 2).map((index, rank) => ({ action: "preview", value: String(index),
+      label: `${coordinate(index)}${advice.reasons?.[rank] ? ` · ${advice.reasons[rank]}` : ""}`, suggested: rank === 0 }));
   } else if (flow.note.includes("触屏再点一次确认") && appearance?.touchConfirm === false) {
     flow.note = "点击交点落子，触屏单点即可确认。";
   }
@@ -283,12 +295,25 @@ function renderFlow(previewText, watching) {
       Object.assign(button.dataset, { flowAction: action.action, value: action.value, suggested: String(action.suggested) });
       if (action.action === "decision") button.dataset.choice = action.value;
       if (action.action === "restart" && action.value === "cancel") button.dataset.restartChoice = "";
-      button.disabled = ["decision", "select", "handoff"].includes(action.action) && !manualTurn(); actions.append(button);
+      button.disabled = ["decision", "select", "handoff", "preview"].includes(action.action) && !manualTurn(); actions.append(button);
       if (!button.disabled && focused?.dataset.flowAction === action.action && focused.dataset.value === action.value) nextFocus = button;
     }
     root.replaceChildren(title, note, actions);
     if (focused && !hidden) (nextFocus ?? svg).focus({ preventScroll: true });
   }
+}
+function previewReason() {
+  if (pending < 0) return "";
+  if (!previewReasons.has(pending)) {
+    const forbidden = moveVerdict(session.board, pending, session.color, session.rule).forbidden;
+    previewReasons.set(pending, { forbidden, explanation: forbidden ? "" : explainMove(session.board, pending, session.color, session.rule, tactics) });
+  }
+  const { forbidden, explanation } = previewReasons.get(pending);
+  return forbidden ? `黑棋${forbidden}禁手` : appearance?.tacticalNotes === false ? "" : explanation;
+}
+function previewPoint(index) {
+  if (!interactive() || !session.canPoint(index)) return;
+  pending = index; hover = -1; render();
 }
 function renderBoard(requestedMotion = "auto") {
   const keyboardCursor = keyboardActive ? { index: keyboard, available: interactive() && session.canPoint(keyboard) } : null;
@@ -309,22 +334,29 @@ function render() {
   const stamp = JSON.stringify([Array.from(session.board), session.color, session.rule, session.stage, session.winner]);
   if (stamp !== hintsStamp) {
     hintsStamp = stamp;
+    previewReasons.clear();
     const enabled = !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose";
     const allowedMoves = enabled ? session.allowedMoves({ safe: true }) : [];
     hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage, allowedMoves, enabled });
     emptyCount = session.board.filter(stone => !stone).length;
     tactics = enabled && ["play", "w6"].includes(session.stage) && emptyCount <= 221
       ? tacticalPosition(session.board, session.color, session.rule, allowedMoves) : null;
+    defense = -1;
+    if (tactics?.threats.length === 1) {
+      const threat = tactics.threats[0];
+      if (allowedMoves.includes(threat) && explainMove(session.board, threat, session.color, session.rule, tactics) === "挡下一手即胜点") defense = threat;
+    }
     immediate = tactics?.wins.length ? { plies: 1, winner: session.color }
-      : tactics && emptyCount === 1 ? immediateEnding(session.board, session.color, session.rule, allowedMoves) : null;
+      : tactics && emptyCount === 1 ? immediateEnding(session.board, session.color, session.rule, allowedMoves)
+      : forcedReplyEnding(tactics, session.color, session.rule);
     note = null;
     if (tactics?.wins.length) {
       note = { tone: "attack", text: `可一手取胜 · ${tactics.wins.slice(0, 3).map(coordinate).join("、")}${tactics.wins.length > 3 ? " 等" : ""}` };
     } else if (tactics?.threats.length) {
       const threat = tactics.threats[0];
-      note = tactics.threats.length === 1 && allowedMoves.includes(threat)
+      note = defense >= 0
         ? { tone: "defend", text: `先防守 · ${coordinate(threat)}` }
-        : { tone: "risk", text: tactics.threats.length > 1 ? `对方有 ${tactics.threats.length} 个一手胜点` : `对方胜点 ${coordinate(threat)} · 当前不能封堵` };
+        : { tone: "risk", text: tactics.threats.length > 1 ? `对方胜点 · ${tactics.threats.slice(0, 3).map(coordinate).join("、")}${tactics.threats.length > 3 ? " 等" : ""}` : `对方胜点 ${coordinate(threat)} · 当前不能封堵` };
     }
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
@@ -364,7 +396,7 @@ function render() {
   const confirming = pending >= 0 && interactive();
   const recommendLabel = confirming ? "确认落子" : recommending ? "取消推荐" : advice ? "收起推荐" : "推荐";
   for (const button of [$("#recommendButton"), $("#simpleRecommendButton")]) {
-    button.disabled = !confirming && (!canRecommend || (!advice && !busy && state !== "ready" && !tactics?.wins.length));
+    button.disabled = !confirming && (!canRecommend || (!advice && !busy && state !== "ready" && !tactics?.wins.length && defense < 0));
     button.toggleAttribute("data-board-confirm", confirming);
     if (confirming) button.removeAttribute("aria-pressed");
     else button.setAttribute("aria-pressed", String(Boolean(advice) || recommending));
@@ -407,7 +439,7 @@ function render() {
     $("#simpleColorLabel").textContent = "对局"; $("#simpleColor small").textContent = `${workflowLabel[session.workflow]} · ${RULES[session.rule]}`;
     $("#simpleColor").setAttribute("aria-label", `对局设置：${RULES[session.rule]}，${workflowLabel[session.workflow]}`);
     $("#simpleRecommendLabel").textContent = busy && automatic ? "AI 落子中" : recommendLabel;
-    $("#simpleRecommendNote").textContent = confirming ? coordinate(pending) : recommending ? "正在分析" : busy ? "请稍候"
+    $("#simpleRecommendNote").textContent = confirming ? [coordinate(pending), previewReason()].filter(Boolean).join(" · ") : recommending ? "正在分析" : busy ? "请稍候"
       : normalAdvice.length ? [coordinate(normalAdvice[0]), advice.reasons?.[0] || normalAdvice.slice(1, 2).map(coordinate)[0]].filter(Boolean).join(" · ")
       : advice ? "关闭建议标记" : "AI 落点建议";
   }
@@ -492,9 +524,9 @@ async function autoPlay() {
 async function recommend({automatic=false}={}) {
   if (busy || advice) { cancel({ keepHints: true }); render(); void prepare(); return; }
   if (!manualTurn()) return;
-  if (tactics?.wins.length && !automatic) {
-    const points = tactics.wins.slice(0, 2); engine.stopPonder();
-    advice = { points, reasons: points.map(() => "落下即胜") };
+  if (!automatic && (tactics?.wins.length || defense >= 0)) {
+    const points = tactics.wins.length ? tactics.wins.slice(0, 2) : [defense]; engine.stopPonder();
+    advice = { points, reasons: points.map(index => explainMove(session.board, index, session.color, session.rule, tactics)) };
     pending = hover = -1; render(); return;
   }
   if (state !== "ready") return;
@@ -521,6 +553,9 @@ async function place(index) {
   }
   const verdict = moveVerdict(session.board, index, session.color, session.rule);
   if (!session.offerCount && session.stage !== "choose" && verdict.forbidden) {
+    if (session.workflow === "duel") {
+      pending = -1; render(); notify(`${coordinate(index)} 是黑棋${verdict.forbidden}禁手，请换一个落点`, true); return;
+    }
     cancel(); forbiddenInput = { index, reason: verdict.forbidden }; render();
     (display?.simple ? $("#simpleOpeningFlow") : $("#openingFlow")).querySelector('[data-value="cancel"]')?.focus({ preventScroll: true });
     return;
@@ -543,8 +578,7 @@ const dialogs = createOpeningDialogs({ getSession: () => session, onNew: newGame
 $("#recommendationLegend").addEventListener("click", event => {
   const button = event.target.closest("[data-preview-point]");
   const index = Number(button?.dataset.previewPoint);
-  if (!button || !interactive() || !session.canPoint(index)) return;
-  pending = index; hover = -1; render();
+  if (button) previewPoint(index);
 });
 svg.setAttribute("aria-keyshortcuts", "ArrowUp ArrowDown ArrowLeft ArrowRight Home End PageUp PageDown [ ] Enter Space 1 2 N B R Z P");
 const indexAt = event => { const target = event.target.closest("[data-index]"); return target ? Number(target.dataset.index) : view.nearestIntersection(event.clientX, event.clientY); };
@@ -575,7 +609,8 @@ svg.addEventListener("click", event => {
   if (!session.canPoint(index)) {
     void place(index); return;
   }
-  if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && appearance?.touchConfirm !== false && pending !== index) { pending = index; hover = -1; render(); } else void place(index);
+  if ((event.pointerType || pointerType) !== "mouse" && event.detail !== 0 && appearance?.touchConfirm !== false && pending !== index) previewPoint(index);
+  else void place(index);
 });
 function recommendFromKeyboard(event) {
   if (event.key.toLowerCase() !== "r" || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
@@ -621,6 +656,8 @@ for (const root of [$("#openingFlow"), $("#simpleOpeningFlow")]) root.addEventLi
   if (action === "start" && session.stage === "setup") { cancel(); commit({ type: "start", initialBlackSeat: Number(value) }); placeForcedCenter(); void prepare(); }
   else if (action === "decision") decision(value);
   else if (action === "select") void place(Number(value));
+  else if (action === "preview") previewPoint(Number(value));
+  else if (action === "rematch" && session.winner) newGame({ ...session.options, seed: null, initialBlackSeat: Number(value) });
   else if (action === "handoff") handoff();
   else if (action === "restart") {
     if (value === "confirm") newGame();
@@ -664,7 +701,7 @@ document.addEventListener("keydown", event => {
     event.preventDefault(); pending = -1; render();
   }
 });
-display = setupDisplayModes({ onNewGame: requestNewGame, onChange: () => { pending = hover = -1; inspector?.layout(); render(); }, onOpenSettings: dialogs.openModes });
+display = setupDisplayModes({ onNewGame: requestNewGame, onChange: () => { hover = -1; inspector?.layout(); render(); }, onOpenSettings: dialogs.openModes });
 $("#simpleColor").addEventListener("keydown", recommendFromKeyboard);
 setupRecordUi({ getRecord: () => session.record(), notify, onModalChange: onModal,
   applyRecord: record => { restoreArchived({ record }); return persist(); }

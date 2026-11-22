@@ -155,6 +155,11 @@ try{
   await page.getByRole('button',{name:'局势与设置',exact:true}).tap();await settle();
   assert.deepEqual(await board.boundingBox(),before);
   assert.equal(await page.locator('#positionAnalysis').isVisible(),true);
+  await page.getByRole('button',{name:'调设置',exact:true}).tap();
+  assert.equal(await page.locator('#timeSelect').isVisible(),true);
+  assert.equal(await page.locator('#positionAnalysis').isVisible(),false);
+  await page.getByRole('button',{name:'看局势',exact:true}).tap();
+  assert.equal(await page.locator('#positionAnalysis').isVisible(),true);
   await page.touchscreen.tap(before.x+before.width*.75,before.y+12);
   assert.equal(await page.locator('#matchInspector').isVisible(),false);
   assert.equal(await preview.count(),0);assert.deepEqual(await record(),saved);
