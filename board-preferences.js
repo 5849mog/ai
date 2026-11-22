@@ -13,6 +13,7 @@ const switches = {
   contrast: ["加深棋盘线", false],
   stillBoard: ["关闭棋盘动效", false],
   touchConfirm: ["触屏二次确认", true],
+  tacticalNotes: ["显示战术提示", true],
   simpleRate: ["简洁界面显示胜率", true]
 };
 
@@ -20,8 +21,12 @@ const appearanceGroups = [
   ["坐标与手数", ["coordinates", "farCoordinates", "moveNumbers"]],
   ["落子提示", ["lastMarker", "answerMarker", "aimGuides", "winningLine", "largeMarkers"]],
   ["棋盘外观", ["starPoints", "texturedStones", "contrast"]],
-  ["操作与显示", ["stillBoard", "touchConfirm", "simpleRate"]]
+  ["操作与显示", ["stillBoard", "touchConfirm", "tacticalNotes", "simpleRate"]]
 ];
+const presets = {
+  plain: { theme: "paper", starPoints: true, texturedStones: false, contrast: true, stillBoard: true },
+  practice: { theme: "wood", coordinates: true, farCoordinates: true, moveNumbers: true, largeMarkers: true, contrast: true }
+};
 
 export function defaultBoardAppearance() {
   return { theme: "wood", ...Object.fromEntries(Object.entries(switches).map(([key, [, value]]) => [key, value])) };
@@ -45,6 +50,7 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
     mount.innerHTML = `${inline ? "" : `<button type="button" data-open-appearance data-ui-icon="board" aria-expanded="false" aria-controls="${id}">棋盘显示</button>`}
       <section class="board-appearance" id="${id}" aria-label="棋盘显示"${inline ? "" : " hidden"}>
       <label class="appearance-theme">棋盘主题 <select data-appearance="theme"><option value="wood">原木</option><option value="paper">浅纸</option><option value="slate">青灰</option></select></label>
+      <div class="appearance-presets" aria-label="棋盘显示方案"><button type="button" data-appearance-preset="plain">清晰棋盘</button><button type="button" data-appearance-preset="practice">记谱辅助</button></div>
       ${appearanceGroups.map(([title, keys]) => `<fieldset class="appearance-group"><legend>${title}</legend>
         <div class="appearance-options">${keys.map(key => `<label><input type="checkbox" data-appearance="${key}">${switches[key][0]}</label>`).join("")}</div></fieldset>`).join("")}
       <button type="button" data-reset-appearance>恢复默认</button></section>`;
@@ -57,13 +63,18 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
         menu.scrollTop += Math.max(0, toggle.getBoundingClientRect().top - menu.getBoundingClientRect().top - 6);
       }
     };
-    return { fields: [...mount.querySelectorAll("[data-appearance]")], reset: mount.querySelector("[data-reset-appearance]") };
+    return { fields: [...mount.querySelectorAll("[data-appearance]")], reset: mount.querySelector("[data-reset-appearance]"),
+      presets: [...mount.querySelectorAll("[data-appearance-preset]")] };
   });
   function apply() {
     for (const [key, value] of Object.entries(settings)) board.dataset[key] = String(value);
     const defaults = defaultBoardAppearance();
     for (const view of views) {
       view.reset.disabled = Object.keys(defaults).every(key => defaults[key] === settings[key]);
+      for (const button of view.presets) {
+        const preset = presets[button.dataset.appearancePreset];
+        button.setAttribute("aria-pressed", String(Object.entries(preset).every(([key, value]) => settings[key] === value)));
+      }
       for (const input of view.fields) {
         const key = input.dataset.appearance;
         if (key === "theme") input.value = settings.theme;
@@ -79,6 +90,10 @@ export function setupBoardAppearance({ document: doc, board, storage, onChange }
     apply();
   }
   for (const view of views) {
+    for (const button of view.presets) button.onclick = () => {
+      settings = { ...settings, ...presets[button.dataset.appearancePreset] };
+      save();
+    };
     view.reset.onclick = () => {
       const focused = doc.activeElement === view.reset;
       settings = defaultBoardAppearance(); save();

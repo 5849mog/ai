@@ -6,6 +6,12 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
       <label class="mode-field mode-preset">常用组合<select id="modePreset"></select></label>
       <label class="mode-field">棋局规则<select id="ruleMode"><option value="freestyle">无禁手</option><option value="renju">禁手 · 自由开局</option><option value="rif">五手两打</option><option value="taraguchi10">塔拉山口-10</option></select></label>
       <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 替我下 · 外部对局</option><option value="follow">手动记录双方</option><option value="duel">与 AI 对弈</option></select></label>
+      <fieldset class="mode-side" id="modeSide">
+        <legend>这一局执色</legend>
+        <label><input type="radio" name="modeSide" value="ask" checked>到棋盘旁选</label>
+        <label><input type="radio" name="modeSide" value="0">执黑</label>
+        <label><input type="radio" name="modeSide" value="1">执白</label>
+      </fieldset>
       <p class="mode-description" id="modeDescription">附身模式在棋盘旁逐阶段确认本局角色。己方的开局与应手由 AI 自动给出，对手的操作由你录入。</p>
     </div>
     <footer class="mode-footer"><p class="import-warning" id="modeReplacement"></p><button type="button" class="confirm-mode" id="startMode">开始新局</button></footer></dialog>
@@ -39,6 +45,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   const modes = document.querySelector("#modeDialog"), guide = document.querySelector("#guideDialog");
   const rule = document.querySelector("#ruleMode"), workflow = document.querySelector("#workflowMode");
   const preset = document.querySelector("#modePreset");
+  const side = document.querySelector("#modeSide");
   let started = false;
   const workflowNames = { copilot: "AI 替我下", follow: "手动记谱", duel: "与 AI 对弈" };
   for (const group of workflow.options) {
@@ -64,7 +71,9 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   const open = dialog => { document.querySelector("#recordMenu").open = false; onModal(true); dialog.showModal(); };
   function openModes() {
     const session = getSession(); started = false;
-    rule.value = session.rule; workflow.value = session.workflow; workflow.dispatchEvent(new Event("change"));
+    rule.value = session.rule; workflow.value = session.workflow;
+    side.querySelector('[value="ask"]').checked = true;
+    workflow.dispatchEvent(new Event("change"));
     const hasPosition = session.moves.length || session.options?.seed?.board?.some(Boolean);
     document.querySelector("#modeReplacement").textContent = hasPosition ? "开始新局会离开当前棋局。" : "";
     open(modes); preset.focus({ preventScroll: true });
@@ -73,10 +82,11 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   const syncModeCopy = () => {
     preset.value = `${rule.value}/${workflow.value}`;
     const freeOpening = ["freestyle", "renju"].includes(rule.value);
+    side.hidden = !freeOpening || workflow.value !== "duel";
     document.querySelector("#modeDescription").textContent = workflow.value === "copilot"
       ? freeOpening ? `${rule.value === "renju" ? "黑棋禁手仍生效。" : "无禁手。"}执色在棋盘旁选择，录完外部开局后点「AI 接手」。` : "本局角色在棋盘旁按实际情况选择。己方开局与应手由 AI 自动给出；对方操作由你录入。简洁界面也可完成全部阶段。"
       : workflow.value === "follow" ? "新局开始后在棋盘旁选择本局角色。双方操作均由你照外部棋局录入，推荐不会自动执行。"
-        : "新局开始后在棋盘旁选择本局角色。在本页和 AI 对弈；AI 自动完成它负责的开局与落子。";
+        : freeOpening ? "现在选好执色即可直接开始，或到棋盘旁再选。" : "在棋盘旁选择开局角色，AI 自动完成它负责的开局与落子。";
   };
   preset.onchange = () => {
     const [nextRule, nextWorkflow] = preset.value.split("/");
@@ -86,7 +96,12 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   };
   workflow.onchange = syncModeCopy;
   rule.addEventListener("change", syncModeCopy);
-  document.querySelector("#startMode").onclick = () => { onNew({ rule: rule.value, workflow: workflow.value, initialBlackSeat: null }); started = true; modes.close(); };
+  document.querySelector("#startMode").onclick = () => {
+    const chosen = side.hidden ? "ask" : side.querySelector(":checked").value;
+    onNew({ rule: rule.value, workflow: workflow.value, initialBlackSeat: chosen === "ask" ? null : Number(chosen) });
+    started = true;
+    modes.close();
+  };
   document.querySelector("#openGuide").onclick = () => open(guide);
   return { openModes, openGuide: () => open(guide) };
 }

@@ -26,12 +26,22 @@ export function tacticalPosition(board, color, rule, allowedMoves) {
 export function explainMove(board, index, color, rule, tactical) {
   if (board[index] !== 0 || !tactical) return "";
   if (tactical.wins.includes(index)) return "落下即胜";
-  if (tactical.threats.length > 1) return "对手仍有胜点";
-  if (tactical.threats.length === 1) return tactical.threats[0] === index ? "挡下一手即胜点" : "未挡对手胜点";
   const after = board.slice();
   after[index] = color;
+  // A new white stone can change the legality of a black reply under Renju.
+  const remaining = rule !== "freestyle" && color === 2 ? winningPoints(after, 1, rule)
+    : tactical.threats.filter(point => point !== index);
+  if (remaining.length) return tactical.threats.length > 1 ? "对手仍有胜点" : "未挡对手胜点";
+  if (tactical.threats.length) return "挡下一手即胜点";
   const nextWins = winningPoints(after, color, rule);
   return nextWins.length > 1 ? "形成多个胜点" : nextWins.length === 1 ? "形成下一手胜点" : "";
+}
+
+export function forcedReplyEnding(tactical, color, rule) {
+  // Without forbidden moves, filling one intersection can remove at most
+  // one existing win for the other color. An immediate win takes priority.
+  if (rule !== "freestyle" || !tactical || tactical.wins.length || tactical.threats.length < 2) return null;
+  return { plies: 2, winner: 3 - color };
 }
 
 export function immediateEnding(board, color, rule, allowedMoves) {

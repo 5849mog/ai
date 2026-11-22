@@ -132,11 +132,17 @@
   position: sticky;
   top: -8px;
   z-index: 1;
-  display: flex;
-  justify-content: end;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
   padding: 2px 0 5px;
   background: var(--control-paper);
 }
+.match-inspector-title { margin: 0 4px; color: var(--control-ink); font-size: 14px; font-weight: 650; }
+.match-inspector-tabs { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.match-inspector-tab { min-height: 38px; font-size: 13px; }
+.match-inspector-analysis { padding-block-start: 2px; }
 .match-inspector-settings {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
@@ -144,6 +150,28 @@
   padding: 0 4px 7px;
 }
 .match-inspector-settings :is(.spectator-controls, .spectator-settings) { grid-column: 1 / -1; }
+.appearance-presets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-block: 4px 10px; }
+.appearance-presets button { min-block-size: 38px; }
+.mode-side {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 4px 0 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 4px;
+}
+.mode-side legend { color: var(--control-muted); font-size: 12px; }
+.mode-side label {
+  display: flex; gap: 4px; justify-content: center; align-items: center;
+  min-block-size: 44px; padding: 4px; border: 1px solid var(--control-border);
+  border-radius: 8px; color: var(--control-ink); font-size: 12px; cursor: pointer;
+}
+.mode-side input { margin: 0; accent-color: var(--control-primary); }
+.mode-side label:has(:checked) { background: var(--control-pressed); border-color: var(--control-selected-border); }
+#simpleOpeningFlow [data-flow-action="preview"] { min-block-size: 40px; }
+[data-compare-side-by-side] .import-board [data-index] { cursor: crosshair; }
 [data-adjust-frame] { color: #8c3326 !important; font-weight: 650; }
 [data-adjust-frame]::after { content: " · 调整比例"; }
 [data-compare-side-by-side] .tool-workspace { flex-direction: column; }
