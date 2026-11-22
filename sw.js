@@ -1,31 +1,56 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.22.2";
+const RELEASE = "2026.11.22.3";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261122-v91";
+const VERSION = SHELL_PREFIX + "261122-v92";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
 const SHELL_MARKER = url("__shell_ready__");
 const NAVIGATION_PAGES = new Set(["", "index.html", "renju.html", "about.html", "report.html", "update.html"]);
-const CORE = ["./", "index.html", "styles.css", "styles.css?v=21", "game-modes.css", "game-modes.css?v=1", "setup-ui.js", "display-modes.js", "board-view.js", "game-rules.js", "engine-assessment.js", "position-analysis.js", "analysis-view.js",
-  "engine.js", "engine-protocol.js", "engine-jobs.js", "engine.worker.js", "recommendations.js", "search-info.js", "game-record.js", "record-ui.js", "session-records.js", "favicon.svg", "about.html", "about.css", "about.css?v=5", "about.js", "about.js?v=3", "report.html", "report.css?v=1", "report.js?v=1", "report-model.js?v=1", "THIRD_PARTY.md", "LICENSE",
-  "assets/board-wood.svg", "assets/paper-fiber.svg", "assets/stone-satin.svg", "assets/button-undo.svg", "assets/button-restart.svg", "assets/brand-serif.ttf", "assets/OFL-NotoSerif.txt"];
-CORE.push("board-layout.js", "styles.css?v=22", "game-modes.css?v=5", "opening.css?v=4", "enhancements.css?v=38", "app-update.js?v=38", "adaptive-search.js", "adaptive-opening.js", "enhancements.css?v=37", "app-update.js?v=37", "game-archive.js", "archive-ui.js", "opening-review.js", "enhancements.css?v=36", "app-update.js?v=36", "ui-scheduler.js", "app-release.js", "app-update.js", "app-update.js?v=32", "app-update.js?v=33", "app-update.js?v=34", "app-update.js?v=35", "update.html", "enhancements.css?v=32", "enhancements.css?v=33", "enhancements.css", "enhancements.css?v=1", "game-enhancements.js", "release-notes.js", "endgame-estimate.js", "image-import-ui.js", "image-board.js", "game-review.js", "review-ui.js", "opening-book.js", "rif-opening-pool.js");
-CORE.push("assets/icons/guide.svg", "assets/icons/import.svg", "assets/icons/export.svg", "assets/icons/copy.svg", "assets/icons/eye.svg", "assets/icons/bot.svg", "assets/icons/camera.svg", "assets/icons/board.svg", "assets/icons/engine.svg", "assets/icons/layout.svg", "assets/icons/audio.svg", "assets/icons/settings.svg", "assets/icons/undo.svg", "assets/icons/restart.svg", "ui-refinement.css?v=13", "turn-hints.js", "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42");
-CORE.push("remote-engine.js", "remote-engine.js?v=45", "remote-engine.js?v=46", "remote-engine-ui.js", "remote-engine-ui.js?v=45", "remote-engine-ui.js?v=46", "remote-engine.css");
-CORE.push("opening.css?v=6", "enhancements.css?v=48");
-CORE.push("opening.css?v=7", "enhancements.css?v=49", "styles.css?v=23", "game-modes.css?v=6", "sound.js");
-CORE.push("enhancements.css?v=50", "game-motion.js");
-CORE.push("quick-settings.js", "quick-settings.css", "enhancements.css?v=59");
-CORE.push("board-loupe.js", "position-link.js", "position-link-ui.js", "match-inspector.js", "play-polish.css", "surface-theme.css", "button-theme.css", "quick-settings.css?v=2", "styles.css?v=24", "game-modes.css?v=8", "opening.css?v=8", "enhancements.css?v=60", "ui-refinement.css?v=14", "about.css?v=6", "report.css?v=3");
-CORE.push("enhancements.css?v=51", "board-preferences.js", "board-facts.js", "board-transform.js", "thinking-options.js");
-CORE.push("enhancements.css?v=52", "game-modes.css?v=7", "enhancements.css?v=53");
-CORE.push("forced-opening.js", "export-utils.js", "report.css?v=2", "report.js?v=2", "real-game-model.js", "svg-view.js", "image-grid.js", "board-image.js", "review-branch.js", "partial-review.js", "enhancements.css?v=54", "enhancements.css?v=55", "enhancements.css?v=56", "enhancements.css?v=57", "enhancements.css?v=58");
+const CORE = [
+  ...Array.from(NAVIGATION_PAGES, path => path || "./"),
+
+  // UI styles, about, report and recovery entry points.
+  "favicon.svg", "styles.css?v=24", "game-modes.css?v=8", "opening.css?v=8",
+  "enhancements.css?v=60", "ui-refinement.css?v=14", "quick-settings.css?v=2",
+  "button-theme.css", "surface-theme.css", "play-polish.css", "remote-engine.css",
+  "about.css?v=6", "about.js?v=3", "report.css?v=3", "report.js?v=2", "real-game-model.js",
+  "app-release.js", "app-update.js", "app-update.js?v=38", "release-notes.js",
+
+  // Board rendering, responsive layout and input.
+  "analysis-view.js", "board-facts.js", "board-layout.js", "board-loupe.js",
+  "board-preferences.js", "board-transform.js", "board-view.js", "display-modes.js",
+  "game-motion.js", "match-inspector.js", "quick-settings.js", "sound.js",
+  "svg-view.js", "turn-hints.js", "ui-scheduler.js",
+
+  // Rules, opening and search.
+  "adaptive-opening.js", "adaptive-search.js", "endgame-estimate.js", "engine-assessment.js",
+  "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42", "engine-protocol.js?v=22",
+  "forced-opening.js", "game-rules.js", "opening-advisor.js", "opening-app.js",
+  "opening-book.js", "opening-flow.js", "opening-guide.js", "opening-session.js",
+  "position-analysis.js", "recommendations.js?v=22", "remote-engine.js",
+  "remote-engine-ui.js?v=46", "remote-engine.js?v=46", "renju-rules.js",
+  "rif-opening-pool.js", "search-info.js", "thinking-options.js",
+
+  // Saved and shared positions, imports and exports.
+  "archive-ui.js", "board-image.js", "export-utils.js", "game-archive.js",
+  "game-enhancements.js", "game-record.js", "game-review.js", "image-board.js",
+  "image-grid.js", "image-import-ui.js", "opening-review.js", "partial-review.js",
+  "position-link-ui.js", "position-link.js", "record-ui.js", "review-branch.js",
+  "review-ui.js", "session-records.js", "setup-ui.js",
+
+  // Visual assets and offline license notices.
+  "assets/board-wood.svg", "assets/brand-serif.ttf", "assets/paper-fiber.svg",
+  "assets/stone-satin.svg", "assets/icons/audio.svg", "assets/icons/board.svg",
+  "assets/icons/bot.svg", "assets/icons/camera.svg", "assets/icons/copy.svg",
+  "assets/icons/engine.svg", "assets/icons/export.svg", "assets/icons/eye.svg",
+  "assets/icons/guide.svg", "assets/icons/import.svg", "assets/icons/layout.svg",
+  "assets/icons/restart.svg", "assets/icons/settings.svg", "assets/icons/undo.svg",
+  "assets/OFL-NotoSerif.txt", "LICENSE", "THIRD_PARTY.md"
+];
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
-CORE.push("game-modes.css?v=2", "game-modes.css?v=3", "game-modes.css?v=4", "renju.html", "opening.css", "opening.css?v=1", "opening.css?v=2", "opening.css?v=3", "opening-session.js", "opening-flow.js", "renju-rules.js", "opening-advisor.js", "opening-app.js", "opening-guide.js",
-  "engine.js?v=22", "engine.worker.js?v=22", "engine-protocol.js?v=22", "engine-jobs.js?v=22", "recommendations.js?v=22");
 
 async function populateShell(cache) {
   await cache.addAll(CORE.map(path => new Request(url(path), { cache: "reload" })));

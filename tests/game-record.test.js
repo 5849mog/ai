@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createRecord, replayRecord, serializeRecord, parseRecord, exportSgf, loadGame, saveGame, RECORD_KEY, MAX_RECORD_BYTES } from "./game-record.js";
-import { restore } from "./game-rules.js";
+import { createRecord, replayRecord, serializeRecord, parseRecord, exportSgf, loadGame, saveGame, RECORD_KEY, MAX_RECORD_BYTES } from "../game-record.js";
+import { restore } from "../game-rules.js";
 
 const won = [0, 30, 1, 32, 2, 34, 3, 36, 4];
 test("chronological records reconstruct both roles, AI turns and independent undo snapshots", () => {

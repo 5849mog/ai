@@ -9,7 +9,7 @@
 | 入口 | 含义 |
 | --- | --- |
 | 新局 | 按当前规则和对局方式重新开局，在棋盘旁选择本局角色 |
-| 对局设置（简洁界面为「对局」） | 选择规则及 AI 负责哪一方；点「开始新局」才生效，返回不改当前棋局 |
+| 对局设置（简洁界面为「对局」） | 选择规则和对局方式，点「开始新局」后生效 |
 | 悔棋 | 撤回实际操作；自动应手与触发它的那一步一起撤回，换色和候选也可撤回 |
 | 推荐 | 最多 1 秒搜索预算，用于查看建议。搜索中可取消，出结果后可收起 |
 | 更多 | 思考预算、后台思考、截图、自定义摆局、最近对局、电脑引擎及返回完整界面 |
@@ -32,6 +32,7 @@
 - **AI 替我下 · 外部对局**：录入外部对手的操作，AI 自动完成我方落子；涉及实战换色时由用户确认。自由开局可先录入已有开局，再点「AI 接手」。
 - **手动记录双方**：双方棋子、换色、提案和选案都由用户录入，AI 不自动落子。切换分析视角会翻转胜率走势，并保留正在进行的后台分析。
 - **与 AI 对弈**：用户操作自己的棋色，AI 自动完成对方回合。
+- **同屏双人**：甲乙双方在同一台设备上轮流操作。换色、提案和选案按当前规则执行，推荐与战术图层不显示。
 
 简洁界面和完整界面共用这些选择。「新局」保留当前方式，不会把手动记录自动改为 AI 附身。
 
@@ -44,6 +45,8 @@
 ## 棋局与文件
 
 实际操作自动保存；刷新恢复局面和轮到谁，最近对局最多保留 50 局，可按收藏、状态和规则筛选，按名称或备注搜索，并切换排序。每局可填写名称与备注。删除记录后可在当前列表撤销最近一次删除。可导出全部对局备份（含名称、备注、收藏与规则记录），也可预览后合并导入；重复记录会跳过，超过容量时不会导入。数据在本设备浏览器，不跨设备同步；保存失败会提示导出。旧无禁手和连珠棋局升级时按最近的有效归档恢复，原记录保留，另一局仍可从最近对局找到。
+
+通过「分享棋局」复制当前对局的链接。打开链接后可先看盘面，再决定是否载入。分享保留已落棋子和开局选择。
 
 导入先校验并预览，确认后才替换；取消或无效文件不改变棋局。五目 JSON 保留角色、换色与候选。旧无禁手 JSON v1 / v2 与 Freestyle SGF 仍可导入。SGF 仅包含实子，不足以恢复正式连珠的换色和提案，因此正式开局请用 JSON。文件上限 1 MiB。
 
@@ -63,13 +66,29 @@
 
 ## 开发与验证
 
-发布日志时更新 [`content/feed.json`](content/feed.json) 并递增 `revision`。仅补充日志时可以保持程序版本和页面缓存版本不变。`schema` 为 `1`，`releases` 保留最近 1–12 个版本，每条包含 `version`、`title` 和 `changes`。
-
-需要 Node.js 20.19+：
+建议使用 Node.js 24 LTS。
 
 ```sh
 npm ci
 npm run dev
+```
+
+默认开发地址 http://127.0.0.1:4187/ 。
+
+| 要改什么 | 从哪里开始 |
+| --- | --- |
+| 对局页面和状态 | `index.html`、`opening-app.js` |
+| 棋盘绘制、布局和设置 | `board-view.js`、`board-layout.js`、`board-preferences.js` |
+| 规则、开局和换色 | `opening-session.js`、`opening-flow.js`、`renju-rules.js`、`game-rules.js` |
+| 搜索与引擎 | `engine.js`、`engine.worker.js`、`engine/`，电脑服务位于 `remote/` |
+| 缓存、版本和更新日志 | `sw.js`、`app-release.js`、`content/feed.json` |
+| 验证与证据 | `tests/` 放自动测试，`scripts/` 放浏览器验证和基准工具，`reports/` 放历史报告 |
+
+修改首页后运行 `npm run sync:pages` 并提交生成的 `renju.html`。`npm run check` 会检查两页是否同步。GitHub Pages 直接使用仓库中的静态文件。
+
+### 运行验证
+
+```sh
 npm test
 npm run check
 npm run test:navigation
@@ -78,9 +97,13 @@ npm run test:opening-flow
 npm run test:upgrade
 ```
 
-默认开发地址 http://127.0.0.1:4187/ 。浏览器验证可用 `CHROME_PATH` 指定 Chromium、`CHROME_ARGS` 传 JSON 启动参数。`test:navigation` 使用确定性引擎检查真实页面、按钮和存档；`test:opening-flow` 默认使用真实 Rapfi WASM；`test:upgrade` 使用 Git 中的 v47 页面验证缓存升级、迁移和断网对弈。布局证据和本轮整理结论见 [交互审查报告](reports/unified-navigation-v48.md)。
+浏览器验证可用 `CHROME_PATH` 指定 Chromium，或运行 `npx playwright install chromium` 安装测试浏览器。`CHROME_ARGS` 接收 JSON 字符串数组。`test:navigation` 使用确定性引擎检查真实页面、按钮和存档。`test:opening-flow` 默认使用真实 Rapfi WASM。`test:upgrade` 默认从 Git 中的 v47 页面验证升级、迁移和离线对弈，可用 `GOMOKU_UPGRADE_FROM` 指定其他起始提交。
 
-发布须同时更新 `app-release.js` 和 `sw.js` 缓存版本。页面缓存与固定模型缓存分开；无需为界面更新重复下载权重。历史专项报告保留原版本和验证边界，不能当作当前版本已重新运行的结果。
+### 发布版本
+
+发布程序时同步更新 `app-release.js` 和 `sw.js` 的程序版本，并递增 `sw.js` 的页面缓存代数。新增或修改前端静态资源时，在 `sw.js` 的 `CORE` 中登记浏览器实际请求的地址，包括版本参数。页面缓存与固定模型缓存分开，界面更新可复用已下载的权重。
+
+发布日志时更新 `content/feed.json` 并递增 `revision`。`schema` 为 `1`，`releases` 保留最近 1–12 个版本，每条包含 `version`、`title` 和 `changes`。仅补充日志时可以保持程序版本和缓存代数。
 
 ## 引擎接口
 

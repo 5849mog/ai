@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createRecord } from "./game-record.js";
-import { OpeningSession, RULES } from "./opening-session.js";
-import { reviewFrames, analyzeReview, reviewHighlights } from "./game-review.js";
+import { createRecord } from "../game-record.js";
+import { OpeningSession, RULES } from "../opening-session.js";
+import { reviewFrames, analyzeReview, reviewHighlights } from "../game-review.js";
 
 const finished = () => createRecord([0, 15, 1, 16, 2, 17, 3, 18, 4], 1);
 test("review is terminal only, leaves records immutable and includes every actual stone", () => {
