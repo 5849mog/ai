@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { boardRectangle, recognizeBoard } from "./image-board.js";
+import { boardRectangle, recognizeBoard } from "../image-board.js";
 
 function screenshot({ width = 650, height = 660, step = 40, left = 40, top = 40, skin = [218, 183, 128], overlay = false } = {}) {
   const data = new Uint8ClampedArray(width * height * 4), board = new Uint8Array(225);

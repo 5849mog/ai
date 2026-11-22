@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { SIZE, CELL_COUNT, hasFive, outcome, validatePosition, snapshot, restore, winningLines } from "./game-rules.js";
+import { SIZE, CELL_COUNT, hasFive, outcome, validatePosition, snapshot, restore, winningLines } from "../game-rules.js";
 const at = (x,y) => y * SIZE + x;
 
 test("five and overline detection works in every direction and at borders", () => {

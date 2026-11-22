@@ -37,11 +37,24 @@ function fixture({ engineError = false, enginePutError = false } = {}) {
   return { ...constants, caches, stores, messages, network, client, dispatch, request, claimed: () => claimed, skipped: () => skipped };
 }
 
-test('all precached shell resources exist and the worker identifies the same release as the page', async () => {
-  const f = fixture(); assert.equal(f.RELEASE, APP_VERSION);
+test('the app shell includes each static URL used by the current pages, modules and styles', async () => {
+  const f = fixture(), cached = new Set(f.CORE);
+  assert.equal(f.RELEASE, APP_VERSION);
+  assert.equal(cached.size, f.CORE.length, 'duplicate offline URL');
+  // The worker script is fetched by the browser's registration/update process.
+  // Model files and live JSON use their own cache or network policy.
+  const staticFile = /(?:["']|url\()\.\/([\w./-]+\.(?:js|css|svg|ttf)(?:\?[^"'<>\s)]+)?)(?=["')])/g;
   for (const path of f.CORE) {
     const pathname = path === './' ? 'index.html' : path.split('?')[0];
-    await access(new URL('../' + pathname, import.meta.url));
+    const file = new URL('../' + pathname, import.meta.url);
+    if (!/\.(?:html|js|css)$/.test(pathname)) {
+      await access(file);
+      continue;
+    }
+    const text = await readFile(file, 'utf8');
+    for (const [, resource] of text.matchAll(staticFile)) {
+      if (resource !== 'sw.js') assert.ok(cached.has(resource), `${path} references uncached ${resource}`);
+    }
   }
 });
 test('shell installation and activation complete even when every model download fails', async () => {

@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { PNG } from "pngjs";
-import { findBoardGrid } from "./image-grid.js";
-import { recognizeBoard } from "./image-board.js";
+import { findBoardGrid } from "../image-grid.js";
+import { recognizeBoard } from "../image-board.js";
 
 function screenshot({ width = 420, height = 860, left = 32, top = 173, step = 24, stones = 28, skin = [225, 195, 142] } = {}) {
   const data = new Uint8ClampedArray(width * height * 4), board = new Uint8Array(225);
@@ -45,7 +45,7 @@ test("a suggested crop can be used to recognize the expected stones", () => {
   assert.deepEqual(recognizeBoard(image, suggested).board, board);
 });
 test("finds and recognizes the board in a real saved mobile screenshot", () => {
-  const image = PNG.sync.read(readFileSync(new URL('./reports/mobile.png', import.meta.url)));
+  const image = PNG.sync.read(readFileSync(new URL('../reports/mobile.png', import.meta.url)));
   const suggested = findBoardGrid(image);
   closeTo(suggested, { left: 43, top: 274, right: 346, bottom: 577 });
   const { board } = recognizeBoard(image, suggested);

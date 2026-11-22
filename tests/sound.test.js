@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createSoundFeedback } from "./sound.js";
+import { createSoundFeedback } from "../sound.js";
 
 class FakeAudioContext {
   static instances = 0;
