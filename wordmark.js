@@ -136,7 +136,13 @@ async function renderWordmarks(slots) {
 }
 
 if (typeof document !== "undefined") {
-  void renderWordmarks(Array.from(document.querySelectorAll("[data-wordmark]"))).catch(() => {
+  const slots = Array.from(document.querySelectorAll("[data-wordmark]"));
+  // Bind to the slot so the text fallback and the canvas behave the same way.
+  for (const slot of slots) {
+    slot.addEventListener("contextmenu", event => event.preventDefault());
+    slot.addEventListener("dragstart", event => event.preventDefault());
+  }
+  void renderWordmarks(slots).catch(() => {
     // A capability or rendering failure leaves the accessible wordmark fallback.
   });
 }
