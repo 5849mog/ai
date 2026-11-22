@@ -195,6 +195,7 @@
   .match-inspector { border-color: CanvasText; }
 }
 .opening-page :is(#recommendButton, #simpleRecommendButton)[data-board-confirm] {
+  touch-action: manipulation;
   --button-color: #fff;
   --button-fill: var(--control-primary);
   --button-border: var(--control-primary);
@@ -479,4 +480,61 @@
     --button-pressed: Highlight;
   }
   .opening-page #simpleOpeningFlow h2::before { background: CanvasText; }
+}
+.opening-page .position-link-field {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--control-muted);
+}
+.position-link-field input {
+  min-inline-size: 0;
+  width: 100%;
+  padding: 9px;
+  border: 1px solid var(--control-border);
+  border-radius: 7px;
+  color: var(--control-ink);
+  font: 12px/1.4 system-ui, sans-serif;
+  background: var(--control-paper);
+}
+.position-link-dialog .record-preview-frame { width: max(108px, min(100%, 235px, calc(100dvh - 185px))); }
+.position-link-context { color: var(--control-muted); font-size: 13px; line-height: 1.5; }
+.opening-page.local-match :is(.engine-analysis, .match-inspector-row, #simpleWinRate, .quick-timing, [data-ponder], [data-hints]),
+.opening-page.local-match :is(#recommendButton, #simpleRecommendButton):not([data-board-confirm]) { display: none; }
+.opening-page.local-match .quick-game-layout { display: block; }
+.opening-page #boardSvg[data-touch-loupe="true"][data-touch-confirm="true"] { touch-action: pinch-zoom; }
+.board-aim-loupe {
+  position: absolute;
+  z-index: 4;
+  width: clamp(96px, 28%, 155px);
+  padding: 3px;
+  border: 1px solid #b09464;
+  border-radius: 9px;
+  background: #f3e5c4;
+  color: #403b31;
+  box-shadow: 0 4px 18px #3c322753;
+  pointer-events: none;
+  text-align: center;
+}
+.board-aim-loupe[data-vertical="top"] { top: 7px; }
+.board-aim-loupe[data-vertical="bottom"] { bottom: 7px; }
+.board-aim-loupe[data-horizontal="left"] { left: 7px; }
+.board-aim-loupe[data-horizontal="right"] { right: 7px; }
+.board-aim-loupe svg { display: block; width: 100%; aspect-ratio: 1; }
+.board-aim-loupe line { stroke: #675232; stroke-width: .9; }
+.board-aim-loupe circle.black { fill: #333830; stroke: #1b2118; }
+.board-aim-loupe circle.white { fill: #fffefa; stroke: #817565; }
+.board-aim-loupe .target { fill: none; stroke: #2c674c; stroke-width: 2; }
+.board-aim-loupe[data-available="false"] .target { stroke: #943e2f; }
+.board-aim-loupe span { display: block; font-size: 11px; line-height: 1.4; }
+.tactical-point { pointer-events: none; color: #296548; }
+.tactical-point[data-tactic="block"] { color: #624812; }
+.tactical-point[data-tactic="threat"] { color: #932e25; }
+.tactical-point circle { fill: #fffaf0; stroke: currentColor; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.tactical-point[data-tactic="threat"] circle { stroke-dasharray: 2 2; }
+.tactical-point text { fill: currentColor; text-anchor: middle; dominant-baseline: central; font: 700 12px system-ui, sans-serif; }
+@media (forced-colors: active) {
+  .board-aim-loupe, .tactical-point circle { background: Canvas; border-color: CanvasText; fill: Canvas; }
+  .board-aim-loupe line, .tactical-point circle { stroke: CanvasText; }
+  .tactical-point text { fill: CanvasText; }
 }

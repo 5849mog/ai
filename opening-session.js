@@ -1,5 +1,6 @@
 import { moveVerdict, validateSeed, inCentral, positionSymmetries, candidateKey } from "./renju-rules.js";
 export const RULES = { freestyle: "无禁手", renju: "禁手 · 自由开局", rif: "五手两打", taraguchi10: "塔拉山口-10" };
+export const isLocalMatch = session => session.workflow === "local";
 export const colorName = color => color === 1 ? "黑" : "白";
 export const coordinate = index => "ABCDEFGHIJKLMNO"[index % 15] + (15 - Math.floor(index / 15));
 export function isAutomaticTurn(session) {
@@ -9,7 +10,7 @@ export function isAutomaticTurn(session) {
 }
 export function canManualTurn(session, { modal = false, busy = false } = {}) {
   if (!session || modal || session.winner || session.stage === "setup") return false;
-  if (session.workflow === "follow") return true;
+  if (session.workflow === "follow" || isLocalMatch(session)) return true;
   if (session.workflow === "copilot" && (!session.copilotReady || session.decision)) return !busy;
   return session.workflow === "copilot" ? session.actor === 1 && !busy : session.actor === 0 && !busy;
 }
@@ -19,7 +20,7 @@ const WIDTHS = { b1: 1, w2: 3, b3: 5, w4: 7, b5: 9 };
 // ownership only; proposed fifths do not enter the board before selection.
 export class OpeningSession {
   constructor({ rule = "rif", workflow = "copilot", initialBlackSeat = 0, seed = null } = {}) {
-    if (!Object.hasOwn(RULES, rule) || !["follow", "duel", "copilot"].includes(workflow) || ![0, 1].includes(initialBlackSeat) && !(initialBlackSeat === null && !seed)) throw new Error("对局设置无效");
+    if (!Object.hasOwn(RULES, rule) || !["follow", "duel", "copilot", "local"].includes(workflow) || ![0, 1].includes(initialBlackSeat) && !(initialBlackSeat === null && !seed)) throw new Error("对局设置无效");
     if (seed) { validateSeed(seed.board); if (![1, 2].includes(seed.sideToMove)) throw new Error("下一手棋色无效"); }
     this.options = { rule, workflow, initialBlackSeat, seed: seed ? { board: Array.from(seed.board), sideToMove: seed.sideToMove } : null };
     const hasFormalOpening = rule === "rif" || rule === "taraguchi10";
@@ -98,7 +99,7 @@ export class OpeningSession {
   description() {
     if (this.stage === "setup") return this.rule === "rif" ? "谁摆前三子？请选择开局角色" : "请选择本局最开始的执色";
     if (this.winner) return this.forbidden ? `黑棋${this.forbidden}禁手 · 白胜` : this.winner === 3 ? "棋盘已满 · 和棋" : `${colorName(this.winner)}棋获胜`;
-    const actor = this.workflow === "follow" ? `录入${this.actor === 0 ? "我方" : "对方"}`
+    const actor = isLocalMatch(this) ? `${this.actor === 0 ? "甲" : "乙"}方` : this.workflow === "follow" ? `录入${this.actor === 0 ? "我方" : "对方"}`
       : this.workflow === "copilot" && !this.copilotReady ? "录入开局"
         : this.workflow === "copilot" ? this.actor === 0 ? "AI替你" : "录入对手"
           : this.actor === 0 ? "你来" : "AI 将";

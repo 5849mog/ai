@@ -115,7 +115,7 @@ export function setupGameEnhancements({ getPosition, getRecord, applyRecord, onW
   const fullArchive=document.createElement("button");fullArchive.type="button";fullArchive.dataset.uiIcon="guide";fullArchive.textContent="最近对局";fullArchive.onclick=()=>open("archive");$(".record-options").append(fullArchive);
   function snapshotImage() {
     const position = getPosition();
-    return boardImageBlob({ board: Array.from(position.board), lastMove: position.lastMove, candidates: [...(position.candidates ?? [])] });
+    return boardImageBlob({ board: Array.from(position.board), lastMove: position.lastMove, candidates: [...(position.candidates ?? [])], reversed: position.reversed });
   }
   const saveImage = async () => { try {
     const blob=await snapshotImage();

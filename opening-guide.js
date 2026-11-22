@@ -5,7 +5,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     <div class="mode-body">
       <label class="mode-field mode-preset">常用组合<select id="modePreset"></select></label>
       <label class="mode-field">棋局规则<select id="ruleMode"><option value="freestyle">无禁手</option><option value="renju">禁手 · 自由开局</option><option value="rif">五手两打</option><option value="taraguchi10">塔拉山口-10</option></select></label>
-      <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 替我下 · 外部对局</option><option value="follow">手动记录双方</option><option value="duel">与 AI 对弈</option></select></label>
+      <label class="mode-field">对局方式<select id="workflowMode"><option value="copilot">AI 替我下 · 外部对局</option><option value="follow">手动记录双方</option><option value="duel">与 AI 对弈</option><option value="local">同屏双人</option></select></label>
       <fieldset class="mode-side" id="modeSide">
         <legend>这一局执色</legend>
         <label><input type="radio" name="modeSide" value="ask" checked>到棋盘旁选</label>
@@ -47,7 +47,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
   const preset = document.querySelector("#modePreset");
   const side = document.querySelector("#modeSide");
   let started = false;
-  const workflowNames = { copilot: "AI 替我下", follow: "手动记谱", duel: "与 AI 对弈" };
+  const workflowNames = { copilot: "AI 替我下", follow: "手动记谱", duel: "与 AI 对弈", local: "同屏双人" };
   for (const group of workflow.options) {
     const options = document.createElement("optgroup");
     options.label = workflowNames[group.value];
@@ -85,6 +85,7 @@ export function createOpeningDialogs({ getSession, onNew, onModal }) {
     side.hidden = !freeOpening || workflow.value !== "duel";
     document.querySelector("#modeDescription").textContent = workflow.value === "copilot"
       ? freeOpening ? `${rule.value === "renju" ? "黑棋禁手仍生效。" : "无禁手。"}执色在棋盘旁选择，录完外部开局后点「AI 接手」。` : "本局角色在棋盘旁按实际情况选择。己方开局与应手由 AI 自动给出；对方操作由你录入。简洁界面也可完成全部阶段。"
+      : workflow.value === "local" ? "甲乙双方在同一块棋盘操作。开局选定先手后，按当前规则落子、换色或提案。"
       : workflow.value === "follow" ? "新局开始后在棋盘旁选择本局角色。双方操作均由你照外部棋局录入，推荐不会自动执行。"
         : freeOpening ? "现在选好执色即可直接开始，或到棋盘旁再选。" : "在棋盘旁选择开局角色，AI 自动完成它负责的开局与落子。";
   };

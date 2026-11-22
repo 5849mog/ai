@@ -502,7 +502,7 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
     if (!correcting || loading || comparing) return;
     try {
       validateSeed(board); const side = Number($("[data-side]").value), actor = $("[data-actor]").value, copilot = getPosition().workflow === "copilot";
-      const playerColor = getPosition().workflow === "follow" ? getPosition().playerColor || side : actor === "player" ? copilot ? 3 - side : side : copilot ? side : 3 - side;
+      const playerColor = ["follow", "local"].includes(getPosition().workflow) ? getPosition().playerColor || side : actor === "player" ? copilot ? 3 - side : side : copilot ? side : 3 - side;
       // Validate/apply atomically before closing; rejected imports preserve the game.
       const saved = applyRecord(createRecord([], playerColor, { board, sideToMove: side }));
       close({ imported: true, saved });
@@ -512,14 +512,14 @@ export function createImageImport(root, { getPosition, applyRecord, close }) {
   return {
     open() {
       active = true; const position = getPosition(), copilot = position.workflow === "copilot";
-      $("[data-actor]").parentElement.hidden = position.workflow === "follow";
+      $("[data-actor]").parentElement.hidden = ["follow", "local"].includes(position.workflow);
       board = new Uint8Array(225); uncertain = new Set(); checkIndex = -1; keyboardIndex=112; keyboardActive=false; history = []; grid = true;
       $("[data-grid]").setAttribute("aria-pressed", "true"); $("[data-grid]").textContent = "网格参考：开";
       selectTool(1);
       $("[data-side]").value = String(position.currentColor || 1);
       $("[data-actor]").replaceChildren(...["player", "ai"].map((value, i) => { const option = document.createElement("option"); option.value = value; option.textContent = copilot ? ["录入对手棋", "AI 替我落子"][i] : ["我来走", "AI 来走"][i]; return option; }));
       $("[data-actor]").value = position.playerColor && position.currentColor === position.playerColor ? copilot ? "ai" : "player" : copilot ? "player" : "ai";
-      $(".image-rule").textContent = `续局规则：${position.ruleLabel ?? "无禁手"}。${position.workflow === "follow" ? "双方继续由你手动录入。" : "下一手棋色和行棋方由你确定。"}`;
+      $(".image-rule").textContent = `续局规则：${position.ruleLabel ?? "无禁手"}。${["follow", "local"].includes(position.workflow) ? "双方继续由你手动录入。" : "下一手棋色和行棋方由你确定。"}`;
       correcting = loading = false; resetComparison(); svg.toggleAttribute("hidden", true); canvas.hidden = loupe.hidden = true; frame = initialFrame = null; autoLocated = false; drag = null; $(".image-correction").hidden = $(".calibration-actions").hidden = true; controls();
       message("选择截图或粘贴图片。图片只在本机处理，请使用正视的 15 × 15 棋盘。");
     },

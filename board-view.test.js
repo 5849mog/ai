@@ -67,6 +67,21 @@ test("recommendations mark empty alternatives without adding stones or changing 
   assert.doesNotMatch(svg.innerHTML, /data-recommendation=/);
 });
 
+test("reversing the board changes the screen position while keeping canonical intersections and tactics", () => {
+  const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225);
+  board[0] = 1;
+  const state = { board, pendingIndex: -1, lastMove: 0, canInteract: true, coordinates: true,
+    tacticalMarkers: [{ index: 224, kind: "block" }] };
+  view.render(state);
+  assert.equal(view.nearestIntersection(574, 574), 224);
+  assert.match(svg.innerHTML, /data-tactic="block" data-tactic-index="224"/);
+  view.render({ ...state, reversed: true });
+  assert.equal(view.nearestIntersection(574, 574), 0);
+  assert.equal(view.nearestIntersection(46, 46), 224);
+  assert.match(svg.innerHTML, /x="46" y="34">O/);
+  assert.match(svg.innerHTML, /data-stone="0" data-color="1" cx="574.5"/);
+});
+
 test("winning connectors sit behind stones and rings disappear when the winning move is undone", () => {
   const svg = makeSvg(), view = createBoardView(svg), board = new Uint8Array(225);
   for (const index of [105, 106, 107, 108, 109, 110]) board[index] = 2;

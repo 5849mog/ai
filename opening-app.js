@@ -1,4 +1,4 @@
-import { OpeningSession, replaySession, RULES, colorName, coordinate, canManualTurn, isAutomaticTurn } from "./opening-session.js";
+import { OpeningSession, replaySession, RULES, colorName, coordinate, canManualTurn, isAutomaticTurn, isLocalMatch } from "./opening-session.js";
 import { forcedOpeningMove } from "./forced-opening.js";
 import { openingFlow, openingMarks, chosenProposal } from "./opening-flow.js";
 import { moveVerdict } from "./renju-rules.js";
@@ -6,11 +6,13 @@ import { adviseOpening } from "./opening-advisor.js";
 import { createOpeningBook } from "./opening-book.js";
 import { RIF_OPENINGS } from "./rif-opening-pool.js";
 import { createOpeningDialogs } from "./opening-guide.js";
-import { boardKeyboardIndex, createBoardView } from "./board-view.js";
+import { boardKeyboardIndex, boardPoint, createBoardView } from "./board-view.js";
+import { createBoardLoupe } from "./board-loupe.js";
 import { GomokuEngine } from "./engine.js?v=42";
 import { PositionAnalysis, describePosition } from "./position-analysis.js";
 import { createAnalysisView, renderSimpleWinRate } from "./analysis-view.js";
 import { setupMatchInspector } from "./match-inspector.js";
+import { setupPositionLinks } from "./position-link-ui.js";
 import { describeSearch } from "./search-info.js";
 import { setupCustomUi } from "./setup-ui.js";
 import { setupDisplayModes } from "./display-modes.js";
@@ -32,6 +34,7 @@ import { TurnHints, HINT_COUNT, HINT_SLICE_MS } from "./turn-hints.js";
 import { createSoundFeedback } from "./sound.js";
 import { createGameMotion } from "./game-motion.js";
 const $ = selector => document.querySelector(selector), svg = $("#boardSvg"), view = createBoardView(svg);
+const loupe = createBoardLoupe(svg);
 const motion = createGameMotion({ root: document.documentElement, board: svg, status: $("#stateText"), frame: svg.closest(".board-frame"), notice: $("#gameNotice") });
 const sound = createSoundFeedback({ storage: localStorage });
 const STORAGE = `gomoku-opening:${new URL("./", import.meta.url).pathname}:v1`;
@@ -45,7 +48,7 @@ let updateLaunchUntouched = true, updateLoadSafe = true;
 for (const type of ["pointerdown", "keydown", "touchstart", "input", "change"]) document.addEventListener(type, () => { updateLaunchUntouched = false; }, { capture: true, passive: true });
 let pending = -1, hover = -1, keyboard = 112, pointerType = "mouse", display, warningTimer, saveFailed = false, restoredAnalysis;
 let keyboardActive = false, appearance, boardContact;
-let immediate = null, emptyCount = 225, tactics = null, note = null, defense = -1;
+let immediate = null, emptyCount = 225, tactics = null, note = null, defense = -1, tacticalMarkers = [];
 const previewReasons = new Map();
 let forbiddenInput = null, enhancements, boardFacts, inspector, backgroundPosition, restartRequested = false;
 let searchStarted = null, turnTimer = null, pauseReason = "";
@@ -130,6 +133,8 @@ const engine = new GomokuEngine({ rule: session.rule,
   }
 });
 function cancel({ keepHints = false } = {}) {
+  loupe.hide();
+  if (boardContact) boardContact.cancelled = boardContact.gesture = true;
   searchStarted = null;
   cancelSelfPlayTimer(); singleStep=false; hints.cancel({ keepPoints: keepHints }); hintUpdates.cancel();
   statsUpdates.cancel();
@@ -142,7 +147,7 @@ function cancel({ keepHints = false } = {}) {
 function configureRule() { if ((engine.rule === "freestyle") !== (session.rule === "freestyle")) { engine.reset(); state = "idle"; } engine.rule = session.rule; }
 const manualTurn = () => !paused && !selfPlay && !forbiddenInput && canManualTurn(session, { modal, busy });
 const interactive = () => manualTurn() && !session.decision;
-const workflowLabel = { copilot: "AI 代下", follow: "手动记录", duel: "AI 对弈" };
+const workflowLabel = { copilot: "AI 代下", follow: "手动记录", duel: "AI 对弈", local: "同屏双人" };
 function renderAnalysis() {
   statsUpdates.cancel();
   analysisView.render(analysis, session.winner);
@@ -214,13 +219,13 @@ function decorate() {
   const proposals = [...session.candidates];
   if (session.offerCount) for (const index of advice?.points ?? []) if (!proposals.includes(index)) proposals.push(index);
   for (const [rank, index] of proposals.entries()) {
-    const x = 46 + index % 15 * 528 / 14, y = 46 + Math.floor(index / 15) * 528 / 14;
+    const { x, y } = boardPoint(index, appearance?.reversed);
     const group = node("g", { class: `opening-proposal${advice?.points?.includes(index) ? " suggested" : ""}`, "data-proposal": index, "aria-label": `第五手候选 ${rank + 1} ${coordinate(index)}` });
     const text = node("text", { x, y }); text.textContent = `A${rank + 1}`; group.append(node("circle", { cx: x, cy: y, r: 14 }), text); svg.append(group);
   }
   const selected = chosenProposal(session);
   for (const mark of openingMarks(session)) {
-    const text = node("text", { x: 46 + mark.index % 15 * 528 / 14, y: 46 + Math.floor(mark.index / 15) * 528 / 14,
+    const text = node("text", { ...boardPoint(mark.index, appearance?.reversed),
       class: `opening-order${mark.color === 2 ? " white" : ""}`, "data-order-number": mark.label, "aria-label": `第 ${mark.label} 手 ${colorName(mark.color)}棋 ${coordinate(mark.index)}` });
     text.textContent = mark.label === "5" && selected ? selected.label : mark.label; svg.append(text);
   }
@@ -317,11 +322,13 @@ function previewPoint(index) {
 }
 function renderBoard(requestedMotion = "auto") {
   const keyboardCursor = keyboardActive ? { index: keyboard, available: interactive() && session.canPoint(keyboard) } : null;
+  const markers = appearance?.tacticalMap && !session.winner ? tacticalMarkers.filter(marker => marker.index !== pending && !advice?.points?.includes(marker.index)) : [];
   const boardChanged = view.render({ board: session.board, lastMove: session.lastMove, pendingIndex: pending, hoverIndex: hover, canInteract: interactive(), playerColor: session.color, editable: Boolean(session.forbidden), motion: appearance?.stillBoard ? "none" : requestedMotion,
-    keyboardCursor, coordinates: appearance?.coordinates, farCoordinates: appearance?.farCoordinates,
+    keyboardCursor, coordinates: appearance?.coordinates, farCoordinates: appearance?.farCoordinates, reversed: appearance?.reversed,
     moveLabels: appearance?.moveNumbers && (!["rif", "taraguchi10"].includes(session.rule) || session.moves.length > 6)
       ? session.moves.slice(-8).map((index, offset, recent) => ({ index, number: session.moves.length - recent.length + offset + 1 })) : [],
-    moveHints: showHints ? hints.points : [],
+    moveHints: showHints ? hints.points.filter(point => !markers.some(marker => marker.index === point.index)) : [],
+    tacticalMarkers: markers,
     overlayKey: JSON.stringify([session.width, Boolean(session.decision), session.winner, session.candidates, advice?.points, openingMarks(session), chosenProposal(session)]),
     answerIndex: session.events.at(-1)?.automatic && ["stone","select"].includes(session.events.at(-1)?.type) ? session.lastMove : -1,
     recommendations: session.offerCount || session.stage === "choose" ? [] : (advice?.points ?? []).slice(0, 2).map(index => ({ index })) });
@@ -331,11 +338,11 @@ function renderBoard(requestedMotion = "auto") {
   if (readout.textContent !== pointLabel) readout.textContent = pointLabel;
 }
 function render() {
-  const stamp = JSON.stringify([Array.from(session.board), session.color, session.rule, session.stage, session.winner]);
+  const stamp = JSON.stringify([Array.from(session.board), session.color, session.rule, session.workflow, session.stage, session.winner]);
   if (stamp !== hintsStamp) {
     hintsStamp = stamp;
     previewReasons.clear();
-    const enabled = !session.winner && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose";
+    const enabled = !session.winner && !isLocalMatch(session) && session.stage !== "setup" && !session.decision && !session.offerCount && session.stage !== "choose";
     const allowedMoves = enabled ? session.allowedMoves({ safe: true }) : [];
     hints.setPosition({ board: session.board, color: session.color, rule: session.rule, stage: session.stage, allowedMoves, enabled });
     emptyCount = session.board.filter(stone => !stone).length;
@@ -346,6 +353,10 @@ function render() {
       const threat = tactics.threats[0];
       if (allowedMoves.includes(threat) && explainMove(session.board, threat, session.color, session.rule, tactics) === "挡下一手即胜点") defense = threat;
     }
+    tacticalMarkers = tactics ? [
+      ...tactics.wins.map(index => ({ index, kind: "win" })),
+      ...tactics.threats.filter(index => !tactics.wins.includes(index)).map(index => ({ index, kind: index === defense ? "block" : "threat" }))
+    ] : [];
     immediate = tactics?.wins.length ? { plies: 1, winner: session.color }
       : tactics && emptyCount === 1 ? immediateEnding(session.board, session.color, session.rule, allowedMoves)
       : forcedReplyEnding(tactics, session.color, session.rule);
@@ -360,6 +371,7 @@ function render() {
     }
   }
   document.documentElement.classList.toggle("opening-simple", Boolean(display?.simple));
+  document.body.classList.toggle("local-match", isLocalMatch(session));
   const requestedBoardMotion = boardMotion; boardMotion = "auto";
   const previewText = pending >= 0 ? `再点一次确认 · ${coordinate(pending)}` : "";
   renderBoard(requestedBoardMotion);
@@ -390,7 +402,7 @@ function render() {
   const first = session.events[0], forcedOnly = session.events.length === 1 && !session.options.seed && ["rif", "taraguchi10"].includes(session.rule) && first?.type === "stone" && first.index === 112 && first.automatic;
   $("#undoButton").disabled = pending < 0 && (forcedOnly || !session.events.length || session.workflow === "duel" && !session.actors.includes(0)); $("#retryButton").hidden = state !== "error";
   $("#simpleUndoButton").disabled = $("#undoButton").disabled;
-  const automatic = automaticTurn(), canRecommend = !automatic && !paused && !modal && !session.winner
+  const automatic = automaticTurn(), canRecommend = !isLocalMatch(session) && !automatic && !paused && !modal && !session.winner
     && session.stage !== "setup" && !forbiddenInput && !(session.workflow === "copilot" && session.decision);
   const recommending = canRecommend && busy;
   const confirming = pending >= 0 && interactive();
@@ -426,7 +438,7 @@ function render() {
     else key.dataset.previewPoint = String(index);
     key.disabled = index === undefined || !interactive();
   }
-  for (const selector of [".time-control", ".ponder-control"]) $(selector).hidden = session.decision;
+  for (const selector of [".time-control", ".ponder-control"]) $(selector).hidden = session.decision || isLocalMatch(session);
   $(".color-control").hidden = session.decision || session.workflow !== "follow";
   $(".game-settings").dataset.controls = session.workflow === "follow" ? "3" : "2";
   $("#colorSelect").value = perspective; $("#colorSelect").disabled = session.workflow !== "follow"; $("#perspectiveLabel").textContent = session.workflow === "follow" ? "分析视角" : "你的执色";
@@ -451,7 +463,7 @@ function render() {
   syncTurnTimer();
 }
 async function syncPonder() {
-  if (busy || modal || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked || paused || document.hidden || advice || automaticTurn()) { engine.stopPonder(); return; }
+  if (isLocalMatch(session) || busy || modal || forbiddenInput || session.winner || !hints.position?.enabled || !$("#ponderToggle").checked || paused || document.hidden || advice || automaticTurn()) { engine.stopPonder(); return; }
   if (engine.pondering) return;
   const id = ++requestId; analysis.begin(id, session.color);
   hints.begin(id);
@@ -460,6 +472,7 @@ async function syncPonder() {
 }
 async function prepare() {
   const token = serial; if (paused || modal || forbiddenInput || session.winner || session.stage === "setup") return;
+  if (isLocalMatch(session)) return;
   if (selfPlay && document.hidden) return;
   try {
     if (automaticTurn() && openingBook.plan(session)) { await autoPlay(); return; }
@@ -522,6 +535,7 @@ async function autoPlay() {
   finally { if (token === serial) { const reinit=!engine.ready && Boolean(deepPhase);busy = false;searchStarted = null;adaptiveThinking=false;deepPhase=""; if(state !== "error" && delayNext && !paused && selfPlay) selfPlayTimer=setTimeout(()=>{selfPlayTimer=null;void prepare();},Number(spectator.delay)); render(); if(state !== "error" && selfPlayTimer===null) {if(reinit && !paused)void prepare();else void syncPonder();} } }
 }
 async function recommend({automatic=false}={}) {
+  if (isLocalMatch(session)) return;
   if (busy || advice) { cancel({ keepHints: true }); render(); void prepare(); return; }
   if (!manualTurn()) return;
   if (!automatic && (tactics?.wins.length || defense >= 0)) {
@@ -553,7 +567,7 @@ async function place(index) {
   }
   const verdict = moveVerdict(session.board, index, session.color, session.rule);
   if (!session.offerCount && session.stage !== "choose" && verdict.forbidden) {
-    if (session.workflow === "duel") {
+    if (session.workflow === "duel" || isLocalMatch(session)) {
       pending = -1; render(); notify(`${coordinate(index)} 是黑棋${verdict.forbidden}禁手，请换一个落点`, true); return;
     }
     cancel(); forbiddenInput = { index, reason: verdict.forbidden }; render();
@@ -585,20 +599,44 @@ const indexAt = event => { const target = event.target.closest("[data-index]"); 
 svg.addEventListener("pointerdown", event => {
   pointerType = event.pointerType;
   if (pointerType === "mouse") boardContact = null;
-  else if (event.isPrimary === false) { if (boardContact) boardContact.gesture = true; }
-  else boardContact = { id: event.pointerId, x: event.clientX, y: event.clientY, gesture: false };
+  else if (event.isPrimary === false) {
+    if (boardContact) { boardContact.gesture = true; boardContact.cancelled = true; }
+    loupe.hide();
+  } else {
+    const aiming = appearance?.touchLoupe && appearance.touchConfirm && interactive();
+    boardContact = { id: event.pointerId, x: event.clientX, y: event.clientY, gesture: false, aiming, cancelled: false, aimIndex: -1 };
+    if (aiming) {
+      const index = indexAt(event);
+      boardContact.aimIndex = index;
+      loupe.draw(index, { board: session.board, color: session.color, available: session.canPoint(index), reversed: appearance.reversed });
+    }
+  }
   if (keyboardActive) { keyboardActive = false; renderBoard(); boardFacts?.render(); }
 });
 svg.addEventListener("pointermove", event => {
   if (event.pointerType !== "mouse") {
-    if (boardContact?.id === event.pointerId && Math.hypot(event.clientX - boardContact.x, event.clientY - boardContact.y) > 12) boardContact.gesture = true;
+    if (boardContact?.id !== event.pointerId || boardContact.cancelled) return;
+    if (Math.hypot(event.clientX - boardContact.x, event.clientY - boardContact.y) > 12) boardContact.gesture = true;
+    if (boardContact.aiming && interactive()) {
+      const index = view.nearestIntersection(event.clientX, event.clientY);
+      boardContact.aimIndex = index;
+      loupe.draw(index, { board: session.board, color: session.color, available: session.canPoint(index), reversed: appearance.reversed });
+    }
     return;
   }
   if (!interactive()) return;
   const index = indexAt(event), next = session.canPoint(index) ? index : -1;
   if (hover !== next) { hover = next; renderBoard(); }
 });
-svg.addEventListener("pointercancel", event => { if (boardContact?.id === event.pointerId) boardContact.gesture = true; });
+svg.addEventListener("pointerup", event => {
+  if (boardContact?.id !== event.pointerId) return;
+  loupe.hide();
+  if (boardContact.aiming && boardContact.gesture && !boardContact.cancelled) previewPoint(boardContact.aimIndex);
+});
+svg.addEventListener("pointercancel", event => {
+  if (boardContact?.id !== event.pointerId) return;
+  boardContact.gesture = boardContact.cancelled = true; loupe.hide();
+});
 svg.addEventListener("pointerleave", () => { if (hover !== -1) { hover = -1; renderBoard(); } });
 svg.addEventListener("focusout", event => {
   if (keyboardActive && !svg.contains(event.relatedTarget)) { keyboardActive = false; renderBoard(); boardFacts?.render(); }
@@ -637,7 +675,9 @@ svg.addEventListener("keydown", event => {
     }
     return;
   }
-  const next = event.key === "End" && session.lastMove >= 0 ? session.lastMove : boardKeyboardIndex(keyboard, event.key);
+  const reversed = appearance?.reversed;
+  const visual = boardKeyboardIndex(reversed ? 224 - keyboard : keyboard, event.key);
+  const next = event.key === "End" && session.lastMove >= 0 ? session.lastMove : reversed && visual !== null ? 224 - visual : visual;
   if (next !== null) {
     event.preventDefault();
     keyboard = next;
@@ -709,7 +749,8 @@ setupRecordUi({ getRecord: () => session.record(), notify, onModalChange: onModa
 function saveForBackground() {
   backgroundPosition ??= { game: session, events: session.events.length, watching: selfPlay && !paused };
   hover = -1;
-  if (boardContact) boardContact.gesture = true;
+  if (boardContact) boardContact.gesture = boardContact.cancelled = true;
+  loupe.hide();
   if (selfPlay && !paused && !session.winner) {
     cancel({ keepHints: true }); paused = true; pauseReason = "切到后台已暂停";
   }
@@ -747,13 +788,13 @@ enhancements = setupGameEnhancements({
     try { localStorage.setItem("gomoku-spectator-settings",JSON.stringify(spectator)); } catch {}
   },
   stepSelfPlay: stepThinking,
-  getControlState: () => ({ showHints, selfPlay, canSelfPlay: session.workflow === "duel" && session.stage !== "setup" && !session.winner }),
+  getControlState: () => isLocalMatch(session) ? null : ({ showHints, selfPlay, canSelfPlay: session.workflow === "duel" && session.stage !== "setup" && !session.winner }),
   toggleHints: () => { showHints=!showHints; try { localStorage.setItem("gomoku-show-hints", String(showHints)); } catch {} engine.stopPonder(); render(); void syncPonder(); },
   toggleSelfPlay: () => {
     if (session.workflow !== "duel" || session.stage === "setup" || session.winner) return;
     selfPlay=!selfPlay; paused=false; pauseReason=""; cancel(); persist(); render(); void prepare();
   },
-  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,canPause:canPauseThinking(),paused,selfPlay,ruleLabel: RULES[session.rule] }),
+  getPosition: () => ({ board: session.board, currentColor: session.color, playerColor: session.playerColor, workflow: session.workflow, winner: session.winner, lastMove:session.lastMove,candidates:session.candidates, state,canPause:canPauseThinking(),paused,selfPlay,ruleLabel: RULES[session.rule], reversed: appearance?.reversed }),
   getRecord: () => session.record(),
   archive,resumeRecord:restoreArchived,
   pauseSearch:pauseThinking,
@@ -779,6 +820,8 @@ boardFacts = setupBoardFacts({ getSession: () => session, getCursor: () => pendi
   workflowLabel, getHints: () => hints.position, navigator: window.navigator, notify });
 setupBoardAppearance({ document, board: svg, storage: localStorage, onChange: settings => {
   appearance = settings;
+  loupe.hide();
+  if (boardContact?.aiming) boardContact.cancelled = boardContact.gesture = true;
   document.body.classList.toggle("simple-rate-off", !settings.simpleRate);
   if (!settings.touchConfirm) pending = -1;
   render();
@@ -789,4 +832,19 @@ setupAppUpdates({ autoApply: version => {
 } });
 const transferred=takeArchiveRestore(localStorage);if(transferred)restoreArchived(transferred);
 
+const links = setupPositionLinks({ getRecord: () => session.record(), onModal, notify,
+  onLoad(record) {
+    restoreArchived({ record });
+    if (automaticTurn() || session.workflow === "copilot" && session.decision && session.actor === 0) {
+      paused = true;
+      pauseReason = "共享棋局已载入";
+      persist(); render();
+    }
+  }
+});
+const share = $("button[data-share-position]");
+const shareSimple = $("button[data-quick-share]");
+if (share) share.onclick = () => links.share($("#recordMenu > summary"));
+if (shareSimple) shareSimple.onclick = () => links.share($("[data-quick-trigger]"));
+links.showSharedPosition();
 placeForcedCenter(); render(); void prepare(); if (location.hash === "guide") dialogs.openGuide();

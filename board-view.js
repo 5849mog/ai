@@ -17,7 +17,10 @@ export function boardKeyboardIndex(index, key) {
   return limit(Math.floor(index / SIZE) + dy) * SIZE + limit(index % SIZE + dx);
 }
 
-function point(index) {
+const displayedIndex = (index, reversed) => reversed ? SIZE * SIZE - 1 - index : index;
+
+export function boardPoint(index, reversed = false) {
+  index = displayedIndex(index, reversed);
   return {
     x: PAD + (index % SIZE) * STEP,
     y: PAD + Math.floor(index / SIZE) * STEP
@@ -48,7 +51,7 @@ function motionNode(boardSvg, name, attributes) {
   return element;
 }
 
-function animateStonePlacement(boardSvg, index, color) {
+function animateStonePlacement(boardSvg, index, color, reversed) {
   for (const element of boardSvg.querySelectorAll(`[data-stone="${index}"], [data-stone-texture="${index}"]`)) {
     element.style.transformBox = "fill-box";
     element.style.transformOrigin = "center";
@@ -60,7 +63,7 @@ function animateStonePlacement(boardSvg, index, color) {
     ], { duration: 390, easing: "cubic-bezier(.2,.72,.25,1)" });
   }
   if (typeof boardSvg.ownerDocument?.createElementNS !== "function") return;
-  const p = point(index);
+  const p = boardPoint(index, reversed);
   const layer = motionNode(boardSvg, "g", { class: "stone-impact", "data-impact": index, "aria-hidden": "true" });
   const ring = motionNode(boardSvg, "circle", { cx: p.x, cy: p.y, r: 13, class: `impact-ring ${color === 1 ? "black" : "white"}` });
   const flash = motionNode(boardSvg, "circle", { cx: p.x, cy: p.y, r: 9, class: "impact-flash" });
@@ -74,10 +77,10 @@ function animateStonePlacement(boardSvg, index, color) {
   impact.finished?.then(() => layer.remove()).catch(() => {});
 }
 
-function animateStoneRemoval(boardSvg, removed, before) {
+function animateStoneRemoval(boardSvg, removed, before, reversed) {
   if (typeof boardSvg.ownerDocument?.createElementNS !== "function") return;
   for (const index of removed.slice(0, 4)) {
-    const p = point(index), color = before[index];
+    const p = boardPoint(index, reversed), color = before[index];
     const ghost = motionNode(boardSvg, "circle", { cx: p.x + .5, cy: p.y + 1.2, r: 14.3,
       fill: color === 1 ? "url(#blackStone)" : "url(#whiteStone)", class: "removed-stone", "data-removed-stone": index, "aria-hidden": "true" });
     ghost.style.transformBox = "fill-box"; ghost.style.transformOrigin = "center";
@@ -93,8 +96,8 @@ function animateBoardTransition(boardSvg, transition, state, before) {
   const reduced = boardSvg.ownerDocument?.defaultView?.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   if (boardSvg.dataset) boardSvg.dataset.boardAction = reduced ? "reduced" : state.motion === "reset" ? "reset" : transition.type;
   if (reduced || state.motion === "reset" || state.motion === "none") return;
-  if (transition.type === "place") animateStonePlacement(boardSvg, state.lastMove, state.board[state.lastMove]);
-  else if (transition.type === "undo") animateStoneRemoval(boardSvg, transition.removed, before);
+  if (transition.type === "place") animateStonePlacement(boardSvg, state.lastMove, state.board[state.lastMove], state.reversed);
+  else if (transition.type === "undo") animateStoneRemoval(boardSvg, transition.removed, before, state.reversed);
 }
 
 export function coordinate(index) {
@@ -103,7 +106,7 @@ export function coordinate(index) {
   return COLS[x] + String(SIZE - y);
 }
 
-function nearestIntersection(boardSvg, clientX, clientY) {
+function nearestIntersection(boardSvg, clientX, clientY, reversed) {
   const matrix = boardSvg.getScreenCTM();
   if (!matrix) return -1;
   const screenPoint = boardSvg.createSVGPoint();
@@ -114,14 +117,15 @@ function nearestIntersection(boardSvg, clientX, clientY) {
   const y = Math.round((localPoint.y - PAD) / STEP);
   if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return -1;
   const index = y * SIZE + x;
-  const p = point(index);
+  const p = boardPoint(index);
   return Math.abs(localPoint.x - p.x) <= STEP * .5 && Math.abs(localPoint.y - p.y) <= STEP * .5
-    ? index
+    ? displayedIndex(index, reversed)
     : -1;
 }
 
 function renderBoard(boardSvg, state, idPrefix) {
   const { board, lastMove, pendingIndex, hoverIndex = -1, canInteract, playerColor = 1, recommendations = [], editable = false, answerIndex = -1, uncertain = [], moveHints = [] } = state;
+  const point = index => boardPoint(index, state.reversed);
   const previewFill = playerColor === 1 ? "url(#blackStone)" : "url(#whiteStone)";
   const lines = editable ? [] : winningLines(board, lastMove);
   let svg = "";
@@ -143,8 +147,9 @@ function renderBoard(boardSvg, state, idPrefix) {
   if (state.coordinates) {
     for (let i = 0; i < SIZE; i++) {
       const p = PAD + i * STEP;
-      svg += `<text class="board-coordinate" x="${p}" y="34">${COLS[i]}</text><text class="board-coordinate" x="35" y="${p}">${SIZE - i}</text>`;
-      if (state.farCoordinates) svg += `<text class="board-coordinate" x="${p}" y="585">${COLS[i]}</text><text class="board-coordinate" x="585" y="${p}">${SIZE - i}</text>`;
+      const column = COLS[state.reversed ? SIZE - 1 - i : i], row = state.reversed ? i + 1 : SIZE - i;
+      svg += `<text class="board-coordinate" x="${p}" y="34">${column}</text><text class="board-coordinate" x="35" y="${p}">${row}</text>`;
+      if (state.farCoordinates) svg += `<text class="board-coordinate" x="${p}" y="585">${column}</text><text class="board-coordinate" x="585" y="${p}">${row}</text>`;
     }
   }
   for (const x of [3, 7, 11]) {
@@ -201,6 +206,11 @@ function renderBoard(boardSvg, state, idPrefix) {
       svg += '<text class="recommendation-number" x="' + p.x + '" y="' + p.y + '">' + (rank + 1) + '</text></g>';
     }
   }
+  for (const { index, kind } of state.tacticalMarkers ?? []) {
+    if (!Number.isInteger(index) || board[index] !== 0 || !["win", "threat", "block"].includes(kind)) continue;
+    const p = point(index), label = { win: "一手取胜", threat: "对方胜点", block: "封堵点" }[kind];
+    svg += `<g class="tactical-point" data-tactic="${kind}" data-tactic-index="${index}" role="img" aria-label="${coordinate(index)} · ${label}" data-view-key="tactic-${index}"><circle cx="${p.x}" cy="${p.y}" r="10"/><text x="${p.x}" y="${p.y}">${kind === "win" ? "胜" : kind === "block" ? "防" : "!"}</text></g>`;
+  }
   for (const [order, hint] of moveHints.slice(0, 3).entries()) {
     const index = hint.index;
     if (Number.isInteger(index) && index >= 0 && index < board.length && !editable && !board[index] && !recommendations.length) {
@@ -247,10 +257,10 @@ function renderBoard(boardSvg, state, idPrefix) {
 export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
   if (!/^[a-zA-Z0-9_-]*$/.test(idPrefix)) throw new Error("无效的棋盘标识");
   fitBoardToSlot(boardSvg);
-  let previousKey, previousBoard;
+  let previousKey, previousBoard, reversed = false;
   return {
     nearestIntersection(clientX, clientY) {
-      return nearestIntersection(boardSvg, clientX, clientY);
+      return nearestIntersection(boardSvg, clientX, clientY, reversed);
     },
     render(state) {
       // Snapshot values, not array identity: live boards mutate in place.
@@ -259,11 +269,13 @@ export function createBoardView(boardSvg, { idPrefix = "" } = {}) {
       const key = JSON.stringify([state.board.join(""), state.lastMove, state.pendingIndex, state.hoverIndex,
         Boolean(state.canInteract), state.playerColor, Boolean(state.editable), state.answerIndex,
         (state.recommendations ?? []).slice(0, 2).map(move => move.index), state.uncertain ?? [], state.overlayKey,
-        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color]), state.keyboardCursor, state.coordinates, state.farCoordinates, state.moveLabels]);
+        (state.moveHints ?? []).slice(0, 3).map(move => [move.index, move.color]), state.keyboardCursor, state.coordinates, state.farCoordinates, state.moveLabels,
+        Boolean(state.reversed), state.tacticalMarkers]);
       if (key === previousKey) return false;
       const transition = boardTransition(previousBoard, state.board, state.lastMove);
       renderBoard(boardSvg, state, idPrefix);
       if (typeof boardSvg.querySelectorAll === "function") animateBoardTransition(boardSvg, transition, state, previousBoard);
+      reversed = Boolean(state.reversed);
       previousKey = key; previousBoard = Array.from(state.board); return true;
     }
   };

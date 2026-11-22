@@ -72,14 +72,14 @@ test("all mode combinations fill the draft and require explicit start", () => {
     modes.showModal = () => { modes.open = true; }; modes.close = () => { modes.open = false; };
     document.querySelector("#openModes").click();
     assert.equal(preset.value, "rif/follow");
-    assert.equal(preset.options.length, 12);
+    assert.equal(preset.options.length, 16);
     for (const option of preset.options) {
       preset.value = option.value; preset.dispatchEvent(new Event("change"));
       assert.equal(`${document.querySelector("#ruleMode").value}/${document.querySelector("#workflowMode").value}`, option.value);
     }
     assert.deepEqual(started, []);
     document.querySelector("#startMode").click();
-    assert.deepEqual(started, [{ rule: "taraguchi10", workflow: "duel", initialBlackSeat: null }]);
+    assert.deepEqual(started, [{ rule: "taraguchi10", workflow: "local", initialBlackSeat: null }]);
   } finally { globalThis.document = original; globalThis.Event = oldEvent; dom.window.close(); }
 });
 
