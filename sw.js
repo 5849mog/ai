@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.22.5";
+const RELEASE = "2026.11.22.6";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261122-v94";
+const VERSION = SHELL_PREFIX + "261122-v95";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -12,11 +12,11 @@ const CORE = [
   ...Array.from(NAVIGATION_PAGES, path => path || "./"),
 
   // UI styles, about, report and recovery entry points.
-  "favicon.svg", "styles.css?v=24", "game-modes.css?v=8", "opening.css?v=8",
+  "favicon.svg", "styles.css?v=25", "game-modes.css?v=8", "opening.css?v=8",
   "enhancements.css?v=60", "ui-refinement.css?v=14", "quick-settings.css?v=2",
   "button-theme.css", "surface-theme.css", "play-polish.css", "remote-engine.css",
   "about.css?v=7", "about.js?v=4", "report.css?v=3", "report.js?v=2", "real-game-model.js",
-  "app-release.js", "app-update.js", "app-update.js?v=38", "release-notes.js",
+  "app-release.js", "app-update.js", "app-update.js?v=38", "release-notes.js", "wordmark.js",
 
   // Board rendering, responsive layout and input.
   "analysis-view.js", "board-facts.js", "board-layout.js", "board-loupe.js",
@@ -41,7 +41,7 @@ const CORE = [
   "review-ui.js", "session-records.js", "setup-ui.js", "site-storage.js",
 
   // Visual assets and offline license notices.
-  "assets/board-wood.svg", "assets/brand-serif.ttf", "assets/paper-fiber.svg",
+  "assets/board-wood.svg", "assets/paper-fiber.svg",
   "assets/stone-satin.svg", "assets/icons/audio.svg", "assets/icons/board.svg",
   "assets/icons/bot.svg", "assets/icons/camera.svg", "assets/icons/copy.svg",
   "assets/icons/engine.svg", "assets/icons/export.svg", "assets/icons/eye.svg",
@@ -153,7 +153,7 @@ self.addEventListener("fetch", event => {
       try { const response = await fetch(event.request, { cache: "no-store" }); if (response.ok) return response; } catch { /* use offline copy */ }
     }
     // Published content can change independently of the installed application.
-    if (path === "content/feed.json" || path.startsWith("reports/")) return fetch(event.request, { cache: "no-store" });
+    if (path === "content/feed.json" || path === "content/wordmark.wm" || path.startsWith("reports/")) return fetch(event.request, { cache: "no-store" });
     if (path.startsWith(ENGINE) || path.startsWith(RENJU)) {
       const engines = await caches.open(ENGINE_CACHE);
       const cached = await engines.match(event.request) ?? await previousSiteEngine(event.request) ?? await legacyEngine(event.request);

@@ -7,7 +7,7 @@
     <meta name="description" content="五目五子棋 · 五子棋与连珠，支持 AI 对弈、外部对局辅助和手动记录。" />
     <title>五目 · 五子棋与连珠</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=24" />
+    <link rel="stylesheet" href="./styles.css?v=25" />
     <link rel="stylesheet" href="./game-modes.css?v=8" />
     <link rel="stylesheet" href="./opening.css?v=8" />
     <link rel="stylesheet" href="./enhancements.css?v=60" />
@@ -16,11 +16,12 @@
     <link rel="stylesheet" href="./button-theme.css" />
     <link rel="stylesheet" href="./surface-theme.css" />
     <link rel="stylesheet" href="./play-polish.css" />
+    <script type="module" src="./wordmark.js"></script>
   </head>
   <body class="opening-page" data-default-rule="freestyle" data-default-workflow="duel">
     <div class="app-shell">
       <header class="topbar">
-        <span class="brand" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></span>
+        <span class="brand" role="img" aria-label="五目"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy wordmark" data-wordmark aria-hidden="true"><span class="wordmark-fallback">WUMU</span></span></span>
         <div class="recommendation-legend" id="recommendationLegend" aria-live="polite" hidden>
           <button type="button" class="recommendation-key first"><i aria-hidden="true">1</i>首选</button>
           <button type="button" class="recommendation-key second" id="secondRecommendation"><i aria-hidden="true">2</i>次选</button>

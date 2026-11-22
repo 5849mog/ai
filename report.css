@@ -9,7 +9,7 @@
   --r-sage: oklch(76% .055 135);
   --r-cinnabar: oklch(60% .19 35);
   --r-line: color-mix(in oklch, var(--r-ink) 19%, transparent);
-  --r-serif: "Wumu Serif", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+  --r-serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
   --r-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --r-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --r-pad: clamp(22px, 5.5vw, 88px);

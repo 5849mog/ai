@@ -9,15 +9,16 @@
     <link rel="alternate" hreflang="en" href="./about.html" />
     <link rel="alternate" hreflang="zh-CN" href="./about.zh-CN.html" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=24" />
+    <link rel="stylesheet" href="./styles.css?v=25" />
     <link rel="stylesheet" href="./about.css?v=7" />
     <link rel="stylesheet" href="./button-theme.css" />
     <script src="./about.js?v=4" defer></script>
+    <script type="module" src="./wordmark.js"></script>
   </head>
   <body class="about-page">
     <a class="about-skip" href="#aboutMain">Skip to content</a>
     <header class="about-header">
-      <a class="about-brand" href="./" aria-label="Gomoku Studio home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy" lang="zh-CN">五目</span></a>
+      <a class="about-brand" href="./" aria-label="Gomoku Studio home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy wordmark" data-wordmark aria-hidden="true"><span class="wordmark-fallback">WUMU</span></span></a>
       <nav class="about-nav" aria-label="About page sections"><a href="#engine" data-chapter-link="engine"><span>01</span>Engine</a><a href="#recommendation" data-chapter-link="recommendation"><span>02</span>Suggestions</a><a href="#sources" data-chapter-link="sources"><span>03</span>Credits</a><a href="#license" data-chapter-link="license"><span>04</span>Licenses</a></nav>
       <div class="about-header-actions"><a class="about-language" data-about-language lang="zh-CN" hreflang="zh-CN" href="./about.zh-CN.html">简体中文</a><a class="back-link" data-ui-button="secondary" href="./"><span>Play</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></div>
       <span class="reading-progress" aria-hidden="true"><i></i></span>
@@ -169,7 +170,7 @@
               <header><span>04 / REPRODUCIBLE BUILD</span><span>MIT · BSD · LLVM</span></header><h3>Build tools</h3><p class="source-summary">Build instructions and the corresponding dependency notices.</p><p>Emscripten 3.1.64 produces four browser variants. The manifest records the source commits, patch hashes, and SHA-256 of distributed files.</p><dl><div><dt>Toolchain</dt><dd>Emscripten 3.1.64 · LLVM-MinGW 20260616</dd></div><div><dt>Dependencies</dt><dd>ws 8.22.0 / MIT · qrcode 1.5.4 / MIT</dd></div></dl><div class="entry-links"><a href="./engine/rapfi-250615/NOTICE-Dependencies.txt">Dependency notices<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./THIRD_PARTY.md">Build and source notes<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
             <article class="source-entry reveal" id="source-font" data-source-entry="font">
-              <header><span>05 / TYPOGRAPHY</span><span>SIL OFL 1.1</span></header><h3>Noto Serif SC</h3><p class="source-summary">The wordmark uses a local Noto Serif SC subset.</p><p>The bundled TrueType subset is about 2 KB and contains the two characters in the wordmark. Body text uses system fonts.</p><dl><div><dt>Source</dt><dd>Noto CJK / Serif</dd></div><div><dt>License</dt><dd>SIL Open Font License 1.1</dd></div></dl><div class="entry-links"><a href="https://github.com/notofonts/noto-cjk/tree/main/Serif">Font source<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./assets/OFL-NotoSerif.txt">Full OFL text<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>05 / TYPOGRAPHY</span><span>SIL OFL 1.1</span></header><h3>Noto Serif SC</h3><p class="source-summary">The wordmark is drawn from two Noto Serif SC glyph outlines.</p><p>The page fetches an encrypted outline file of about 1.2 KB and draws it in the browser. Body text uses system fonts.</p><dl><div><dt>Source</dt><dd>Noto CJK / Serif</dd></div><div><dt>License</dt><dd>SIL Open Font License 1.1</dd></div></dl><div class="entry-links"><a href="https://github.com/notofonts/noto-cjk/tree/main/Serif">Font source<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./assets/OFL-NotoSerif.txt">Full OFL text<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
           </div>
         </div>

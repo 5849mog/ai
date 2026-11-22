@@ -76,6 +76,8 @@ Set `CHROME_PATH` to use an existing Chromium installation. The upgrade test acc
 
 The [Chinese documentation](README.zh-CN.md) also covers the engine API, reproducible engine builds, and benchmark commands. Bug reports are welcome in [Issues](https://github.com/5849mog/gomoku-studio/issues). Include the browser, the selected rules and mode, and the steps needed to see the problem.
 
+The header wordmark is loaded from `content/wordmark.wm`, authenticated and decrypted with Web Crypto, then drawn on Canvas. To regenerate it from the bundled Noto Serif SC subset, install Python FontTools and run `node scripts/build-wordmark.js`. The derivation material is public because every browser can render the mark.
+
 ## License
 
 The application and Rapfi are available under GPL-3.0-or-later. The network weights use CC0-1.0, and the bundled Noto Serif SC subset uses SIL OFL 1.1. See [LICENSE](LICENSE) and [third-party notices](THIRD_PARTY.md) for the corresponding sources and build details.
