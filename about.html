@@ -1,23 +1,25 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="关于五目与开源许可：探索本机 AI、Rapfi 引擎、神经网络权重、构建来源和完整开源许可。" />
+    <meta name="description" content="About Gomoku Studio, an open-source Gomoku and Renju board powered by Rapfi. Learn about local search, match data, and the people and projects behind it." />
     <meta name="theme-color" content="#101612" />
-    <title>关于五目 · 每一层，都有来处</title>
+    <title>About Gomoku Studio</title>
+    <link rel="alternate" hreflang="en" href="./about.html" />
+    <link rel="alternate" hreflang="zh-CN" href="./about.zh-CN.html" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=24" />
-    <link rel="stylesheet" href="./about.css?v=6" />
+    <link rel="stylesheet" href="./about.css?v=7" />
     <link rel="stylesheet" href="./button-theme.css" />
-    <script src="./about.js?v=3" defer></script>
+    <script src="./about.js?v=4" defer></script>
   </head>
   <body class="about-page">
-    <a class="about-skip" href="#aboutMain">跳到正文</a>
+    <a class="about-skip" href="#aboutMain">Skip to content</a>
     <header class="about-header">
-      <a class="about-brand" href="./" aria-label="五目，回到棋盘"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
-      <nav class="about-nav" aria-label="关于页章节"><a href="#engine" data-chapter-link="engine"><span>01</span>推演</a><a href="#recommendation" data-chapter-link="recommendation"><span>02</span>推荐</a><a href="#sources" data-chapter-link="sources"><span>03</span>来源星图</a><a href="#license" data-chapter-link="license"><span>04</span>许可</a></nav>
-      <a class="back-link" data-ui-button="secondary" href="./"><span>回到棋盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a>
+      <a class="about-brand" href="./" aria-label="Gomoku Studio home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy" lang="zh-CN">五目</span></a>
+      <nav class="about-nav" aria-label="About page sections"><a href="#engine" data-chapter-link="engine"><span>01</span>Engine</a><a href="#recommendation" data-chapter-link="recommendation"><span>02</span>Suggestions</a><a href="#sources" data-chapter-link="sources"><span>03</span>Credits</a><a href="#license" data-chapter-link="license"><span>04</span>Licenses</a></nav>
+      <div class="about-header-actions"><a class="about-language" data-about-language lang="zh-CN" hreflang="zh-CN" href="./about.zh-CN.html">简体中文</a><a class="back-link" data-ui-button="secondary" href="./"><span>Play</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></div>
       <span class="reading-progress" aria-hidden="true"><i></i></span>
     </header>
 
@@ -25,15 +27,15 @@
       <section class="about-hero" aria-labelledby="heroTitle">
         <div class="hero-ambient" aria-hidden="true"><span>OPEN</span><i></i><i></i></div>
         <div class="hero-copy">
-          <p class="hero-kicker"><span>WUMU / OPEN BY DESIGN</span><span>关于与开源许可</span></p>
-          <h1 id="heroTitle">每一层，<br /><em>都有来处。</em></h1>
-          <p class="hero-lead">一盘棋，在你的设备里思考。<br />从一次落子，到一行源码，皆可见、可查、可延续。</p>
-          <div class="hero-actions"><a class="primary-link" data-ui-button="primary" href="#sources">探索来源星图<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6" /></svg></a><a class="report-link" data-ui-button="secondary" href="./report.html" aria-label="查看云端引擎测试报告"><span><i aria-hidden="true"></i>查看测试报告</span><small>CLOUD DATA</small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a><a class="source-link" href="https://github.com/5849mog/ai">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a></div>
+          <p class="hero-kicker"><span>WUMU / OPEN BY DESIGN</span><span>About &amp; Licenses</span></p>
+          <h1 id="heroTitle">Gomoku<br /><em>Studio</em></h1>
+          <p class="hero-lead">An open-source board for Gomoku and Renju. Play against AI, sit down with a friend, or use Rapfi to analyze a game played elsewhere.</p>
+          <div class="hero-actions"><a class="primary-link" data-ui-button="primary" href="#sources">Explore the credits<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6" /></svg></a><a class="report-link" data-ui-button="secondary" href="./report.html" hreflang="zh-CN" aria-label="Read the self-play report in Chinese"><span><i aria-hidden="true"></i>Match report</span><small>SELF-PLAY</small><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a><a class="source-link" href="https://github.com/5849mog/ai">GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg></a></div>
         </div>
 
-        <figure class="hero-visual" aria-label="棋盘化为开源星图，黑白棋子沿轨道相连">
+        <figure class="hero-visual" aria-label="A board and its stones connected by orbital paths">
           <svg viewBox="0 0 760 760" role="img" aria-labelledby="heroArtTitle">
-            <title id="heroArtTitle">棋盘、棋子与轨道组成的开源星图</title>
+            <title id="heroArtTitle">A constellation made from a Gomoku board</title>
             <defs>
               <radialGradient id="voidGlow"><stop stop-color="#78927b" stop-opacity=".18"/><stop offset="1" stop-color="#101612" stop-opacity="0"/></radialGradient>
               <radialGradient id="heroBlack" cx=".3" cy=".24" r=".8"><stop stop-color="#657166"/><stop offset=".38" stop-color="#252e28"/><stop offset="1" stop-color="#080d0a"/></radialGradient>
@@ -60,27 +62,27 @@
             <path class="constellation-line" d="M214 242 370 350 514 450 633 276"/>
             <g class="coordinate-labels"><text x="172" y="202">GPL / 01</text><text x="548" y="500">CC0 / 02</text><text x="592" y="244">SOURCE / ∞</text></g>
           </svg>
-          <figcaption><span>15 × 15 / ONE BOARD, MANY HANDS</span><span>移动指针，观察星图</span></figcaption>
+          <figcaption><span>15 × 15 / ONE BOARD, MANY HANDS</span><span>Move the pointer to explore</span></figcaption>
         </figure>
 
-        <div class="hero-facts" aria-label="项目特征"><div><strong>100<small>%</small></strong><span>本机推演</span></div><div><strong>GPL<small> 3+</small></strong><span>源代码许可</span></div><div><strong>CC<small>0</small></strong><span>神经网络权重</span></div><p>无需在线模型服务<br />无需外部字体请求</p></div>
+        <div class="hero-facts" aria-label="Project facts"><div><strong>15<small> × 15</small></strong><span>Board grid</span></div><div><strong>GPL<small> 3+</small></strong><span>Source code license</span></div><div><strong>CC<small>0</small></strong><span>Network weights</span></div><p>Search runs locally by default<br />Offline play after caching</p></div>
       </section>
 
-      <section class="manifesto" aria-label="开放原则">
-        <p>代码不是黑箱。<br /><span>开放，是另一种精美。</span></p>
-        <div><span>THE SOURCE IS PART OF THE DESIGN.</span><p>你看到的木纹、棋子与落点只是表面。真正的作品，还包括公开的算法、固定的版本、可复现的构建，以及每一项清晰标注的许可。</p></div>
+      <section class="manifesto" aria-label="Project principles">
+        <p>Open source.<br /><span>Down to the engine.</span></p>
+        <div><span>THE SOURCE IS PART OF THE DESIGN.</span><p>The board ships with documented algorithms, pinned engine and network versions, reproducible builds, and licenses you can inspect.</p></div>
       </section>
 
       <section class="engine-chapter" id="engine" aria-labelledby="engineTitle">
         <div class="chapter-inner">
           <div class="chapter-intro reveal">
             <p class="section-label">01 / INSIDE THE ENGINE</p>
-            <h2 id="engineTitle">安静的棋盘。<br /><span>深处的推演。</span></h2>
-            <p>你看到一个落点。引擎在棋形与变化之间，寻找下一手。所有计算都发生在你的浏览器里。</p>
-            <div class="local-proof"><i aria-hidden="true"></i><span>LOCAL COMPUTATION</span><strong>本机思考，不上传棋局</strong></div>
+            <h2 id="engineTitle">How the<br /><span>engine thinks.</span></h2>
+            <p>Rapfi evaluates board patterns and searches possible continuations. It runs in the browser by default. You can also connect a Rapfi engine on your own computer.</p>
+            <div class="local-proof"><i aria-hidden="true"></i><span>LOCAL COMPUTATION</span><strong>On-device by default</strong></div>
           </div>
           <div class="engine-exhibit reveal" data-engine-exhibit data-active="board">
-            <div class="exhibit-top"><span><i aria-hidden="true"></i>思考路径</span><span>Rapfi · mix9svq</span></div>
+            <div class="exhibit-top"><span><i aria-hidden="true"></i>Search pipeline</span><span>Rapfi · mix9svq</span></div>
             <div class="engine-cutaway" aria-hidden="true">
               <svg viewBox="0 0 600 460" class="cutaway-svg">
                 <defs><linearGradient id="layerFill" x2="0" y2="1"><stop stop-color="#9ab08e" stop-opacity=".28"/><stop offset="1" stop-color="#364f42" stop-opacity=".06"/></linearGradient></defs>
@@ -98,37 +100,37 @@
               </svg>
               <span class="cutaway-caption">BOARD / EVALUATE / SEARCH / MOVE</span>
             </div>
-            <div class="engine-controls" aria-label="选择思考步骤">
-              <button type="button" class="engine-step" data-step="board" aria-pressed="true" aria-controls="engineDetail" disabled><span>01</span>你的落子</button>
-              <button type="button" class="engine-step" data-step="evaluate" aria-pressed="false" aria-controls="engineDetail" disabled><span>02</span>棋形评估</button>
-              <button type="button" class="engine-step" data-step="search" aria-pressed="false" aria-controls="engineDetail" disabled><span>03</span>搜索推演</button>
-              <button type="button" class="engine-step" data-step="move" aria-pressed="false" aria-controls="engineDetail" disabled><span>04</span>AI 落子</button>
+            <div class="engine-controls" aria-label="Choose a search step">
+              <button type="button" class="engine-step" data-step="board" data-index="01 / POSITION" aria-pressed="true" aria-controls="engineDetail" disabled><span>01</span>Position</button>
+              <button type="button" class="engine-step" data-step="evaluate" data-index="02 / EVALUATION" data-title="Evaluate board patterns" data-text="The mix9svq network scores board patterns to guide search. Its evaluation describes a position." aria-pressed="false" aria-controls="engineDetail" disabled><span>02</span>Evaluate</button>
+              <button type="button" class="engine-step" data-step="search" data-index="03 / SEARCH" data-title="Compare continuations" data-text="Rapfi explores replies for both sides within the search budget. Background search can continue in short slices during your turn." aria-pressed="false" aria-controls="engineDetail" disabled><span>03</span>Search</button>
+              <button type="button" class="engine-step" data-step="move" data-index="04 / MOVE" data-title="Return a legal move" data-text="The board checks that the search is still current and the move is legal. Undoing or starting a new game discards the old result." aria-pressed="false" aria-controls="engineDetail" disabled><span>04</span>Move</button>
             </div>
-            <div class="engine-detail" id="engineDetail" aria-live="polite" aria-atomic="true"><span class="detail-index" id="detailIndex">01 / POSITION</span><div><h3 id="detailTitle">从完整的棋盘开始。</h3><p id="detailText">你的落子确认后，当前棋盘与轮到谁行棋一起交给引擎。每次推演，都以真实局面为起点。</p></div></div>
-            <p class="exhibit-note">点选步骤，探索思考过程。此处为原理示意。</p>
-            <noscript><div class="engine-noscript"><p><strong>棋形评估：</strong>mix9svq 神经网络根据棋形评估局面，为搜索提供依据。</p><p><strong>搜索推演：</strong>Rapfi 推演双方的后续着手，在思考预算内比较变化。</p><p><strong>AI 落子：</strong>搜索结束后返回着手，主棋盘检查当前任务和落点，再显示棋子。</p></div></noscript>
+            <div class="engine-detail" id="engineDetail" aria-live="polite" aria-atomic="true"><span class="detail-index" id="detailIndex">01 / POSITION</span><div><h3 id="detailTitle">Start from the real position</h3><p id="detailText">Once you confirm a stone, the engine receives the full board and the side to move.</p></div></div>
+            <p class="exhibit-note">Select a step to see what the engine does.</p>
+            <noscript><div class="engine-noscript"><p><strong>Evaluate.</strong> The mix9svq network scores board patterns to guide the search.</p><p><strong>Search.</strong> Rapfi compares continuations for both sides within the time budget.</p><p><strong>Move.</strong> The board validates the returned move before showing a stone.</p></div></noscript>
           </div>
         </div>
       </section>
 
       <section class="recommendation-chapter" id="recommendation" aria-labelledby="recommendationTitle">
-        <div class="recommendation-heading reveal"><p class="section-label">02 / A MOVE FOR YOU</p><h2 id="recommendationTitle">替你看棋。<br /><span>由你落子。</span></h2><p>点下「推荐」，引擎就站到你的执色一边。它给出候选，而不是替你做决定。</p></div>
-        <div class="search-ledger reveal" aria-label="推荐与 AI 落子的搜索方式比较">
-          <div><span>为你推荐</span><strong>最多 1<small> 秒</small></strong><p>比较首选与次选，不执行落子。</p></div>
-          <div><span>对手落子</span><strong>1 / 5 / 10<small> 秒</small></strong><p>固定预算或自适应深思 0～6 秒。</p></div>
-          <p>同一套 Rapfi + mix9svq · 找到确定胜着时可提前结束</p>
+        <div class="recommendation-heading reveal"><p class="section-label">02 / A MOVE FOR YOU</p><h2 id="recommendationTitle">Move<br /><span>suggestions.</span></h2><p>Ask for suggestions to compare possible moves for the side to play. Pick the move you want to make.</p></div>
+        <div class="search-ledger reveal" aria-label="Search budgets for suggestions and AI moves">
+          <div><span>Suggestions</span><strong>Up to 1<small> s</small></strong><p>Compare the top move with an alternative when available.</p></div>
+          <div><span>AI turns</span><strong>Fixed or adaptive</strong><p>0.1, 0.5, 1, 5, or 10 seconds, or an adaptive budget up to 6 seconds.</p></div>
+          <p>Both use Rapfi with mix9svq. The search may finish early when it finds a winning move.</p>
         </div>
-        <ol class="recommendation-method reveal" aria-label="推荐的工作过程"><li><span>01</span><h3>读入真实局面</h3><p>从棋盘上的真实棋子出发，把轮到你行棋的局面交给引擎。</p></li><li><span>02</span><h3>比较后续变化</h3><p>用神经网络评估棋形，再推演双方应手，在时间预算内比较候选。</p></li><li><span>03</span><h3>把选择留给你</h3><p>首选是本次搜索更看好的点；次选是另一种走法。推荐本身不落子。</p></li></ol>
+        <ol class="recommendation-method reveal" aria-label="How suggestions work"><li><span>01</span><h3>Read the board</h3><p>Send the current position and side to move to the engine.</p></li><li><span>02</span><h3>Compare lines</h3><p>Evaluate patterns and compare replies for both sides within the time budget.</p></li><li><span>03</span><h3>Choose a move</h3><p>The first suggestion is the engine’s preferred move in this search. The second is an alternative.</p></li></ol>
         <div class="recommendation-answers reveal">
-          <details><summary>全程照着首选，胜率大概多少？<i aria-hidden="true"></i></summary><div><p><strong>目前没有这项对战的实测胜率。</strong></p><p>每一手都照着首选下，相当于让同一套引擎分别替双方思考。默认设置下，推荐最多搜索 1 秒，还要比较两个候选；对手最多搜索 10 秒，时间预算更充裕。</p><p>执色、开局、设备算力和后台思考也会影响结果。相同引擎不意味着各有 50% 胜率，搜索时间的比例也不能换算成胜率。要给出可靠的百分比，需要固定条件、交换黑白，进行多局完整对战。</p></div></details>
-          <details><summary>为什么有时只有首选？<i aria-hidden="true"></i></summary><div><p>开局、直接胜着或搜索未形成完整的双候选结果时，可能只显示一个点。推荐不会为了凑满两个而给出未经确认的次选；只有一个点，也不代表它必然是唯一好棋。</p></div></details>
-          <details><summary>胜率条能代表这个胜率吗？<i aria-hidden="true"></i></summary><div><p>胜率条是引擎对当前局面的估算，会随落子和评估更新。它反映这一刻的局势，不表示「全程跟着推荐下」的实测对战胜率。</p></div></details>
-          <details><summary>悔棋以后，推荐还有效吗？<i aria-hidden="true"></i></summary><div><p>推荐只针对当前局面。落子、悔棋、新局、换色或导入棋谱后，旧推荐会清除，未完成的旧结果也会被丢弃。推荐本身不落子，不增加悔棋记录；再次点「推荐」可收起。</p></div></details>
+          <details><summary>How often would the top suggestion win?<i aria-hidden="true"></i></summary><div><p><strong>This exact matchup has no published win rate.</strong></p><p>Following every top suggestion pits the same engine against itself under different search settings. Suggestions use up to one second. The opponent’s budget depends on the setting you choose.</p><p>A useful estimate would come from complete games with fixed settings and repeated openings with colors swapped. Hardware and background search can affect the result.</p></div></details>
+          <details><summary>Why is there sometimes only one suggestion?<i aria-hidden="true"></i></summary><div><p>Some opening stages and immediate wins produce one suggestion. The search can also finish before it has a complete pair of candidates.</p></div></details>
+          <details><summary>What does the win probability show?<i aria-hidden="true"></i></summary><div><p>It shows the engine’s estimate for the current board. It updates as the position or evaluation changes.</p></div></details>
+          <details><summary>What happens to suggestions after undo?<i aria-hidden="true"></i></summary><div><p>A move, undo, new game, swap, or import clears the previous suggestions. Use the suggestion button again to hide them.</p></div></details>
         </div>
       </section>
 
       <section class="sources-chapter" id="sources" aria-labelledby="sourcesTitle">
-        <div class="sources-heading reveal"><p class="section-label">03 / THE SOURCE CONSTELLATION</p><h2 id="sourcesTitle">一张棋盘，<br />无数双创造的手。</h2><p>点选星图，或沿档案向下阅读。每一条连线，都通往真实来源。</p></div>
+        <div class="sources-heading reveal"><p class="section-label">03 / THE SOURCE CONSTELLATION</p><h2 id="sourcesTitle">Project<br />credits.</h2><p>Select a component to jump to its sources and license.</p></div>
         <div class="source-explorer">
           <div class="constellation-panel" data-constellation data-active="wumu">
             <div class="constellation-meta"><span>OPEN SOURCE MAP</span><span id="constellationCount">01 / 05</span></div>
@@ -144,52 +146,52 @@
                 <circle class="map-core" cx="300" cy="320" r="38"/>
                 <circle class="map-core-inner" cx="300" cy="320" r="8"/>
               </svg>
-              <button type="button" class="source-node node-wumu" data-source-node="wumu" aria-pressed="true" aria-controls="source-wumu" disabled><i></i><span>五目<small>APPLICATION</small></span></button>
+              <button type="button" class="source-node node-wumu" data-source-node="wumu" aria-pressed="true" aria-controls="source-wumu" disabled><i></i><span>Studio<small>APPLICATION</small></span></button>
               <button type="button" class="source-node node-rapfi" data-source-node="rapfi" aria-pressed="false" aria-controls="source-rapfi" disabled><i></i><span>Rapfi<small>ENGINE</small></span></button>
               <button type="button" class="source-node node-networks" data-source-node="networks" aria-pressed="false" aria-controls="source-networks" disabled><i></i><span>Weights<small>NEURAL NETWORK</small></span></button>
               <button type="button" class="source-node node-build" data-source-node="build" aria-pressed="false" aria-controls="source-build" disabled><i></i><span>Build<small>REPRODUCIBLE</small></span></button>
               <button type="button" class="source-node node-font" data-source-node="font" aria-pressed="false" aria-controls="source-font" disabled><i></i><span>Noto<small>TYPOGRAPHY</small></span></button>
             </div>
-            <p><span id="constellationLabel">APPLICATION / GPL-3.0-OR-LATER</span><span>点选节点以定位档案</span></p>
+            <p><span id="constellationLabel">APPLICATION / GPL-3.0-OR-LATER</span><span>Select a component</span></p>
           </div>
 
           <div class="source-archive">
             <article class="source-entry reveal" id="source-wumu" data-source-entry="wumu">
-              <header><span>01 / APPLICATION</span><span>GPL-3.0-or-later</span></header><h3>五目</h3><p class="source-summary">棋盘交互、规则流程、视觉材质与本地应用，共同构成这盘棋。</p><p>项目以 GNU GPL-3.0-or-later 发布。你可以阅读、运行、修改并继续创造，同时遵守相同许可的分享要求。</p><dl><div><dt>许可</dt><dd>GNU GPL-3.0-or-later</dd></div><div><dt>材质</dt><dd>棋盘、底纹、棋子与按钮 SVG 均由本项目提供</dd></div></dl><div class="entry-links"><a href="https://github.com/5849mog/ai">项目源码<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./LICENSE">完整 GPL 许可<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>01 / APPLICATION</span><span>GPL-3.0-or-later</span></header><h3>Gomoku Studio</h3><p class="source-summary">The application brings together the board, rules, assets, and local game controls.</p><p>The project is published under GNU GPL-3.0-or-later.</p><dl><div><dt>License</dt><dd>GNU GPL-3.0-or-later</dd></div><div><dt>Artwork</dt><dd>Board, paper texture, stones, and button SVGs</dd></div></dl><div class="entry-links"><a href="https://github.com/5849mog/ai">Project source<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./LICENSE">Full GPL text<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
             <article class="source-entry reveal" id="source-rapfi" data-source-entry="rapfi">
-              <header><span>02 / ENGINE</span><span>GPL-3.0-or-later</span></header><h3>Rapfi</h3><p class="source-summary">在棋盘之下，是固定版本、对应源码公开的五子棋引擎。</p><p>本项目固定 Rapfi 250615。公开补丁只修复构建问题：单线程构建的线程成员访问，以及无 SIMD 构建排除未使用的 mix10 评估器；mix9svq 的搜索与评估逻辑保持原样。</p><dl><div><dt>作者</dt><dd>Rapfi developers</dd></div><div><dt>对应提交</dt><dd><code>1be1551ced57e38d53ed58f6d74bf6f8b4bdc230</code></dd></div></dl><div class="entry-links"><a href="https://github.com/dhbloo/rapfi/tree/1be1551ced57e38d53ed58f6d74bf6f8b4bdc230">对应源码<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./THIRD_PARTY.md#rapfi">来源说明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>02 / ENGINE</span><span>GPL-3.0-or-later</span></header><h3>Rapfi</h3><p class="source-summary">The open-source Gomoku and Renju engine behind the board.</p><p>The browser build pins Rapfi 250615. The published patches fix thread-member access in the single-threaded build and exclude the unused mix10 evaluator from non-SIMD builds. They preserve mix9svq search and evaluation.</p><dl><div><dt>Authors</dt><dd>Rapfi developers</dd></div><div><dt>Commit</dt><dd><code>1be1551ced57e38d53ed58f6d74bf6f8b4bdc230</code></dd></div></dl><div class="entry-links"><a href="https://github.com/dhbloo/rapfi/tree/1be1551ced57e38d53ed58f6d74bf6f8b4bdc230">Corresponding source<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./THIRD_PARTY.md#rapfi">Source notes<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
             <article class="source-entry reveal" id="source-networks" data-source-entry="networks">
-              <header><span>03 / NEURAL NETWORK</span><span>CC0-1.0</span></header><h3>mix9svq</h3><p class="source-summary">神经网络负责理解棋形；权重以 CC0-1.0 释出。</p><p>无禁手与连珠分别使用固定提交中的专用权重。模型分片传输后核对完整 SHA-256，坐标转换关闭，确保界面、规则与搜索使用同一坐标。</p><dl><div><dt>权重提交</dt><dd><code>918b757a129258e9e765f77fe17d507c2bb1a60b</code></dd></div><div><dt>配置来源</dt><dd>gomocalc-mix9svq.toml</dd></div></dl><div class="entry-links"><a href="https://github.com/dhbloo/rapfi-networks/tree/918b757a129258e9e765f77fe17d507c2bb1a60b">固定权重来源<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./engine/rapfi-250615/LICENSE-Networks.txt">CC0 许可<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>03 / NEURAL NETWORK</span><span>CC0-1.0</span></header><h3>mix9svq</h3><p class="source-summary">The neural network evaluates board patterns. The weights are released under CC0-1.0.</p><p>Freestyle and Renju use separate pinned weights. The app verifies the SHA-256 of a reassembled model. Coordinates agree across the board, rules, and search.</p><dl><div><dt>Commit</dt><dd><code>918b757a129258e9e765f77fe17d507c2bb1a60b</code></dd></div><div><dt>Config</dt><dd>gomocalc-mix9svq.toml</dd></div></dl><div class="entry-links"><a href="https://github.com/dhbloo/rapfi-networks/tree/918b757a129258e9e765f77fe17d507c2bb1a60b">Pinned network source<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./engine/rapfi-250615/LICENSE-Networks.txt">CC0 text<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
             <article class="source-entry reveal" id="source-build" data-source-entry="build">
-              <header><span>04 / REPRODUCIBLE BUILD</span><span>MIT · BSD · LLVM</span></header><h3>构建与依赖</h3><p class="source-summary">不只公开结果，也公开抵达结果的路径。</p><p>Emscripten 3.1.64 编译四个浏览器版本。manifest 记录源代码提交、补丁校验值及全部发布文件的 SHA-256。原生服务依赖与浏览器运行时的上游声明同样保留。</p><dl><div><dt>工具链</dt><dd>Emscripten 3.1.64 · LLVM-MinGW 20260616</dd></div><div><dt>服务依赖</dt><dd>ws 8.22.0 / MIT · qrcode 1.5.4 / MIT</dd></div></dl><div class="entry-links"><a href="./engine/rapfi-250615/NOTICE-Dependencies.txt">依赖许可声明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./THIRD_PARTY.md">完整构建说明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>04 / REPRODUCIBLE BUILD</span><span>MIT · BSD · LLVM</span></header><h3>Build tools</h3><p class="source-summary">Build instructions and the corresponding dependency notices.</p><p>Emscripten 3.1.64 produces four browser variants. The manifest records the source commits, patch hashes, and SHA-256 of distributed files.</p><dl><div><dt>Toolchain</dt><dd>Emscripten 3.1.64 · LLVM-MinGW 20260616</dd></div><div><dt>Dependencies</dt><dd>ws 8.22.0 / MIT · qrcode 1.5.4 / MIT</dd></div></dl><div class="entry-links"><a href="./engine/rapfi-250615/NOTICE-Dependencies.txt">Dependency notices<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./THIRD_PARTY.md">Build and source notes<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
             <article class="source-entry reveal" id="source-font" data-source-entry="font">
-              <header><span>05 / TYPOGRAPHY</span><span>SIL OFL 1.1</span></header><h3>Noto Serif SC</h3><p class="source-summary">页首的两个汉字，也有清晰来源。</p><p>“五目”使用 Noto Serif SC Medium 500，仅保留这两个汉字的本地 TrueType 子集，约 2 KB。页面不请求外部字体服务，正文继续使用系统中文字体。</p><dl><div><dt>来源</dt><dd>Noto CJK / Serif</dd></div><div><dt>许可</dt><dd>SIL Open Font License 1.1</dd></div></dl><div class="entry-links"><a href="https://github.com/notofonts/noto-cjk/tree/main/Serif">字体源码<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./assets/OFL-NotoSerif.txt">OFL 完整声明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>05 / TYPOGRAPHY</span><span>SIL OFL 1.1</span></header><h3>Noto Serif SC</h3><p class="source-summary">The wordmark uses a local Noto Serif SC subset.</p><p>The bundled TrueType subset is about 2 KB and contains the two characters in the wordmark. Body text uses system fonts.</p><dl><div><dt>Source</dt><dd>Noto CJK / Serif</dd></div><div><dt>License</dt><dd>SIL Open Font License 1.1</dd></div></dl><div class="entry-links"><a href="https://github.com/notofonts/noto-cjk/tree/main/Serif">Font source<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./assets/OFL-NotoSerif.txt">Full OFL text<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
           </div>
         </div>
       </section>
 
       <section class="license-chapter" id="license" aria-labelledby="licenseTitle">
-        <div class="license-title reveal"><p class="section-label">04 / THE LICENSE LEDGER</p><h2 id="licenseTitle">自由使用，<br /><span>清晰署名。</span></h2><p>不是页脚里的小字，而是作品不可分割的一部分。</p></div>
+        <div class="license-title reveal"><p class="section-label">04 / THE LICENSE LEDGER</p><h2 id="licenseTitle">Open<br /><span>licenses.</span></h2><p>Read the licenses for the application and its bundled components.</p></div>
         <div class="license-ledger reveal">
-          <a href="./LICENSE"><span>01</span><div><strong>项目与 Rapfi</strong><small>APPLICATION + ENGINE</small></div><b>GPL-3.0-or-later</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-          <a href="./engine/rapfi-250615/LICENSE-Networks.txt"><span>02</span><div><strong>神经网络权重</strong><small>NEURAL NETWORK WEIGHTS</small></div><b>CC0-1.0</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-          <a href="./assets/OFL-NotoSerif.txt"><span>03</span><div><strong>品牌字体</strong><small>NOTO SERIF SC SUBSET</small></div><b>SIL OFL 1.1</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-          <a href="./THIRD_PARTY.md"><span>04</span><div><strong>完整来源与修改</strong><small>COMPLETE THIRD-PARTY NOTICES</small></div><b>查阅档案</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          <a href="./LICENSE"><span>01</span><div><strong>App and Rapfi</strong><small>APPLICATION + ENGINE</small></div><b>GPL-3.0-or-later</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          <a href="./engine/rapfi-250615/LICENSE-Networks.txt"><span>02</span><div><strong>Network weights</strong><small>NEURAL NETWORK WEIGHTS</small></div><b>CC0-1.0</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          <a href="./assets/OFL-NotoSerif.txt"><span>03</span><div><strong>Wordmark font</strong><small>NOTO SERIF SC SUBSET</small></div><b>SIL OFL 1.1</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          <a href="./THIRD_PARTY.md"><span>04</span><div><strong>Sources and changes</strong><small>COMPLETE THIRD-PARTY NOTICES</small></div><b>Read notices</b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
         </div>
       </section>
 
       <section class="closing-chapter" aria-labelledby="closingTitle">
         <div class="closing-orbit" aria-hidden="true"><i></i><i></i><span></span><span></span></div>
         <p class="section-label">THE NEXT MOVE IS YOURS.</p>
-        <h2 id="closingTitle">开放，让下一手<br />拥有更多可能。</h2>
-        <a class="return-button" data-ui-button="primary" href="./">回到棋盘<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+        <h2 id="closingTitle">Ready to<br />play?</h2>
+        <a class="return-button" data-ui-button="primary" href="./">Play<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </section>
     </main>
-    <footer class="about-footer"><a class="footer-brand" href="./">五目 <span>/ GOMOKU STUDIO</span></a><p>认真对弈，自在落子。</p><a href="https://github.com/5849mog/ai">开源项目<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></footer>
+    <footer class="about-footer"><a class="footer-brand" href="./">Gomoku Studio</a><p>Gomoku and Renju in your browser.</p><a href="https://github.com/5849mog/ai">Source on GitHub<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></footer>
   </body>
 </html>

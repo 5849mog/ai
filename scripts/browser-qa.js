@@ -131,7 +131,9 @@ try {
       await game.locator('[data-index="112"]').click();
       await game.waitForFunction(() => document.querySelectorAll('[data-color="2"]').length === 1, undefined, { timeout: 15_000 });
       await game.goto(`${origin}/${prefix}/about.html`);
-      assert.equal(await game.title(), "关于五目");
+      assert.equal(await game.title(), "About Gomoku Studio");
+      await game.getByRole("link", { name: "简体中文", exact: true }).click();
+      assert.equal(await game.locator("html").getAttribute("lang"), "zh-CN");
       const license = await game.goto(`${origin}/${prefix}/engine/rapfi-250615/NOTICE-Dependencies.txt`);
       assert.ok(license.ok());
       assert.ok((await game.locator("body").innerText()).includes("Emscripten-3.1.64"));

@@ -1,13 +1,13 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.22.3";
+const RELEASE = "2026.11.22.4";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261122-v92";
+const VERSION = SHELL_PREFIX + "261122-v93";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
 const SHELL_MARKER = url("__shell_ready__");
-const NAVIGATION_PAGES = new Set(["", "index.html", "renju.html", "about.html", "report.html", "update.html"]);
+const NAVIGATION_PAGES = new Set(["", "index.html", "renju.html", "about.html", "about.zh-CN.html", "report.html", "update.html"]);
 const CORE = [
   ...Array.from(NAVIGATION_PAGES, path => path || "./"),
 
@@ -15,7 +15,7 @@ const CORE = [
   "favicon.svg", "styles.css?v=24", "game-modes.css?v=8", "opening.css?v=8",
   "enhancements.css?v=60", "ui-refinement.css?v=14", "quick-settings.css?v=2",
   "button-theme.css", "surface-theme.css", "play-polish.css", "remote-engine.css",
-  "about.css?v=6", "about.js?v=3", "report.css?v=3", "report.js?v=2", "real-game-model.js",
+  "about.css?v=7", "about.js?v=4", "report.css?v=3", "report.js?v=2", "real-game-model.js",
   "app-release.js", "app-update.js", "app-update.js?v=38", "release-notes.js",
 
   // Board rendering, responsive layout and input.
