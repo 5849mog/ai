@@ -15,7 +15,7 @@
   --ink-on-dark: var(--p-paper);
   --muted-on-dark: var(--p-muted-dark);
   --accent-on-dark: var(--p-cinnabar);
-  --serif: "Wumu Serif", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+  --serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
   --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --page-pad: clamp(24px, 5.5vw, 88px);

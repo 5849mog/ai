@@ -9,15 +9,16 @@
     <link rel="alternate" hreflang="en" href="./about.html" />
     <link rel="alternate" hreflang="zh-CN" href="./about.zh-CN.html" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css?v=24" />
+    <link rel="stylesheet" href="./styles.css?v=25" />
     <link rel="stylesheet" href="./about.css?v=7" />
     <link rel="stylesheet" href="./button-theme.css" />
     <script src="./about.js?v=4" defer></script>
+    <script type="module" src="./wordmark.js"></script>
   </head>
   <body class="about-page">
     <a class="about-skip" href="#aboutMain">跳到正文</a>
     <header class="about-header">
-      <a class="about-brand" href="./" aria-label="五目，回到棋盘"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy">五目</span></a>
+      <a class="about-brand" href="./" aria-label="五目，回到棋盘"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span class="brand-copy wordmark" data-wordmark aria-hidden="true"><span class="wordmark-fallback">WUMU</span></span></a>
       <nav class="about-nav" aria-label="关于页章节"><a href="#engine" data-chapter-link="engine"><span>01</span>推演</a><a href="#recommendation" data-chapter-link="recommendation"><span>02</span>推荐</a><a href="#sources" data-chapter-link="sources"><span>03</span>来源星图</a><a href="#license" data-chapter-link="license"><span>04</span>许可</a></nav>
       <div class="about-header-actions"><a class="about-language" data-about-language lang="en" hreflang="en" href="./about.html">English</a><a class="back-link" data-ui-button="secondary" href="./"><span>回到棋盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></div>
       <span class="reading-progress" aria-hidden="true"><i></i></span>
@@ -169,7 +170,7 @@
               <header><span>04 / REPRODUCIBLE BUILD</span><span>MIT · BSD · LLVM</span></header><h3>构建与依赖</h3><p class="source-summary">不只公开结果，也公开抵达结果的路径。</p><p>Emscripten 3.1.64 编译四个浏览器版本。manifest 记录源代码提交、补丁校验值及全部发布文件的 SHA-256。原生服务依赖与浏览器运行时的上游声明同样保留。</p><dl><div><dt>工具链</dt><dd>Emscripten 3.1.64 · LLVM-MinGW 20260616</dd></div><div><dt>服务依赖</dt><dd>ws 8.22.0 / MIT · qrcode 1.5.4 / MIT</dd></div></dl><div class="entry-links"><a href="./engine/rapfi-250615/NOTICE-Dependencies.txt">依赖许可声明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./THIRD_PARTY.md">完整构建说明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
             <article class="source-entry reveal" id="source-font" data-source-entry="font">
-              <header><span>05 / TYPOGRAPHY</span><span>SIL OFL 1.1</span></header><h3>Noto Serif SC</h3><p class="source-summary">页首的两个汉字，也有清晰来源。</p><p>“五目”使用 Noto Serif SC Medium 500，仅保留这两个汉字的本地 TrueType 子集，约 2 KB。页面不请求外部字体服务，正文继续使用系统中文字体。</p><dl><div><dt>来源</dt><dd>Noto CJK / Serif</dd></div><div><dt>许可</dt><dd>SIL Open Font License 1.1</dd></div></dl><div class="entry-links"><a href="https://github.com/notofonts/noto-cjk/tree/main/Serif">字体源码<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./assets/OFL-NotoSerif.txt">OFL 完整声明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+              <header><span>05 / TYPOGRAPHY</span><span>SIL OFL 1.1</span></header><h3>Noto Serif SC</h3><p class="source-summary">页首的两个汉字，也有清晰来源。</p><p>“五目”使用 Noto Serif SC Medium 500，页首只使用这两个汉字的字形轮廓，约 1.2 KB，取回并解密后绘制。正文继续使用系统字体。</p><dl><div><dt>来源</dt><dd>Noto CJK / Serif</dd></div><div><dt>许可</dt><dd>SIL Open Font License 1.1</dd></div></dl><div class="entry-links"><a href="https://github.com/notofonts/noto-cjk/tree/main/Serif">字体源码<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a><a href="./assets/OFL-NotoSerif.txt">OFL 完整声明<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
             </article>
           </div>
         </div>

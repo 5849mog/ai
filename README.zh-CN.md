@@ -183,6 +183,8 @@ node scripts/real-game-report.js reports/real-games-1v5.json reports/real-games-
 
 每手写入检查点，中断后用相同参数附加 `--resume`；报告生成器检查源码与引擎哈希、执色配对、时间预算与每手合法性。页面在打开、手动刷新和重新可见时读取同源 JSON，报告数据不会被 Service Worker 缓存。早期的 [固定局面与配对基线](reports/strength-baseline-v1.md)、[自适应配对赛](reports/adaptive-strength-match-v1.md) 和 [后台思考报告](reports/ponder-benchmark.md) 保留为历史资料。
 
+页首字标从 `content/wordmark.wm` 加载，经 Web Crypto 验证和解密后画到 Canvas。安装 Python 的 FontTools 后，可运行 `node scripts/build-wordmark.js` 重新生成字形文件。浏览器所需的密钥派生材料随源码公开。
+
 ## 开源许可
 
 本项目及 Rapfi：GPL-3.0-or-later。权重：CC0-1.0。完整来源、固定对应源码和修改说明见 [THIRD_PARTY.md](./THIRD_PARTY.md)，许可证随仓库和引擎发布文件提供。

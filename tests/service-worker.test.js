@@ -152,6 +152,15 @@ test('release notes refresh independently of the installed shell', async () => {
   assert.equal(f.CORE.includes(path), false);
 });
 
+test('the public wordmark can change without reinstalling the page shell', async () => {
+  const f = fixture(); await f.dispatch('install');
+  const path = 'content/wordmark.wm';
+  const shell = await f.caches.open(f.VERSION); await shell.put(base + path, new Response('stale wordmark'));
+  assert.equal(await (await f.request(path)).text(), 'fresh:' + base + path);
+  assert.equal(f.network.at(-1).options.cache, 'no-store');
+  assert.equal(f.CORE.includes(path), false);
+});
+
 test('storage quota failures do not discard a successfully downloaded online engine response', async () => {
   const f = fixture({ enginePutError: true });
   assert.equal(await (await f.request(f.ENGINE + 'engine.wasm')).text(), 'fresh:' + base + f.ENGINE + 'engine.wasm');

@@ -33,9 +33,9 @@ Emscripten 3.1.64 编译四个浏览器版本。engine/rapfi-250615/manifest.jso
 
 ## 品牌字体
 
-- 页首“五目”使用 Noto Serif SC Medium（500），仅包含这两个汉字的本地 TrueType 子集，约 2 KB；正文继续使用系统字体。
+- 页首“五目”的轮廓来自 Noto Serif SC Medium（500）。“assets/brand-serif.ttf” 是用于提取这两个字形的 TrueType 子集，页面从同源取回加密的轮廓资源并在 Canvas 绘制，正文继续使用系统字体。
 - 来源：https://fonts.google.com/noto/specimen/Noto+Serif+SC ，源码：https://github.com/notofonts/noto-cjk/tree/main/Serif 。
-- 许可证：SIL Open Font License 1.1，完整声明见 [OFL-NotoSerif.txt](./assets/OFL-NotoSerif.txt)。字体随站点缓存，页面不请求外部字体服务。
+- 许可证：SIL Open Font License 1.1，完整声明见 [OFL-NotoSerif.txt](./assets/OFL-NotoSerif.txt)。页面缓存最近一次成功解密的轮廓资源，页面不请求外部字体服务。
 
 Rapfi 链接的 cpptoml、cxxopts、LZ4、xxHash、LZ4 stream 和 SIMDe，以及 Emscripten 运行时的上游许可声明，完整保存在 [NOTICE-Dependencies.txt](./engine/rapfi-250615/NOTICE-Dependencies.txt)。这些组件保留各自的 MIT、BSD、CC0 或 LLVM 等许可声明。
 
