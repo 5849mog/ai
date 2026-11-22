@@ -1,3 +1,16 @@
+/* Treat the game as a control surface while keeping reading and editing selectable. */
+.opening-page,
+.opening-page :is(button, summary, label, select, [role="button"], [role="tab"]) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.opening-page :is(input, textarea, [contenteditable=""], [contenteditable="true"], [contenteditable="plaintext-only"],
+  .opening-guide > :is(h3, p, ol, ul), .release-note-entry, .release-notes-installed,
+  .board-facts dl, .archive-note, [data-app-version]) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 .opening-page [data-play-state] { --play-marker: #507058; --play-marker-halo: #50705823; }
 .opening-page [data-play-state="thinking"] { --play-marker: #446688; --play-marker-halo: #44668828; }
 .opening-page [data-play-state="preview"] { --play-marker: #2c675d; --play-marker-halo: #2c675d2b; }
