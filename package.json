@@ -45,12 +45,17 @@
     "report": "node scripts/validate-report.js",
     "remote:phone": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File remote/phone.ps1",
     "test:remote-http": "node --test tests/remote-http.test.js tests/remote-phone.test.js",
-    "test:remote-public": "node scripts/remote-public-qa.js"
+    "test:remote-public": "node scripts/remote-public-qa.js",
+    "build:protected": "node scripts/build-protected.js",
+    "check:protected": "node scripts/build-protected.js --check",
+    "test:protected": "node scripts/protected-qa.js"
   },
   "devDependencies": {
     "jsdom": "27.4.0",
     "playwright": "1.63.0",
-    "pngjs": "5.0.0"
+    "pngjs": "5.0.0",
+    "esbuild": "0.25.12",
+    "javascript-obfuscator": "5.11.0"
   },
   "dependencies": {
     "qrcode": "1.5.4",

@@ -63,6 +63,8 @@ Open [localhost:4187](http://127.0.0.1:4187/). The default server supplies cross
 
 Run `npm run sync:pages` after editing `index.html` and commit the generated `renju.html`. That compatibility route keeps its own default rule. For About changes, update the English and Simplified Chinese pages together, preserving their shared section links.
 
+The published pages load the checked-in `*.protected.js` bundles, built with esbuild and javascript-obfuscator. After changing browser JavaScript, run `npm run build:protected` and commit the generated bundles along with the source; `npm run check:protected` verifies they match. Bump `APP_VERSION`, the service worker's `RELEASE` and shell generation, and the release feed together when publishing so existing installations receive the new files. `npm run test:protected` exercises the published bundles with the real engine and offline cache (set `CHROME_PATH` if needed). The main bundle includes debugger interference; opening developer tools can pause the application. Obfuscation raises the effort needed to inspect the running site, but this public repository still exposes its source and browser-delivered code can always be analyzed.
+
 ```sh
 npm run check
 npm test

@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.22.9";
+const RELEASE = "2026.11.28.1";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261122-v98";
+const VERSION = SHELL_PREFIX + "261128-v99";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -15,30 +15,12 @@ const CORE = [
   "favicon.svg", "styles.css?v=26", "game-modes.css?v=8", "opening.css?v=8",
   "enhancements.css?v=60", "ui-refinement.css?v=14", "quick-settings.css?v=2",
   "button-theme.css", "surface-theme.css", "play-polish.css?v=1", "remote-engine.css",
-  "about.css?v=7", "about.js?v=4", "report.css?v=3", "report.js?v=2", "real-game-model.js",
-  "app-release.js", "app-update.js", "app-update.js?v=38", "release-notes.js", "wordmark.js", "wordmark-trust.js",
+  "about.css?v=7", "report.css?v=3", "app-release.js",
 
-  // Board rendering, responsive layout and input.
-  "analysis-view.js", "board-facts.js", "board-layout.js", "board-loupe.js",
-  "board-preferences.js", "board-transform.js", "board-view.js", "display-modes.js",
-  "game-motion.js", "match-inspector.js", "quick-settings.js", "sound.js",
-  "svg-view.js", "turn-hints.js", "ui-scheduler.js",
-
-  // Rules, opening and search.
-  "adaptive-opening.js", "adaptive-search.js", "endgame-estimate.js", "engine-assessment.js",
-  "engine.js?v=42", "engine.worker.js?v=42", "engine-jobs.js?v=42", "engine-protocol.js?v=22",
-  "forced-opening.js", "game-rules.js", "opening-advisor.js", "opening-app.js",
-  "opening-book.js", "opening-flow.js", "opening-guide.js", "opening-session.js",
-  "position-analysis.js", "recommendations.js?v=22", "remote-engine.js",
-  "remote-engine-ui.js?v=46", "remote-engine.js?v=46", "renju-rules.js",
-  "rif-opening-pool.js", "search-info.js", "thinking-options.js",
-
-  // Saved and shared positions, imports and exports.
-  "archive-ui.js", "board-image.js", "export-utils.js", "game-archive.js",
-  "game-enhancements.js", "game-record.js", "game-review.js", "image-board.js",
-  "image-grid.js", "image-import-ui.js", "opening-review.js", "partial-review.js",
-  "position-link-ui.js", "position-link.js", "record-ui.js", "review-branch.js",
-  "review-ui.js", "session-records.js", "setup-ui.js", "site-storage.js",
+  // Published JavaScript bundles. The worker URL is loaded by the app bundle.
+  "about.protected.js?v=4", "report.protected.js?v=2", "wordmark.protected.js",
+  "app-update.protected.js?v=38", "remote-engine-ui.protected.js?v=46",
+  "opening-app.protected.js", "engine.worker.protected.js?v=42",
 
   // Visual assets and offline license notices.
   "assets/board-wood.svg", "assets/paper-fiber.svg",
