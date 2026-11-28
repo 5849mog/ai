@@ -18,3 +18,6 @@ jobs:
       - run: npm ci
       - run: npm run check:protected
       - run: node --test tests/service-worker.test.js tests/release-notes.test.js tests/app-update.test.js
+      - name: Build the GitHub Pages output
+        uses: actions/jekyll-build-pages@v1
+      - run: node scripts/verify-published.js _site

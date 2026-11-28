@@ -9,7 +9,8 @@ const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; cha
   ".css": "text/css; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml",
   ".wasm": "application/wasm", ".data": "application/octet-stream", ".ttf": "font/ttf", ".md": "text/plain; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
 
-export function createDevServer({ port = 4187, isolated = true } = {}) {
+export function createDevServer({ port = 4187, isolated = true, root = ROOT } = {}) {
+  const siteRoot = path.resolve(root);
   const server = http.createServer(async (req, res) => {
     try {
       const raw = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
@@ -19,8 +20,8 @@ export function createDevServer({ port = 4187, isolated = true } = {}) {
       if (relative.split(/[\\/]/).some(part => part.startsWith(".")) || !["GET", "HEAD"].includes(req.method)) {
         res.writeHead(403); res.end(); return;
       }
-      const file = path.resolve(ROOT, relative || "index.html", raw.endsWith("/") && relative ? "index.html" : "");
-      if (!file.startsWith(path.resolve(ROOT) + path.sep)) { res.writeHead(403); res.end(); return; }
+      const file = path.resolve(siteRoot, relative || "index.html", raw.endsWith("/") && relative ? "index.html" : "");
+      if (!file.startsWith(siteRoot + path.sep)) { res.writeHead(403); res.end(); return; }
       const info = await stat(file);
       if (!info.isFile()) { res.writeHead(404); res.end(); return; }
       if (isolated && !plain) {

@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 import { createDevServer } from "./dev-server.js";
 
 // Exercise the actual published bundles with a real WASM engine and SW.
-const server = await createDevServer({ port: 0, isolated: false });
+const server = await createDevServer({ port: 0, isolated: false, root: process.env.GOMOKU_SITE_ROOT });
 const origin = "http://127.0.0.1:" + server.address().port + "/plain/";
 const browser = await chromium.launch({
   headless: true,
@@ -74,6 +74,38 @@ try {
   assert.deepEqual(tabletErrors, []);
   await tablet.close();
   console.log("PASS iPad portrait startup");
+
+  // Attach a debugger to the actual AI worker and resume each deliberate
+  // breakpoint. Without this check a rebuilt worker could lose its protection.
+  const debugContext = await browser.newContext();
+  const debugPage = await debugContext.newPage();
+  const cdp = await browser.newBrowserCDPSession();
+  await debugPage.goto(origin);
+  await debugPage.waitForFunction(() => document.querySelector("#boardSvg")?.dataset.stage === "play", null, { timeout: 60000 });
+  let target;
+  for (let i = 0; i < 40 && !target; i++) {
+    const { targetInfos } = await cdp.send("Target.getTargets");
+    target = targetInfos.find(item => item.type === "worker" && item.url.includes("engine.worker.protected.js"));
+    if (!target) await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  assert.ok(target, "protected engine worker did not start");
+  const { sessionId } = await cdp.send("Target.attachToTarget", { targetId: target.targetId, flatten: false });
+  let pauses = 0, commandId = 1;
+  const workerCommand = method => cdp.send("Target.sendMessageToTarget", {
+    sessionId, message: JSON.stringify({ id: commandId++, method })
+  });
+  cdp.on("Target.receivedMessageFromTarget", event => {
+    if (event.sessionId !== sessionId) return;
+    const message = JSON.parse(event.message);
+    if (message.method === "Debugger.paused") { pauses++; void workerCommand("Debugger.resume").catch(() => {}); }
+  });
+  await workerCommand("Debugger.enable");
+  await new Promise(resolve => setTimeout(resolve, 7000));
+  await workerCommand("Debugger.disable");
+  await cdp.send("Target.detachFromTarget", { sessionId });
+  await debugContext.close();
+  assert.ok(pauses > 0, "engine worker did not trigger its debugger protection");
+  console.log("PASS engine worker debugger protection");
 } catch (error) {
   if (errors.length) console.error("Page errors:", errors);
   throw error;

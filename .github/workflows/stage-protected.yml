@@ -1,0 +1,41 @@
+name: Stage protected Pages output
+on:
+  push:
+    branches: [codex/gomoku-protection-v2-20261128]
+permissions:
+  contents: write
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build:protected
+      - run: npm run check
+      - run: npm run check:protected
+      - run: node --test tests/service-worker.test.js tests/release-notes.test.js tests/app-update.test.js
+      - name: Build GitHub Pages output
+        uses: actions/jekyll-build-pages@v1
+      - run: node scripts/verify-published.js _site
+      - name: Test the published output
+        shell: bash
+        run: |
+          CHROME_PATH="$(command -v google-chrome || command -v chromium || true)"
+          if [ -z "$CHROME_PATH" ]; then
+            npx playwright install --with-deps chromium
+          else
+            export CHROME_PATH
+          fi
+          GOMOKU_SITE_ROOT="$PWD/_site" npm run test:protected
+      - name: Commit generated output
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _config.yml *.protected.js
+          git diff --cached --quiet || git commit -m "Build protected site and engine bundles"
+          git push origin HEAD:codex/gomoku-protection-v2-20261128

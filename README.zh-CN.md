@@ -92,7 +92,9 @@ npm run dev
 
 修改首页后运行 `npm run sync:pages` 并提交生成的 `renju.html`。`npm run check` 会检查两页是否同步。GitHub Pages 直接使用仓库中的静态文件。
 
-网页加载仓库中生成的 `*.protected.js`。修改浏览器端 JavaScript 后，运行 `npm run build:protected`，把源码和生成文件一起提交；`npm run check:protected` 可检查生成文件是否与源码一致。发布时同步更新 `APP_VERSION`、Service Worker 的 `RELEASE` 和缓存代号，以及更新日志，确保已安装用户能收到新版。`npm run test:protected` 使用真实引擎和离线缓存验证发布文件（必要时设置 `CHROME_PATH`）。主程序包含反调试，打开开发者工具可能暂停页面。混淆会增加分析运行代码的难度，但本仓库的源码仍然公开，浏览器收到的代码也无法彻底隐藏。
+网页加载仓库中生成的 `*.protected.js`。修改浏览器端 JavaScript 后，运行 `npm run build:protected`，把源码和生成文件一起提交；`npm run check:protected` 可检查生成文件是否与源码一致。发布时同步更新 `APP_VERSION`、Service Worker 的 `RELEASE` 和缓存代号，以及更新日志，确保已安装用户能收到新版。`npm run test:protected` 使用真实引擎和离线缓存验证发布文件（必要时设置 `CHROME_PATH`）。主程序和引擎工作线程包含反调试，打开开发者工具可能暂停页面。混淆会增加分析运行代码的难度，但本仓库的源码仍然公开，浏览器收到的代码也无法彻底隐藏。
+
+构建时还会生成 `_config.yml`，阻止 GitHub Pages 发布根目录下未混淆的 JavaScript 以及开发、测试目录。可以用 `node scripts/verify-published.js _site` 验证发布目录和所需引擎文件。这个配置只影响网站发布，GitHub 公开仓库仍可查看源码。
 
 ### 运行验证
 
