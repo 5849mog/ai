@@ -19,18 +19,12 @@
   <div><span data-app-version role="status">读取更新组件…</span><button type="button" data-ui-button="primary" data-app-update disabled>检查中…</button></div>
   <p>已保存的棋局会保留。尚未确认的截图需重新选择。</p>
   <nav><a data-ui-button="secondary" href="./?view=simple">无禁手棋局</a><a data-ui-button="secondary" href="./renju.html?view=simple">连珠棋局</a></nav>
-  <script type="module">
-    // A new, versioned module URL also bypasses the pre-v32 cache-first worker.
-    try {
-      const { setupAppUpdates } = await import("./app-update.protected.js?v=38");
-      const query = new URLSearchParams(location.search);
-      const target = new URL(query.get("from") === "renju" ? "./renju.html" : "./", location.href);
-      if (query.get("view") === "simple") target.searchParams.set("view", "simple");
-      const update = setupAppUpdates({ returnWhenCurrent: true, reload: () => location.replace(target.href) });
-      if (update) void update.check();
-    } catch {
-      document.querySelector("[data-app-version]").textContent = "读取失败，请联网后刷新此页重试。";
-    }
+  <script>
+    addEventListener("error", event => {
+      if (event.target?.dataset?.integrityGuard !== "update") return;
+      document.querySelector("[data-app-version]").textContent = "更新组件校验失败，请联网刷新此页。";
+    }, true);
   </script>
+  <script type="module" src="./update-page.protected.js" data-integrity-guard="update" integrity="sha384-BYyeBTayNIqBnkOCpu+phADpfD24Odiba8lCYgu5/lPhA+5rLILDZ08fmOhbRm+0" crossorigin="anonymous"></script>
 </main></body>
 </html>

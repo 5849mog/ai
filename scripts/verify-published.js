@@ -23,14 +23,32 @@ for (const relative of [...sourceScripts, "scripts", "tests", "package.json", "p
 
 const worker = await readFile(fileAt("sw.js"), "utf8");
 const sandbox = { URL, self: { location: { href: "https://example.com/gomoku-studio/sw.js" }, addEventListener() {} } };
-vm.runInNewContext(worker + "\nglobalThis.__core = CORE;", sandbox);
+vm.runInNewContext(worker + "\nglobalThis.__core = CORE; globalThis.__integrity = ASSET_INTEGRITY;", sandbox);
 for (const entry of sandbox.__core) {
   const address = new URL(entry, "https://example.com/gomoku-studio/");
   const relative = address.pathname.slice("/gomoku-studio/".length) || "index.html";
   assert.ok(await exists(relative), "Missing offline resource: " + entry);
 }
+for (const [entry, expected] of Object.entries(sandbox.__integrity)) {
+  assert.ok(sandbox.__core.includes(entry), "Verified resource is not cached: " + entry);
+  const data = await readFile(fileAt(entry.split("?")[0]));
+  assert.equal("sha384-" + createHash("sha384").update(data).digest("base64"), expected,
+    "Wrong service worker integrity: " + entry);
+}
 for (const relative of ["content/feed.json", "content/wordmark.wm", "reports/real-games-latest.json"]) {
   assert.ok(await exists(relative), "Missing live content: " + relative);
+}
+const htmlPages = new Map([["index.html", 3], ["renju.html", 3], ["about.html", 2],
+  ["about.zh-CN.html", 2], ["report.html", 2], ["update.html", 1]]);
+for (const [page, expected] of htmlPages) {
+  const html = await readFile(fileAt(page), "utf8");
+  const scripts = [...html.matchAll(/<script\b[^>]*\bsrc="\.\/([^"?]+\.protected\.js)(?:\?[^\"]*)?"[^>]*>/g)];
+  assert.equal(scripts.length, expected, "Unexpected protected scripts in " + page);
+  for (const [tag, name] of scripts) {
+    const bytes = await readFile(fileAt(name));
+    const digest = createHash("sha384").update(bytes).digest("base64");
+    assert.ok(tag.includes('integrity="sha384-' + digest + '"'), "Missing or wrong integrity: " + page + " / " + name);
+  }
 }
 for (const dir of ["engine/rapfi-250615", "engine/renju-250615"]) {
   const manifest = JSON.parse(await readFile(fileAt(dir + "/manifest.json"), "utf8"));
@@ -41,4 +59,4 @@ for (const dir of ["engine/rapfi-250615", "engine/renju-250615"]) {
       "Incorrect published checksum: " + dir + "/" + name);
   }
 }
-console.log("Published site excludes source scripts and contains the complete verified shell and engines.");
+console.log("Published site excludes source scripts and contains verified entry scripts, shell and engines.");

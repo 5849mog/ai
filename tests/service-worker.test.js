@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile, access } from 'node:fs/promises';
+import { webcrypto } from 'node:crypto';
 import { APP_VERSION } from '../app-release.js';
 
 const source = await readFile(new URL('../sw.js', import.meta.url), 'utf8');
 const base = 'https://example.com/ai/', key = x => typeof x === 'string' ? x : x.url;
-function fixture({ engineError = false, enginePutError = false, scope = base } = {}) {
+function fixture({ engineError = false, enginePutError = false, tamperedScript = false, scope = base } = {}) {
   const handlers = {}, stores = new Map(), messages = [], network = [];
   let claimed = false, skipped = false;
   const caches = { keys: async () => [...stores.keys()], delete: async name => stores.delete(name), open: async name => {
@@ -21,10 +22,16 @@ function fixture({ engineError = false, enginePutError = false, scope = base } =
     if (engineError && /\/engine\//.test(url)) throw new Error('model download failed');
     if (url.endsWith('app-release.js')) return new Response(`export const APP_VERSION = "${APP_VERSION}";`);
     if (url.endsWith('manifest.json')) return Response.json({ files: { 'model.bin': {}, 'engine.wasm': {} } });
+    const pathname = new URL(url).pathname.slice(new URL(scope).pathname.length);
+    if (pathname.endsWith('.protected.js')) {
+      const bytes = await readFile(new URL('../' + pathname, import.meta.url));
+      return new Response(tamperedScript && pathname === 'engine.worker.protected.js'
+        ? Buffer.concat([bytes, Buffer.from('\n/* altered */')]) : bytes);
+    }
     return new Response('fresh:' + url);
   }
   const client = { postMessage: data => messages.push(data) };
-  const context = vm.createContext({ URL, Request, Response, caches, fetch: fetcher, self: { location: { href: scope + 'sw.js' }, addEventListener: (type, fn) => { handlers[type] = fn; },
+  const context = vm.createContext({ URL, Request, Response, crypto: webcrypto, btoa, caches, fetch: fetcher, self: { location: { href: scope + 'sw.js' }, addEventListener: (type, fn) => { handlers[type] = fn; },
     skipWaiting: async () => { skipped = true; }, clients: { claim: async () => { claimed = true; }, matchAll: async () => [client] } } });
   vm.runInContext(source, context);
   const constants = vm.runInContext('({ PREFIX, SHELL_PREFIX, SHELL_MARKER, VERSION, ENGINE_CACHE, RELEASE, CORE, ENGINE, RENJU })', context);
@@ -36,6 +43,17 @@ function fixture({ engineError = false, enginePutError = false, scope = base } =
   }
   return { ...constants, caches, stores, messages, network, client, dispatch, request, claimed: () => claimed, skipped: () => skipped };
 }
+
+test('an altered engine worker prevents installation and preserves the previous shell', async () => {
+  const f = fixture({ tamperedScript: true }), previousName = f.SHELL_PREFIX + '261128-v101';
+  const previous = await f.caches.open(previousName);
+  await previous.put(base + 'index.html', new Response('previous shell'));
+  await assert.rejects(f.dispatch('install'), /integrity mismatch/i);
+  assert.equal(f.skipped(), false);
+  assert.equal(f.stores.has(previousName), true);
+  assert.equal(await (await previous.match(base + 'index.html')).text(), 'previous shell');
+  assert.equal(await (await f.caches.open(f.VERSION)).match(f.SHELL_MARKER), undefined);
+});
 
 test('the app shell includes each static URL used by the current pages, modules and styles', async () => {
   const f = fixture(), cached = new Set(f.CORE);

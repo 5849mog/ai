@@ -28,6 +28,16 @@ try {
   await page.waitForFunction(() => document.querySelectorAll('[data-stone][data-color="2"]').length === 1, null, { timeout: 45000 });
   await ready();
   console.log("PASS first AI response");
+  await page.locator("#recommendButton").click();
+  await page.waitForFunction(() => document.querySelectorAll("[data-recommendation]").length > 0, null, { timeout: 30000 });
+  await ready();
+  assert.equal(await page.locator("#boardSvg [data-stone]").count(), 2);
+  await page.locator("#undoButton").click(); await ready();
+  assert.equal(await page.locator("#boardSvg [data-stone]").count(), 0);
+  await page.locator('[data-index="112"]').click();
+  await page.waitForFunction(() => document.querySelectorAll('[data-stone][data-color="2"]').length === 1, null, { timeout: 45000 });
+  await ready();
+  console.log("PASS recommendations and undo");
   assert.ok(workers.some(url => url.includes("engine.worker.protected.js")), "game must use the protected worker");
   assert.ok(requests.some(url => url.includes("opening-app.protected.js")));
   assert.equal(requests.some(url => /\/opening-app\.js(?:\?|$)/.test(url)), false);
@@ -75,6 +85,30 @@ try {
   await tablet.close();
   console.log("PASS iPad portrait startup");
 
+  for (const rule of ["renju", "rif", "taraguchi10"]) {
+    const modes = await browser.newContext({ viewport: { width: 1024, height: 900 }, serviceWorkers: "block" });
+    const game = await modes.newPage(), modeErrors = [];
+    game.on("pageerror", error => modeErrors.push(error.message));
+    await game.goto(origin + "?view=simple");
+    await game.waitForFunction(() => document.querySelector("#boardSvg")?.dataset.stage === "play", null, { timeout: 60000 });
+    await game.locator("#simpleColor").click();
+    await game.locator("#ruleMode").selectOption(rule);
+    await game.locator("#workflowMode").selectOption("follow");
+    await game.locator("#startMode").click();
+    await game.waitForFunction(rule => document.querySelector("#boardSvg")?.dataset.rule === rule
+      && document.querySelector("#boardSvg")?.dataset.stage === "setup", rule, { timeout: 30000 });
+    await game.locator('#simpleOpeningFlow [data-flow-action="start"][data-value="0"]').click();
+    if (rule === "taraguchi10") {
+      await game.locator('#simpleOpeningFlow [data-flow-action="decision"][data-value="keep"]').click();
+    }
+    const index = rule === "renju" ? 112 : 97, count = rule === "renju" ? 1 : 2;
+    await game.locator('#boardSvg [data-index="' + index + '"]').click();
+    await game.waitForFunction(count => document.querySelectorAll("#boardSvg [data-stone]").length === count, count, { timeout: 30000 });
+    assert.deepEqual(modeErrors, []);
+    await modes.close();
+    console.log("PASS " + rule + " opening interaction");
+  }
+
   // Attach a debugger to the actual AI worker and resume each deliberate
   // breakpoint. Without this check a rebuilt worker could lose its protection.
   const debugContext = await browser.newContext();
@@ -108,6 +142,29 @@ try {
   // This only checks that the configured breakpoint runs. A user controlling
   // the browser can skip or remove it; it is not an authorization boundary.
   console.log("PASS engine worker debugger hook (not a security boundary)");
+
+  // Change only response bytes, leaving the HTML and SRI hash untouched. The
+  // browser should refuse the entry and preserve existing client data.
+  const tamperContext = await browser.newContext({ serviceWorkers: "block" });
+  await tamperContext.addInitScript(() => localStorage.setItem("gomoku-integrity-test", "keep"));
+  const tamperPage = await tamperContext.newPage();
+  const modify = async route => {
+    const response = await route.fetch(), bytes = await response.body();
+    const headers = { ...response.headers() };
+    delete headers["content-length"]; delete headers["content-encoding"];
+    await route.fulfill({ response, headers, body: Buffer.concat([bytes, Buffer.from("\n/* altered */\n")]) });
+  };
+  await tamperPage.route("**/opening-app.protected.js", modify);
+  await tamperPage.goto(origin);
+  await tamperPage.waitForFunction(() => document.querySelector("#stateText")?.textContent === "页面资源校验失败，请联网刷新", null, { timeout: 20000 });
+  assert.equal(await tamperPage.locator("#boardSvg").getAttribute("data-stage"), null);
+  assert.equal(await tamperPage.evaluate(() => localStorage.getItem("gomoku-integrity-test")), "keep");
+  await tamperPage.route("**/update-page.protected.js", modify);
+  await tamperPage.goto(new URL("update.html", origin).href);
+  await tamperPage.waitForFunction(() => document.querySelector("[data-app-version]")?.textContent === "更新组件校验失败，请联网刷新此页。", null, { timeout: 20000 });
+  assert.equal(await tamperPage.evaluate(() => localStorage.getItem("gomoku-integrity-test")), "keep");
+  await tamperContext.close();
+  console.log("PASS altered entry scripts rejected without deleting saved data");
 } catch (error) {
   if (errors.length) console.error("Page errors:", errors);
   throw error;

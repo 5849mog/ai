@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="./button-theme.css" />
     <link rel="stylesheet" href="./surface-theme.css" />
     <link rel="stylesheet" href="./play-polish.css?v=1" />
-    <script type="module" src="./wordmark.protected.js"></script>
+    <script type="module" src="./wordmark.protected.js" integrity="sha384-SH7b14M1xB5D32Zyd/8Za8HIrOSQcmDPQvmIx7CA2arMaPOOrPt5pmyc02my/y88" crossorigin="anonymous"></script>
   </head>
   <body class="opening-page">
     <div class="app-shell">
@@ -145,7 +145,14 @@
       </div>
     </dialog>
     <link rel="stylesheet" href="./remote-engine.css" />
-    <script type="module" src="./remote-engine-ui.protected.js?v=46"></script>
-    <script type="module" src="./opening-app.protected.js"></script>
+    <script>
+      addEventListener("error", event => {
+        if (event.target?.dataset?.integrityGuard !== "app") return;
+        document.querySelector("#stateText").textContent = "页面资源校验失败，请联网刷新";
+        document.querySelector("#stateIndicator").classList.remove("thinking");
+      }, true);
+    </script>
+    <script type="module" src="./remote-engine-ui.protected.js?v=46" integrity="sha384-MNBQgnojWNBt4imMVvhuEimNb3dsw2630KH3jt7HF1LyuZMGuNcciEHGLH7pDc6g" crossorigin="anonymous"></script>
+    <script type="module" src="./opening-app.protected.js" data-integrity-guard="app" integrity="sha384-mzY7wqe5G2whXfklvEJ+Z/7kTQeLPoeqwQEjv929dj/9kI1nAlfXLOuLdve7Q81T" crossorigin="anonymous"></script>
   </body>
 </html>

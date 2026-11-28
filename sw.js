@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.28.3";
+const RELEASE = "2026.11.28.4";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261128-v101";
+const VERSION = SHELL_PREFIX + "261128-v102";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -19,8 +19,8 @@ const CORE = [
 
   // Published JavaScript bundles. The worker URL is loaded by the app bundle.
   "about.protected.js?v=4", "report.protected.js?v=2", "wordmark.protected.js",
-  "app-update.protected.js?v=38", "remote-engine-ui.protected.js?v=46",
-  "opening-app.protected.js", "engine.worker.protected.js?v=44",
+  "app-update.protected.js?v=38", "update-page.protected.js", "remote-engine-ui.protected.js?v=46",
+  "opening-app.protected.js", "engine.worker.protected.js?v=45",
 
   // Visual assets and offline license notices.
   "assets/board-wood.svg", "assets/paper-fiber.svg",
@@ -31,12 +31,32 @@ const CORE = [
   "assets/icons/restart.svg", "assets/icons/settings.svg", "assets/icons/undo.svg",
   "assets/OFL-NotoSerif.txt", "LICENSE", "THIRD_PARTY.md"
 ];
+// BEGIN GENERATED ASSET INTEGRITY
+const ASSET_INTEGRITY = {
+  "about.protected.js?v=4": "sha384-YpbiWjkxbD++6pmyMxVWr4rcaFb5adn+afCpCGQsZCjUcDqhFf82GVsPWubB+euW",
+  "report.protected.js?v=2": "sha384-S5pjJQcy9ZpF4joCIk7Xy6zmvfB8HFpK3NEAMacksKm97AcxqIfBBnqIgfLvff5j",
+  "wordmark.protected.js": "sha384-SH7b14M1xB5D32Zyd/8Za8HIrOSQcmDPQvmIx7CA2arMaPOOrPt5pmyc02my/y88",
+  "app-update.protected.js?v=38": "sha384-eYr7c9IK32ZR8N/VmDVhpxy3U93OKdBfjz1+lFFBx8hkd1AWLouS91xJ/EH8dGsZ",
+  "update-page.protected.js": "sha384-BYyeBTayNIqBnkOCpu+phADpfD24Odiba8lCYgu5/lPhA+5rLILDZ08fmOhbRm+0",
+  "remote-engine-ui.protected.js?v=46": "sha384-MNBQgnojWNBt4imMVvhuEimNb3dsw2630KH3jt7HF1LyuZMGuNcciEHGLH7pDc6g",
+  "opening-app.protected.js": "sha384-mzY7wqe5G2whXfklvEJ+Z/7kTQeLPoeqwQEjv929dj/9kI1nAlfXLOuLdve7Q81T",
+  "engine.worker.protected.js?v=45": "sha384-ao6uXsizAg95SVFZ+FRtMoFfk4tk9iDNiWJ9v3N6UsEfLmjcyYi0ExzTNbeZmGd3"
+};
+// END GENERATED ASSET INTEGRITY
 const ENGINE = "engine/rapfi-250615/";
 const RENJU = "engine/renju-250615/";
 const OLD_ENGINE_CACHE = "gomoku-rapfi:/ai/:engine-250615";
 
 async function populateShell(cache) {
   await cache.addAll(CORE.map(path => new Request(url(path), { cache: "reload" })));
+  // Never mark or activate a new shell until its entry scripts and worker have
+  // been checked. A failed install leaves the previous worker and saves intact.
+  await Promise.all(Object.entries(ASSET_INTEGRITY).map(async ([path, expected]) => {
+    const response = await cache.match(url(path));
+    if (!response?.ok) throw new Error("Shell integrity resource missing");
+    const digest = new Uint8Array(await crypto.subtle.digest("SHA-384", await response.arrayBuffer()));
+    if ("sha384-" + btoa(String.fromCharCode(...digest)) !== expected) throw new Error("Shell integrity mismatch");
+  }));
   await cache.put(SHELL_MARKER, new Response(RELEASE));
 }
 async function shellIsReady(cache) {
