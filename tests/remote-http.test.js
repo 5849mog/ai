@@ -43,6 +43,14 @@ test("HTTP relay requires origin and key, bounds sessions, and does not expose a
   try {
     assert.equal((await fetch(base + "/gomoku", { ...auth, headers: { ...headers, Origin: "https://bad.example" } })).status, 403);
     assert.equal((await fetch(base + "/gomoku", { ...auth, headers: { ...headers, Authorization: "Bearer bad" } })).status, 401);
+    // A correct, easily forged Origin and a well-formed but wrong key must not
+    // create a relay session or consume the available authenticated slots.
+    for (let i = 0; i < 5; i++) {
+      const response = await fetch(base + "/gomoku", { ...auth, headers: { ...headers,
+        Authorization: "Bearer " + "f".repeat(64), "X-Gomoku-Session": `untrusted${i}` } });
+      assert.equal(response.status, 401);
+    }
+    assert.equal(starts, 0);
     const preflight = await fetch(base + "/gomoku", { method: "OPTIONS", headers: { Origin: origin } });
     assert.equal(preflight.status, 204);
     assert.equal(preflight.headers.get("Access-Control-Max-Age"), "600");

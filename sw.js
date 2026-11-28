@@ -1,8 +1,8 @@
 const BASE = new URL("./", self.location.href);
 const PREFIX = `gomoku-rapfi:${BASE.pathname}:`;
-const RELEASE = "2026.11.28.2";
+const RELEASE = "2026.11.28.3";
 const SHELL_PREFIX = `gomoku-shell:${BASE.pathname}:`;
-const VERSION = SHELL_PREFIX + "261128-v100";
+const VERSION = SHELL_PREFIX + "261128-v101";
 const ENGINE_CACHE = PREFIX + "engine-250615";
 const OFFLINE_MARKER = new URL("__engine_offline_ready__", BASE).href;
 const url = path => new URL(path, BASE).href;
@@ -20,7 +20,7 @@ const CORE = [
   // Published JavaScript bundles. The worker URL is loaded by the app bundle.
   "about.protected.js?v=4", "report.protected.js?v=2", "wordmark.protected.js",
   "app-update.protected.js?v=38", "remote-engine-ui.protected.js?v=46",
-  "opening-app.protected.js", "engine.worker.protected.js?v=43",
+  "opening-app.protected.js", "engine.worker.protected.js?v=44",
 
   // Visual assets and offline license notices.
   "assets/board-wood.svg", "assets/paper-fiber.svg",

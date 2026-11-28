@@ -3,6 +3,7 @@ import JavaScriptObfuscator from "javascript-obfuscator";
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { protectionSeed } from "./protection-seed.js";
 
 // Keep bundles next to the source: URL resolution and storage scope stay stable.
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -23,13 +24,13 @@ const protectedWorker = {
       const source = await readFile(filename, "utf8");
       const original = "./engine.worker.js?v=42";
       if (source.split(original).length !== 2) throw new Error("Engine worker URL changed; update the protected build.");
-      return { contents: source.replace(original, "./engine.worker.protected.js?v=43"),
+      return { contents: source.replace(original, "./engine.worker.protected.js?v=44"),
         loader: "js", resolveDir: path.dirname(filename) };
     });
   }
 };
 let stale = false;
-for (const [index, entry] of entries.entries()) {
+for (const entry of entries) {
   const result = await build({
     absWorkingDir: root, entryPoints: [entry.input], bundle: true, write: false,
     format: entry.format, platform: "browser", target: ["es2020"], charset: "utf8",
@@ -41,7 +42,8 @@ for (const [index, entry] of entries.entries()) {
     debugProtection: Boolean(entry.antiDebug),
     debugProtectionInterval: entry.antiDebug ? 3000 : 0,
     identifierNamesGenerator: "hexadecimal", numbersToExpressions: true,
-    renameGlobals: false, selfDefending: true, seed: 20261128 + index,
+    renameGlobals: false, selfDefending: true,
+    seed: protectionSeed(entry.output, result.outputFiles[0].text),
     sourceMap: false, splitStrings: true, splitStringsChunkLength: 10,
     stringArray: true, stringArrayEncoding: ["base64", "rc4"],
     stringArrayThreshold: 0.8, target: "browser"

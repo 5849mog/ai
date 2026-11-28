@@ -105,7 +105,9 @@ try {
   await cdp.send("Target.detachFromTarget", { sessionId });
   await debugContext.close();
   assert.ok(pauses > 0, "engine worker did not trigger its debugger protection");
-  console.log("PASS engine worker debugger protection");
+  // This only checks that the configured breakpoint runs. A user controlling
+  // the browser can skip or remove it; it is not an authorization boundary.
+  console.log("PASS engine worker debugger hook (not a security boundary)");
 } catch (error) {
   if (errors.length) console.error("Page errors:", errors);
   throw error;

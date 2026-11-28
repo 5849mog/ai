@@ -67,6 +67,8 @@ The published pages load the checked-in `*.protected.js` bundles, built with esb
 
 The protected build also generates `_config.yml`, which excludes unbundled root JavaScript and development/test folders from the Jekyll site. `scripts/verify-published.js _site` checks that exclusion together with the shell and engine assets. This limits what the website serves; the public GitHub repository still provides the source.
 
+The obfuscation seed is derived from each bundled output so builds remain reproducible and changes to runtime code generally change identifiers. It is public, not a cryptographic secret, and does not prevent automated analysis. A debugger owner can skip or remove the breakpoint hooks, so a breakpoint-count test checks functionality only. Never put credentials, private signing keys, or privileged authorization decisions in browser-delivered code. The wordmark's public derivation material hides its contours from casual inspection; its signature can check the fetched file's integrity only while the verifier and public key remain trustworthy.
+
 ```sh
 npm run check
 npm test
